@@ -5,6 +5,11 @@
   <title>Estimador de Nacimiento por DNI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
   <style>
     .listado-container {
         max-height: 400px;
@@ -18,6 +23,14 @@
     .delete-icon:hover {
         transform: scale(1.1);
     }
+    /* Aviso de carga */
+    #auth-status {
+        text-align: center;
+        padding: 10px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: #666;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col pb-16">
@@ -28,9 +41,12 @@
         src="logogad.png"
         alt="Logo GAD"
         class="w-full h-full object-cover block"
+        onerror="this.style.display='none'"
       >
     </div>
   </header>
+
+  <div id="auth-status">Verificando credenciales...</div>
 
   <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
     Estimador de Nacimiento por DNI o Nº de Licencia
@@ -97,6 +113,7 @@
                     </tr>
                 </thead>
                 <tbody id="dniList">
+                    <tr><td colspan="3" class="text-center py-4">Cargando datos seguros...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -104,9 +121,9 @@
   </div>
 
   <div class="mt-8 flex justify-center">
-    <button onclick="window.location.href='index.html'"
+    <button onclick="window.history.back()"
             class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
-        MENÚ PRINCIPAL
+        VOLVER ATRÁS
     </button>
   </div>
 
@@ -117,38 +134,71 @@
     <p>&copy; GAD - Todos los derechos reservados</p>
   </footer>
 
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-
   <script>
+    // CONFIGURACIÓN V4
     const firebaseConfig = {
-      apiKey: "AIzaSyA6EDUJ2dG50DphB-dF6GLi3P2IlW8lDl4", // Clave API correcta
-      authDomain: "gad-alicante-v3.firebaseapp.com", // Dominio correcto
-      databaseURL: "https://gad-alicante-v3-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "gad-alicante-v3", // Nuevo ID
-      storageBucket: "gad-alicante-v3.firebasestorage.app",
-      messagingSenderId: "906986258369",
-      appId: "1:906986258369:web:21a7ea29a33b5f395e3940"
+      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+      authDomain: "gad-alicante-v4.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v4",
+      storageBucket: "gad-alicante-v4.firebasestorage.app",
+      messagingSenderId: "119727545224",
+      appId: "1:119727545224:web:36880c50d196c456cdb83d"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    // Inicialización
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
+    const auth = firebase.auth();
     const database = firebase.database();
     const dniRef = database.ref('dni_argentina');
+    const authStatus = document.getElementById('auth-status');
 
     let datosCompletos = [];
+    let usuarioAutenticado = null;
 
-    dniRef.on('value', (snapshot) => {
-        datosCompletos = [];
-        snapshot.forEach((childSnapshot) => {
-            const data = childSnapshot.val();
-            datosCompletos.push({
-                key: childSnapshot.key,
-                dni: parseInt(data.dni),
-                fecha: new Date(data.fecha)
-            });
-        });
-        renderizarTablaDni();
+    // --- PORTERO DE SEGURIDAD (V4) ---
+    // Esperamos a que Firebase confirme quién eres
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            usuarioAutenticado = user;
+            authStatus.innerHTML = '<span style="color:green">● Conectado como: ' + user.email + '</span>';
+            console.log("Usuario autenticado en Argentina DNI:", user.email);
+            
+            // AHORA SÍ: Activamos la descarga de datos
+            activarEscuchaDatos();
+        } else {
+            usuarioAutenticado = null;
+            authStatus.innerHTML = '<span style="color:red">● No conectado. Inicia sesión en el menú.</span>';
+            console.warn("Sin sesión activa.");
+            document.getElementById('dniList').innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-500">Acceso denegado. No hay sesión.</td></tr>';
+        }
     });
+
+    function activarEscuchaDatos() {
+        dniRef.on('value', (snapshot) => {
+            datosCompletos = [];
+            if(snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    datosCompletos.push({
+                        key: childSnapshot.key,
+                        dni: parseInt(data.dni),
+                        fecha: new Date(data.fecha)
+                    });
+                });
+                renderizarTablaDni();
+            } else {
+                // Si no hay datos en V4 (base de datos nueva)
+                document.getElementById('dniList').innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">Base de datos vacía (V4). Añade el primer registro.</td></tr>';
+            }
+        }, (error) => {
+            console.error("Error de permisos:", error);
+            document.getElementById('dniList').innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-500">Error de permisos. No autorizado.</td></tr>';
+        });
+    }
 
     const mostrarFormularioBtn = document.getElementById('mostrarFormularioBtn');
     const formularioNuevosDatos = document.getElementById('formularioNuevosDatos');
@@ -181,6 +231,11 @@
     }
 
     function guardarNuevoDNI() {
+      if (!usuarioAutenticado) {
+          alert("Debes estar autenticado para guardar datos.");
+          return;
+      }
+
       const nuevoDNI = parseInt(nuevoDNIInput.value);
       const nuevaFechaStr = nuevaFechaInput.value;
 
@@ -209,18 +264,19 @@
 
       const nuevoDato = {
         dni: nuevoDNI,
-        fecha: nuevaFechaStr
+        fecha: nuevaFechaStr,
+        usuario: usuarioAutenticado.email // Opcional: guardamos quién lo añadió
       };
 
       dniRef.push(nuevoDato)
         .then(() => {
-          mensajeGuardadoDiv.textContent = '¡Datos guardados con éxito en Firebase!';
+          mensajeGuardadoDiv.textContent = '¡Datos guardados con éxito en Firebase V4!';
           mensajeGuardadoDiv.style.color = 'green';
           limpiarCampos();
           formularioNuevosDatos.classList.add('hidden');
         })
         .catch(error => {
-          mensajeGuardadoDiv.textContent = 'Error al guardar en Firebase: ' + error.message;
+          mensajeGuardadoDiv.textContent = 'Error al guardar: ' + error.message;
           mensajeGuardadoDiv.style.color = 'red';
         });
     }
@@ -228,6 +284,11 @@
     function renderizarTablaDni() {
       dniListDiv.innerHTML = '';
       
+      if (datosCompletos.length === 0) {
+          dniListDiv.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">No hay datos registrados aún.</td></tr>';
+          return;
+      }
+
       const datosOrdenados = datosCompletos.sort((a, b) => b.dni - a.dni);
       
       datosOrdenados.forEach(dato => {
@@ -240,7 +301,6 @@
 
         const celdaFecha = document.createElement('td');
         celdaFecha.classList.add('px-6', 'py-4');
-        // MODIFICACIÓN: Formato de fecha dd/mm/aaaa
         const dia = String(dato.fecha.getDate()).padStart(2, '0');
         const mes = String(dato.fecha.getMonth() + 1).padStart(2, '0');
         const anio = dato.fecha.getFullYear();
@@ -250,7 +310,6 @@
         const celdaAccion = document.createElement('td');
         celdaAccion.classList.add('px-6', 'py-4', 'text-right');
         
-        // Solo mostrar el icono de eliminar para los datos que tienen key de Firebase
         if (dato.key) {
           const deleteIcon = document.createElement('span');
           deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 delete-icon inline-block" viewBox="0 0 20 20" fill="currentColor">
@@ -274,16 +333,24 @@
     }
 
     function eliminarDNI(key) {
+      if (!usuarioAutenticado) { alert("Error de sesión."); return; }
+      
       dniRef.child(key).remove()
         .then(() => {
           console.log("Registro eliminado con éxito.");
         })
         .catch((error) => {
           console.error("Error al eliminar el registro:", error);
+          alert("No tienes permiso para eliminar.");
         });
     }
     
     function buscarEnBase(dniNum) {
+      // Si la base está vacía, no podemos estimar
+      if (datosCompletos.length === 0) {
+          return { nacimientoEstimado: "Base de datos vacía. Añade referencias primero.", edadEstimada: null };
+      }
+
       const datos = datosCompletos.sort((a, b) => a.dni - b.dni);
       const exacto = datos.find(d => d.dni === dniNum);
       if (exacto) {
