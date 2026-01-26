@@ -23,6 +23,14 @@
     .delete-icon:hover {
         transform: scale(1.1);
     }
+    /* Estado de conexión discreto */
+    #auth-status {
+        text-align: center;
+        padding: 5px;
+        font-size: 0.8rem;
+        color: #555;
+        background: #f3f4f6;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col pb-16">
@@ -37,6 +45,8 @@
       >
     </div>
   </header>
+
+  <div id="auth-status">Conectando a V4...</div>
 
   <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
     Estimador de Nacimiento por DNI o Nº de Licencia
@@ -92,7 +102,7 @@
         <div id="mensajeGuardado" class="mt-4 text-sm font-medium"></div>
     </div>
     <div id="dniDataTable" class="mt-4 hidden">
-        <h3 class="text-lg font-semibold mb-4 text-center">Listado Completo</h3>
+        <h3 class="text-lg font-semibold mb-4 text-center">Listado Completo (V4)</h3>
         <div class="listado-container">
             <table class="w-full text-sm text-left text-gray-500">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
@@ -103,7 +113,7 @@
                     </tr>
                 </thead>
                 <tbody id="dniList">
-                    <tr><td colspan="3" class="text-center py-4">Verificando seguridad...</td></tr>
+                    <tr><td colspan="3" class="text-center py-4">Cargando base de datos...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -117,7 +127,7 @@
     </button>
   </div>
 
-  <footer class="mt-auto text-center py-6 bg-gray-200">
+ <footer class="mt-auto text-center py-6 bg-gray-200">
     <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
     <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
     <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
@@ -125,7 +135,7 @@
   </footer>
 
   <script>
-    // --- CONFIGURACIÓN V4 (TEST) ---
+    // CONFIGURACIÓN V4
     const firebaseConfig = {
       apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
       authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -136,7 +146,7 @@
       appId: "1:119727545224:web:36880c50d196c456cdb83d"
     };
 
-    // --- LISTA DE AUTORIZADOS ---
+    // LISTA DE AUTORIZADOS
     const AUTHORIZED_EMAILS = [
         'gadalicante@gmail.com', 
         'copg279@gmail.com', 
@@ -155,9 +165,10 @@
     const auth = firebase.auth();
     const database = firebase.database();
     
-    // IMPORTANTE: TU NODO SE LLAMA "dni_argentina"
-    const dniRef = database.ref('dni_argentina');
-
+    // NODO EXACTO DE TU BASE DE DATOS
+    const dniRef = database.ref('dni_argentina'); 
+    
+    const authStatus = document.getElementById('auth-status');
     let datosCompletos = [];
     let usuarioAutenticado = null;
 
@@ -167,7 +178,8 @@
         
         if (user && AUTHORIZED_EMAILS.includes(user.email)) {
             usuarioAutenticado = user;
-            console.log("Usuario autorizado en V4:", user.email);
+            authStatus.innerHTML = `<span style="color:green">● Conectado a V4 como: ${user.email}</span>`;
+            console.log("Usuario autorizado. Solicitando datos al nodo 'dni_argentina'...");
             
             // ACTIVAR LA ESCUCHA DE DATOS (Solo si está autorizado)
             dniRef.on('value', (snapshot) => {
@@ -175,26 +187,33 @@
                 if(snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         const data = childSnapshot.val();
-                        datosCompletos.push({
-                            key: childSnapshot.key,
-                            dni: parseInt(data.dni),
-                            fecha: new Date(data.fecha)
-                        });
+                        // Evitar errores si falta algún campo
+                        if (data && data.dni && data.fecha) {
+                            datosCompletos.push({
+                                key: childSnapshot.key,
+                                dni: parseInt(data.dni),
+                                fecha: new Date(data.fecha)
+                            });
+                        }
                     });
+                    console.log(`Cargados ${datosCompletos.length} registros de V4.`);
                     renderizarTablaDni();
                 } else {
-                    // Si el nodo existe pero está vacío
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">No hay datos en V4 todavía.</td></tr>';
+                    // Si entra aquí, la base de datos está VACÍA o el nodo está mal escrito
+                    console.warn("El nodo 'dni_argentina' está vacío en V4 o no existe.");
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">Base de datos V4 vacía.<br>Importa tus datos JSON en la consola.</td></tr>';
                 }
             }, (error) => {
-                console.error("Error lectura V4:", error);
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-500">Error de permisos de lectura.</td></tr>';
+                // AQUÍ SALTA SI LAS REGLAS DE FIREBASE BLOQUEAN LA LECTURA
+                console.error("Error de permisos V4:", error);
+                authStatus.innerHTML = '<span style="color:red">● ERROR DE PERMISOS</span>';
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-600 font-bold">ERROR: REGLAS DE FIREBASE BLOQUEADAS.<br>Ve a la consola V4 -> Realtime Database -> Reglas y pega el JSON.</td></tr>';
             });
 
         } else {
             usuarioAutenticado = null;
-            console.warn("Usuario no autorizado.");
-            tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-600 font-bold">ACCESO DENEGADO. Inicia sesión en el menú.</td></tr>';
+            authStatus.innerHTML = '<span style="color:red">● No conectado.</span>';
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-600 font-bold">ACCESO DENEGADO. Inicia sesión en el menú principal.</td></tr>';
         }
     });
 
@@ -274,7 +293,7 @@
           formularioNuevosDatos.classList.add('hidden');
         })
         .catch(error => {
-          mensajeGuardadoDiv.textContent = 'Error al guardar en Firebase: ' + error.message;
+          mensajeGuardadoDiv.textContent = 'Error al guardar: ' + error.message;
           mensajeGuardadoDiv.style.color = 'red';
         });
     }
@@ -282,8 +301,8 @@
     function renderizarTablaDni() {
       dniListDiv.innerHTML = '';
       
-      if(datosCompletos.length === 0 && usuarioAutenticado) {
-          dniListDiv.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">No hay datos.</td></tr>';
+      if (datosCompletos.length === 0) {
+          dniListDiv.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">No se encontraron datos.</td></tr>';
           return;
       }
 
@@ -299,11 +318,16 @@
 
         const celdaFecha = document.createElement('td');
         celdaFecha.classList.add('px-6', 'py-4');
-        // Formato dd/mm/aaaa
-        const dia = String(dato.fecha.getDate()).padStart(2, '0');
-        const mes = String(dato.fecha.getMonth() + 1).padStart(2, '0');
-        const anio = dato.fecha.getFullYear();
-        const fechaFormateada = `${dia}/${mes}/${anio}`;
+        
+        // Formato seguro de fecha
+        let fechaFormateada = "Fecha inválida";
+        try {
+            const dia = String(dato.fecha.getDate()).padStart(2, '0');
+            const mes = String(dato.fecha.getMonth() + 1).padStart(2, '0');
+            const anio = dato.fecha.getFullYear();
+            fechaFormateada = `${dia}/${mes}/${anio}`;
+        } catch(e) {}
+        
         celdaFecha.textContent = fechaFormateada;
 
         const celdaAccion = document.createElement('td');
@@ -332,6 +356,8 @@
     }
 
     function eliminarDNI(key) {
+      if (!usuarioAutenticado) { alert("Error de sesión."); return; }
+      
       dniRef.child(key).remove()
         .then(() => {
           console.log("Registro eliminado con éxito.");
@@ -343,9 +369,8 @@
     }
     
     function buscarEnBase(dniNum) {
-      // Si no hay datos cargados, avisamos
       if (datosCompletos.length === 0) {
-          return { nacimientoEstimado: "Base de datos vacía o no cargada.", edadEstimada: null };
+          return { nacimientoEstimado: "Base de datos no disponible.", edadEstimada: null };
       }
 
       const datos = datosCompletos.sort((a, b) => a.dni - b.dni);
