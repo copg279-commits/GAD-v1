@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        /* ESTILOS ORIGINALES INTACTOS */
+        /* ESTILOS ORIGINALES (MANTENIDOS) */
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; visibility: hidden; }
         body.loaded { visibility: visible; }
         #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 99999; display: flex; justify-content: center; align-items: center; color: white; flex-direction: column; transition: opacity 0.5s; }
@@ -48,7 +48,7 @@
 
 <div id="loading-screen">
     <i class="fas fa-spinner fa-spin fa-3x mb-4"></i>
-    <h2>Iniciando Entorno Seguro V4...</h2>
+    <h2>Verificando Credenciales Policiales...</h2>
 </div>
 
 <div class="top-bar-strip">
@@ -207,7 +207,7 @@
 </div>
 
 <script>
-// --- CONFIGURACIÓN FIREBASE V4 ---
+// CONFIGURACIÓN V4
 const firebaseConfig = {
   apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
   authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -238,7 +238,7 @@ const AUTHORIZED_EMAILS = [
   const TITLE_NODE = 'pageTitle';
   const USERS_NODE = 'usuarios_google'; 
 
-  // Referencias UI
+  // --- VARIABLES Y REFERENCIAS ---
   const mainScrollArea = document.getElementById('main-scroll-area');
   const iframeViewerArea = document.getElementById('iframe-viewer-area');
   const contentIframe = document.getElementById('content-iframe');
@@ -285,21 +285,32 @@ const AUTHORIZED_EMAILS = [
       renderMenuButtons(); 
   }
 
-  // =========================================================================
-  // AQUÍ ESTÁ LA MAGIA: EL CIRUJANO AUTOMÁTICO PARA ARCHIVOS V1
-  // =========================================================================
+  // =======================================================
+  // *** FUNCIÓN CIRUJANO: NEUTRALIZA CONFIGURACIONES ANTIGUAS ***
+  // =======================================================
+  function sanitizeChildHtml(htmlContent) {
+        let safeContent = htmlContent;
+        // Renombramos la variable conflictiva en el código hijo
+        safeContent = safeContent.replace(/const\s+firebaseConfig/g, "var childConfig_neutralized");
+        safeContent = safeContent.replace(/var\s+firebaseConfig/g, "var childConfig_neutralized");
+        safeContent = safeContent.replace(/let\s+firebaseConfig/g, "var childConfig_neutralized");
+        // Desactivamos la inicialización duplicada
+        safeContent = safeContent.replace(/firebase\.initializeApp\(/g, "// firebase.initializeApp(");
+        return safeContent;
+  }
+
   function showIframeArea(data) {
         isViewingContent = true;
         mainScrollArea.style.display = 'none';
         iframeViewerArea.style.display = 'block';
 
-        // 1. Script de seguridad V4 que inyectamos
+        // SCRIPT DE SEGURIDAD V4 QUE INYECTAMOS
         const scriptInyectado = `
             <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"><\/script>
             <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"><\/script>
             <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"><\/script>
             <script>
-               // Inyectamos la configuración V4 válida
+               // Configuración V4 inyectada por el Dashboard
                const firebaseConfig = { apiKey: "${firebaseConfig.apiKey}", authDomain: "${firebaseConfig.authDomain}", databaseURL: "${firebaseConfig.databaseURL}", projectId: "${firebaseConfig.projectId}", storageBucket: "${firebaseConfig.storageBucket}", messagingSenderId: "${firebaseConfig.messagingSenderId}", appId: "${firebaseConfig.appId}" };
                
                if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
@@ -311,46 +322,30 @@ const AUTHORIZED_EMAILS = [
             <\/script>
         `;
 
-        // Función auxiliar para "neutralizar" el código viejo del archivo hijo
-        const neutralizarCodigoViejo = (html) => {
-            let modificado = html;
-            
-            // 2. CAMBIO CLAVE: Renombramos 'const firebaseConfig' a 'var oldConfig'
-            // Esto evita el error "Identifier has already been declared"
-            modificado = modificado.replace(/const\s+firebaseConfig\s*=/g, 'var oldFirebaseConfig =');
-            modificado = modificado.replace(/let\s+firebaseConfig\s*=/g, 'var oldFirebaseConfig =');
-            modificado = modificado.replace(/var\s+firebaseConfig\s*=/g, 'var oldFirebaseConfig =');
-
-            // 3. Comentamos la inicialización vieja para que use la nuestra (V4)
-            modificado = modificado.replace(/firebase\.initializeApp\s*\(/g, '// firebase.initializeApp(');
-            
-            return modificado;
-        };
-
         if (data.htmlCode) {
-            // Caso: Código HTML pegado
             const doc = contentIframe.contentWindow.document;
             doc.open();
             
-            let content = neutralizarCodigoViejo(data.htmlCode);
+            // 1. Limpiamos el código hijo
+            let content = sanitizeChildHtml(data.htmlCode);
+            const viewportTag = '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">';
             
-            // Inyectamos el script V4 en el head
-            if (content.includes('<head>')) {
+            // 2. Inyectamos viewport y script V4
+            if (!content.includes('<meta name="viewport"')) {
+                if(content.includes('<head>')) content = content.replace('<head>', '<head>' + viewportTag + scriptInyectado);
+                else content = viewportTag + scriptInyectado + content;
+            } else if (content.includes('<head>')) {
                  content = content.replace('<head>', '<head>' + scriptInyectado);
-            } else {
-                 content = scriptInyectado + content;
             }
-            
             doc.write(content);
             doc.close();
 
         } else if (data.href) {
-            // Caso: Archivo externo (ej: ARGENTINA DNI.html)
+            // Caso Archivo Externo: Lo leemos, lo limpiamos y lo mostramos
             fetch(data.href)
                 .then(response => response.text())
                 .then(htmlOriginal => {
-                    
-                    let htmlModificado = neutralizarCodigoViejo(htmlOriginal);
+                    let htmlModificado = sanitizeChildHtml(htmlOriginal);
 
                     if (htmlModificado.includes('</head>')) {
                         htmlModificado = htmlModificado.replace('</head>', scriptInyectado + '</head>');
@@ -364,9 +359,8 @@ const AUTHORIZED_EMAILS = [
                     doc.close();
                 })
                 .catch(err => {
-                    console.error("Error al cargar el archivo:", err);
-                    // Fallback por si falla el fetch (CORS)
-                    contentIframe.src = data.href; 
+                    console.error("Error al cargar archivo:", err);
+                    contentIframe.src = data.href; // Fallback
                 });
         }
         
@@ -506,12 +500,13 @@ const AUTHORIZED_EMAILS = [
       });
   }
 
-  // --- LÓGICA DE DATOS Y SEGURIDAD V4 ---
+  // --- LÓGICA DE ESCUCHA DE DATOS ---
   function iniciarEscuchaDeDatos() {
-      console.log("Iniciando descarga segura de datos V4...");
+      console.log("Iniciando descarga segura de datos (V4)...");
       db.ref().on('value', s => { 
           menuButtonsData = s.val()?.menuButtons || {}; 
           renderMenuButtons(); 
+          // Ocultar pantalla de carga
           loadingScreen.style.opacity = '0';
           setTimeout(() => loadingScreen.style.display = 'none', 500);
       });
@@ -536,30 +531,32 @@ const AUTHORIZED_EMAILS = [
   dragZone.ondrop = e => { e.preventDefault(); dragZone.classList.remove('drag-over-container'); if(draggedItem) { mainMenuGrid.appendChild(draggedItem); updateOrder(); } };
   function updateOrder() { const u={}; document.querySelectorAll('#main-menu-grid .menu-button-container').forEach((b,i) => u[`/${BUTTONS_NODE}/${b.dataset.id}/order`]=i+1); db.ref().update(u); }
 
-  // --- LÓGICA DE INICIO Y AUTORIZACIÓN AUTOMÁTICA ---
+  // --- LÓGICA DE SEGURIDAD V4 (CON AUTOREGISTRO PARA BD VACÍA) ---
   function initAppLogic() {
       firebase.auth().onAuthStateChanged(async (user) => {
           if (user) {
+              // 1. Verificar lista autorizada (Código)
               if (AUTHORIZED_EMAILS.includes(user.email)) {
                   
                   document.body.classList.add('loaded'); // Mostrar body
                   iniciarEscuchaDeDatos();
 
                   const emailKey = sanitizeEmail(user.email);
+                  // El primer correo de la lista es el ADMIN SUPERIOR
                   const isAdmin = user.email === AUTHORIZED_EMAILS[0];
                   
                   if (isAdmin) { 
                       grantAccess(user, true); 
                   } else {
-                      // VERIFICAR EXISTENCIA EN BD V4
+                      // 2. Verificar BD V4
                       const snap = await db.ref(USERS_NODE + '/' + emailKey).once('value');
                       
                       if (snap.exists()) {
+                          // Ya existe en V4 -> Entra
                           grantAccess(user, false);
                       } else {
-                          // *** SOLUCIÓN BD VACÍA V4 ***
-                          // Si está autorizado pero no en la BD, lo creamos automáticamente.
-                          console.log("Creando perfil en BD V4...");
+                          // NO EXISTE EN V4 (Porque es nueva) -> SI ESTÁ EN LA LISTA, LO CREAMOS
+                          console.log("Creando perfil V4 para usuario autorizado...");
                           await db.ref(USERS_NODE + '/' + emailKey).set({
                               email: user.email,
                               nombre: user.displayName || 'Agente',
@@ -586,13 +583,19 @@ const AUTHORIZED_EMAILS = [
       const now = Date.now();
       const ip = await getClientIP();
       
-      // Actualizar contadores
+      // Actualizar contador de accesos
       db.ref(USERS_NODE + '/' + emailKey).transaction(d => {
-          if (d) return {...d, email: user.email, accesos: (d.accesos||0)+1, ultimoAcceso: now};
-          return {email: user.email, accesos: 1, ultimoAcceso: now, nombre: user.displayName || 'Agente'};
+          if (d) {
+              return {...d, email: user.email, accesos: (d.accesos||0)+1, ultimoAcceso: now};
+          } else {
+              // Fallback
+              return {email: user.email, accesos: 1, ultimoAcceso: now, nombre: user.displayName || 'Agente', fechaAlta: now};
+          }
       });
 
+      // Log de visita
       db.ref('visitLog').push().set({ userId: emailKey, userName: user.displayName||user.email, email: user.email, timestamp: now, ip: ip });
+      
       document.getElementById('user-info-display').innerHTML = `<i class="fas fa-user-circle"></i> ${user.email}`;
       
       if (isAdmin) { 
