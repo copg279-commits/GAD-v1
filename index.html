@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso GAD Alicante</title>
+    <title>Acceso GAD Alicante (Entorno V4)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -39,7 +39,7 @@
         <div class="police-badge">
             <img src="logogad.png" alt="GAD" onerror="this.style.display='none'">
         </div>
-        <h1 class="text-2xl font-bold mb-1 text-blue-400">GAD ALICANTE</h1>
+        <h1 class="text-2xl font-bold mb-1 text-blue-400">GAD V4 (TEST)</h1>
         <p class="text-gray-400 text-sm mb-8">Unidad de Análisis Documental</p>
 
         <button id="google-login-btn" class="w-full bg-white text-gray-800 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 transition-all shadow-lg">
@@ -52,19 +52,18 @@
     </div>
 
     <script>
-        // --- CONFIGURACIÓN V3 (CORREGIDA) ---
+        // --- CONFIGURACIÓN FIREBASE V4 ---
         const firebaseConfig = {
-          apiKey: "AIzaSyA6EDUJ2dG50DphB-dF6GLi3P2IlW8lDz4",
-          authDomain: "gad-alicante-v3.firebaseapp.com",
-          databaseURL: "https://gad-alicante-v3-default-rtdb.europe-west1.firebasedatabase.app",
-          projectId: "gad-alicante-v3",
-          storageBucket: "gad-alicante-v3.firebasestorage.app",
-          messagingSenderId: "906986258369",
-          appId: "1:906986258369:web:21a7ea29a33b5f395e3940",
-          measurementId: "G-Q0E3H1996K"
+          apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+          authDomain: "gad-alicante-v4.firebaseapp.com",
+          databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "gad-alicante-v4",
+          storageBucket: "gad-alicante-v4.firebasestorage.app",
+          messagingSenderId: "119727545224",
+          appId: "1:119727545224:web:36880c50d196c456cdb83d"
         };
 
-        // LISTA DE CORREOS AUTORIZADOS AMPLIADA
+        // LISTA DE AUTORIZADOS (SACADA DE TUS REGLAS)
         const AUTHORIZED_EMAILS = [
             'gadalicante@gmail.com', 
             'copg279@gmail.com', 
@@ -72,7 +71,8 @@
             'cdavidmesi83@gmail.com', 
             'pamiseseg@gmail.com', 
             'policia.g496@gmail.com', 
-            'verdeguer279@gmail.com'
+            'verdeguer279@gmail.com',
+            'cambiar_nombre6@gmail.com'
         ];
 
         // --- INICIALIZACIÓN ---
@@ -89,11 +89,11 @@
             firebase.auth().onAuthStateChanged((user) => {
                 if (user) {
                     if (AUTHORIZED_EMAILS.includes(user.email)) {
-                        msg.innerText = "Acceso Correcto. Redirigiendo...";
+                        msg.innerText = "Acceso V4 Correcto. Redirigiendo...";
                         msg.className = "mt-4 text-sm text-green-400";
                         window.location.href = 'dashboard.html';
                     } else {
-                        msg.innerText = "ACCESO DENEGADO: " + user.email;
+                        msg.innerText = "ACCESO DENEGADO EN V4: " + user.email;
                         msg.className = "mt-4 text-sm text-red-500";
                         firebase.auth().signOut();
                     }
@@ -102,7 +102,7 @@
 
             // --- CLICK EN EL BOTÓN ---
             btn.onclick = () => {
-                msg.innerText = "Conectando con Google...";
+                msg.innerText = "Conectando con Google (V4)...";
                 const provider = new firebase.auth.GoogleAuthProvider();
                 provider.setCustomParameters({ prompt: 'select_account' });
                 
@@ -113,7 +113,7 @@
                     debug.innerHTML = `Error: ${error.message} <br> Code: ${error.code}`;
                     
                     if(error.code === 'auth/unauthorized-domain') {
-                        alert("IMPORTANTE: Debes ir a Firebase Console > Authentication > Settings y añadir 'localhost' o tu dominio de GitHub a los dominios autorizados.");
+                        alert("IMPORTANTE: Ve a la consola de Firebase V4 > Authentication > Settings > Authorized Domains y añade: copg279-commits.github.io");
                     }
                 });
             };

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Menú GAD</title>
+    <title>Menú GAD V4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -13,10 +13,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        /* ESTILOS ORIGINALES (MANTENIDOS) */
+        /* ESTILOS ORIGINALES */
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; visibility: hidden; }
         body.loaded { visibility: visible; }
-        /* Pantalla de carga mientras verificamos */
         #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 99999; display: flex; justify-content: center; align-items: center; color: white; flex-direction: column; transition: opacity 0.5s; }
         
         .top-bar-strip { background-color: #1e3a8a; color: white; display: flex; align-items: center; padding: 0 10px; height: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 100; position: relative; flex-shrink: 0; }
@@ -50,7 +49,7 @@
 
 <div id="loading-screen">
     <i class="fas fa-spinner fa-spin fa-3x mb-4"></i>
-    <h2>Verificando Credenciales Policiales...</h2>
+    <h2>Verificando Credenciales GAD V4...</h2>
 </div>
 
 <div class="top-bar-strip">
@@ -209,29 +208,28 @@
 </div>
 
 <script>
-// CONFIGURACIÓN V3 (CORREGIDA)
-const firebaseConfig = {
-  apiKey: "AIzaSyA6EDUJ2dG50DphB-dF6GLi3P2IlW8lDz4",
-  authDomain: "gad-alicante-v3.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v3-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v3",
-  storageBucket: "gad-alicante-v3.firebasestorage.app",
-  messagingSenderId: "906986258369",
-  appId: "1:906986258369:web:21a7ea29a33b5f395e3940",
-  measurementId: "G-Q0E3H1996K"
-};
+  // CONFIGURACIÓN V4 (TESTING)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+    authDomain: "gad-alicante-v4.firebaseapp.com",
+    databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "gad-alicante-v4",
+    storageBucket: "gad-alicante-v4.firebasestorage.app",
+    messagingSenderId: "119727545224",
+    appId: "1:119727545224:web:36880c50d196c456cdb83d"
+  };
 
-// LISTA DE AUTORIZADOS AMPLIADA
-const AUTHORIZED_EMAILS = [
-    'gadalicante@gmail.com', 
-    'copg279@gmail.com', 
-    'adamus03248@gmail.com', 
-    'cdavidmesi83@gmail.com', 
-    'pamiseseg@gmail.com', 
-    'policia.g496@gmail.com', 
-    'verdeguer279@gmail.com',
-    'cambiar_nombre6@gmail.com'
-];
+  // LISTA AUTORIZADA
+  const AUTHORIZED_EMAILS = [
+      'gadalicante@gmail.com', 
+      'copg279@gmail.com', 
+      'adamus03248@gmail.com', 
+      'cdavidmesi83@gmail.com', 
+      'pamiseseg@gmail.com', 
+      'policia.g496@gmail.com', 
+      'verdeguer279@gmail.com',
+      'cambiar_nombre6@gmail.com'
+  ];
 
   if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
   const db = firebase.database();
@@ -288,12 +286,13 @@ const AUTHORIZED_EMAILS = [
       renderMenuButtons(); 
   }
 
-  // --- FUNCIÓN MEJORADA: CIRUJANO DE ARCHIVOS ---
+  // --- CIRUJANO DE ARCHIVOS V4 ---
   function showIframeArea(data) {
         isViewingContent = true;
         mainScrollArea.style.display = 'none';
         iframeViewerArea.style.display = 'block';
 
+        // INYECCIÓN DE SEGURIDAD V4 PARA SUB-APPS
         const scriptInyectado = `
             <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"><\/script>
             <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"><\/script>
@@ -330,7 +329,9 @@ const AUTHORIZED_EMAILS = [
                 .then(response => response.text())
                 .then(htmlOriginal => {
                     let htmlModificado = htmlOriginal;
+                    // Neutralizar configuración antigua
                     htmlModificado = htmlModificado.replace(/firebase\.initializeApp\s*\(/g, '// firebase.initializeApp(');
+                    // Inyectar V4
                     if (htmlModificado.includes('</head>')) {
                         htmlModificado = htmlModificado.replace('</head>', scriptInyectado + '</head>');
                     } else {
@@ -346,7 +347,6 @@ const AUTHORIZED_EMAILS = [
                     contentIframe.src = data.href; 
                 });
         }
-        
         renderMenuButtons();
     }
 
@@ -483,9 +483,8 @@ const AUTHORIZED_EMAILS = [
       });
   }
 
-  // --- ESCUCHA DE DATOS ---
   function iniciarEscuchaDeDatos() {
-      console.log("Iniciando descarga segura de datos...");
+      console.log("Iniciando descarga segura de datos (V4)...");
       db.ref().on('value', s => { 
           menuButtonsData = s.val()?.menuButtons || {}; 
           renderMenuButtons(); 
@@ -513,7 +512,7 @@ const AUTHORIZED_EMAILS = [
   dragZone.ondrop = e => { e.preventDefault(); dragZone.classList.remove('drag-over-container'); if(draggedItem) { mainMenuGrid.appendChild(draggedItem); updateOrder(); } };
   function updateOrder() { const u={}; document.querySelectorAll('#main-menu-grid .menu-button-container').forEach((b,i) => u[`/${BUTTONS_NODE}/${b.dataset.id}/order`]=i+1); db.ref().update(u); }
 
-  // --- LÓGICA PRINCIPAL DE SEGURIDAD ESTRICTA (V1 STYLE) ---
+  // --- LÓGICA DE SEGURIDAD V4 (CON AUTOREGISTRO PARA BD VACÍA) ---
   function initAppLogic() {
       firebase.auth().onAuthStateChanged(async (user) => {
           if (user) {
@@ -523,30 +522,34 @@ const AUTHORIZED_EMAILS = [
                   iniciarEscuchaDeDatos();
 
                   const emailKey = sanitizeEmail(user.email);
-                  // ADMIN: El primero de la lista tiene privilegios especiales
                   const isAdmin = user.email === AUTHORIZED_EMAILS[0];
                   
                   if (isAdmin) { 
                       grantAccess(user, true); 
                   } else {
-                      // SI NO ERES ADMIN, BUSCAMOS TU FICHA EN LA DB
                       const snap = await db.ref(USERS_NODE + '/' + emailKey).once('value');
-                      
                       if (snap.exists()) {
-                          // ¡EXISTE! ADELANTE
+                          // Usuario ya existe en V4, entra normal
                           grantAccess(user, false);
                       } else {
-                          // NO EXISTE EN LA DB -> BLOQUEADO (Lógica V1 estricta)
-                          alert('ACCESO DENEGADO: Usuario validado pero NO encontrado en la base de datos. Pida al administrador que cree su ficha.'); 
-                          firebase.auth().signOut().then(() => window.location.href = 'index.html');
+                          // V4 ESTÁ VACÍO: Si el usuario está en la lista AUTHORIZED_EMAILS, lo creamos.
+                          // Esto es IMPRESCINDIBLE en una base de datos nueva.
+                          console.log("Bienvenido a V4. Creando tu perfil...");
+                          await db.ref(USERS_NODE + '/' + emailKey).set({
+                              email: user.email,
+                              nombre: user.displayName || 'Agente',
+                              accesos: 0,
+                              fechaAlta: new Date().toISOString()
+                          });
+                          grantAccess(user, false);
                       }
                   }
               } else {
-                  alert('ACCESO DENEGADO: Tu correo no está autorizado en este sistema.'); 
+                  alert('ACCESO DENEGADO: Tu correo no está autorizado.'); 
                   firebase.auth().signOut().then(() => window.location.href = 'index.html');
               }
           } else {
-              console.warn("Usuario no autorizado. Redirigiendo al Login...");
+              console.warn("Redirigiendo al Login...");
               window.location.href = 'index.html';
           }
       });
@@ -558,9 +561,12 @@ const AUTHORIZED_EMAILS = [
       const now = Date.now();
       const ip = await getClientIP();
       
-      db.ref(USERS_NODE + '/' + emailKey).transaction(d => d ? {...d, email: user.email, accesos: (d.accesos||0)+1, ultimoAcceso: now} : (isAdmin ? {email:user.email, accesos:1, ultimoAcceso:now, nombre:'Admin'} : d));
-      db.ref('visitLog').push().set({ userId: emailKey, userName: user.displayName||user.email, email: user.email, timestamp: now, ip: ip });
+      db.ref(USERS_NODE + '/' + emailKey).transaction(d => {
+          if (d) { return {...d, email: user.email, accesos: (d.accesos||0)+1, ultimoAcceso: now}; }
+          else { return {email: user.email, accesos: 1, ultimoAcceso: now, nombre: user.displayName || 'Agente'}; }
+      });
       
+      db.ref('visitLog').push().set({ userId: emailKey, userName: user.displayName||user.email, email: user.email, timestamp: now, ip: ip });
       document.getElementById('user-info-display').innerHTML = `<i class="fas fa-user-circle"></i> ${user.email}`;
       
       if (isAdmin) { 
