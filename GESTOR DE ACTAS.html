@@ -11,6 +11,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
@@ -85,18 +86,20 @@
     <div id="root" class="h-full flex flex-col"></div>
 
     <script type="text/babel">
-        // --- FIREBASE SETUP ---
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
+        // --- FIREBASE SETUP V4 ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+          authDomain: "gad-alicante-v4.firebaseapp.com",
+          databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "gad-alicante-v4",
+          storageBucket: "gad-alicante-v4.firebasestorage.app",
+          messagingSenderId: "119727545224",
+          appId: "1:119727545224:web:36880c50d196c456cdb83d"
+        };
+
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
+        const auth = firebase.auth(); // Referencia a auth
         const DB_TEMPLATES_PATH = 'actas'; 
         const DB_SETTINGS_PATH = 'gad_settings_v15'; 
 
@@ -152,28 +155,51 @@ const firebaseConfig = {
             ];
 
             React.useEffect(() => {
+                // Función de carga de datos
                 const loadData = async () => {
-                    const snap = await db.ref(DB_TEMPLATES_PATH).once('value');
-                    const settingsSnap = await db.ref(DB_SETTINGS_PATH).once('value');
-                    const logoSnap = await db.ref('selector_gad/logo').once('value');
-                    
-                    if (snap.exists()) {
-                        let data = Object.values(snap.val());
-                        setTemplates(data.map((t, idx) => ({ ...t, category: t.category || 'gestion' })));
+                    try {
+                        const snap = await db.ref(DB_TEMPLATES_PATH).once('value');
+                        const settingsSnap = await db.ref(DB_SETTINGS_PATH).once('value');
+                        const logoSnap = await db.ref('selector_gad/logo').once('value');
+                        
+                        if (snap.exists()) {
+                            let data = Object.values(snap.val());
+                            setTemplates(data.map((t, idx) => ({ ...t, category: t.category || 'gestion' })));
+                        } else {
+                            // Si no hay datos, iniciamos array vacío para evitar errores
+                            setTemplates([]);
+                        }
+                        
+                        if (settingsSnap.exists()) {
+                            const s = settingsSnap.val();
+                            setCatTitles(s.titles || defaultCats);
+                            setLayout(s.layout || defaultLayout);
+                        } else {
+                            setCatTitles(defaultCats);
+                            setLayout(defaultLayout);
+                        }
+                        if (logoSnap.exists()) setLogo(logoSnap.val());
+                        
+                        setIsLoading(false);
+                    } catch (error) {
+                        console.error("Error cargando datos:", error);
+                        alert("Error de permisos: " + error.message);
+                        setIsLoading(false);
                     }
-                    
-                    if (settingsSnap.exists()) {
-                        const s = settingsSnap.val();
-                        setCatTitles(s.titles || defaultCats);
-                        setLayout(s.layout || defaultLayout);
-                    } else {
-                        setCatTitles(defaultCats);
-                        setLayout(defaultLayout);
-                    }
-                    if (logoSnap.exists()) setLogo(logoSnap.val());
-                    setIsLoading(false);
                 };
-                loadData();
+
+                // ESCUCHA DE AUTENTICACIÓN: SOLO CARGA SI HAY USUARIO
+                const unsubscribe = auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        console.log("Usuario autenticado en React:", user.email);
+                        loadData();
+                    } else {
+                        console.warn("Usuario no autenticado.");
+                        // Opcional: Redirigir o mostrar mensaje
+                    }
+                });
+
+                return () => unsubscribe();
             }, []);
 
             const saveSettings = (newLayout, newTitles) => {
