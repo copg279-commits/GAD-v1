@@ -39,7 +39,6 @@
     .reference-card {
         background: white; border-radius: 1rem; overflow: hidden;
         border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        /* Sin efecto hover de escala */
     }
 
     /* DROP ZONE */
@@ -87,6 +86,11 @@
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         position: relative;
     }
+    
+    /* AUTH STATUS */
+    #auth-status-bar {
+        text-align: center; padding: 5px; font-size: 0.8rem; font-weight: bold; color: #64748b;
+    }
   </style>
 </head>
 <body class="flex flex-col min-h-screen pb-6">
@@ -111,45 +115,19 @@
           <h2 class="text-2xl font-extrabold text-blue-800 mb-6 border-b pb-2">Manual de Usuario y Ayuda</h2>
           
           <div class="space-y-4 text-gray-700 text-sm leading-relaxed">
-              
               <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 shadow-sm">
                   <h3 class="font-bold text-yellow-800 mb-2 text-base flex items-center gap-2">⚙️ Configuración API Gemini</h3>
                   <p class="mb-2">Para el correcto funcionamiento del análisis de imagen:</p>
                   <ul class="list-disc ml-5 space-y-2">
-                      <li><strong>Modelo obligatorio:</strong> Debes usar siempre <code>gemini-2.5-flash</code>. Es el único probado y funcional para esta tarea.</li>
-                      <li><strong>Si falla la API:</strong> Si cambias de navegador o la IA deja de responder (error de cuota o clave inválida), pulsa el botón <strong>OBTENER CLAVE API</strong> en los ajustes para ir a tu listado privado, copia una nueva y pégala en el campo correspondiente.</li>
+                      <li><strong>Modelo obligatorio:</strong> Debes usar siempre <code>gemini-2.5-flash</code>.</li>
+                      <li><strong>Si falla la API:</strong> Pulsa <strong>OBTENER CLAVE API</strong> en los ajustes.</li>
                   </ul>
               </div>
-
               <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
                   <h3 class="font-bold text-blue-900 mb-2 text-base">🔢 Introducción Manual</h3>
-                  <p>Puedes escribir el número de serie en el buscador principal:</p>
-                  <ul class="list-disc ml-5 mt-2 space-y-1">
-                      <li>El sistema te dirá si el número es <strong>coherente</strong> basándose en registros anteriores y posteriores.</li>
-                      <li>Si el número ya existe, te permitirá <strong>editarlo</strong> si detectas algún error.</li>
-                      <li>Si no existe, podrás <strong>añadirlo</strong> manualmente.</li>
-                  </ul>
-              </div>
-
-              <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
-                  <h3 class="font-bold text-purple-900 mb-2 text-base">📂 Organización Automática</h3>
-                  <p>Los registros se guardan automáticamente en su listado correspondiente:</p>
-                  <ul class="list-disc ml-5 mt-2 space-y-1">
-                      <li><strong>Serie A:</strong> Documentos estándar.</li>
-                      <li><strong>Serie L:</strong> Licencias que empiezan por la letra L.</li>
-                  </ul>
-              </div>
-
-              <div class="bg-green-50 p-4 rounded-lg border border-green-100">
-                  <h3 class="font-bold text-green-900 mb-2 text-base">🤖 Arrastrar y Soltar (IA)</h3>
-                  <p>Puedes arrastrar una imagen del permiso directamente al recuadro:</p>
-                  <ul class="list-disc ml-5 mt-2 space-y-1">
-                      <li>El sistema extraerá automáticamente: <strong>Número de Serie</strong>, <strong>Vilaya (traducida)</strong> y <strong>Fecha de Expedición</strong>.</li>
-                      <li><strong>Advertencia:</strong> La API es gratuita. No arrastres muchos documentos de golpe (hazlo uno a uno) o el sistema podría saturarse y dejar de funcionar temporalmente.</li>
-                  </ul>
+                  <p>Puedes escribir el número de serie en el buscador principal.</p>
               </div>
           </div>
-          
           <button onclick="toggleHelp()" class="mt-6 w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-black transition">ENTENDIDO</button>
       </div>
   </div>
@@ -158,7 +136,6 @@
       <button onclick="toggleSettings()" class="bg-white/10 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-white/20 transition flex items-center gap-2">
           ⚙️ AJUSTES IA
       </button>
-      
       <button onclick="toggleHelp()" class="bg-yellow-400/90 text-yellow-900 border border-yellow-500/30 px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-yellow-400 transition flex items-center gap-2">
           ❓ AYUDA
       </button>
@@ -166,7 +143,6 @@
 
   <div id="settingsPanel" class="hidden absolute top-28 right-4 w-80 bg-white border border-gray-200 shadow-2xl rounded-xl p-6 z-50 fade-in">
       <h4 class="font-bold text-gray-800 mb-4 border-b pb-2">Configuración Gemini API</h4>
-      
       <label class="block text-xs font-bold text-gray-500 mb-1">API KEY</label>
       <div class="relative mb-4">
           <input type="password" id="apiKeyInput" class="w-full bg-gray-50 border border-gray-300 rounded p-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none pr-10">
@@ -174,18 +150,13 @@
               <span id="eyeIcon">👁️</span>
           </button>
       </div>
-
       <label class="block text-xs font-bold text-gray-500 mb-1">MODELO</label>
       <input type="text" id="modelInput" class="w-full bg-gray-50 border border-gray-300 rounded p-2 text-xs mb-4" placeholder="gemini-2.5-flash">
-      
       <button onclick="saveSettings()" class="w-full bg-blue-600 text-white font-bold text-xs py-3 rounded-lg hover:bg-blue-700 transition mb-4">GUARDAR Y CERRAR</button>
-      
       <hr class="border-gray-200 mb-4">
-      
       <a href="CLAVES API.html" target="_blank" class="block w-full bg-gray-800 text-white text-center font-bold text-xs py-3 rounded-lg hover:bg-black transition flex items-center justify-center gap-2 no-underline">
         🔑 OBTENER CLAVE API
       </a>
-      <p class="text-[10px] text-gray-400 mt-2 text-center">Abre el listado privado de claves.</p>
   </div>
 
   <header class="header-pro py-8 shadow-lg relative z-10">
@@ -194,14 +165,15 @@
             <img src="logogad.png" onerror="this.style.opacity='0'" alt="GAD Logo" class="w-full h-full object-contain drop-shadow-lg" style="background: transparent;">
         </div>
         <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm">VERIFICACIÓN PERMISO ARGELIA</h1>
-        <p class="text-blue-100 text-sm font-bold mt-1 tracking-widest uppercase opacity-90">Sistema Integral Anti-Fraude (Series A y L)</p>
+        <p class="text-blue-100 text-sm font-bold mt-1 tracking-widest uppercase opacity-90">Sistema Integral Anti-Fraude (Series A y L) - V4</p>
     </div>
   </header>
+
+  <div id="auth-status-bar">Conectando con base de datos V4...</div>
 
   <main class="w-full max-w-6xl mx-auto px-4 mt-8 flex-grow">
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10 items-stretch">
-        
         <div class="reference-card p-2 bg-white flex flex-col items-center justify-center relative group">
             <div class="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm z-10">
                 GUÍA DE REFERENCIA
@@ -266,10 +238,10 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-10">
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-10" id="mainDatabasePanel" style="opacity: 0.5; pointer-events: none;">
         <div class="p-5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50 gap-4">
             <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                🗄️ BASE DE DATOS <span id="dbCounter" class="text-xs font-bold text-white bg-blue-600 px-3 py-1 rounded-full shadow-sm">Cargando...</span>
+                🗄️ BASE DE DATOS <span id="dbCounter" class="text-xs font-bold text-white bg-blue-600 px-3 py-1 rounded-full shadow-sm">...</span>
             </h3>
             <div class="flex gap-2">
                 <button onclick="prepararNuevoManual()" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-xs font-bold rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center gap-2">
@@ -357,22 +329,26 @@
     <p>&copy; GAD - Todos los derechos reservados</p>
   </footer>
 
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
   <script>
-    // --- 1. CONFIG FIREBASE ---
-// --- 1. CONFIG FIREBASE (CORREGIDA A V3) ---
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
-    firebase.initializeApp(firebaseConfig);
+    // --- 1. CONFIG FIREBASE V4 ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+      authDomain: "gad-alicante-v4.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v4",
+      storageBucket: "gad-alicante-v4.firebasestorage.app",
+      messagingSenderId: "119727545224",
+      appId: "1:119727545224:web:36880c50d196c456cdb83d"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
+    
     const refOld = db.ref('licencias_argelia_nuevas'); 
     const refNew = db.ref('licencias_argelia_L');      
 
@@ -380,8 +356,64 @@ const firebaseConfig = {
     let globalStore = [];
     let editState = { isEditing: false, key: null, source: null }; 
     let currentAiData = null; 
+    let isUserAuthenticated = false;
 
-    // --- 2. SISTEMA DE NOTIFICACIONES (TOAST) ---
+    // --- 2. EL FIX DE SEGURIDAD (Igual que en Argentina) ---
+    const statusBar = document.getElementById('auth-status-bar');
+    const mainPanel = document.getElementById('mainDatabasePanel');
+
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            isUserAuthenticated = true;
+            console.log("Usuario V4 Autorizado:", user.email);
+            statusBar.innerHTML = `<span class="text-green-600">✅ Conectado como: ${user.email}</span>`;
+            
+            // Habilitar panel
+            mainPanel.style.opacity = '1';
+            mainPanel.style.pointerEvents = 'auto';
+            
+            // INICIAR ESCUCHA DE DATOS (Solo ahora)
+            iniciarDescargaDatos();
+        } else {
+            console.warn("Sin sesión en V4");
+            statusBar.innerHTML = "<span class='text-red-500'>⚠️ NO AUTORIZADO. Inicia sesión en el menú principal.</span>";
+            // Deshabilitar panel
+            mainPanel.style.opacity = '0.5';
+            mainPanel.style.pointerEvents = 'none';
+        }
+    });
+
+    // --- 3. FUNCIÓN DE CARGA SEGURA ---
+    function iniciarDescargaDatos() {
+        // Escucha Serie A (Old)
+        refOld.on('value', snap => {
+            globalStore = globalStore.filter(d => d.source !== 'old');
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    const val = child.val();
+                    globalStore.push({ key: child.key, numero: val.numero, fecha: formatoFechaSalida(val.fecha), wilaya: val.wilaya || '', source: 'old' });
+                });
+            }
+            procesarDatosGlobales();
+        }, (error) => {
+            console.error("Error Permisos V4:", error);
+            statusBar.innerHTML = `<span class="text-red-600 font-bold">ERROR PERMISOS: ${error.code}</span>`;
+        });
+
+        // Escucha Serie L (New)
+        refNew.on('value', snap => {
+            globalStore = globalStore.filter(d => d.source !== 'new');
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    const val = child.val();
+                    globalStore.push({ key: child.key, numero: val.numero, fecha: formatoFechaSalida(val.fecha), wilaya: val.wilaya || '', source: 'new' });
+                });
+            }
+            procesarDatosGlobales();
+        });
+    }
+
+    // --- SISTEMA DE NOTIFICACIONES (TOAST) ---
     function showToast(msg, type='success') {
         const t = document.getElementById('toast-notification');
         const icon = document.getElementById('toast-icon');
@@ -397,12 +429,10 @@ const firebaseConfig = {
             icon.textContent = "✅";
         }
 
-        setTimeout(() => {
-            t.classList.remove('show');
-        }, 3500);
+        setTimeout(() => { t.classList.remove('show'); }, 3500);
     }
 
-    // --- 3. GESTIÓN DE DATOS UNIFICADA ---
+    // --- GESTIÓN DE DATOS UNIFICADA ---
     function procesarDatosGlobales() {
         const listA = [];
         const listL = [];
@@ -412,7 +442,6 @@ const firebaseConfig = {
             else listA.push(item);
         });
 
-        // ORDENAR ALFABÉTICAMENTE (A -> Z)
         const sorter = (a, b) => {
             const numA = a.numero || "";
             const numB = b.numero || "";
@@ -431,29 +460,6 @@ const firebaseConfig = {
         if (!str) return 0;
         return parseInt(str.replace(/\D/g, '')) || 0;
     }
-
-    // Listeners
-    refOld.on('value', snap => {
-        globalStore = globalStore.filter(d => d.source !== 'old');
-        if (snap.exists()) {
-            snap.forEach(child => {
-                const val = child.val();
-                globalStore.push({ key: child.key, numero: val.numero, fecha: formatoFechaSalida(val.fecha), wilaya: val.wilaya || '', source: 'old' });
-            });
-        }
-        procesarDatosGlobales();
-    });
-
-    refNew.on('value', snap => {
-        globalStore = globalStore.filter(d => d.source !== 'new');
-        if (snap.exists()) {
-            snap.forEach(child => {
-                const val = child.val();
-                globalStore.push({ key: child.key, numero: val.numero, fecha: formatoFechaSalida(val.fecha), wilaya: val.wilaya || '', source: 'new' });
-            });
-        }
-        procesarDatosGlobales();
-    });
 
     function renderTabla(datos, tbodyId, emptyId, countId) {
         const tbody = document.getElementById(tbodyId);
@@ -477,20 +483,15 @@ const firebaseConfig = {
                 <td class="px-6 py-4 text-gray-600">${d.fecha}</td>
                 <td class="px-6 py-4 text-right uppercase text-xs font-bold text-gray-500">${d.wilaya || '---'}</td>
                 <td class="px-6 py-4 text-right flex justify-end gap-2">
-                    <button onclick="iniciarEdicion('${d.key}', '${d.source}', '${d.numero}', '${d.fecha}', '${wSafe}')" class="text-white bg-blue-500 hover:bg-blue-600 font-bold px-2 py-1 rounded text-xs shadow-sm transition-transform hover:scale-105" title="Editar">
-                       ✏️
-                    </button>
-                    <button onclick="eliminarRegistro('${d.key}', '${d.source}')" class="text-white bg-red-400 hover:bg-red-500 font-bold px-2 py-1 rounded text-xs shadow-sm transition-transform hover:scale-105" title="Eliminar">
-                       ✕
-                    </button>
+                    <button onclick="iniciarEdicion('${d.key}', '${d.source}', '${d.numero}', '${d.fecha}', '${wSafe}')" class="text-white bg-blue-500 hover:bg-blue-600 font-bold px-2 py-1 rounded text-xs shadow-sm transition-transform hover:scale-105" title="Editar">✏️</button>
+                    <button onclick="eliminarRegistro('${d.key}', '${d.source}')" class="text-white bg-red-400 hover:bg-red-500 font-bold px-2 py-1 rounded text-xs shadow-sm transition-transform hover:scale-105" title="Eliminar">✕</button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // --- 4. LÓGICA DE EDICIÓN Y GUARDADO ---
-
+    // --- LÓGICA DE EDICIÓN Y GUARDADO ---
     function prepararNuevoManual() {
         editState = { isEditing: false, key: null, source: null };
         document.getElementById('formTitle').textContent = "📝 Nuevo Registro";
@@ -531,6 +532,8 @@ const firebaseConfig = {
     }
 
     function guardarManual() {
+        if(!isUserAuthenticated) { showToast("No autorizado", "error"); return; }
+
         const n = document.getElementById('nuevoNumero').value.trim().toUpperCase();
         const f = document.getElementById('nuevaFecha').value;
         const w = document.getElementById('nuevaWilaya').value.trim();
@@ -544,10 +547,7 @@ const firebaseConfig = {
             // ACTUALIZAR (usando la key existente)
             const ref = (editState.source === 'old') ? refOld : refNew;
             ref.child(editState.key).update({ fecha: fechaGuardar, wilaya: w })
-               .then(() => { 
-                   showToast(`${n} Actualizado`); 
-                   toggleView('list'); 
-               })
+               .then(() => { showToast(`${n} Actualizado`); toggleView('list'); })
                .catch(e => showToast("Error: " + e.message, "error"));
         } else {
             // NUEVO: Guardar usando el NÚMERO como KEY
@@ -564,6 +564,8 @@ const firebaseConfig = {
     }
 
     function eliminarRegistro(key, source) {
+        if(!isUserAuthenticated) { showToast("No autorizado", "error"); return; }
+        
         if(confirm("¿Eliminar definitivamente?")) {
             const ref = (source === 'old') ? refOld : refNew;
             ref.child(key).remove()
@@ -572,14 +574,11 @@ const firebaseConfig = {
         }
     }
 
-    // --- 5. FORMATOS DE FECHA ---
+    // --- FORMATOS DE FECHA ---
     function formatoFechaSalida(f) {
         if (!f) return "---";
         if (f.includes('/')) return f; 
-        if (f.includes('-')) {
-            const [y, m, d] = f.split('-');
-            return `${d}/${m}/${y}`;
-        }
+        if (f.includes('-')) { const [y, m, d] = f.split('-'); return `${d}/${m}/${y}`; }
         return f;
     }
     
@@ -589,7 +588,7 @@ const firebaseConfig = {
         return `${y}-${m}-${d}`;
     }
 
-    // --- 6. BÚSQUEDA Y AI ---
+    // --- BÚSQUEDA Y AI ---
     let geminiApiKey = localStorage.getItem('ai_api_key') || '';
     let geminiModelName = localStorage.getItem('gemini_model_name') || 'gemini-2.5-flash';
 
@@ -599,6 +598,11 @@ const firebaseConfig = {
         output.innerHTML = '';
         document.getElementById('aiResultBox').classList.add('hidden');
         if (!input) return;
+        
+        if(!isUserAuthenticated && globalStore.length === 0) {
+            output.innerHTML = `<div class="bg-red-100 p-4 rounded text-red-600 font-bold">⚠️ Conectando... espera un momento</div>`;
+            return;
+        }
 
         const exacto = globalStore.find(d => d.numero === input);
         if (exacto) {
@@ -618,10 +622,7 @@ const firebaseConfig = {
 
         const val = extraerValorNumerico(input);
         const dataset = input.startsWith('L') ? globalStore.filter(d=>d.numero.startsWith('L')) : globalStore.filter(d=>!d.numero.startsWith('L'));
-        
-        // Sorting para la estimación
         const sorted = [...dataset].sort((a,b) => extraerValorNumerico(a.numero) - extraerValorNumerico(b.numero));
-        
         const ant = sorted.filter(d => extraerValorNumerico(d.numero) < val).pop();
         const post = sorted.find(d => extraerValorNumerico(d.numero) > val);
 
@@ -687,30 +688,21 @@ const firebaseConfig = {
         currentAiData = { num, fecha, wilaya };
 
         const existe = globalStore.find(d => d.numero === num);
-        
         const wSafe = wilaya ? wilaya.replace(/'/g, "\\'") : '';
 
         if (existe) {
             const wExistSafe = existe.wilaya ? existe.wilaya.replace(/'/g, "\\'") : '';
-            
             let msg = `Documento registrado.<br>Fecha: ${existe.fecha}`;
-            let btnHtml = `
-                <button onclick="iniciarEdicion('${existe.key}', '${existe.source}', '${existe.numero}', '${existe.fecha}', '${wExistSafe}')" class="w-full bg-blue-600 text-white font-bold py-3 rounded shadow hover:bg-blue-700">
-                    ✏️ EDITAR
-                </button>`;
+            let btnHtml = `<button onclick="iniciarEdicion('${existe.key}', '${existe.source}', '${existe.numero}', '${existe.fecha}', '${wExistSafe}')" class="w-full bg-blue-600 text-white font-bold py-3 rounded shadow hover:bg-blue-700">✏️ EDITAR</button>`;
 
             if (wilaya && wilaya !== 'Desconocido' && (!existe.wilaya || existe.wilaya.trim() === '')) {
                 msg += `<br><span class="text-green-700 font-bold">¡NUEVA WILAYA: ${wilaya}!</span>`;
-                btnHtml = `
-                    <button onclick="iniciarEdicion('${existe.key}', '${existe.source}', '${existe.numero}', '${existe.fecha}', '${wSafe}')" class="w-full bg-green-600 text-white font-bold py-4 rounded-lg shadow-lg hover:bg-green-700 animate-pulse">
-                        🔄 ACTUALIZAR CON WILAYA
-                    </button>`;
+                btnHtml = `<button onclick="iniciarEdicion('${existe.key}', '${existe.source}', '${existe.numero}', '${existe.fecha}', '${wSafe}')" class="w-full bg-green-600 text-white font-bold py-4 rounded-lg shadow-lg hover:bg-green-700 animate-pulse">🔄 ACTUALIZAR CON WILAYA</button>`;
                 configAlerta('verde', 'MEJORA DETECTADA', msg);
             } else {
                 configAlerta('azul', 'YA REGISTRADO', msg);
             }
             actions.innerHTML = btnHtml;
-
         } else {
             const dataset = num.startsWith('L') ? globalStore.filter(d=>d.numero.startsWith('L')) : globalStore.filter(d=>!d.numero.startsWith('L'));
             const val = extraerValorNumerico(num);
@@ -737,57 +729,23 @@ const firebaseConfig = {
         }
     }
 
-    // GUARDAR USANDO LA KEY PERSONALIZADA
     function guardarDesdeAI() {
         if(!currentAiData) return;
+        if(!isUserAuthenticated) { showToast("No autorizado", "error"); return; }
         const { num, fecha, wilaya } = currentAiData; 
-        
         const ref = num.startsWith('L') ? refNew : refOld;
-        
-        // Guardar usando el NÚMERO como KEY
         ref.child(num).set({ numero: num, fecha: fecha, wilaya: wilaya || '' })
-            .then(() => { 
-                showToast(`${num} Guardado`); 
-                cerrarPanelIA(); 
-                switchTab(num.startsWith('L')?'L':'A'); 
-                currentAiData = null; 
-            })
+            .then(() => { showToast(`${num} Guardado`); cerrarPanelIA(); switchTab(num.startsWith('L')?'L':'A'); currentAiData = null; })
             .catch(e => showToast("Error: " + e.message, "error"));
     }
 
     // --- UI HELPERS ---
     function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('hidden'); document.getElementById('apiKeyInput').value=geminiApiKey; document.getElementById('modelInput').value=geminiModelName; }
     function saveSettings() { geminiApiKey=document.getElementById('apiKeyInput').value; geminiModelName=document.getElementById('modelInput').value; localStorage.setItem('ai_api_key', geminiApiKey); localStorage.setItem('gemini_model_name', geminiModelName); toggleSettings(); }
-    
-    // Toggle Help
-    function toggleHelp() {
-        const modal = document.getElementById('helpModal');
-        const display = modal.style.display;
-        modal.style.display = (display === 'flex') ? 'none' : 'flex';
-    }
-
-    function toggleVisibility() {
-        const input = document.getElementById('apiKeyInput');
-        const icon = document.getElementById('eyeIcon');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.textContent = '🙈';
-        } else {
-            input.type = 'password';
-            icon.textContent = '👁️';
-        }
-    }
-
-    function toggleView(v) { 
-        document.getElementById('formularioNuevosDatos').classList.toggle('hidden', v!=='form');
-        document.getElementById('cpiDataTable').classList.toggle('hidden', v!=='list');
-    }
-    function switchTab(t) {
-        document.getElementById('containerA').classList.toggle('hidden', t!=='A');
-        document.getElementById('containerL').classList.toggle('hidden', t!=='L');
-        document.getElementById('tabA').classList.toggle('active-a', t==='A');
-        document.getElementById('tabL').classList.toggle('active-l', t==='L');
-    }
+    function toggleHelp() { const m = document.getElementById('helpModal'); m.style.display = (m.style.display === 'flex') ? 'none' : 'flex'; }
+    function toggleVisibility() { const i = document.getElementById('apiKeyInput'), c = document.getElementById('eyeIcon'); if(i.type==='password'){i.type='text';c.textContent='🙈'}else{i.type='password';c.textContent='👁️'} }
+    function toggleView(v) { document.getElementById('formularioNuevosDatos').classList.toggle('hidden', v!=='form'); document.getElementById('cpiDataTable').classList.toggle('hidden', v!=='list'); }
+    function switchTab(t) { document.getElementById('containerA').classList.toggle('hidden', t!=='A'); document.getElementById('containerL').classList.toggle('hidden', t!=='L'); document.getElementById('tabA').classList.toggle('active-a', t==='A'); document.getElementById('tabL').classList.toggle('active-l', t==='L'); }
     function cerrarPanelIA() { document.getElementById('aiResultBox').classList.add('hidden'); }
     function configAlerta(c,t,m) {
         const h=document.getElementById('aiHeader'), b=document.getElementById('aiValidationMsg');
@@ -801,7 +759,7 @@ const firebaseConfig = {
     const dz=document.getElementById('mainDropZone');
     ['dragenter','dragover'].forEach(e=>dz.addEventListener(e,(ev)=>{ev.preventDefault();dz.classList.add('drag-active')}));
     ['dragleave','drop'].forEach(e=>dz.addEventListener(e,(ev)=>{ev.preventDefault();dz.classList.remove('drag-active')}));
-    dz.addEventListener('drop',e=>{if(e.dataTransfer.files[0])processImage(e.dataTransfer.files[0])});
+    dz.addEventListener('drop',e=>{e.preventDefault(); dz.classList.remove('drag-active'); if(e.dataTransfer.files[0])processImage(e.dataTransfer.files[0])});
     window.addEventListener('paste',e=>{for(let i of e.clipboardData.items)if(i.type.startsWith('image'))processImage(i.getAsFile())});
     document.getElementById("numero").addEventListener("keypress",e=>{if(e.key==="Enter")buscarFechaManual()});
   </script>
