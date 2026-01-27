@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Buscador de Infracciones de Tráfico - GAD</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -154,9 +156,23 @@
         transition: background 0.2s;
     }
     .format-toolbar button:hover { background-color: #e5e7eb; }
+    
+    /* Mensaje de carga de seguridad */
+    #auth-loading-screen {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #f8fafc; z-index: 9999;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        color: #1e40af; font-weight: bold;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col pb-12 text-slate-800">
+
+  <div id="auth-loading-screen">
+      <i class="fas fa-shield-alt fa-3x mb-4"></i>
+      <span>Conectando con Base de Datos V4...</span>
+  </div>
 
   <header class="bg-gradient-to-r from-blue-900 to-blue-700 w-full shadow-lg py-4">
     <div class="flex flex-col justify-center items-center">
@@ -169,70 +185,72 @@
     </div>
   </header>
 
-  <div class="w-11/12 max-w-3xl mx-auto mt-6 flex justify-end items-center px-1">
-      <span class="mr-3 text-xs font-bold text-slate-500 uppercase tracking-widest">Modo Edición</span>
-      <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
-          <input type="checkbox" name="toggle" id="editModeToggle" onchange="toggleEditMode()" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 left-0 transition-all duration-200 ease-in-out"/>
-          <label for="editModeToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
+  <div id="main-content" style="display:none;">
+      <div class="w-11/12 max-w-3xl mx-auto mt-6 flex justify-end items-center px-1">
+          <span class="mr-3 text-xs font-bold text-slate-500 uppercase tracking-widest">Modo Edición</span>
+          <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
+              <input type="checkbox" name="toggle" id="editModeToggle" onchange="toggleEditMode()" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 left-0 transition-all duration-200 ease-in-out"/>
+              <label for="editModeToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
+          </div>
       </div>
-  </div>
 
-  <div class="w-11/12 max-w-3xl mx-auto mt-2 bg-white p-6 rounded-xl shadow-md border border-gray-200">
-    <div class="relative search-container">
-      <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition">
-        <input 
-          type="text" 
-          id="searchInput" 
-          placeholder="Buscar por palabra clave, artículo, norma..." 
-          class="flex-grow px-4 py-3 focus:outline-none text-gray-700"
-          autocomplete="off"
-        >
-        <button id="clearButton" class="hidden text-gray-400 hover:text-gray-600 px-3 transition">
-          <i class="fas fa-times-circle"></i>
+      <div class="w-11/12 max-w-3xl mx-auto mt-2 bg-white p-6 rounded-xl shadow-md border border-gray-200">
+        <div class="relative search-container">
+          <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition">
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Buscar por palabra clave, artículo, norma..." 
+              class="flex-grow px-4 py-3 focus:outline-none text-gray-700"
+              autocomplete="off"
+            >
+            <button id="clearButton" class="hidden text-gray-400 hover:text-gray-600 px-3 transition">
+              <i class="fas fa-times-circle"></i>
+            </button>
+            <button id="searchButton" class="bg-blue-600 text-white px-6 py-3 hover:bg-blue-700 transition font-bold">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+          <div id="suggestionsBox" class="suggestions-container hidden"></div>
+        </div>
+        
+        <div class="mt-4">
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-1 tracking-wide">Filtrar por normativa</label>
+          <select id="regulationFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
+            <option value="todas">Todas las normativas</option>
+            <option value="Ley de Seguridad Vial">Ley de Seguridad Vial</option>
+            <option value="Reglamento General de Conductores">Reglamento General de Conductores</option>
+            <option value="Reglamento General de Vehículos">Reglamento General de Vehículos</option>
+            <option value="Reglamento General de Circulación">Reglamento General de Circulación</option>
+            <option value="Real Decreto 8/2004 del SOA">Real Decreto 8/2004 del SOA</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="searchResults" class="w-11/12 max-w-3xl mx-auto mt-4 bg-white p-4 md:p-6 rounded-xl shadow-md border border-gray-200 min-h-[200px]">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-lg font-bold text-blue-800 uppercase tracking-wide">Resultados</h2>
+            <span id="resultCount" class="text-sm text-gray-500"></span>
+        </div>
+        
+        <div id="resultsContainer" class="space-y-4 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
+          <div class="loading-spinner"></div>
+          <p class="text-center text-gray-500 py-4">Cargando base de datos...</p>
+        </div>
+        <p id="noResults" class="hidden text-center text-gray-500 py-8 italic">No se encontraron infracciones con esos criterios.</p>
+      </div>
+
+      <div class="mt-8 flex flex-col items-center space-y-4 pb-8">
+        <button id="addInfractionBtn" style="display: none;"
+                class="w-11/12 max-w-3xl p-4 bg-green-600 text-white font-bold rounded-lg shadow-md transition hover:bg-green-700 flex items-center justify-center gap-2 uppercase tracking-wide">
+            <i class="fas fa-plus-circle"></i> Introducir Nueva Infracción
         </button>
-        <button id="searchButton" class="bg-blue-600 text-white px-6 py-3 hover:bg-blue-700 transition font-bold">
-          <i class="fas fa-search"></i>
+
+        <button onclick="window.location.href='index.html'"
+                class="w-11/12 max-w-xs p-3 bg-amber-400 text-amber-900 font-bold rounded shadow-md transition hover:bg-amber-300 border-b-4 border-amber-500 active:border-b-0 active:mt-1 uppercase tracking-widest text-xs">
+            Menú Principal
         </button>
       </div>
-      <div id="suggestionsBox" class="suggestions-container hidden"></div>
-    </div>
-    
-    <div class="mt-4">
-      <label class="block text-xs font-bold text-gray-500 uppercase mb-1 tracking-wide">Filtrar por normativa</label>
-      <select id="regulationFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
-        <option value="todas">Todas las normativas</option>
-        <option value="Ley de Seguridad Vial">Ley de Seguridad Vial</option>
-        <option value="Reglamento General de Conductores">Reglamento General de Conductores</option>
-        <option value="Reglamento General de Vehículos">Reglamento General de Vehículos</option>
-        <option value="Reglamento General de Circulación">Reglamento General de Circulación</option>
-        <option value="Real Decreto 8/2004 del SOA">Real Decreto 8/2004 del SOA</option>
-      </select>
-    </div>
-  </div>
-
-  <div id="searchResults" class="w-11/12 max-w-3xl mx-auto mt-4 bg-white p-4 md:p-6 rounded-xl shadow-md border border-gray-200 min-h-[200px]">
-    <div class="flex justify-between items-center mb-4 border-b pb-2">
-        <h2 class="text-lg font-bold text-blue-800 uppercase tracking-wide">Resultados</h2>
-        <span id="resultCount" class="text-sm text-gray-500"></span>
-    </div>
-    
-    <div id="resultsContainer" class="space-y-4 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
-      <div class="loading-spinner"></div>
-      <p class="text-center text-gray-500 py-4">Cargando base de datos...</p>
-    </div>
-    <p id="noResults" class="hidden text-center text-gray-500 py-8 italic">No se encontraron infracciones con esos criterios.</p>
-  </div>
-
-  <div class="mt-8 flex flex-col items-center space-y-4 pb-8">
-    <button id="addInfractionBtn" style="display: none;"
-            class="w-11/12 max-w-3xl p-4 bg-green-600 text-white font-bold rounded-lg shadow-md transition hover:bg-green-700 flex items-center justify-center gap-2 uppercase tracking-wide">
-        <i class="fas fa-plus-circle"></i> Introducir Nueva Infracción
-    </button>
-
-    <button onclick="window.location.href='index.html'"
-            class="w-11/12 max-w-xs p-3 bg-amber-400 text-amber-900 font-bold rounded shadow-md transition hover:bg-amber-300 border-b-4 border-amber-500 active:border-b-0 active:mt-1 uppercase tracking-widest text-xs">
-        Menú Principal
-    </button>
   </div>
 
   <div id="addInfractionModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 backdrop-blur-sm">
@@ -412,23 +430,26 @@
   </footer>
 
   <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
+    // --- 1. CONFIGURACIÓN FIREBASE V4 ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+      authDomain: "gad-alicante-v4.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v4",
+      storageBucket: "gad-alicante-v4.firebasestorage.app",
+      messagingSenderId: "119727545224",
+      appId: "1:119727545224:web:36880c50d196c456cdb83d"
+    };
 
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+    const auth = firebase.auth(); // INICIALIZAMOS AUTH
     const infraccionesRef = database.ref('infracciones');
     
     let infractionsMap = {};
     let infractions = [];
     let isEditMode = false;
+    let isUserAuthenticated = false;
 
     const searchInput = document.getElementById('searchInput');
     const searchButton = document.getElementById('searchButton');
@@ -446,6 +467,24 @@ const firebaseConfig = {
     const updateInfraction = document.getElementById('updateInfraction');
     const editInfractionForm = document.getElementById('editInfractionForm');
     const suggestionsBox = document.getElementById('suggestionsBox');
+
+    // --- 2. SISTEMA DE SEGURIDAD ESTRICTA (WAIT FOR AUTH) ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            isUserAuthenticated = true;
+            console.log("Usuario V4 conectado:", user.email);
+            
+            document.getElementById('auth-loading-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            
+            // INICIAR CARGA DE DATOS (Solo ahora)
+            loadInfractionsFromFirebase();
+        } else {
+            console.warn("Usuario no autenticado");
+            document.getElementById('auth-loading-screen').innerHTML = 
+                "<div class='text-center text-red-600'><i class='fas fa-lock fa-3x mb-3'></i><br>ACCESO DENEGADO<br>Inicia sesión en el Menú Principal</div>";
+        }
+    });
 
     window.toggleEditMode = function() {
         const checkbox = document.getElementById('editModeToggle');
@@ -599,24 +638,25 @@ const firebaseConfig = {
           resultsContainer.innerHTML = '';
           noResults.classList.remove('hidden');
         }
+      }, (error) => {
+          console.error("Error Firebase:", error);
+          alert("Error de conexión: " + error.code);
       });
     }
     
-    // Normalización AGRESIVA: elimina acentos y reemplaza espacios raros (NBSP) por espacios normales
     function normalizeText(text) {
       if (!text) return '';
       return text.normalize("NFD")
-                 .replace(/[\u0300-\u036f]/g, "") // Quitar acentos
-                 .replace(/\u00A0/g, " ") // Quitar Non-Breaking Space (el error que tenías)
+                 .replace(/[\u0300-\u036f]/g, "") 
+                 .replace(/\u00A0/g, " ") 
                  .toLowerCase();
     }
 
-    // --- SUGERENCIAS INTELIGENTES (OUT OF ORDER) ---
+    // --- SUGERENCIAS INTELIGENTES ---
     function showSuggestions() {
       const searchTerm = searchInput.value.trim();
       const normalizedSearchTerm = normalizeText(searchTerm);
       
-      // Si no hay búsqueda, ocultar
       if (!searchTerm) {
           suggestionsBox.classList.add('hidden');
           return;
@@ -625,7 +665,6 @@ const firebaseConfig = {
       const searchTerms = normalizedSearchTerm.split(/\s+/).filter(t => t.length > 0);
       suggestionsBox.innerHTML = '';
       
-      // Sugerencia Custom
       if (normalizedSearchTerm.includes('105') || normalizedSearchTerm.includes('106')) {
         const customKeywords = 'Alquiler, Vehículos, Mercancías, Autorización, Transporte';
         const suggestionItem = document.createElement('div');
@@ -639,36 +678,27 @@ const firebaseConfig = {
         suggestionsBox.appendChild(suggestionItem);
       }
       
-      // Buscar en TODAS las palabras clave de las infracciones cargadas
-      // Set para evitar duplicados
       const matchedPhrases = new Set();
 
       infractions.forEach(infraction => {
           if(!infraction.keywords) return;
-          
-          // Limpiamos y normalizamos la frase clave completa
           const rawKeywords = infraction.keywords;
           const normalizedKeywords = normalizeText(rawKeywords);
-
-          // Lógica: ¿Contiene TODAS las palabras buscadas?
           const matches = searchTerms.every(term => normalizedKeywords.includes(term));
-
           if (matches) {
               matchedPhrases.add(rawKeywords);
           }
       });
 
-      // Renderizar sugerencias
       if (matchedPhrases.size > 0 || suggestionsBox.hasChildNodes()) {
           const header = document.createElement('div');
           header.className = 'suggestion-header';
           header.textContent = "PALABRAS CLAVE RELACIONADAS";
           suggestionsBox.appendChild(header);
 
-          Array.from(matchedPhrases).slice(0, 10).forEach(phrase => { // Limitar a 10 para no saturar
+          Array.from(matchedPhrases).slice(0, 10).forEach(phrase => { 
               const item = document.createElement('div');
               item.className = 'suggestion-item';
-              // Resaltamos visualmente lo que coincide
               item.innerHTML = highlightText(phrase, searchTerm);
               item.addEventListener('click', () => {
                   searchInput.value = phrase;
@@ -684,7 +714,7 @@ const firebaseConfig = {
       }
     }
 
-    // --- RESALTADO INTELIGENTE MULTIPALABRA ---
+    // --- RESALTADO ---
     function highlightText(text, searchTerm) {
       if (!text || !searchTerm) return text;
       
@@ -696,7 +726,7 @@ const firebaseConfig = {
       const patterns = searchTerms.map(term => {
           const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
           let pattern = '';
-          for (const char of escaped) { // ya está en lowercase
+          for (const char of escaped) {
             switch (char) {
               case 'a': pattern += '[aáàäâ]'; break;
               case 'e': pattern += '[eéèëê]'; break;
@@ -725,7 +755,7 @@ const firebaseConfig = {
       return html;
     }
 
-    // --- BÚSQUEDA PRINCIPAL ---
+    // --- BÚSQUEDA ---
     function searchInfractions() {
       const searchTerm = searchInput.value.trim();
       const normalizedSearchTerm = normalizeText(searchTerm);
@@ -741,7 +771,6 @@ const firebaseConfig = {
       
       if (searchTerms.length > 0) {
         filteredInfractions = filteredInfractions.filter(infraction => {
-          // Buscamos en texto plano para evitar falsos positivos con HTML
           const rawDesc = infraction.description.replace(/<\/?[^>]+(>|$)/g, ""); 
           
           const fullText = [
@@ -751,7 +780,7 @@ const firebaseConfig = {
             infraction.regulation,
             infraction.section,
             infraction.option
-          ].join(' '); // No hacemos lowercase aquí, lo hace normalizeText
+          ].join(' '); 
           
           const normalizedFullText = normalizeText(fullText);
 
@@ -843,6 +872,7 @@ const firebaseConfig = {
     }
 
     function editInfraction(key) {
+      if(!isUserAuthenticated) return alert("No tienes permisos.");
       const infraction = infractions.find(i => i.key === key);
       if (!infraction) return;
       document.getElementById('editKey').value = infraction.key;
@@ -862,6 +892,7 @@ const firebaseConfig = {
     }
 
     function deleteInfraction(key) {
+      if(!isUserAuthenticated) return alert("No tienes permisos.");
       if (confirm('¿Eliminar esta infracción definitivamente?')) {
         infraccionesRef.child(key).remove().then(() => {
             loadInfractionsFromFirebase();
@@ -871,6 +902,7 @@ const firebaseConfig = {
 
     function saveNewInfraction(e) {
       e.preventDefault();
+      if(!isUserAuthenticated) return alert("No tienes permisos.");
       const formData = new FormData(infractionForm);
       
       const descHTML = document.getElementById('addDescription').innerHTML;
@@ -897,6 +929,7 @@ const firebaseConfig = {
 
     function updateInfractionInFirebase(e) {
       e.preventDefault();
+      if(!isUserAuthenticated) return alert("No tienes permisos.");
       const formData = new FormData(editInfractionForm);
       const key = document.getElementById('editKey').value;
       
@@ -920,7 +953,9 @@ const firebaseConfig = {
       });
     }
 
-    document.addEventListener('DOMContentLoaded', loadInfractionsFromFirebase);
+    // EL LISTENER PRINCIPAL YA SE ENCARGA DE INICIAR TODO
+    // document.addEventListener('DOMContentLoaded', loadInfractionsFromFirebase); <-- ELIMINADO
+    
     searchButton.addEventListener('click', searchInfractions);
     searchInput.addEventListener('keyup', (e) => {
       if (searchInput.value.length > 0) clearButton.classList.remove('hidden');
