@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Verificación Permiso de Conducir Argelia</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -27,43 +27,30 @@
       transition: transform 0.2s;
       color: #ef4444;
     }
-    .delete-icon:hover {
-      transform: scale(1.1);
-    }
-    .listado-container {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    .cpi-table-container {
-        max-height: 400px;
-        overflow-y: auto;
-        overflow-x: auto;
-    }
-    .cpi-table-header th {
-        white-space: nowrap;
-    }
-    .cpi-table-cell {
-        white-space: nowrap;
-    }
+    .delete-icon:hover { transform: scale(1.1); }
+    .listado-container { max-height: 300px; overflow-y: auto; }
+    .cpi-table-container { max-height: 400px; overflow-y: auto; overflow-x: auto; }
+    .cpi-table-header th { white-space: nowrap; }
+    .cpi-table-cell { white-space: nowrap; }
     #loading-msg {
-        text-align: center;
-        margin-top: 20px;
-        color: #6b7280;
-        font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+      color: #6b7280;
+      font-weight: bold;
     }
     @media (max-width: 640px) {
-        .cpi-table-header th, .cpi-table-cell {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-        }
+      .cpi-table-header th, .cpi-table-cell {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
     }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
 
+<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
   <header class="bg-blue-600 w-full flex justify-center items-center py-2">
     <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
-      <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
+      <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block" />
     </div>
   </header>
 
@@ -73,82 +60,134 @@
   <h2 class="text-gray-700 text-center mt-2 px-4">
     Introduce el Nº de Serie del Permiso ID1
   </h2>
-  
+
   <div class="w-11/12 max-w-md mx-auto mt-4">
-    <img src="logoargelia.png" alt="Logo Argelia" class="w-full">
+    <img src="logoargelia.png" alt="Logo Argelia" class="w-full" />
   </div>
 
-  <input type="text" id="numero" placeholder="Ingresa el número" class="block mx-auto mt-4 p-3 text-base w-11/12 max-w-md border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+  <input
+    type="text"
+    id="numero"
+    placeholder="Ingresa el número"
+    class="block mx-auto mt-4 p-3 text-base w-11/12 max-w-md border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
 
-  <button onclick="buscarFecha()" class="block mx-auto mt-4 w-11/12 max-w-md bg-blue-600 text-white font-bold py-3 rounded-md hover:bg-blue-700 transition">
+  <button
+    onclick="buscarFecha()"
+    class="block mx-auto mt-4 w-11/12 max-w-md bg-blue-600 text-white font-bold py-3 rounded-md hover:bg-blue-700 transition"
+  >
     Consultar
   </button>
 
   <div id="output" class="mt-6 text-gray-700 text-center w-11/12 max-w-md mx-auto"></div>
-  
+
   <div id="loading-msg">Conectando con Base de Datos V4...</div>
 
-  <div class="bg-white shadow-md rounded-lg p-6 mt-4 text-center w-11/12 max-w-md mx-auto" id="main-panel" style="display:none;">
+  <div
+    class="bg-white shadow-md rounded-lg p-6 mt-4 text-center w-11/12 max-w-md mx-auto"
+    id="main-panel"
+    style="display:none;"
+  >
     <h3 class="text-lg font-semibold mb-4">Añadir nuevos datos</h3>
-    <button id="mostrarFormularioBtn" class="w-full bg-green-600 text-white py-2 rounded-md shadow hover:bg-green-700">
+
+    <button
+      id="mostrarFormularioBtn"
+      class="w-full bg-green-600 text-white py-2 rounded-md shadow hover:bg-green-700"
+    >
       Introduzca nuevo Nº de Identificación
     </button>
-    <button id="mostrarListadoBtn" class="w-full bg-blue-500 text-white py-2 rounded-md shadow hover:bg-blue-600 mt-2">
+
+    <button
+      id="mostrarListadoBtn"
+      class="w-full bg-blue-500 text-white py-2 rounded-md shadow hover:bg-blue-600 mt-2"
+    >
       Consultar Lista Completa
     </button>
-    
+
     <div id="cpiDataTable" class="mt-4 hidden">
-        <h3 class="text-lg font-semibold mb-4 text-center">Listado Completo</h3>
-        <div class="cpi-table-container">
-            <table class="w-full min-w-full text-sm text-left text-gray-500">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 cpi-table-header">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">Número de orden</th>
-                        <th scope="col" class="px-6 py-3">Fecha</th>
-                        <th scope="col" class="px-6 py-3"></th>
-                    </tr>
-                </thead>
-                <tbody id="cpiList"></tbody>
-            </table>
-        </div>
+      <h3 class="text-lg font-semibold mb-4 text-center">Listado Completo</h3>
+      <div class="cpi-table-container">
+        <table class="w-full min-w-full text-sm text-left text-gray-500">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 cpi-table-header">
+            <tr>
+              <th scope="col" class="px-6 py-3">Número de orden</th>
+              <th scope="col" class="px-6 py-3">Fecha</th>
+              <th scope="col" class="px-6 py-3"></th>
+            </tr>
+          </thead>
+          <tbody id="cpiList"></tbody>
+        </table>
+      </div>
     </div>
-    
+
     <div id="formularioNuevosDatos" class="mt-4 hidden">
       <div class="mb-4">
-        <label for="nuevoNumero" class="block text-sm font-bold text-gray-700 mb-1">Número de Identificación:</label>
-        <input type="text" id="nuevoNumero" placeholder="Ej: 1234567890" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <label for="nuevoNumero" class="block text-sm font-bold text-gray-700 mb-1">
+          Número de Identificación:
+        </label>
+        <input
+          type="text"
+          id="nuevoNumero"
+          placeholder="Ej: 1234567890"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
       </div>
+
       <div class="mb-4">
-        <label for="nuevaFecha" class="block text-sm font-bold text-gray-700 mb-1">Fecha de expedición:</label>
-        <input type="date" id="nuevaFecha" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <label for="nuevaFecha" class="block text-sm font-bold text-gray-700 mb-1">
+          Fecha de expedición:
+        </label>
+        <input
+          type="date"
+          id="nuevaFecha"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
       </div>
+
       <div class="flex space-x-2">
-        <button onclick="guardarNuevoNumero()" class="w-1/2 bg-blue-600 text-white py-2 rounded-md shadow hover:bg-blue-700">Guardar</button>
-        <button onclick="limpiarCampos()" class="w-1/2 bg-gray-400 text-white py-2 rounded-md shadow hover:bg-gray-500">Limpiar campos</button>
+        <button
+          onclick="guardarNuevoNumero()"
+          class="w-1/2 bg-blue-600 text-white py-2 rounded-md shadow hover:bg-blue-700"
+        >
+          Guardar
+        </button>
+        <button
+          onclick="limpiarCampos()"
+          class="w-1/2 bg-gray-400 text-white py-2 rounded-md shadow hover:bg-gray-500"
+        >
+          Limpiar campos
+        </button>
       </div>
+
       <div id="mensajeGuardado" class="mt-4 text-sm font-medium"></div>
     </div>
   </div>
 
   <div class="mt-8 flex justify-center">
-    <button onclick="window.location.href='index.html'" class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
-        MENÚ PRINCIPAL
+    <button
+      onclick="window.location.href='index.html'"
+      class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200"
+    >
+      MENÚ PRINCIPAL
     </button>
   </div>
 
   <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
+    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4" />
     <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
     <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
     <p>&copy; GAD - Todos los derechos reservados</p>
   </footer>
 
+  <!-- Firebase v8 (compat) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
-    // --- 1. CONFIGURACIÓN V4 (IDÉNTICA A ARGENTINA) ---
+    /******************************************************************
+     * 1) CONFIGURACIÓN V4 (EXACTA, con firebase-auth incluido)
+     ******************************************************************/
     const firebaseConfig = {
       apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
       authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -159,224 +198,328 @@
       appId: "1:119727545224:web:36880c50d196c456cdb83d"
     };
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const database = firebase.database();
-    const auth = firebase.auth();
-    
-    // --- CORRECCIÓN DE VARIABLE: USAMOS 'licenciasRef' EN TODO EL CÓDIGO ---
-    const licenciasRef = database.ref('licencias_argelia_nuevas');
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    /******************************************************************
+     * 3) CORRECCIÓN DE VARIABLES (UNA SOLA REF CONSISTENTE)
+     ******************************************************************/
+    const licenciasRef = database.ref("licencias_argelia_nuevas");
+
+    /******************************************************************
+     * Estado de la app
+     ******************************************************************/
     let datosCompletos = [];
     let isUserAuthenticated = false;
-    
-    // --- 2. EL FIX DE SEGURIDAD (Igual que en Argentina) ---
+    let isDbListenerAttached = false;
+
+    const loadingMsg = document.getElementById("loading-msg");
+    const mainPanel = document.getElementById("main-panel");
+
+    /******************************************************************
+     * 2) FIX CRÍTICO DE SEGURIDAD: NO LEER HASTA AUTH CONFIRMADO
+     ******************************************************************/
     auth.onAuthStateChanged((user) => {
-        if (user) {
-            isUserAuthenticated = true;
-            console.log("Usuario autorizado en Argelia V4:", user.email);
-            
-            document.getElementById('loading-msg').style.display = 'none';
-            document.getElementById('main-panel').style.display = 'block';
-            
-            // Iniciamos la carga SOLO cuando tenemos usuario
-            cargarDatosDesdeFirebase();
-        } else {
-            console.warn("Usuario no logueado");
-            document.getElementById('loading-msg').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú.</span>";
-        }
+      if (user) {
+        isUserAuthenticated = true;
+        loadingMsg.style.display = "none";
+        mainPanel.style.display = "block";
+
+        // Importante: solo ahora conectamos el listener a la BD
+        attachDbListenerOnce();
+      } else {
+        isUserAuthenticated = false;
+
+        // Si hubiera un listener activo, lo desconectamos para evitar lecturas sin auth
+        detachDbListener();
+
+        datosCompletos = [];
+        renderizarTablaCpi();
+
+        loadingMsg.style.display = "block";
+        loadingMsg.innerHTML =
+          "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú.</span>";
+        mainPanel.style.display = "none";
+      }
     });
 
-    function cargarDatosDesdeFirebase() {
-      // Usamos licenciasRef (la variable correcta)
-      licenciasRef.on('value', snapshot => {
-        datosCompletos = [];
-        snapshot.forEach(childSnapshot => {
-          const nuevoDato = childSnapshot.val();
-          const key = childSnapshot.key;
-          datosCompletos.push({
-            numero: nuevoDato.numero,
-            fecha: nuevoDato.fecha,
-            key: key
+    function attachDbListenerOnce() {
+      if (isDbListenerAttached) return;
+      isDbListenerAttached = true;
+
+      licenciasRef.on(
+        "value",
+        (snapshot) => {
+          datosCompletos = [];
+          snapshot.forEach((childSnapshot) => {
+            const v = childSnapshot.val() || {};
+            datosCompletos.push({
+              numero: v.numero || "",
+              fecha: v.fecha || "",
+              key: childSnapshot.key
+            });
           });
-        });
-        datosCompletos.sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
-        renderizarTablaCpi();
-      }, (error) => {
+
+          // Orden por número (mismo comportamiento)
+          datosCompletos.sort((a, b) =>
+            String(a.numero).localeCompare(String(b.numero), undefined, { numeric: true })
+          );
+
+          renderizarTablaCpi();
+        },
+        (error) => {
           console.error("Error Firebase:", error);
-          document.getElementById('loading-msg').style.display = 'block';
-          document.getElementById('loading-msg').innerHTML = "<span class='text-red-500'>Error de Permisos V4: " + error.code + "</span>";
-      });
+          loadingMsg.style.display = "block";
+          loadingMsg.innerHTML =
+            "<span class='text-red-500'>Error de Permisos V4: " + (error.code || error.message) + "</span>";
+        }
+      );
     }
 
-    // --- LÓGICA DE LA HERRAMIENTA ---
-    const mostrarFormularioBtn = document.getElementById('mostrarFormularioBtn');
-    const formularioNuevosDatos = document.getElementById('formularioNuevosDatos');
-    const nuevoNumeroInput = document.getElementById('nuevoNumero');
-    const nuevaFechaInput = document.getElementById('nuevaFecha');
-    const mensajeGuardadoDiv = document.getElementById('mensajeGuardado');
-    const mostrarListadoBtn = document.getElementById('mostrarListadoBtn');
-    const cpiDataTable = document.getElementById('cpiDataTable');
-    const cpiListDiv = document.getElementById('cpiList');
+    function detachDbListener() {
+      if (!isDbListenerAttached) return;
+      try {
+        licenciasRef.off();
+      } catch (e) {
+        console.warn("No se pudo ejecutar off() con seguridad:", e);
+      }
+      isDbListenerAttached = false;
+    }
 
-    mostrarFormularioBtn.addEventListener('click', () => {
-        formularioNuevosDatos.classList.toggle('hidden');
-        cpiDataTable.classList.add('hidden');
-        limpiarCampos();
+    /******************************************************************
+     * Lógica UI (sin cambiar funcionalidades)
+     ******************************************************************/
+    const mostrarFormularioBtn = document.getElementById("mostrarFormularioBtn");
+    const formularioNuevosDatos = document.getElementById("formularioNuevosDatos");
+    const nuevoNumeroInput = document.getElementById("nuevoNumero");
+    const nuevaFechaInput = document.getElementById("nuevaFecha");
+    const mensajeGuardadoDiv = document.getElementById("mensajeGuardado");
+    const mostrarListadoBtn = document.getElementById("mostrarListadoBtn");
+    const cpiDataTable = document.getElementById("cpiDataTable");
+    const cpiListDiv = document.getElementById("cpiList");
+
+    mostrarFormularioBtn.addEventListener("click", () => {
+      formularioNuevosDatos.classList.toggle("hidden");
+      cpiDataTable.classList.add("hidden");
+      limpiarCampos();
     });
 
-    mostrarListadoBtn.addEventListener('click', () => {
-        cpiDataTable.classList.toggle('hidden');
-        formularioNuevosDatos.classList.add('hidden');
-        limpiarCampos();
+    mostrarListadoBtn.addEventListener("click", () => {
+      cpiDataTable.classList.toggle("hidden");
+      formularioNuevosDatos.classList.add("hidden");
+      limpiarCampos();
     });
 
     function limpiarCampos() {
-        nuevoNumeroInput.value = '';
-        nuevaFechaInput.value = '';
-        mensajeGuardadoDiv.textContent = '';
-        mensajeGuardadoDiv.style.color = '';
+      nuevoNumeroInput.value = "";
+      nuevaFechaInput.value = "";
+      mensajeGuardadoDiv.textContent = "";
+      mensajeGuardadoDiv.style.color = "";
     }
+    window.limpiarCampos = limpiarCampos;
 
     function guardarNuevoNumero() {
-        if (!isUserAuthenticated) {
-            alert("No tienes permisos en V4.");
-            return;
+      if (!isUserAuthenticated) {
+        alert("No tienes permisos en V4.");
+        return;
+      }
+
+      const nuevoNumero = (nuevoNumeroInput.value || "").trim();
+      const nuevaFecha = (nuevaFechaInput.value || "").trim();
+
+      if (!nuevoNumero || !nuevaFecha) {
+        mensajeGuardadoDiv.textContent = "Introduce número y fecha válidos.";
+        mensajeGuardadoDiv.style.color = "orange";
+        return;
+      }
+
+      const datoExistente = datosCompletos.find((d) => d.numero === nuevoNumero);
+      if (datoExistente) {
+        mensajeGuardadoDiv.innerHTML = `EL NÚMERO YA EXISTE CON FECHA: <b>${datoExistente.fecha}</b>`;
+        mensajeGuardadoDiv.style.color = "red";
+        return;
+      }
+
+      const [year, month, day] = nuevaFecha.split("-");
+      const fechaFormateada = `${day}/${month}/${year}`;
+      const fechaNueva = new Date(`${year}-${month}-${day}`);
+
+      const datosOrdenados = [...datosCompletos].sort((a, b) =>
+        String(a.numero).localeCompare(String(b.numero), undefined, { numeric: true })
+      );
+
+      const antes = datosOrdenados
+        .filter((d) => String(d.numero).localeCompare(String(nuevoNumero), undefined, { numeric: true }) <= 0)
+        .pop();
+
+      const despues = datosOrdenados.find(
+        (d) => String(d.numero).localeCompare(String(nuevoNumero), undefined, { numeric: true }) > 0
+      );
+
+      if (antes) {
+        const fechaAntes = new Date(formatoFecha(antes.fecha).split("/").reverse().join("-"));
+        if (fechaNueva < fechaAntes) {
+          mensajeGuardadoDiv.innerHTML =
+            "<p class='text-red-500 font-bold'>¡POSIBLE FALSO! Progresión incorrecta (Nº posterior con fecha anterior)</p>";
+          return;
         }
+      }
 
-        const nuevoNumero = nuevoNumeroInput.value.trim();
-        const nuevaFecha = nuevaFechaInput.value;
-
-        if (!nuevoNumero || !nuevaFecha) {
-            mensajeGuardadoDiv.textContent = 'Introduce número y fecha válidos.';
-            mensajeGuardadoDiv.style.color = 'orange';
-            return;
+      if (despues) {
+        const fechaDespues = new Date(formatoFecha(despues.fecha).split("/").reverse().join("-"));
+        if (fechaNueva > fechaDespues) {
+          mensajeGuardadoDiv.innerHTML =
+            "<p class='text-red-500 font-bold'>¡POSIBLE FALSO! Progresión incorrecta (Nº anterior con fecha posterior)</p>";
+          return;
         }
+      }
 
-        const datoExistente = datosCompletos.find(dato => dato.numero === nuevoNumero);
-        if (datoExistente) {
-            mensajeGuardadoDiv.innerHTML = `EL NÚMERO YA EXISTE CON FECHA: <b>${datoExistente.fecha}</b>`;
-            mensajeGuardadoDiv.style.color = 'red';
-            return;
-        }
+      const nuevoDato = { numero: nuevoNumero, fecha: fechaFormateada };
 
-        const [year, month, day] = nuevaFecha.split('-');
-        const fechaFormateada = `${day}/${month}/${year}`;
-        const fechaNueva = new Date(`${year}-${month}-${day}`);
-
-        const datosOrdenados = [...datosCompletos].sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
-        const antes = datosOrdenados.filter(d => d.numero.localeCompare(nuevoNumero, undefined, { numeric: true }) <= 0).pop();
-        const despues = datosOrdenados.find(d => d.numero.localeCompare(nuevoNumero, undefined, { numeric: true }) > 0);
-
-        if (antes && fechaNueva < new Date(antes.fecha.split('/').reverse().join('-'))) {
-            mensajeGuardadoDiv.innerHTML = `<p class='text-red-500 font-bold'>¡POSIBLE FALSO! Progresión incorrecta (Nº posterior con fecha anterior)</p>`;
-            return;
-        }
-        if (despues && fechaNueva > new Date(despues.fecha.split('/').reverse().join('-'))) {
-            mensajeGuardadoDiv.innerHTML = `<p class='text-red-500 font-bold'>¡POSIBLE FALSO! Progresión incorrecta (Nº anterior con fecha posterior)</p>`;
-            return;
-        }
-
-        const nuevoDato = { numero: nuevoNumero, fecha: fechaFormateada };
-
-        // USAMOS LA VARIABLE CORRECTA: licenciasRef
-        licenciasRef.push(nuevoDato)
-            .then(() => {
-                mensajeGuardadoDiv.textContent = '¡Guardado en V4!';
-                mensajeGuardadoDiv.style.color = 'green';
-                limpiarCampos();
-                formularioNuevosDatos.classList.add('hidden');
-            })
-            .catch(error => {
-                mensajeGuardadoDiv.textContent = 'Error: ' + error.message;
-                mensajeGuardadoDiv.style.color = 'red';
-            });
+      // USO CONSISTENTE: licenciasRef
+      licenciasRef
+        .push(nuevoDato)
+        .then(() => {
+          mensajeGuardadoDiv.textContent = "¡Guardado en V4!";
+          mensajeGuardadoDiv.style.color = "green";
+          limpiarCampos();
+          formularioNuevosDatos.classList.add("hidden");
+        })
+        .catch((error) => {
+          mensajeGuardadoDiv.textContent = "Error: " + error.message;
+          mensajeGuardadoDiv.style.color = "red";
+        });
     }
-    
+    window.guardarNuevoNumero = guardarNuevoNumero;
+
     function formatoFecha(fechaStr) {
-      if (!fechaStr) return '';
-      if (fechaStr.includes('/')) return fechaStr;
-      const [year, month, day] = fechaStr.split('-');
+      if (!fechaStr) return "";
+      if (String(fechaStr).includes("/")) return fechaStr;
+      const [year, month, day] = String(fechaStr).split("-");
       return `${day}/${month}/${year}`;
     }
 
     function renderizarTablaCpi() {
-      cpiListDiv.innerHTML = '';
+      cpiListDiv.innerHTML = "";
+
       const datosOrdenados = [...datosCompletos].sort((a, b) => {
-          const fA = new Date(formatoFecha(a.fecha).split('/').reverse().join('-'));
-          const fB = new Date(formatoFecha(b.fecha).split('/').reverse().join('-'));
-          return (fA.getTime() === fB.getTime()) ? b.numero - a.numero : fB - fA;
+        const fA = new Date(formatoFecha(a.fecha).split("/").reverse().join("-"));
+        const fB = new Date(formatoFecha(b.fecha).split("/").reverse().join("-"));
+        return fA.getTime() === fB.getTime()
+          ? (parseInt(String(b.numero).replace(/\D/g, ""), 10) || 0) - (parseInt(String(a.numero).replace(/\D/g, ""), 10) || 0)
+          : fB - fA;
       });
-      
-      datosOrdenados.forEach(dato => {
-        const tr = document.createElement('tr');
-        tr.className = 'bg-white border-b hover:bg-gray-50';
-        
-        let trashIcon = '';
-        if(dato.key) {
-            trashIcon = `<span class="cursor-pointer text-red-500" onclick="confirmarEliminar('${dato.key}', '${dato.numero}')">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
+
+      datosOrdenados.forEach((dato) => {
+        const tr = document.createElement("tr");
+        tr.className = "bg-white border-b hover:bg-gray-50";
+
+        let trashIcon = "";
+        if (dato.key) {
+          trashIcon = `
+            <span class="cursor-pointer text-red-500" onclick="confirmarEliminar('${dato.key}', '${dato.numero}')">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+              </svg>
             </span>`;
         }
 
         tr.innerHTML = `
-            <td class="px-6 py-4 font-medium whitespace-nowrap">${dato.numero}</td>
-            <td class="px-6 py-4 whitespace-nowrap">${formatoFecha(dato.fecha)}</td>
-            <td class="px-6 py-4 text-right">${trashIcon}</td>
+          <td class="px-6 py-4 font-medium whitespace-nowrap">${dato.numero}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${formatoFecha(dato.fecha)}</td>
+          <td class="px-6 py-4 text-right">${trashIcon}</td>
         `;
         cpiListDiv.appendChild(tr);
       });
     }
-    
-    // Funciones globales para los onclick del HTML
+
+    // Funciones globales para onclick del HTML
     window.confirmarEliminar = (key, numero) => {
       if (confirm(`¿Eliminar registro ${numero}?`)) eliminarDato(key);
-    }
+    };
 
-    window.eliminarDato = (key) => {
+    function eliminarDato(key) {
       if (!isUserAuthenticated) return alert("No autorizado.");
-      // USAMOS LA VARIABLE CORRECTA: licenciasRef
-      licenciasRef.child(key).remove()
+      // USO CONSISTENTE: licenciasRef
+      licenciasRef
+        .child(key)
+        .remove()
         .then(() => console.log("Eliminado."))
-        .catch(e => alert("Error: " + e.message));
+        .catch((e) => alert("Error: " + e.message));
     }
+    window.eliminarDato = eliminarDato;
 
     window.buscarFecha = () => {
-      const numero = document.getElementById("numero").value.trim();
+      const numero = (document.getElementById("numero").value || "").trim();
       const output = document.getElementById("output");
 
-      if (!numero) return output.innerHTML = "<p class='text-red-500 font-semibold'>Ingresa un número.</p>";
-      
-      if (datosCompletos.length === 0 && !isUserAuthenticated) {
-          return output.innerHTML = "<p class='text-orange-500'>Conectando...</p>";
+      if (!numero) {
+        output.innerHTML = "<p class='text-red-500 font-semibold'>Ingresa un número.</p>";
+        return;
       }
-      
-      const exacto = datosCompletos.find(d => d.numero === numero);
-      if (exacto) return output.innerHTML = `<p class='text-green-600 font-semibold'>Fecha exacta: ${exacto.fecha}</p>`;
-      
-      const datosOrd = [...datosCompletos].sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
-      const antes = datosOrd.filter(d => d.numero.localeCompare(numero, undefined, { numeric: true }) <= 0).pop();
-      const despues = datosOrd.find(d => d.numero.localeCompare(numero, undefined, { numeric: true }) > 0);
 
-      if (!antes) return output.innerHTML = "<p class='text-red-500 font-bold'>NÚMERO DEMASIADO ANTIGUO / SIN REGISTRO ANTERIOR</p>";
-      if (!despues) return output.innerHTML = `<p class='text-red-500 font-semibold'>Número fuera de rango conocido.</p>`;
+      // Si aún no hay auth, avisamos (sin forzar lecturas)
+      if (!isUserAuthenticated) {
+        output.innerHTML = "<p class='text-orange-500'>Debes iniciar sesión desde el Menú para consultar.</p>";
+        return;
+      }
 
-      const n1 = parseInt(antes.numero.replace(/\D/g, ''));
-      const n2 = parseInt(despues.numero.replace(/\D/g, ''));
-      const nAct = parseInt(numero.replace(/\D/g, ''));
+      const exacto = datosCompletos.find((d) => d.numero === numero);
+      if (exacto) {
+        output.innerHTML = `<p class='text-green-600 font-semibold'>Fecha exacta: ${exacto.fecha}</p>`;
+        return;
+      }
+
+      const datosOrd = [...datosCompletos].sort((a, b) =>
+        String(a.numero).localeCompare(String(b.numero), undefined, { numeric: true })
+      );
+
+      const antes = datosOrd
+        .filter((d) => String(d.numero).localeCompare(String(numero), undefined, { numeric: true }) <= 0)
+        .pop();
+
+      const despues = datosOrd.find(
+        (d) => String(d.numero).localeCompare(String(numero), undefined, { numeric: true }) > 0
+      );
+
+      if (!antes) {
+        output.innerHTML = "<p class='text-red-500 font-bold'>NÚMERO DEMASIADO ANTIGUO / SIN REGISTRO ANTERIOR</p>";
+        return;
+      }
+
+      if (!despues) {
+        output.innerHTML = "<p class='text-red-500 font-semibold'>Número fuera de rango conocido.</p>";
+        return;
+      }
+
+      const n1 = parseInt(String(antes.numero).replace(/\D/g, ""), 10);
+      const n2 = parseInt(String(despues.numero).replace(/\D/g, ""), 10);
+      const nAct = parseInt(String(numero).replace(/\D/g, ""), 10);
+
+      if (!Number.isFinite(n1) || !Number.isFinite(n2) || !Number.isFinite(nAct) || n2 === n1) {
+        output.innerHTML = "<p class='text-red-500 font-bold'>Datos insuficientes para estimar.</p>";
+        return;
+      }
+
       const prop = (nAct - n1) / (n2 - n1);
 
       const f1 = new Date(formatoFecha(antes.fecha).split("/").reverse().join("-"));
       const f2 = new Date(formatoFecha(despues.fecha).split("/").reverse().join("-"));
-      
-      if (f1 > f2) return output.innerHTML = "<p class='text-red-500 font-bold'>¡POSIBLE FALSO! Error de progresión.</p>";
+
+      if (f1 > f2) {
+        output.innerHTML = "<p class='text-red-500 font-bold'>¡POSIBLE FALSO! Error de progresión.</p>";
+        return;
+      }
 
       const fEst = new Date(f1.getTime() + prop * (f2 - f1));
       output.innerHTML = `<p class='text-green-600 font-semibold'>Fecha estimada: ${fEst.toLocaleDateString("es-ES")}</p>`;
     };
 
-    document.getElementById("numero").addEventListener("keypress", (e) => { if(e.key === "Enter") window.buscarFecha(); });
+    document.getElementById("numero").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") window.buscarFecha();
+    });
   </script>
 </body>
 </html>
