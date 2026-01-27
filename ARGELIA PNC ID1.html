@@ -45,11 +45,12 @@
     .cpi-table-cell {
         white-space: nowrap;
     }
-    #status-msg {
+    /* Estilo para el mensaje de carga */
+    #loading-msg {
         text-align: center;
-        margin-top: 10px;
+        margin-top: 15px;
+        color: #6b7280;
         font-weight: bold;
-        color: #666;
     }
     @media (max-width: 640px) {
         .cpi-table-header th, .cpi-table-cell {
@@ -63,11 +64,7 @@
 
   <header class="bg-blue-600 w-full flex justify-center items-center py-2">
     <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
-      <img
-        src="logogad.png"
-        alt="Logo GAD"
-        class="w-full h-full object-cover block"
-      >
+      <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
     </div>
   </header>
 
@@ -98,9 +95,9 @@
 
   <div id="output" class="mt-6 text-gray-700 text-center w-11/12 max-w-md mx-auto"></div>
   
-  <div id="status-msg">Conectando con base de datos...</div>
+  <div id="loading-msg">Conectando con base de datos V4...</div>
 
-  <div class="bg-white shadow-md rounded-lg p-6 mt-4 text-center w-11/12 max-w-md mx-auto" id="admin-panel" style="display:none;">
+  <div class="bg-white shadow-md rounded-lg p-6 mt-4 text-center w-11/12 max-w-md mx-auto" id="main-panel" style="display:none;">
     <h3 class="text-lg font-semibold mb-4">Añadir nuevos datos</h3>
     <button id="mostrarFormularioBtn" class="w-full bg-green-600 text-white py-2 rounded-md shadow hover:bg-green-700">
       Introduzca nuevo Nº de Identificación
@@ -120,8 +117,7 @@
                         <th scope="col" class="px-6 py-3"></th>
                     </tr>
                 </thead>
-                <tbody id="cpiList">
-                    </tbody>
+                <tbody id="cpiList"></tbody>
             </table>
         </div>
     </div>
@@ -166,7 +162,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
-    // --- 1. CONFIGURACIÓN V4 ---
+    // --- 1. CONFIGURACIÓN V4 (REVISADA) ---
     const firebaseConfig = {
       apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
       authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -182,27 +178,28 @@
     }
     const database = firebase.database();
     const auth = firebase.auth();
+    // Referencia a la base de datos (NO se lee todavía)
     const licenciasNuevasRef = database.ref('licencias_argelia_nuevas');
 
     let datosCompletos = [];
     let isUserAuthenticated = false;
-
-    // --- 2. GESTIÓN DE SEGURIDAD ESTRICTA ---
-    // Esperamos a que Auth confirme el usuario antes de leer datos
+    
+    // --- 2. EL ARREGLO: ESPERAR AUTENTICACIÓN (Igual que en Argentina) ---
     auth.onAuthStateChanged((user) => {
         if (user) {
+            // Usuario detectado, tenemos luz verde
             isUserAuthenticated = true;
             console.log("Usuario autorizado en Argelia:", user.email);
             
-            // Ocultamos mensaje de carga y mostramos el panel
-            document.getElementById('status-msg').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-
-            // INICIAMOS LA CARGA DE DATOS AHORA
+            // Quitamos mensaje de carga y mostramos panel
+            document.getElementById('loading-msg').style.display = 'none';
+            document.getElementById('main-panel').style.display = 'block';
+            
+            // AHORA lanzamos la descarga de datos
             cargarDatosDesdeFirebase();
         } else {
-            console.warn("Usuario no autenticado en herramienta.");
-            document.getElementById('status-msg').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú Principal.</span>";
+            console.warn("Usuario no logueado");
+            document.getElementById('loading-msg').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú Principal.</span>";
         }
     });
 
@@ -218,17 +215,17 @@
             key: key
           });
         });
-        // Ordenar alfabéticamente/numéricamente
         datosCompletos.sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
-        console.log("Datos de Firebase cargados.");
+        console.log("Datos cargados correctamente.");
         renderizarTablaCpi();
       }, (error) => {
-        console.error("Error leyendo Firebase:", error);
-        document.getElementById('status-msg').style.display = 'block';
-        document.getElementById('status-msg').innerHTML = "<span class='text-red-500'>Error de Permisos V4: " + error.code + "</span>";
+          console.error("Error leyendo Firebase:", error);
+          document.getElementById('loading-msg').style.display = 'block';
+          document.getElementById('loading-msg').innerHTML = "<span class='text-red-500'>Error de Permisos V4: " + error.code + "</span>";
       });
     }
 
+    // --- LÓGICA DE LA HERRAMIENTA (Original sin tocar) ---
     const mostrarFormularioBtn = document.getElementById('mostrarFormularioBtn');
     const formularioNuevosDatos = document.getElementById('formularioNuevosDatos');
     const nuevoNumeroInput = document.getElementById('nuevoNumero');
@@ -259,7 +256,7 @@
 
     function guardarNuevoNumero() {
         if (!isUserAuthenticated) {
-            alert("No tienes permiso para guardar datos.");
+            alert("Error: No estás autenticado en V4.");
             return;
         }
 
@@ -304,29 +301,22 @@
 
         licenciasNuevasRef.push(nuevoDato)
             .then(() => {
-                mensajeGuardadoDiv.textContent = '¡Datos guardados con éxito en Firebase!';
+                mensajeGuardadoDiv.textContent = '¡Datos guardados con éxito en V4!';
                 mensajeGuardadoDiv.style.color = 'green';
                 limpiarCampos();
                 formularioNuevosDatos.classList.add('hidden');
             })
             .catch(error => {
-                mensajeGuardadoDiv.textContent = 'Error al guardar en Firebase: ' + error.message;
+                mensajeGuardadoDiv.textContent = 'Error al guardar: ' + error.message;
                 mensajeGuardadoDiv.style.color = 'red';
             });
     }
     
-    // Función para formatear la fecha a DD/MM/YYYY
     function formatoFecha(fechaStr) {
       if (!fechaStr) return '';
-      // Verifica si el formato ya es DD/MM/YYYY
-      if (fechaStr.includes('/')) {
-        return fechaStr;
-      }
-      // Convierte YYYY-MM-DD a DD/MM/YYYY
+      if (fechaStr.includes('/')) return fechaStr;
       const [year, month, day] = fechaStr.split('-');
-      if (year && month && day) {
-        return `${day}/${month}/${year}`;
-      }
+      if (year && month && day) return `${day}/${month}/${year}`;
       return fechaStr; 
     }
 
@@ -336,9 +326,7 @@
       const datosOrdenados = [...datosCompletos].sort((a, b) => {
           const fechaA = new Date(formatoFecha(a.fecha).split('/').reverse().join('-'));
           const fechaB = new Date(formatoFecha(b.fecha).split('/').reverse().join('-'));
-          if (fechaA.getTime() === fechaB.getTime()) {
-              return b.numero - a.numero;
-          }
+          if (fechaA.getTime() === fechaB.getTime()) return b.numero - a.numero;
           return fechaB - fechaA;
       });
       
@@ -357,12 +345,9 @@
         const celdaAccion = document.createElement('td');
         celdaAccion.classList.add('cpi-table-cell', 'px-6', 'py-4', 'text-right', 'whitespace-nowrap');
         
-        // Icono de borrar solo si hay key (que siempre debería haber)
         if (dato.key) {
             const deleteIcon = document.createElement('span');
-            deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 delete-icon inline-block" viewBox="0 0 20 20" fill="currentColor">
-                                      <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
-                                    </svg>`;
+            deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 delete-icon inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>`;
             deleteIcon.onclick = () => confirmarEliminar(dato.key, dato.numero);
             celdaAccion.appendChild(deleteIcon);
         }
@@ -381,18 +366,10 @@
     }
 
     function eliminarDato(key) {
-      if (!isUserAuthenticated) {
-          alert("No autorizado.");
-          return;
-      }
+      if (!isUserAuthenticated) return alert("No autorizado.");
       licenciasNuevasRef.child(key).remove()
-        .then(() => {
-          console.log("Registro eliminado con éxito.");
-        })
-        .catch((error) => {
-          console.error("Error al eliminar el registro:", error);
-          alert("Error al eliminar: " + error.message);
-        });
+        .then(() => console.log("Registro eliminado."))
+        .catch((error) => alert("Error al eliminar: " + error.message));
     }
 
     function buscarFecha() {
@@ -404,19 +381,15 @@
         return;
       }
       
-      // Verificación de si la base de datos está cargada
+      // Control de datos no cargados
       if (datosCompletos.length === 0 && !isUserAuthenticated) {
-          output.innerHTML = "<p class='text-orange-500 font-bold'>Conectando a base de datos... Espera un momento.</p>";
+          output.innerHTML = "<p class='text-orange-500'>Conectando... Inténtalo en unos segundos.</p>";
           return;
       }
       
       const exacto = datosCompletos.find(d => d.numero === numero);
       if (exacto) {
-        output.innerHTML = `
-          <p class='text-green-600 font-semibold'>
-            Fecha exacta: ${exacto.fecha}
-          </p>
-        `;
+        output.innerHTML = `<p class='text-green-600 font-semibold'>Fecha exacta: ${exacto.fecha}</p>`;
         return;
       }
       
