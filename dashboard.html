@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Menú GAD</title>
+    <title>Menú GAD V1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -13,10 +13,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        /* ESTILOS ORIGINALES (MANTENIDOS) */
+        /* ESTILOS ORIGINALES */
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; visibility: hidden; }
         body.loaded { visibility: visible; }
-        /* Pantalla de carga mientras verificamos */
         #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 99999; display: flex; justify-content: center; align-items: center; color: white; flex-direction: column; transition: opacity 0.5s; }
         
         .top-bar-strip { background-color: #1e3a8a; color: white; display: flex; align-items: center; padding: 0 10px; height: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 100; position: relative; flex-shrink: 0; }
@@ -209,20 +208,30 @@
 </div>
 
 <script>
-  // --- CONFIGURACIÓN V4 ---
+  // --- CONFIGURACIÓN V1 ---
   const firebaseConfig = {
-      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-      authDomain: "gad-alicante-v4.firebaseapp.com",
-      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "gad-alicante-v4",
-      storageBucket: "gad-alicante-v4.firebasestorage.app",
-      messagingSenderId: "119727545224",
-      appId: "1:119727545224:web:36880c50d196c456cdb83d"
+      apiKey: "AIzaSyBu5ALRVJ5aDzuU9YIAQD_9KMgR6ZwttpU",
+      authDomain: "gad-alicante-v1.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v1-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v1",
+      storageBucket: "gad-alicante-v1.firebasestorage.app",
+      messagingSenderId: "545835357966",
+      appId: "1:545835357966:web:6351ec6c0d3c8e69eb695f",
+      measurementId: "G-QG8KDLCWQS"
   };
   
-  // Lista de correos autorizados
-  const AUTHORIZED_EMAILS = ['gadalicante@gmail.com', 'copg279@gmail.com'];
-  // ÚNICO ADMIN
+  // --- LISTA COMPLETA DE USUARIOS AUTORIZADOS ---
+  const AUTHORIZED_EMAILS = [
+      'gadalicante@gmail.com', 
+      'copg279@gmail.com',
+      'adamus03248@gmail.com',
+      'cdavidmesi83@gmail.com',
+      'pamiseseg@gmail.com',
+      'policia.g496@gmail.com',
+      'verdeguer279@gmail.com',
+      'cambiar_nombre6@gmail.com'
+  ];
+  
   const ADMIN_EMAIL = 'copg279@gmail.com';
 
   if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
@@ -233,6 +242,7 @@
   const TITLE_NODE = 'pageTitle';
   const USERS_NODE = 'usuarios_google'; 
 
+  // --- VARIABLES Y REFERENCIAS ---
   const mainScrollArea = document.getElementById('main-scroll-area');
   const iframeViewerArea = document.getElementById('iframe-viewer-area');
   const contentIframe = document.getElementById('content-iframe');
@@ -289,19 +299,16 @@
           doc.open();
           let content = data.htmlCode;
           const viewportTag = '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">';
-          
-          // --- AQUÍ ESTÁ LA CORRECCIÓN CLAVE PARA EL CONFLICTO DE VARIABLES ---
-          // Usamos var y un nombre distinto (gadConfigV4) para la configuración inyectada.
+          // INYECTAR CONFIG PARA HTML HIJO
           const scriptConfig = `
                 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"><\/script>
                 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"><\/script>
                 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"><\/script>
                 <script>
-                   var gadConfigV4 = { apiKey: "${firebaseConfig.apiKey}", authDomain: "${firebaseConfig.authDomain}", databaseURL: "${firebaseConfig.databaseURL}", projectId: "${firebaseConfig.projectId}", storageBucket: "${firebaseConfig.storageBucket}", messagingSenderId: "${firebaseConfig.messagingSenderId}", appId: "${firebaseConfig.appId}" };
-                   if (!firebase.apps.length) firebase.initializeApp(gadConfigV4);
+                   const firebaseConfig = { apiKey: "${firebaseConfig.apiKey}", authDomain: "${firebaseConfig.authDomain}", databaseURL: "${firebaseConfig.databaseURL}", projectId: "${firebaseConfig.projectId}", storageBucket: "${firebaseConfig.storageBucket}", messagingSenderId: "${firebaseConfig.messagingSenderId}", appId: "${firebaseConfig.appId}", measurementId: "${firebaseConfig.measurementId}" };
+                   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 <\/script>
             `;
-            
           if (!content.includes('<meta name="viewport"')) {
               if(content.includes('<head>')) { content = content.replace('<head>', '<head>' + viewportTag + scriptConfig); } 
               else { content = viewportTag + scriptConfig + content; }
@@ -444,11 +451,14 @@
       });
   }
 
+  // --- ESCUCHA DE DATOS ---
   function iniciarEscuchaDeDatos() {
+      // SOLO SE LLAMA CUANDO YA TENEMOS PERMISO
       console.log("Iniciando descarga segura de datos...");
       db.ref().on('value', s => { 
           menuButtonsData = s.val()?.menuButtons || {}; 
           renderMenuButtons(); 
+          // Ocultar pantalla de carga
           loadingScreen.style.opacity = '0';
           setTimeout(() => loadingScreen.style.display = 'none', 500);
       });
@@ -473,20 +483,26 @@
   dragZone.ondrop = e => { e.preventDefault(); dragZone.classList.remove('drag-over-container'); if(draggedItem) { mainMenuGrid.appendChild(draggedItem); updateOrder(); } };
   function updateOrder() { const u={}; document.querySelectorAll('#main-menu-grid .menu-button-container').forEach((b,i) => u[`/${BUTTONS_NODE}/${b.dataset.id}/order`]=i+1); db.ref().update(u); }
 
+  // --- LÓGICA PRINCIPAL DE SEGURIDAD ---
   function initAppLogic() {
       firebase.auth().onAuthStateChanged(async (user) => {
           if (user) {
+              // 1. USUARIO AUTORIZADO DETECTADO EN AUTH
               if (AUTHORIZED_EMAILS.includes(user.email)) {
-                  document.body.classList.add('loaded'); 
+                  document.body.classList.add('loaded'); // Mostrar body
+                  
+                  // 2. AHORA SÍ: PEDIMOS LOS DATOS
                   iniciarEscuchaDeDatos();
 
                   const emailKey = sanitizeEmail(user.email);
-                  const isAdmin = (user.email === ADMIN_EMAIL);
+                  const isAdmin = user.email === ADMIN_EMAIL;
                   
+                  // Intentamos escribir el acceso.
                   try {
                       if (isAdmin) { 
                           await grantAccess(user, true); 
                       } else {
+                          // Verificar si existe en DB (doble check)
                           const snap = await db.ref(USERS_NODE + '/' + emailKey).once('value');
                           if (snap.exists()) {
                               await grantAccess(user, false);
@@ -504,6 +520,7 @@
                  window.location.href = 'index.html';
               }
           } else {
+              // NO LOGUEADO -> FUERA
               console.warn("Usuario no autorizado. Redirigiendo al Login...");
               window.location.href = 'index.html';
           }
