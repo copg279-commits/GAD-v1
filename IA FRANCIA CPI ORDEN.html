@@ -42,6 +42,9 @@
     
     #aiResultBox { animation: slideDown 0.5s ease-out; }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Mensaje de estado auth */
+    #auth-loading-msg { text-align: center; color: #6b7280; margin-top: 10px; font-weight: bold; }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col pb-16 relative">
@@ -125,7 +128,9 @@
       </button>
   </div>
 
-  <div class="bg-white shadow-md rounded-lg p-6 mt-6 text-center w-11/12 max-w-md mx-auto">
+  <div id="auth-loading-msg">Conectando con base de datos V4...</div>
+
+  <div id="db-panel" class="bg-white shadow-md rounded-lg p-6 mt-6 text-center w-11/12 max-w-md mx-auto" style="display:none;">
     <h3 class="text-lg font-semibold mb-4">Añadir nuevos datos (Manual)</h3>
     <div class="flex flex-col space-y-2">
       <button id="mostrarFormularioBtn" class="w-full bg-gray-600 text-white py-2 rounded-md shadow hover:bg-gray-700 text-sm">
@@ -174,27 +179,67 @@
     <p>&copy; GAD - Todos los derechos reservados</p>
   </footer>
 
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
-    // --- 1. CONFIGURACIÓN FIREBASE ---
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
+    // --- 1. CONFIGURACIÓN FIREBASE V4 ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+      authDomain: "gad-alicante-v4.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v4",
+      storageBucket: "gad-alicante-v4.firebasestorage.app",
+      messagingSenderId: "119727545224",
+      appId: "1:119727545224:web:36880c50d196c456cdb83d"
+    };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+    const auth = firebase.auth();
     const cpiRef = database.ref('cpi_francia');
     let datosCPI = [];
+    let isUserAuthenticated = false;
 
-    // --- 2. CONFIGURACIÓN IA ---
+    // --- 2. SISTEMA DE SEGURIDAD ESTRICTA (WAIT FOR AUTH) ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            isUserAuthenticated = true;
+            console.log("Usuario V4 conectado (Francia):", user.email);
+            
+            // UI: Ocultar carga y mostrar panel
+            document.getElementById('auth-loading-msg').style.display = 'none';
+            document.getElementById('db-panel').style.display = 'block';
+            
+            // INICIAR CARGA DE DATOS (Solo ahora)
+            iniciarDescargaDatos();
+        } else {
+            console.warn("Usuario no autenticado en V4");
+            document.getElementById('auth-loading-msg').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú.</span>";
+        }
+    });
+
+    // --- 3. CARGA DE DATOS SEGURA ---
+    function iniciarDescargaDatos() {
+        cpiRef.on('value', (snapshot) => {
+            datosCPI = [];
+            snapshot.forEach((child) => {
+                const d = child.val();
+                const n = parseInt(child.key) || parseInt(d.numero);
+                if(!isNaN(n)) datosCPI.push({ key: child.key, numero: n, fecha: new Date(d.fecha) });
+            });
+            renderizarTablaCpi();
+            popularSelectores();
+            mostrarResumenEstadisticas();
+        }, (error) => {
+            console.error("Error Firebase:", error);
+            document.getElementById('auth-loading-msg').style.display = 'block';
+            document.getElementById('auth-loading-msg').innerHTML = "<span class='text-red-500'>Error de Permisos V4: " + error.code + "</span>";
+        });
+    }
+
+    // --- CONFIGURACIÓN IA ---
     let geminiApiKey = localStorage.getItem('ai_api_key') || '';
     let geminiModelName = localStorage.getItem('gemini_model_name') || 'gemini-1.5-flash';
 
@@ -214,7 +259,7 @@ const firebaseConfig = {
         }
     }
 
-    // --- 3. LÓGICA GEMINI (OCR) ---
+    // --- LÓGICA GEMINI (OCR) ---
     async function callGemini(base64Image) {
         if (!geminiApiKey) { alert("Falta API Key."); return null; }
 
@@ -239,7 +284,6 @@ const firebaseConfig = {
 
     // --- UTILIDADES ---
     function resetUI() {
-        // Limpia cualquier resultado anterior (IA o Manual)
         document.getElementById('aiResultBox').classList.add('hidden');
         document.getElementById('resultado').innerHTML = "";
         document.getElementById('aiMessage').innerHTML = "";
@@ -247,9 +291,9 @@ const firebaseConfig = {
         window.tempAiData = null;
     }
 
-    // --- 4. PROCESAR Y VALIDAR (LÓGICA MEJORADA DE ALERTA) ---
+    // --- 4. PROCESAR Y VALIDAR ---
     function processImage(file) {
-        resetUI(); // Limpieza inicial
+        resetUI(); 
         document.getElementById('loadingOverlay').classList.remove('hidden');
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -261,10 +305,8 @@ const firebaseConfig = {
                 const numLimpio = result.numero.replace(/\D/g, '');
                 const fechaLimpia = formatoFechaIA(result.fecha);
                 
-                // Rellenar input para referencia
                 document.getElementById('documento').value = numLimpio;
                 
-                // Preparar UI
                 const box = document.getElementById('aiResultBox');
                 const title = document.getElementById('aiTitle');
                 const msg = document.getElementById('aiMessage');
@@ -273,9 +315,8 @@ const firebaseConfig = {
                 document.getElementById('aiNumero').textContent = numLimpio;
                 document.getElementById('aiFecha').textContent = fechaLimpia;
 
-                // VALIDACIÓN DE COHERENCIA MATEMÁTICA
                 const numVal = parseInt(numLimpio);
-                const fechaVal = new Date(fechaLimpia.split('/').reverse().join('-')); // YYYY-MM-DD
+                const fechaVal = new Date(fechaLimpia.split('/').reverse().join('-')); 
                 
                 const datosOrd = datosCPI.sort((a, b) => a.numero - b.numero);
                 const anterior = datosOrd.filter(d => d.numero < numVal).pop();
@@ -284,7 +325,6 @@ const firebaseConfig = {
                 let esSospechoso = false;
                 let motivo = "";
 
-                // Lógica de validación mejorada
                 if (anterior && fechaVal < anterior.fecha) {
                     esSospechoso = true;
                     motivo = `⛔ <b>INCONGRUENCIA TEMPORAL (Pasado):</b><br>
@@ -296,27 +336,17 @@ const firebaseConfig = {
                               El documento actual tiene una fecha (${fechaLimpia}) <b>POSTERIOR</b> a un número de orden mayor ya registrado.<br><br>
                               • Registro Siguiente: Nº ${posterior.numero} (${formatoFecha(posterior.fecha)})`;
                 } else {
-                    // Es coherente, explicamos por qué (el "Sándwich")
                     if (anterior && posterior) {
-                        motivo = `✅ <b>COHERENCIA VERIFICADA:</b><br>
-                                  El documento encaja correctamente en la secuencia temporal:<br>
-                                  • Anterior: Nº ${anterior.numero} (${formatoFecha(anterior.fecha)})<br>
-                                  • <b>Actual: Nº ${numVal} (${fechaLimpia})</b><br>
-                                  • Posterior: Nº ${posterior.numero} (${formatoFecha(posterior.fecha)})`;
+                        motivo = `✅ <b>COHERENCIA VERIFICADA:</b><br>Se sitúa entre el anterior (${formatoFecha(anterior.fecha)}) y el posterior (${formatoFecha(posterior.fecha)}).`;
                     } else if (anterior) {
-                        motivo = `✅ <b>COHERENCIA VERIFICADA:</b><br>
-                                  Es posterior al último registro conocido:<br>
-                                  • Último: Nº ${anterior.numero} (${formatoFecha(anterior.fecha)})`;
+                        motivo = `✅ <b>COHERENCIA VERIFICADA:</b><br>Posterior al último registro (${formatoFecha(anterior.fecha)}).`;
                     } else if (posterior) {
-                        motivo = `✅ <b>COHERENCIA VERIFICADA:</b><br>
-                                  Es anterior al primer registro conocido:<br>
-                                  • Primero: Nº ${posterior.numero} (${formatoFecha(posterior.fecha)})`;
+                        motivo = `✅ <b>COHERENCIA VERIFICADA:</b><br>Anterior al primer registro (${formatoFecha(posterior.fecha)}).`;
                     } else {
-                        motivo = "✅ Primer dato en la base de datos. No hay referencias para comparar, pero el formato es correcto.";
+                        motivo = "✅ Primer dato en la base de datos. Formato correcto.";
                     }
                 }
 
-                // CONFIGURAR APARIENCIA
                 box.className = esSospechoso 
                     ? "mt-4 w-11/12 max-w-md mx-auto border-4 border-red-600 bg-red-50 rounded-lg p-4 text-center shadow-xl animate-pulse" 
                     : "mt-4 w-11/12 max-w-md mx-auto border-2 border-green-500 bg-green-50 rounded-lg p-4 text-center shadow-md";
@@ -341,7 +371,6 @@ const firebaseConfig = {
                         window.tempAiData = { numero: numVal, fecha: fechaLimpia.split('/').reverse().join('-') };
                     }
                 }
-
                 box.classList.remove('hidden');
             }
         };
@@ -349,76 +378,36 @@ const firebaseConfig = {
 
     function guardarDesdeAI() {
         if (!window.tempAiData) return;
+        if (!isUserAuthenticated) return alert("No tienes permisos en V4.");
         cpiRef.child(String(window.tempAiData.numero)).set({ fecha: window.tempAiData.fecha })
             .then(() => {
                 alert(`✅ Guardado: ${window.tempAiData.numero}`);
                 document.getElementById('aiResultBox').classList.add('hidden');
-                document.getElementById('documento').value = ''; // Limpiar input tras guardar
-            });
+                document.getElementById('documento').value = ''; 
+            })
+            .catch(e => alert("Error: " + e.message));
     }
 
     function formatoFechaIA(str) { return str.replace(/\./g, '/').replace(/-/g, '/'); }
 
-    // --- DRAG & DROP ROBUSTO ---
+    // --- DRAG & DROP ---
     const dropZone = document.getElementById('mainDropZone');
     const inputDoc = document.getElementById("documento");
 
-    // Habilitar tecla ENTER en búsqueda manual
     inputDoc.addEventListener("keypress", function(event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        calcularFecha();
-      }
+      if (event.key === "Enter") { event.preventDefault(); calcularFecha(); }
     });
 
     window.addEventListener('dragover', e => e.preventDefault());
     window.addEventListener('drop', e => e.preventDefault());
 
-    dropZone.addEventListener('dragenter', (e) => {
-        e.preventDefault(); e.stopPropagation();
-        dropZone.classList.add('drag-active');
-    });
-    
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault(); e.stopPropagation();
-        dropZone.classList.add('drag-active');
-    });
+    dropZone.addEventListener('dragenter', (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('drag-active'); });
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('drag-active'); });
+    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); if (e.target === dropZone) dropZone.classList.remove('drag-active'); });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('drag-active'); if (e.dataTransfer.files[0]) processImage(e.dataTransfer.files[0]); });
+    window.addEventListener('paste', (e) => { const items = e.clipboardData.items; for (let i = 0; i < items.length; i++) { if (items[i].type.indexOf('image') !== -1) { processImage(items[i].getAsFile()); return; } } });
 
-    dropZone.addEventListener('dragleave', (e) => {
-        e.preventDefault(); e.stopPropagation();
-        if (e.target === dropZone) dropZone.classList.remove('drag-active');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault(); e.stopPropagation();
-        dropZone.classList.remove('drag-active');
-        const files = e.dataTransfer.files;
-        if (files && files[0]) processImage(files[0]);
-    });
-
-    window.addEventListener('paste', (e) => {
-        const items = e.clipboardData.items;
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                processImage(items[i].getAsFile()); return;
-            }
-        }
-    });
-
-    // --- CARGA DATOS ---
-    cpiRef.on('value', (snapshot) => {
-        datosCPI = [];
-        snapshot.forEach((child) => {
-            const d = child.val();
-            const n = parseInt(child.key) || parseInt(d.numero);
-            if(!isNaN(n)) datosCPI.push({ key: child.key, numero: n, fecha: new Date(d.fecha) });
-        });
-        renderizarTablaCpi();
-        popularSelectores();
-        mostrarResumenEstadisticas();
-    });
-
-    // ... RESTO DE LÓGICA ...
+    // --- UI Y CRUD ---
     const mostrarFormularioBtn = document.getElementById('mostrarFormularioBtn');
     const formularioCpi = document.getElementById('formularioCpi');
     const cpiDataTable = document.getElementById('cpiDataTable');
@@ -440,16 +429,9 @@ const firebaseConfig = {
       const anios = [...new Set(datosCPI.map(d => d.fecha.getFullYear()))].sort((a,b)=>b-a);
       anioSelector.innerHTML = '<option value="">Año...</option>';
       anios.forEach(a => anioSelector.innerHTML += `<option value="${a}">${a}</option>`);
-      
-      const meses = [...new Set(datosCPI.map(d => `${d.fecha.getMonth()}-${d.fecha.getFullYear()}`))].sort((a,b) => {
-          const [mA, aA] = a.split('-'), [mB, aB] = b.split('-');
-          return new Date(aB, mB) - new Date(aA, mA);
-      });
+      const meses = [...new Set(datosCPI.map(d => `${d.fecha.getMonth()}-${d.fecha.getFullYear()}`))].sort((a,b) => { const [mA, aA] = a.split('-'), [mB, aB] = b.split('-'); return new Date(aB, mB) - new Date(aA, mA); });
       mesSelector.innerHTML = '<option value="">Mes...</option>';
-      meses.forEach(m => {
-          const [mes, anio] = m.split('-');
-          mesSelector.innerHTML += `<option value="${m}">${nombresMeses[mes]} ${anio}</option>`;
-      });
+      meses.forEach(m => { const [mes, anio] = m.split('-'); mesSelector.innerHTML += `<option value="${m}">${nombresMeses[mes]} ${anio}</option>`; });
     }
 
     mesSelector.addEventListener('change', (e) => { if(e.target.value) { const [m, a] = e.target.value.split('-'); resultadosEstadisticasDiv.innerHTML = `<p class="font-bold">Estimación: <span class="text-blue-600 text-xl">${formatNumber(calcularCertificados(new Date(a, m, 1), new Date(a, Number(m)+1, 0)))}</span></p>`; } });
@@ -490,9 +472,13 @@ const firebaseConfig = {
         });
     }
     
-    function eliminarCpi(k) { if(confirm("¿Eliminar?")) cpiRef.child(k).remove(); }
+    function eliminarCpi(k) {
+        if (!isUserAuthenticated) return alert("No autorizado.");
+        if(confirm("¿Eliminar?")) cpiRef.child(k).remove();
+    }
     
     function guardarNuevoCpi() {
+        if (!isUserAuthenticated) return alert("No autorizado.");
         const n = parseInt(document.getElementById('nuevoNumeroCpi').value);
         const f = document.getElementById('nuevaFechaCpi').value;
         if(n && f) cpiRef.child(String(n)).set({fecha: f}).then(()=>{alert("Guardado"); limpiarCampos();});
@@ -500,10 +486,16 @@ const firebaseConfig = {
     function limpiarCampos() { document.getElementById('nuevoNumeroCpi').value=''; document.getElementById('nuevaFechaCpi').value=''; }
 
     function calcularFecha() {
-        resetUI(); // Limpieza inicial al hacer búsqueda manual
+        resetUI();
         const n = parseInt(document.getElementById("documento").value);
         const res = document.getElementById("resultado");
         if(isNaN(n)) { res.innerHTML = "Número inválido"; return; }
+        
+        // Check por si no hay datos cargados
+        if(datosCPI.length === 0 && !isUserAuthenticated) {
+            res.innerHTML = "<span class='text-orange-500'>Conectando... (Verifica tu sesión)</span>";
+            return;
+        }
         
         const ord = datosCPI.sort((a,b)=>a.numero-b.numero);
         const ex = ord.find(x=>x.numero===n);
