@@ -45,17 +45,16 @@
     .cpi-table-cell {
         white-space: nowrap;
     }
-    /* Estilo para el mensaje de carga */
     #loading-msg {
         text-align: center;
-        margin-top: 15px;
+        margin-top: 20px;
         color: #6b7280;
         font-weight: bold;
     }
     @media (max-width: 640px) {
         .cpi-table-header th, .cpi-table-cell {
-            padding-left: 0.75rem; /* px-3 */
-            padding-right: 0.75rem; /* px-3 */
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
         }
     }
   </style>
@@ -79,23 +78,15 @@
     <img src="logoargelia.png" alt="Logo Argelia" class="w-full">
   </div>
 
-  <input 
-    type="text" 
-    id="numero" 
-    placeholder="Ingresa el número" 
-    class="block mx-auto mt-4 p-3 text-base w-11/12 max-w-md border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
+  <input type="text" id="numero" placeholder="Ingresa el número" class="block mx-auto mt-4 p-3 text-base w-11/12 max-w-md border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-500"/>
 
-  <button 
-    onclick="buscarFecha()" 
-    class="block mx-auto mt-4 w-11/12 max-w-md bg-blue-600 text-white font-bold py-3 rounded-md hover:bg-blue-700 transition"
-  >
+  <button onclick="buscarFecha()" class="block mx-auto mt-4 w-11/12 max-w-md bg-blue-600 text-white font-bold py-3 rounded-md hover:bg-blue-700 transition">
     Consultar
   </button>
 
   <div id="output" class="mt-6 text-gray-700 text-center w-11/12 max-w-md mx-auto"></div>
   
-  <div id="loading-msg">Conectando con base de datos V4...</div>
+  <div id="loading-msg">Conectando con Base de Datos V4...</div>
 
   <div class="bg-white shadow-md rounded-lg p-6 mt-4 text-center w-11/12 max-w-md mx-auto" id="main-panel" style="display:none;">
     <h3 class="text-lg font-semibold mb-4">Añadir nuevos datos</h3>
@@ -132,25 +123,20 @@
         <input type="date" id="nuevaFecha" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
       </div>
       <div class="flex space-x-2">
-        <button onclick="guardarNuevoNumero()" class="w-1/2 bg-blue-600 text-white py-2 rounded-md shadow hover:bg-blue-700">
-          Guardar
-        </button>
-        <button onclick="limpiarCampos()" class="w-1/2 bg-gray-400 text-white py-2 rounded-md shadow hover:bg-gray-500">
-          Limpiar campos
-        </button>
+        <button onclick="guardarNuevoNumero()" class="w-1/2 bg-blue-600 text-white py-2 rounded-md shadow hover:bg-blue-700">Guardar</button>
+        <button onclick="limpiarCampos()" class="w-1/2 bg-gray-400 text-white py-2 rounded-md shadow hover:bg-gray-500">Limpiar campos</button>
       </div>
       <div id="mensajeGuardado" class="mt-4 text-sm font-medium"></div>
     </div>
   </div>
 
   <div class="mt-8 flex justify-center">
-    <button onclick="window.location.href='index.html'"
-            class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
+    <button onclick="window.location.href='index.html'" class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
         MENÚ PRINCIPAL
     </button>
   </div>
 
- <footer class="mt-auto text-center py-6 bg-gray-200">
+  <footer class="mt-auto text-center py-6 bg-gray-200">
     <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
     <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
     <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
@@ -162,7 +148,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
-    // --- 1. CONFIGURACIÓN V4 (REVISADA) ---
+    // --- 1. CONFIGURACIÓN V4 (IDÉNTICA A ARGENTINA) ---
     const firebaseConfig = {
       apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
       authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -178,33 +164,33 @@
     }
     const database = firebase.database();
     const auth = firebase.auth();
-    // Referencia a la base de datos (NO se lee todavía)
-    const licenciasNuevasRef = database.ref('licencias_argelia_nuevas');
+    
+    // --- CORRECCIÓN DE VARIABLE: USAMOS 'licenciasRef' EN TODO EL CÓDIGO ---
+    const licenciasRef = database.ref('licencias_argelia_nuevas');
 
     let datosCompletos = [];
     let isUserAuthenticated = false;
     
-    // --- 2. EL ARREGLO: ESPERAR AUTENTICACIÓN (Igual que en Argentina) ---
+    // --- 2. EL FIX DE SEGURIDAD (Igual que en Argentina) ---
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // Usuario detectado, tenemos luz verde
             isUserAuthenticated = true;
-            console.log("Usuario autorizado en Argelia:", user.email);
+            console.log("Usuario autorizado en Argelia V4:", user.email);
             
-            // Quitamos mensaje de carga y mostramos panel
             document.getElementById('loading-msg').style.display = 'none';
             document.getElementById('main-panel').style.display = 'block';
             
-            // AHORA lanzamos la descarga de datos
+            // Iniciamos la carga SOLO cuando tenemos usuario
             cargarDatosDesdeFirebase();
         } else {
             console.warn("Usuario no logueado");
-            document.getElementById('loading-msg').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú Principal.</span>";
+            document.getElementById('loading-msg').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú.</span>";
         }
     });
 
     function cargarDatosDesdeFirebase() {
-      licenciasNuevasRef.on('value', snapshot => {
+      // Usamos licenciasRef (la variable correcta)
+      licenciasRef.on('value', snapshot => {
         datosCompletos = [];
         snapshot.forEach(childSnapshot => {
           const nuevoDato = childSnapshot.val();
@@ -216,16 +202,15 @@
           });
         });
         datosCompletos.sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
-        console.log("Datos cargados correctamente.");
         renderizarTablaCpi();
       }, (error) => {
-          console.error("Error leyendo Firebase:", error);
+          console.error("Error Firebase:", error);
           document.getElementById('loading-msg').style.display = 'block';
           document.getElementById('loading-msg').innerHTML = "<span class='text-red-500'>Error de Permisos V4: " + error.code + "</span>";
       });
     }
 
-    // --- LÓGICA DE LA HERRAMIENTA (Original sin tocar) ---
+    // --- LÓGICA DE LA HERRAMIENTA ---
     const mostrarFormularioBtn = document.getElementById('mostrarFormularioBtn');
     const formularioNuevosDatos = document.getElementById('formularioNuevosDatos');
     const nuevoNumeroInput = document.getElementById('nuevoNumero');
@@ -256,7 +241,7 @@
 
     function guardarNuevoNumero() {
         if (!isUserAuthenticated) {
-            alert("Error: No estás autenticado en V4.");
+            alert("No tienes permisos en V4.");
             return;
         }
 
@@ -264,14 +249,14 @@
         const nuevaFecha = nuevaFechaInput.value;
 
         if (!nuevoNumero || !nuevaFecha) {
-            mensajeGuardadoDiv.textContent = 'Por favor, introduce un número y una fecha válidos.';
+            mensajeGuardadoDiv.textContent = 'Introduce número y fecha válidos.';
             mensajeGuardadoDiv.style.color = 'orange';
             return;
         }
 
         const datoExistente = datosCompletos.find(dato => dato.numero === nuevoNumero);
         if (datoExistente) {
-            mensajeGuardadoDiv.innerHTML = `EL NÚMERO YA EXISTE CON FECHA: <span style="font-weight: bold;">${datoExistente.fecha}</span>`;
+            mensajeGuardadoDiv.innerHTML = `EL NÚMERO YA EXISTE CON FECHA: <b>${datoExistente.fecha}</b>`;
             mensajeGuardadoDiv.style.color = 'red';
             return;
         }
@@ -280,34 +265,31 @@
         const fechaFormateada = `${day}/${month}/${year}`;
         const fechaNueva = new Date(`${year}-${month}-${day}`);
 
-        const datosOrdenadosPorNumero = [...datosCompletos].sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
-        const antes = datosOrdenadosPorNumero.filter(d => d.numero.localeCompare(nuevoNumero, undefined, { numeric: true }) <= 0).pop();
-        const despues = datosOrdenadosPorNumero.find(d => d.numero.localeCompare(nuevoNumero, undefined, { numeric: true }) > 0);
+        const datosOrdenados = [...datosCompletos].sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
+        const antes = datosOrdenados.filter(d => d.numero.localeCompare(nuevoNumero, undefined, { numeric: true }) <= 0).pop();
+        const despues = datosOrdenados.find(d => d.numero.localeCompare(nuevoNumero, undefined, { numeric: true }) > 0);
 
         if (antes && fechaNueva < new Date(antes.fecha.split('/').reverse().join('-'))) {
-            mensajeGuardadoDiv.innerHTML = `<p class='text-red-500 font-bold'>¡POSIBLE DOCUMENTO FALSO! LA PROGRESIÓN NUMÉRICA NO ES CORRECTA (Número posterior con fecha anterior)</p>`;
+            mensajeGuardadoDiv.innerHTML = `<p class='text-red-500 font-bold'>¡POSIBLE FALSO! Progresión incorrecta (Nº posterior con fecha anterior)</p>`;
             return;
         }
-
         if (despues && fechaNueva > new Date(despues.fecha.split('/').reverse().join('-'))) {
-            mensajeGuardadoDiv.innerHTML = `<p class='text-red-500 font-bold'>¡POSIBLE DOCUMENTO FALSO! LA PROGRESIÓN NUMÉRICA NO ES CORRECTA (Número anterior con fecha posterior)</p>`;
+            mensajeGuardadoDiv.innerHTML = `<p class='text-red-500 font-bold'>¡POSIBLE FALSO! Progresión incorrecta (Nº anterior con fecha posterior)</p>`;
             return;
         }
 
-        const nuevoDato = {
-            numero: nuevoNumero,
-            fecha: fechaFormateada
-        };
+        const nuevoDato = { numero: nuevoNumero, fecha: fechaFormateada };
 
-        licenciasNuevasRef.push(nuevoDato)
+        // USAMOS LA VARIABLE CORRECTA: licenciasRef
+        licenciasRef.push(nuevoDato)
             .then(() => {
-                mensajeGuardadoDiv.textContent = '¡Datos guardados con éxito en V4!';
+                mensajeGuardadoDiv.textContent = '¡Guardado en V4!';
                 mensajeGuardadoDiv.style.color = 'green';
                 limpiarCampos();
                 formularioNuevosDatos.classList.add('hidden');
             })
             .catch(error => {
-                mensajeGuardadoDiv.textContent = 'Error al guardar: ' + error.message;
+                mensajeGuardadoDiv.textContent = 'Error: ' + error.message;
                 mensajeGuardadoDiv.style.color = 'red';
             });
     }
@@ -316,128 +298,85 @@
       if (!fechaStr) return '';
       if (fechaStr.includes('/')) return fechaStr;
       const [year, month, day] = fechaStr.split('-');
-      if (year && month && day) return `${day}/${month}/${year}`;
-      return fechaStr; 
+      return `${day}/${month}/${year}`;
     }
 
     function renderizarTablaCpi() {
       cpiListDiv.innerHTML = '';
-      
       const datosOrdenados = [...datosCompletos].sort((a, b) => {
-          const fechaA = new Date(formatoFecha(a.fecha).split('/').reverse().join('-'));
-          const fechaB = new Date(formatoFecha(b.fecha).split('/').reverse().join('-'));
-          if (fechaA.getTime() === fechaB.getTime()) return b.numero - a.numero;
-          return fechaB - fechaA;
+          const fA = new Date(formatoFecha(a.fecha).split('/').reverse().join('-'));
+          const fB = new Date(formatoFecha(b.fecha).split('/').reverse().join('-'));
+          return (fA.getTime() === fB.getTime()) ? b.numero - a.numero : fB - fA;
       });
       
       datosOrdenados.forEach(dato => {
-        const fila = document.createElement('tr');
-        fila.classList.add('bg-white', 'border-b', 'hover:bg-gray-50');
-
-        const celdaNumero = document.createElement('td');
-        celdaNumero.classList.add('cpi-table-cell', 'px-6', 'py-4', 'font-medium', 'text-gray-900', 'whitespace-nowrap');
-        celdaNumero.textContent = dato.numero;
-
-        const celdaFecha = document.createElement('td');
-        celdaFecha.classList.add('cpi-table-cell', 'px-6', 'py-4', 'whitespace-nowrap');
-        celdaFecha.textContent = formatoFecha(dato.fecha); 
-
-        const celdaAccion = document.createElement('td');
-        celdaAccion.classList.add('cpi-table-cell', 'px-6', 'py-4', 'text-right', 'whitespace-nowrap');
+        const tr = document.createElement('tr');
+        tr.className = 'bg-white border-b hover:bg-gray-50';
         
-        if (dato.key) {
-            const deleteIcon = document.createElement('span');
-            deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 delete-icon inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>`;
-            deleteIcon.onclick = () => confirmarEliminar(dato.key, dato.numero);
-            celdaAccion.appendChild(deleteIcon);
+        let trashIcon = '';
+        if(dato.key) {
+            trashIcon = `<span class="cursor-pointer text-red-500" onclick="confirmarEliminar('${dato.key}', '${dato.numero}')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
+            </span>`;
         }
 
-        fila.appendChild(celdaNumero);
-        fila.appendChild(celdaFecha);
-        fila.appendChild(celdaAccion);
-        cpiListDiv.appendChild(fila);
+        tr.innerHTML = `
+            <td class="px-6 py-4 font-medium whitespace-nowrap">${dato.numero}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${formatoFecha(dato.fecha)}</td>
+            <td class="px-6 py-4 text-right">${trashIcon}</td>
+        `;
+        cpiListDiv.appendChild(tr);
       });
     }
     
-    function confirmarEliminar(key, numero) {
-      if (confirm(`¿Estás seguro de que quieres eliminar el registro con el número ${numero}?`)) {
-        eliminarDato(key);
-      }
+    // Funciones globales para los onclick del HTML
+    window.confirmarEliminar = (key, numero) => {
+      if (confirm(`¿Eliminar registro ${numero}?`)) eliminarDato(key);
     }
 
-    function eliminarDato(key) {
+    window.eliminarDato = (key) => {
       if (!isUserAuthenticated) return alert("No autorizado.");
-      licenciasNuevasRef.child(key).remove()
-        .then(() => console.log("Registro eliminado."))
-        .catch((error) => alert("Error al eliminar: " + error.message));
+      // USAMOS LA VARIABLE CORRECTA: licenciasRef
+      licenciasRef.child(key).remove()
+        .then(() => console.log("Eliminado."))
+        .catch(e => alert("Error: " + e.message));
     }
 
-    function buscarFecha() {
+    window.buscarFecha = () => {
       const numero = document.getElementById("numero").value.trim();
       const output = document.getElementById("output");
 
-      if (!numero) {
-        output.innerHTML = "<p class='text-red-500 font-semibold'>Por favor, ingresa un número válido.</p>";
-        return;
-      }
+      if (!numero) return output.innerHTML = "<p class='text-red-500 font-semibold'>Ingresa un número.</p>";
       
-      // Control de datos no cargados
       if (datosCompletos.length === 0 && !isUserAuthenticated) {
-          output.innerHTML = "<p class='text-orange-500'>Conectando... Inténtalo en unos segundos.</p>";
-          return;
+          return output.innerHTML = "<p class='text-orange-500'>Conectando...</p>";
       }
       
       const exacto = datosCompletos.find(d => d.numero === numero);
-      if (exacto) {
-        output.innerHTML = `<p class='text-green-600 font-semibold'>Fecha exacta: ${exacto.fecha}</p>`;
-        return;
-      }
+      if (exacto) return output.innerHTML = `<p class='text-green-600 font-semibold'>Fecha exacta: ${exacto.fecha}</p>`;
       
-      const datosOrdenadosPorNumero = [...datosCompletos].sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
-      const antes = datosOrdenadosPorNumero.filter(d => d.numero.localeCompare(numero, undefined, { numeric: true }) <= 0).pop();
-      const despues = datosOrdenadosPorNumero.find(d => d.numero.localeCompare(numero, undefined, { numeric: true }) > 0);
+      const datosOrd = [...datosCompletos].sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
+      const antes = datosOrd.filter(d => d.numero.localeCompare(numero, undefined, { numeric: true }) <= 0).pop();
+      const despues = datosOrd.find(d => d.numero.localeCompare(numero, undefined, { numeric: true }) > 0);
 
-      if (!antes) {
-        output.innerHTML = "<p class='text-red-500 font-bold'>EL NÚMERO ES DEMASIADO ANTIGUO O NO EXISTE UN REGISTRO ANTERIOR</p>";
-        return;
-      }
+      if (!antes) return output.innerHTML = "<p class='text-red-500 font-bold'>NÚMERO DEMASIADO ANTIGUO / SIN REGISTRO ANTERIOR</p>";
+      if (!despues) return output.innerHTML = `<p class='text-red-500 font-semibold'>Número fuera de rango conocido.</p>`;
 
-      if (!despues) {
-        output.innerHTML = `<p class='text-red-500 font-semibold'>El número ${numero} no está en el rango conocido.</p>`;
-        return;
-      }
+      const n1 = parseInt(antes.numero.replace(/\D/g, ''));
+      const n2 = parseInt(despues.numero.replace(/\D/g, ''));
+      const nAct = parseInt(numero.replace(/\D/g, ''));
+      const prop = (nAct - n1) / (n2 - n1);
 
-      const numAntes = parseInt(antes.numero.replace(/\D/g, ''));
-      const numDespues = parseInt(despues.numero.replace(/\D/g, ''));
-      const numActual = parseInt(numero.replace(/\D/g, ''));
+      const f1 = new Date(formatoFecha(antes.fecha).split("/").reverse().join("-"));
+      const f2 = new Date(formatoFecha(despues.fecha).split("/").reverse().join("-"));
       
-      const prop = (numActual - numAntes) / (numDespues - numAntes);
+      if (f1 > f2) return output.innerHTML = "<p class='text-red-500 font-bold'>¡POSIBLE FALSO! Error de progresión.</p>";
 
-      const [day1, month1, year1] = formatoFecha(antes.fecha).split("/");
-      const fecha1 = new Date(`${year1}-${month1}-${day1}`);
+      const fEst = new Date(f1.getTime() + prop * (f2 - f1));
+      output.innerHTML = `<p class='text-green-600 font-semibold'>Fecha estimada: ${fEst.toLocaleDateString("es-ES")}</p>`;
+    };
 
-      const [day2, month2, year2] = formatoFecha(despues.fecha).split("/");
-      const fecha2 = new Date(`${year2}-${month2}-${day2}`);
-      
-      if (fecha1 > fecha2) {
-          output.innerHTML = "<p class='text-red-500 font-bold'>¡POSIBLE DOCUMENTO FALSO! LA PROGRESIÓN NUMÉRICA NO ES CORRECTA</p>";
-          return;
-      }
-
-      const fechaEstimada = new Date(fecha1.getTime() + prop * (fecha2 - fecha1));
-      
-      output.innerHTML = `
-        <p class='text-green-600 font-semibold'>
-          Fecha estimada: ${fechaEstimada.toLocaleDateString("es-ES", { day: '2-digit', month: '2-digit', year: 'numeric' })}
-        </p>
-      `;
-    }
-
-    document.getElementById("numero").addEventListener("keypress", function (event) {
-      if (event.key === "Enter") {
-        buscarFecha();
-      }
-    });
+    document.getElementById("numero").addEventListener("keypress", (e) => { if(e.key === "Enter") window.buscarFecha(); });
   </script>
 </body>
 </html>
