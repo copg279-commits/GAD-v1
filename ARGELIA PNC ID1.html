@@ -45,6 +45,12 @@
     .cpi-table-cell {
         white-space: nowrap;
     }
+    #status-msg {
+        text-align: center;
+        margin-top: 10px;
+        font-weight: bold;
+        color: #666;
+    }
     @media (max-width: 640px) {
         .cpi-table-header th, .cpi-table-cell {
             padding-left: 0.75rem; /* px-3 */
@@ -92,7 +98,9 @@
 
   <div id="output" class="mt-6 text-gray-700 text-center w-11/12 max-w-md mx-auto"></div>
   
-  <div class="bg-white shadow-md rounded-lg p-6 mt-4 text-center w-11/12 max-w-md mx-auto">
+  <div id="status-msg">Conectando con base de datos...</div>
+
+  <div class="bg-white shadow-md rounded-lg p-6 mt-4 text-center w-11/12 max-w-md mx-auto" id="admin-panel" style="display:none;">
     <h3 class="text-lg font-semibold mb-4">Añadir nuevos datos</h3>
     <button id="mostrarFormularioBtn" class="w-full bg-green-600 text-white py-2 rounded-md shadow hover:bg-green-700">
       Introduzca nuevo Nº de Identificación
@@ -153,27 +161,49 @@
     <p>&copy; GAD - Todos los derechos reservados</p>
   </footer>
 
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
   <script>
-       const firebaseConfig = {
-      apiKey: "AIzaSyA6EDUJ2dG50DphB-dF6GLi3P2IlW8lDl4", // Clave API correcta
-      authDomain: "gad-alicante-v3.firebaseapp.com", // Dominio correcto
-      databaseURL: "https://gad-alicante-v3-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "gad-alicante-v3", // Nuevo ID
-      storageBucket: "gad-alicante-v3.firebasestorage.app",
-      messagingSenderId: "906986258369",
-      appId: "1:906986258369:web:21a7ea29a33b5f395e3940"
+    // --- 1. CONFIGURACIÓN V4 ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+      authDomain: "gad-alicante-v4.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v4",
+      storageBucket: "gad-alicante-v4.firebasestorage.app",
+      messagingSenderId: "119727545224",
+      appId: "1:119727545224:web:36880c50d196c456cdb83d"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const database = firebase.database();
+    const auth = firebase.auth();
     const licenciasNuevasRef = database.ref('licencias_argelia_nuevas');
 
     let datosCompletos = [];
-    
-    document.addEventListener('DOMContentLoaded', () => {
-      cargarDatosDesdeFirebase();
+    let isUserAuthenticated = false;
+
+    // --- 2. GESTIÓN DE SEGURIDAD ESTRICTA ---
+    // Esperamos a que Auth confirme el usuario antes de leer datos
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            isUserAuthenticated = true;
+            console.log("Usuario autorizado en Argelia:", user.email);
+            
+            // Ocultamos mensaje de carga y mostramos el panel
+            document.getElementById('status-msg').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+
+            // INICIAMOS LA CARGA DE DATOS AHORA
+            cargarDatosDesdeFirebase();
+        } else {
+            console.warn("Usuario no autenticado en herramienta.");
+            document.getElementById('status-msg').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú Principal.</span>";
+        }
     });
 
     function cargarDatosDesdeFirebase() {
@@ -188,9 +218,14 @@
             key: key
           });
         });
+        // Ordenar alfabéticamente/numéricamente
         datosCompletos.sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
-        console.log("Datos de Firebase cargados y combinados.");
+        console.log("Datos de Firebase cargados.");
         renderizarTablaCpi();
+      }, (error) => {
+        console.error("Error leyendo Firebase:", error);
+        document.getElementById('status-msg').style.display = 'block';
+        document.getElementById('status-msg').innerHTML = "<span class='text-red-500'>Error de Permisos V4: " + error.code + "</span>";
       });
     }
 
@@ -223,6 +258,11 @@
     }
 
     function guardarNuevoNumero() {
+        if (!isUserAuthenticated) {
+            alert("No tienes permiso para guardar datos.");
+            return;
+        }
+
         const nuevoNumero = nuevoNumeroInput.value.trim();
         const nuevaFecha = nuevaFechaInput.value;
 
@@ -287,7 +327,7 @@
       if (year && month && day) {
         return `${day}/${month}/${year}`;
       }
-      return fechaStr; // Devuelve el original si el formato no es reconocible
+      return fechaStr; 
     }
 
     function renderizarTablaCpi() {
@@ -312,16 +352,20 @@
 
         const celdaFecha = document.createElement('td');
         celdaFecha.classList.add('cpi-table-cell', 'px-6', 'py-4', 'whitespace-nowrap');
-        celdaFecha.textContent = formatoFecha(dato.fecha); // Aquí se aplica el nuevo formateo
+        celdaFecha.textContent = formatoFecha(dato.fecha); 
 
         const celdaAccion = document.createElement('td');
         celdaAccion.classList.add('cpi-table-cell', 'px-6', 'py-4', 'text-right', 'whitespace-nowrap');
-        const deleteIcon = document.createElement('span');
-        deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 delete-icon inline-block" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
-                                </svg>`;
-        deleteIcon.onclick = () => confirmarEliminar(dato.key, dato.numero);
-        celdaAccion.appendChild(deleteIcon);
+        
+        // Icono de borrar solo si hay key (que siempre debería haber)
+        if (dato.key) {
+            const deleteIcon = document.createElement('span');
+            deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 delete-icon inline-block" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                                    </svg>`;
+            deleteIcon.onclick = () => confirmarEliminar(dato.key, dato.numero);
+            celdaAccion.appendChild(deleteIcon);
+        }
 
         fila.appendChild(celdaNumero);
         fila.appendChild(celdaFecha);
@@ -337,12 +381,17 @@
     }
 
     function eliminarDato(key) {
+      if (!isUserAuthenticated) {
+          alert("No autorizado.");
+          return;
+      }
       licenciasNuevasRef.child(key).remove()
         .then(() => {
           console.log("Registro eliminado con éxito.");
         })
         .catch((error) => {
           console.error("Error al eliminar el registro:", error);
+          alert("Error al eliminar: " + error.message);
         });
     }
 
@@ -353,6 +402,12 @@
       if (!numero) {
         output.innerHTML = "<p class='text-red-500 font-semibold'>Por favor, ingresa un número válido.</p>";
         return;
+      }
+      
+      // Verificación de si la base de datos está cargada
+      if (datosCompletos.length === 0 && !isUserAuthenticated) {
+          output.innerHTML = "<p class='text-orange-500 font-bold'>Conectando a base de datos... Espera un momento.</p>";
+          return;
       }
       
       const exacto = datosCompletos.find(d => d.numero === numero);
@@ -385,10 +440,10 @@
       
       const prop = (numActual - numAntes) / (numDespues - numAntes);
 
-      const [day1, month1, year1] = antes.fecha.split("/");
+      const [day1, month1, year1] = formatoFecha(antes.fecha).split("/");
       const fecha1 = new Date(`${year1}-${month1}-${day1}`);
 
-      const [day2, month2, year2] = despues.fecha.split("/");
+      const [day2, month2, year2] = formatoFecha(despues.fecha).split("/");
       const fecha2 = new Date(`${year2}-${month2}-${day2}`);
       
       if (fecha1 > fecha2) {
