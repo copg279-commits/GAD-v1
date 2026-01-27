@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tareas Pendientes GAD</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    
     <style>
         body {
             font-family: sans-serif;
@@ -188,7 +191,8 @@
                 </button>
             </form>
             <div id="task-list" class="flex flex-col gap-2">
-                </div>
+                <div class="p-4 text-center text-gray-500" id="loading-msg">Cargando tareas o esperando autenticación...</div>
+            </div>
             <button id="main-menu-btn"
                     class="mt-2 p-2.5 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-500 text-base lg:text-xl">
                 MENÚ PRINCIPAL
@@ -202,19 +206,26 @@
     <p>&copy; GAD - Todos los derechos reservados</p>
   </footer>
     <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBu5ALRVJ5aDzuU9YIAQD_9KMgR6ZwttpU",
-  authDomain: "gad-alicante-v1.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v1-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v1",
-  storageBucket: "gad-alicante-v1.firebasestorage.app",
-  messagingSenderId: "545835357966",
-  appId: "1:545835357966:web:6351ec6c0d3c8e69eb695f",
-  measurementId: "G-QG8KDLCWQS"
-};
-        firebase.initializeApp(firebaseConfig);
+        // --- 1. CONFIGURACIÓN V4 ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+          authDomain: "gad-alicante-v4.firebaseapp.com",
+          databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "gad-alicante-v4",
+          storageBucket: "gad-alicante-v4.firebasestorage.app",
+          messagingSenderId: "119727545224",
+          appId: "1:119727545224:web:36880c50d196c456cdb83d"
+        };
+
+        // Inicialización
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
         const db = firebase.database();
+        const auth = firebase.auth(); // IMPORTANTE: Referencia a Auth
         const tasksRef = db.ref('tareas');
+        
         const taskList = document.getElementById('task-list');
         const addTaskForm = document.getElementById('add-task-form');
         const newTaskInput = document.getElementById('new-task-input');
@@ -237,9 +248,31 @@ const firebaseConfig = {
         gridContainer.insertBefore(hideCompletedBtn, mainMenuBtn);
 
         let currentFilter = 'show-all';
+        let isUserAuthenticated = false; // Bandera de estado
         
+        // --- 2. LÓGICA DE AUTENTICACIÓN ---
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                isUserAuthenticated = true;
+                console.log("Usuario autenticado:", user.email);
+                document.getElementById('loading-msg')?.remove();
+                
+                // INICIAR ESCUCHA DE DATOS SOLO SI HAY USUARIO
+                iniciarEscuchaTareas();
+            } else {
+                console.warn("Usuario no logueado. No se cargarán tareas.");
+                taskList.innerHTML = '<div class="p-4 text-center text-red-500 font-bold">Error: No se ha detectado sesión activa. Vuelva al menú principal.</div>';
+            }
+        });
+
         const renderTask = (snapshot) => {
-            taskList.innerHTML = '';
+            taskList.innerHTML = ''; // Limpiar lista
+            
+            if (!snapshot.exists()) {
+                taskList.innerHTML = '<div class="p-4 text-center text-gray-500">No hay tareas pendientes.</div>';
+                return;
+            }
+
             const tasks = [];
             snapshot.forEach(childSnapshot => {
                 tasks.push({
@@ -260,7 +293,7 @@ const firebaseConfig = {
 
             filteredTasks.forEach(task => {
                 const taskItem = document.createElement('div');
-                taskItem.className = `task-item ${task.status.toLowerCase().replace(' ', '-')}`;
+                taskItem.className = `task-item ${task.status ? task.status.toLowerCase().replace(' ', '-') : ''}`;
                 taskItem.setAttribute('data-id', task.id);
                 
                 // Contenedor para el texto
@@ -269,7 +302,8 @@ const firebaseConfig = {
                 
                 const taskText = document.createElement('span');
                 taskText.className = 'task-text ml-2';
-                const formattedDate = new Date(task.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const dateObj = task.createdAt ? new Date(task.createdAt) : new Date();
+                const formattedDate = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 taskText.textContent = `${formattedDate} - ${task.description}`;
                 
                 switch (task.status) {
@@ -312,7 +346,10 @@ const firebaseConfig = {
                         if (newText && newText !== currentText) {
                             tasksRef.child(task.id).update({ description: newText });
                         }
-                        taskTextContainer.replaceChild(taskText, input);
+                        // Revertir input a texto si sigue en el DOM
+                        if (input.parentNode) {
+                            taskTextContainer.replaceChild(taskText, input);
+                        }
                     };
                     
                     input.addEventListener('keydown', (e) => {
@@ -341,6 +378,7 @@ const firebaseConfig = {
                             })
                             .catch((error) => {
                                 console.error("Error al eliminar la tarea: ", error);
+                                alert("Error al eliminar: Verifica tus permisos.");
                             });
                     }
                 });
@@ -362,13 +400,7 @@ const firebaseConfig = {
                     button.textContent = status.name;
                     button.addEventListener('click', () => {
                         tasksRef.child(task.id).update({ status: status.name });
-                        const allStatusButtons = statusContainer.querySelectorAll('.task-status-btn');
-                        allStatusButtons.forEach(btn => {
-                            btn.classList.remove('active');
-                            btn.classList.add('inactive');
-                        });
-                        button.classList.remove('inactive');
-                        button.classList.add('active');
+                        // La actualización visual vendrá del listener .on()
                     });
                     statusContainer.appendChild(button);
                 });
@@ -378,11 +410,20 @@ const firebaseConfig = {
             });
         };
 
-        // Escucha los cambios en Firebase y re-renderiza la lista
-        tasksRef.on('value', renderTask);
+        function iniciarEscuchaTareas() {
+            // Escucha los cambios en Firebase y re-renderiza la lista
+            tasksRef.on('value', renderTask, (error) => {
+                console.error("Error leyendo tareas:", error);
+                taskList.innerHTML = `<div class="p-4 text-center text-red-500">Error de acceso a datos: ${error.message}</div>`;
+            });
+        }
 
         addTaskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!isUserAuthenticated) {
+                alert("No estás autenticado. No puedes añadir tareas.");
+                return;
+            }
             const description = newTaskInput.value.trim();
             if (description) {
                 try {
@@ -394,6 +435,7 @@ const firebaseConfig = {
                     newTaskInput.value = '';
                 } catch (error) {
                     console.error("Error al añadir la tarea: ", error);
+                    alert("Error al añadir: " + error.message);
                 }
             }
         });
@@ -401,12 +443,14 @@ const firebaseConfig = {
         // Event listeners para los botones de filtrado
         showAllBtn.addEventListener('click', () => {
             currentFilter = 'show-all';
-            tasksRef.once('value', renderTask);
+            // Volver a leer para aplicar filtro (o simplemente re-renderizar si tuviéramos los datos en memoria, 
+            // pero .once fuerza refresh desde cache/server)
+            if(isUserAuthenticated) tasksRef.once('value', renderTask);
         });
         
         hideCompletedBtn.addEventListener('click', () => {
             currentFilter = 'hide-completed';
-            tasksRef.once('value', renderTask);
+            if(isUserAuthenticated) tasksRef.once('value', renderTask);
         });
         
         mainMenuBtn.addEventListener('click', () => {
