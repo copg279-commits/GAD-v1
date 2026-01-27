@@ -220,6 +220,8 @@
         .placeholder-btn { width: 100%; min-height: 120px; flex-grow: 1; border: 2px dashed #e2e8f0; border-radius: 10px; color: #94a3b8; font-weight: 700; font-size: 12px; background: #f8fafc; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .placeholder-btn:hover { background: #f1f5f9; color: #3b82f6; border-color: #3b82f6; }
         body:not(.editing-mode) .placeholder-btn { display: none !important; }
+        
+        #auth-status { text-align: center; margin-top: 10px; font-weight: bold; color: #666; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -244,6 +246,9 @@
             <div class="p-3 bg-slate-50 sticky top-0 z-10 border-b">
                 <input type="text" id="search" placeholder=" Buscar País..." class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-4 focus:ring-blue-100 transition-all">
             </div>
+            
+            <div id="auth-status">Conectando...</div>
+            
             <nav id="countryList" class="p-2 space-y-1"></nav>
         </aside>
 
@@ -316,219 +321,252 @@
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
     <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
-        firebase.initializeApp(firebaseConfig); const ref = firebase.database().ref('Ayuda Países'); 
-        let isEdit = false, activeId = null, activeTab = 'permiso', countries = {}, globalLinks = {};
-        const flagCodes = { "ALBANIA": "al", "ALEMANIA": "de", "ANDORRA": "ad", "ARGELIA": "dz", "ARMENIA": "am", "AUSTRIA": "at", "AZERBAIYAN": "az", "BELGICA": "be", "BIELORRUSIA": "by", "BOSNIA Y HERZEGOVINA": "ba", "BULGARIA": "bg", "CHIPRE": "cy", "CIUDAD DEL VATICANO": "va", "CROACIA": "hr", "DINAMARCA": "dk", "ESLOVAQUIA": "sk", "ESLOVENIA": "si", "ESPANA": "es", "ESTONIA": "ee", "FINLANDIA": "fi", "FRANCIA": "fr", "GEORGIA": "ge", "GRECIA": "gr", "HUNGRIA": "hu", "IRLANDA": "ie", "ISLANDIA": "is", "ITALIA": "it", "KAZAJISTAN": "kz", "LETONIA": "lv", "LIECHTENSTEIN": "li", "LITUANIA": "lt", "LUXEMBURGO": "lu", "MALTA": "mt", "MARRUECOS": "ma", "MOLDAVIA": "md", "MONACO": "mc", "MONTENEGRO": "me", "NORUEGA": "no", "PAISES BAJOS": "nl", "POLONIA": "pl", "PORTUGAL": "pt", "REINO UNIDO": "gb", "REPUBLICA CHECA": "cz", "MACEDONIA DEL NORTE": "mk", "RUMANIA": "ro", "RUSIA": "ru", "SAN MARINO": "sm", "SERBIA": "rs", "SUECIA": "se", "SUIZA": "ch", "TURQUIA": "tr", "UCRANIA": "ua", "LIBIA": "ly", "TUNEZ": "tn", "EGIPTO": "eg" };
+    // --- 1. CONFIGURACIÓN V4 ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+      authDomain: "gad-alicante-v4.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v4",
+      storageBucket: "gad-alicante-v4.firebasestorage.app",
+      messagingSenderId: "119727545224",
+      appId: "1:119727545224:web:36880c50d196c456cdb83d"
+    };
 
-        let historyStack = []; const MAX_HISTORY = 50;
-        function pushHistory() { const c = document.getElementById('mainEditor').innerHTML; if(historyStack[historyStack.length-1] !== c) { historyStack.push(c); if(historyStack.length > MAX_HISTORY) historyStack.shift(); } }
-        function undo() { if(historyStack.length>0) { const p = historyStack.pop(); document.getElementById('mainEditor').innerHTML = p; if(isEdit) makeDraggable(); } }
+    firebase.initializeApp(firebaseConfig); 
+    const ref = firebase.database().ref('Ayuda Países');
+    const auth = firebase.auth();
+    
+    let isEdit = false, activeId = null, activeTab = 'permiso', countries = {}, globalLinks = {};
+    const flagCodes = { "ALBANIA": "al", "ALEMANIA": "de", "ANDORRA": "ad", "ARGELIA": "dz", "ARMENIA": "am", "AUSTRIA": "at", "AZERBAIYAN": "az", "BELGICA": "be", "BIELORRUSIA": "by", "BOSNIA Y HERZEGOVINA": "ba", "BULGARIA": "bg", "CHIPRE": "cy", "CIUDAD DEL VATICANO": "va", "CROACIA": "hr", "DINAMARCA": "dk", "ESLOVAQUIA": "sk", "ESLOVENIA": "si", "ESPANA": "es", "ESTONIA": "ee", "FINLANDIA": "fi", "FRANCIA": "fr", "GEORGIA": "ge", "GRECIA": "gr", "HUNGRIA": "hu", "IRLANDA": "ie", "ISLANDIA": "is", "ITALIA": "it", "KAZAJISTAN": "kz", "LETONIA": "lv", "LIECHTENSTEIN": "li", "LITUANIA": "lt", "LUXEMBURGO": "lu", "MALTA": "mt", "MARRUECOS": "ma", "MOLDAVIA": "md", "MONACO": "mc", "MONTENEGRO": "me", "NORUEGA": "no", "PAISES BAJOS": "nl", "POLONIA": "pl", "PORTUGAL": "pt", "REINO UNIDO": "gb", "REPUBLICA CHECA": "cz", "MACEDONIA DEL NORTE": "mk", "RUMANIA": "ro", "RUSIA": "ru", "SAN MARINO": "sm", "SERBIA": "rs", "SUECIA": "se", "SUIZA": "ch", "TURQUIA": "tr", "UCRANIA": "ua", "LIBIA": "ly", "TUNEZ": "tn", "EGIPTO": "eg" };
 
-        function normalizeText(text) { if(typeof text !== 'string') return ""; return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
-        function hasContent(html) { if(!html) return false; return html.replace(/<[^>]*>/g, '').trim().length > 0 || html.includes('<img'); }
+    let historyStack = []; const MAX_HISTORY = 50;
+    let isUserAuthenticated = false;
 
-        function renderList(filter = '') {
-            const list = document.getElementById('countryList'); list.innerHTML = '';
-            const filterNorm = normalizeText(filter);
-            const keys = Object.keys(countries).filter(k => k !== '_GLOBAL_LINKS').sort((a,b) => countries[a].nombre.localeCompare(countries[b].nombre));
-            keys.forEach(id => {
-                const c = countries[id]; if(!c.nombre) return;
-                if(normalizeText(c.nombre).includes(filterNorm)) {
-                    const hasData = c.datos && Object.values(c.datos).some(d => hasContent(d));
-                    const btn = document.createElement('button');
-                    btn.className = `sidebar-item transition-all ${activeId === id ? 'active' : (hasData ? 'country-has-data' : 'country-empty')}`;
-                    btn.onclick = () => { activeId = id; selectCountry(); };
-                    const code = flagCodes[normalizeText(c.nombre).toUpperCase()]; 
-                    btn.innerHTML = `<span>${c.nombre}</span> ${code ? `<img src="https://flagcdn.com/w40/${code}.png" class="flag-img">` : ''}`; list.appendChild(btn);
-                }
-            });
+    // --- 2. SEGURIDAD ESTRICTA (V4) ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            isUserAuthenticated = true;
+            document.getElementById('auth-status').style.display = 'none';
+            // Iniciamos la carga de datos solo ahora
+            iniciarEscucha();
+        } else {
+            document.getElementById('auth-status').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Debes iniciar sesión en el Menú Principal.</span>";
         }
+    });
 
-        function renderGlobalButtons() {
-            const container = document.getElementById('global-buttons-container'); container.innerHTML = '';
-            Object.keys(globalLinks).forEach(key => {
-                const link = globalLinks[key]; const btn = document.createElement('button'); btn.className = 'global-btn';
-                btn.innerHTML = `<i class="fas fa-external-link-alt"></i> ${link.name}`;
-                if (isEdit) btn.onclick = () => editGlobalLink(key); else btn.onclick = () => window.open(link.url, '_blank');
-                container.appendChild(btn);
-            });
-            if (isEdit) { const addBtn = document.createElement('button'); addBtn.className = 'global-btn add-btn'; addBtn.innerHTML = '<i class="fas fa-plus"></i> AÑADIR'; addBtn.onclick = addGlobalLink; container.appendChild(addBtn); }
-        }
+    function iniciarEscucha() {
+        ref.on('value', s => { 
+            const val = s.val() || {}; 
+            globalLinks = val._GLOBAL_LINKS || {}; 
+            countries = val; 
+            renderList(); 
+            renderGlobalButtons(); 
+            if(activeId) updateTabsState(); 
+        });
+    }
 
-        function addGlobalLink() {
-            const name = prompt("Nombre:"); if(!name) return; const url = prompt("URL:"); if(!url) return;
-            ref.child('_GLOBAL_LINKS').child('link_'+Date.now()).set({ name, url });
-        }
+    // --- RESTO DE LÓGICA (Original) ---
+    function pushHistory() { const c = document.getElementById('mainEditor').innerHTML; if(historyStack[historyStack.length-1] !== c) { historyStack.push(c); if(historyStack.length > MAX_HISTORY) historyStack.shift(); } }
+    function undo() { if(historyStack.length>0) { const p = historyStack.pop(); document.getElementById('mainEditor').innerHTML = p; if(isEdit) makeDraggable(); } }
 
-        function editGlobalLink(key) {
-            const link = globalLinks[key]; const newName = prompt("Nombre:", link.name); if (!newName) return;
-            const newUrl = prompt("URL (vacío para borrar):", link.url);
-            if (newUrl === "") { if(confirm("¿Eliminar?")) ref.child('_GLOBAL_LINKS').child(key).remove(); }
-            else ref.child('_GLOBAL_LINKS').child(key).set({ name: newName, url: newUrl });
-        }
-        
-        function selectCountry() { 
-            document.getElementById('welcome').classList.add('hidden'); 
-            document.getElementById('contentSection').classList.remove('hidden'); 
-            document.getElementById('countryName').innerText = countries[activeId].nombre; 
-            loadContent(); renderList(); updateTabsState(); 
-            if(window.innerWidth < 768) { setTimeout(() => { document.getElementById('contentSection').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 100); } 
-        }
-        function loadContent() { document.getElementById('mainEditor').innerHTML = countries[activeId].datos?.[activeTab] || "<p>Sin datos registrados en esta sección.</p>"; if(isEdit) makeDraggable(); historyStack = []; }
-        function updateTabsState() { if(!activeId) return; ['permiso','itv','seguro','personales','otros'].forEach(tab => { const el = document.getElementById('tab-'+tab); if(el) { el.classList.toggle('has-data', hasContent(countries[activeId].datos?.[tab])); } }); }
-        function switchTab(t) { activeTab = t; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); loadContent(); }
+    function normalizeText(text) { if(typeof text !== 'string') return ""; return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+    function hasContent(html) { if(!html) return false; return html.replace(/<[^>]*>/g, '').trim().length > 0 || html.includes('<img'); }
 
-        function toggleEdit() {
-            isEdit = !isEdit; const btn = document.getElementById('btnMode'), toolbar = document.getElementById('toolbar'), editor = document.getElementById('mainEditor');
-            if(isEdit) {
-                document.body.classList.add('editing-mode'); btn.classList.replace('bg-amber-500', 'bg-green-600'); document.getElementById('iconStatus').className = "fas fa-save"; document.getElementById('textStatus').innerText = "VOLVER A MODO CONSULTA";
-                toolbar.style.display = 'flex'; 
-                editor.contentEditable = "true"; editor.parentElement.classList.add('editing'); document.querySelectorAll('.edit-ui').forEach(el => el.classList.remove('hidden')); 
-                document.execCommand('styleWithCSS', false, true); document.execCommand('defaultParagraphSeparator', false, 'p');
-                cleanUpOldRows(); makeDraggable(); pushHistory(); renderGlobalButtons();
-            } else {
-                save(); document.body.classList.remove('editing-mode'); btn.classList.replace('bg-green-600', 'bg-amber-500'); document.getElementById('iconStatus').className = "fas fa-lock"; document.getElementById('textStatus').innerText = "ENTRAR A MODO EDICIÓN";
-                toolbar.style.display = 'none'; 
-                editor.contentEditable = "false"; editor.parentElement.classList.remove('editing'); document.querySelectorAll('.edit-ui').forEach(el => el.classList.add('hidden'));
-                renderGlobalButtons();
-            }
-        }
-        
-        const mainEditor = document.getElementById('mainEditor');
-        mainEditor.addEventListener('dragstart', (e) => { if(isEdit && e.target.closest('.img-block')) { e.dataTransfer.setData("text", e.target.closest('.img-block').id); e.target.closest('.img-block').classList.add('dragging'); }});
-        mainEditor.addEventListener('dragend', () => { document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging')); document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over')); });
-        mainEditor.addEventListener('dragover', (e) => { if(isEdit) { e.preventDefault(); const c = e.target.closest('.grid-cell'); if(c) c.classList.add('drag-over'); }});
-        mainEditor.addEventListener('dragleave', (e) => { const c = e.target.closest('.grid-cell'); if(c) c.classList.remove('drag-over'); });
-        
-        mainEditor.addEventListener('drop', (e) => {
-            if(!isEdit) return; e.preventDefault(); document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-            const dragged = document.getElementById(e.dataTransfer.getData("text"));
-            const targetCell = e.target.closest('.grid-cell');
-            if(dragged && targetCell && !targetCell.contains(dragged)) {
-                pushHistory(); const exist = targetCell.querySelector('.img-block'); const srcCell = dragged.parentElement;
-                if(exist) { srcCell.appendChild(exist); targetCell.appendChild(dragged); } else { targetCell.innerHTML = ''; targetCell.appendChild(dragged); }
-                cleanUpOldRows();
+    function renderList(filter = '') {
+        const list = document.getElementById('countryList'); list.innerHTML = '';
+        const filterNorm = normalizeText(filter);
+        const keys = Object.keys(countries).filter(k => k !== '_GLOBAL_LINKS').sort((a,b) => countries[a].nombre.localeCompare(countries[b].nombre));
+        keys.forEach(id => {
+            const c = countries[id]; if(!c.nombre) return;
+            if(normalizeText(c.nombre).includes(filterNorm)) {
+                const hasData = c.datos && Object.values(c.datos).some(d => hasContent(d));
+                const btn = document.createElement('button');
+                btn.className = `sidebar-item transition-all ${activeId === id ? 'active' : (hasData ? 'country-has-data' : 'country-empty')}`;
+                btn.onclick = () => { activeId = id; selectCountry(); };
+                const code = flagCodes[normalizeText(c.nombre).toUpperCase()]; 
+                btn.innerHTML = `<span>${c.nombre}</span> ${code ? `<img src="https://flagcdn.com/w40/${code}.png" class="flag-img">` : ''}`; list.appendChild(btn);
             }
         });
+    }
 
-        /* EVENTOS TÁCTILES PARA MÓVIL (SWAP) */
-        let touchTarget = null;
-        mainEditor.addEventListener('touchstart', (e) => {
-            if(!isEdit) return;
-            const imgBlock = e.target.closest('.img-block');
-            if(imgBlock) { touchTarget = imgBlock; imgBlock.classList.add('dragging'); }
-        }, {passive: true});
-
-        mainEditor.addEventListener('touchmove', (e) => {
-            if(!isEdit || !touchTarget) return;
-            e.preventDefault();
-            const touch = e.touches[0];
-            const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-            const cell = targetEl ? targetEl.closest('.grid-cell') : null;
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-            if(cell) cell.classList.add('drag-over');
-        }, {passive: false});
-
-        mainEditor.addEventListener('touchend', (e) => {
-            if(!isEdit || !touchTarget) return;
-            const touch = e.changedTouches[0];
-            const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-            const targetCell = targetEl ? targetEl.closest('.grid-cell') : null;
-            touchTarget.classList.remove('dragging');
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-            if(targetCell && !targetCell.contains(touchTarget)) {
-                pushHistory();
-                const exist = targetCell.querySelector('.img-block');
-                const srcCell = touchTarget.parentElement;
-                if(exist) { srcCell.appendChild(exist); targetCell.appendChild(touchTarget); } 
-                else { targetCell.innerHTML = ''; targetCell.appendChild(touchTarget); }
-                cleanUpOldRows();
-            }
-            touchTarget = null;
+    function renderGlobalButtons() {
+        const container = document.getElementById('global-buttons-container'); container.innerHTML = '';
+        Object.keys(globalLinks).forEach(key => {
+            const link = globalLinks[key]; const btn = document.createElement('button'); btn.className = 'global-btn';
+            btn.innerHTML = `<i class="fas fa-external-link-alt"></i> ${link.name}`;
+            if (isEdit) btn.onclick = () => editGlobalLink(key); else btn.onclick = () => window.open(link.url, '_blank');
+            container.appendChild(btn);
         });
+        if (isEdit) { const addBtn = document.createElement('button'); addBtn.className = 'global-btn add-btn'; addBtn.innerHTML = '<i class="fas fa-plus"></i> AÑADIR'; addBtn.onclick = addGlobalLink; container.appendChild(addBtn); }
+    }
 
-        function cleanUpOldRows() { document.querySelectorAll('.grid-cell').forEach(c => { if(c.querySelector('.img-block') && c.querySelector('.placeholder-btn')) c.querySelector('.placeholder-btn').remove(); if(!c.innerHTML.trim() || c.innerHTML === '<br>') c.innerHTML=`<div class="placeholder-btn" onclick="replaceWithImg(this)"><i class="fas fa-plus mr-2 text-lg"></i> AÑADIR IMAGEN</div>`; }); }
-        function makeDraggable() { document.querySelectorAll('.img-block').forEach(b => { b.contentEditable="false"; b.draggable=true; if(!b.id) b.id='img_'+Math.random().toString(36).substr(2,9); }); }
-        function createImgBlock(url) { return `<div id="img_${Date.now()}" class="img-block" draggable="true" style="width:450px; margin:0 auto;" contenteditable="false"><div class="img-tools"><button onclick="imgAlign(this,'left')" class="tool-btn btn-gray"><i class="fas fa-align-left"></i></button><button onclick="imgAlign(this,'center')" class="tool-btn btn-gray"><i class="fas fa-align-center"></i></button><button onclick="imgAlign(this,'right')" class="tool-btn btn-gray"><i class="fas fa-align-right"></i></button><div class="separator"></div><button onclick="imgResize(this,0.9)" class="tool-btn btn-gray"><i class="fas fa-minus"></i></button><button onclick="imgResize(this,1.1)" class="tool-btn btn-gray"><i class="fas fa-plus"></i></button><div class="separator"></div><button onclick="swapUrl(this)" class="tool-btn btn-blue"><i class="fas fa-pen"></i></button><button onclick="deleteImage(this)" class="tool-btn btn-red"><i class="fas fa-trash"></i></button></div><img src="${url}"></div>`; }
-        
-        function insertGrid(cols) { 
-            pushHistory(); let c=''; for(let i=0;i<cols;i++) c+=`<div class="grid-cell"><div class="placeholder-btn" onclick="replaceWithImg(this)"><i class="fas fa-plus mr-2 text-lg"></i> AÑADIR IMAGEN</div></div>`; 
-            const html = `<div class="grid-container" contenteditable="false"><div class="row-tools-header"><div class="row-delete-btn" onclick="this.closest('.grid-container').remove();"><i class="fas fa-trash-alt"></i> ELIMINAR FILA</div></div><div class="grid-row-${cols}">${c}</div></div><p><br></p>`;
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                let range = selection.getRangeAt(0); let container = range.commonAncestorContainer;
-                if (container.nodeType === 3) container = container.parentNode;
-                if (container !== mainEditor && mainEditor.contains(container)) {
-                    while (container.parentNode !== mainEditor) container = container.parentNode;
-                    container.insertAdjacentHTML('afterend', html);
-                } else { insertHTML(html); }
+    function addGlobalLink() {
+        if(!isUserAuthenticated) return alert("No autorizado.");
+        const name = prompt("Nombre:"); if(!name) return; const url = prompt("URL:"); if(!url) return;
+        ref.child('_GLOBAL_LINKS').child('link_'+Date.now()).set({ name, url });
+    }
+
+    function editGlobalLink(key) {
+        if(!isUserAuthenticated) return alert("No autorizado.");
+        const link = globalLinks[key]; const newName = prompt("Nombre:", link.name); if (!newName) return;
+        const newUrl = prompt("URL (vacío para borrar):", link.url);
+        if (newUrl === "") { if(confirm("¿Eliminar?")) ref.child('_GLOBAL_LINKS').child(key).remove(); }
+        else ref.child('_GLOBAL_LINKS').child(key).set({ name: newName, url: newUrl });
+    }
+    
+    function selectCountry() { 
+        document.getElementById('welcome').classList.add('hidden'); 
+        document.getElementById('contentSection').classList.remove('hidden'); 
+        document.getElementById('countryName').innerText = countries[activeId].nombre; 
+        loadContent(); renderList(); updateTabsState(); 
+        if(window.innerWidth < 768) { setTimeout(() => { document.getElementById('contentSection').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 100); } 
+    }
+    function loadContent() { document.getElementById('mainEditor').innerHTML = countries[activeId].datos?.[activeTab] || "<p>Sin datos registrados en esta sección.</p>"; if(isEdit) makeDraggable(); historyStack = []; }
+    function updateTabsState() { if(!activeId) return; ['permiso','itv','seguro','personales','otros'].forEach(tab => { const el = document.getElementById('tab-'+tab); if(el) { el.classList.toggle('has-data', hasContent(countries[activeId].datos?.[tab])); } }); }
+    function switchTab(t) { activeTab = t; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); loadContent(); }
+
+    function toggleEdit() {
+        if(!isUserAuthenticated) return alert("Debes iniciar sesión para editar.");
+        isEdit = !isEdit; const btn = document.getElementById('btnMode'), toolbar = document.getElementById('toolbar'), editor = document.getElementById('mainEditor');
+        if(isEdit) {
+            document.body.classList.add('editing-mode'); btn.classList.replace('bg-amber-500', 'bg-green-600'); document.getElementById('iconStatus').className = "fas fa-save"; document.getElementById('textStatus').innerText = "VOLVER A MODO CONSULTA";
+            toolbar.style.display = 'flex'; 
+            editor.contentEditable = "true"; editor.parentElement.classList.add('editing'); document.querySelectorAll('.edit-ui').forEach(el => el.classList.remove('hidden')); 
+            document.execCommand('styleWithCSS', false, true); document.execCommand('defaultParagraphSeparator', false, 'p');
+            cleanUpOldRows(); makeDraggable(); pushHistory(); renderGlobalButtons();
+        } else {
+            save(); document.body.classList.remove('editing-mode'); btn.classList.replace('bg-green-600', 'bg-amber-500'); document.getElementById('iconStatus').className = "fas fa-lock"; document.getElementById('textStatus').innerText = "ENTRAR A MODO EDICIÓN";
+            toolbar.style.display = 'none'; 
+            editor.contentEditable = "false"; editor.parentElement.classList.remove('editing'); document.querySelectorAll('.edit-ui').forEach(el => el.classList.add('hidden'));
+            renderGlobalButtons();
+        }
+    }
+    
+    const mainEditor = document.getElementById('mainEditor');
+    mainEditor.addEventListener('dragstart', (e) => { if(isEdit && e.target.closest('.img-block')) { e.dataTransfer.setData("text", e.target.closest('.img-block').id); e.target.closest('.img-block').classList.add('dragging'); }});
+    mainEditor.addEventListener('dragend', () => { document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging')); document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over')); });
+    mainEditor.addEventListener('dragover', (e) => { if(isEdit) { e.preventDefault(); const c = e.target.closest('.grid-cell'); if(c) c.classList.add('drag-over'); }});
+    mainEditor.addEventListener('dragleave', (e) => { const c = e.target.closest('.grid-cell'); if(c) c.classList.remove('drag-over'); });
+    
+    mainEditor.addEventListener('drop', (e) => {
+        if(!isEdit) return; e.preventDefault(); document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        const dragged = document.getElementById(e.dataTransfer.getData("text"));
+        const targetCell = e.target.closest('.grid-cell');
+        if(dragged && targetCell && !targetCell.contains(dragged)) {
+            pushHistory(); const exist = targetCell.querySelector('.img-block'); const srcCell = dragged.parentElement;
+            if(exist) { srcCell.appendChild(exist); targetCell.appendChild(dragged); } else { targetCell.innerHTML = ''; targetCell.appendChild(dragged); }
+            cleanUpOldRows();
+        }
+    });
+
+    /* EVENTOS TÁCTILES PARA MÓVIL (SWAP) */
+    let touchTarget = null;
+    mainEditor.addEventListener('touchstart', (e) => {
+        if(!isEdit) return;
+        const imgBlock = e.target.closest('.img-block');
+        if(imgBlock) { touchTarget = imgBlock; imgBlock.classList.add('dragging'); }
+    }, {passive: true});
+
+    mainEditor.addEventListener('touchmove', (e) => {
+        if(!isEdit || !touchTarget) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+        const cell = targetEl ? targetEl.closest('.grid-cell') : null;
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        if(cell) cell.classList.add('drag-over');
+    }, {passive: false});
+
+    mainEditor.addEventListener('touchend', (e) => {
+        if(!isEdit || !touchTarget) return;
+        const touch = e.changedTouches[0];
+        const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+        const targetCell = targetEl ? targetEl.closest('.grid-cell') : null;
+        touchTarget.classList.remove('dragging');
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        if(targetCell && !targetCell.contains(touchTarget)) {
+            pushHistory();
+            const exist = targetCell.querySelector('.img-block');
+            const srcCell = touchTarget.parentElement;
+            if(exist) { srcCell.appendChild(exist); targetCell.appendChild(touchTarget); } 
+            else { targetCell.innerHTML = ''; targetCell.appendChild(touchTarget); }
+            cleanUpOldRows();
+        }
+        touchTarget = null;
+    });
+
+    function cleanUpOldRows() { document.querySelectorAll('.grid-cell').forEach(c => { if(c.querySelector('.img-block') && c.querySelector('.placeholder-btn')) c.querySelector('.placeholder-btn').remove(); if(!c.innerHTML.trim() || c.innerHTML === '<br>') c.innerHTML=`<div class="placeholder-btn" onclick="replaceWithImg(this)"><i class="fas fa-plus mr-2 text-lg"></i> AÑADIR IMAGEN</div>`; }); }
+    function makeDraggable() { document.querySelectorAll('.img-block').forEach(b => { b.contentEditable="false"; b.draggable=true; if(!b.id) b.id='img_'+Math.random().toString(36).substr(2,9); }); }
+    function createImgBlock(url) { return `<div id="img_${Date.now()}" class="img-block" draggable="true" style="width:450px; margin:0 auto;" contenteditable="false"><div class="img-tools"><button onclick="imgAlign(this,'left')" class="tool-btn btn-gray"><i class="fas fa-align-left"></i></button><button onclick="imgAlign(this,'center')" class="tool-btn btn-gray"><i class="fas fa-align-center"></i></button><button onclick="imgAlign(this,'right')" class="tool-btn btn-gray"><i class="fas fa-align-right"></i></button><div class="separator"></div><button onclick="imgResize(this,0.9)" class="tool-btn btn-gray"><i class="fas fa-minus"></i></button><button onclick="imgResize(this,1.1)" class="tool-btn btn-gray"><i class="fas fa-plus"></i></button><div class="separator"></div><button onclick="swapUrl(this)" class="tool-btn btn-blue"><i class="fas fa-pen"></i></button><button onclick="deleteImage(this)" class="tool-btn btn-red"><i class="fas fa-trash"></i></button></div><img src="${url}"></div>`; }
+    
+    function insertGrid(cols) { 
+        pushHistory(); let c=''; for(let i=0;i<cols;i++) c+=`<div class="grid-cell"><div class="placeholder-btn" onclick="replaceWithImg(this)"><i class="fas fa-plus mr-2 text-lg"></i> AÑADIR IMAGEN</div></div>`; 
+        const html = `<div class="grid-container" contenteditable="false"><div class="row-tools-header"><div class="row-delete-btn" onclick="this.closest('.grid-container').remove();"><i class="fas fa-trash-alt"></i> ELIMINAR FILA</div></div><div class="grid-row-${cols}">${c}</div></div><p><br></p>`;
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            let range = selection.getRangeAt(0); let container = range.commonAncestorContainer;
+            if (container.nodeType === 3) container = container.parentNode;
+            if (container !== mainEditor && mainEditor.contains(container)) {
+                while (container.parentNode !== mainEditor) container = container.parentNode;
+                container.insertAdjacentHTML('afterend', html);
             } else { insertHTML(html); }
+        } else { insertHTML(html); }
+        makeDraggable(); 
+    }
+
+    function replaceWithImg(btn) { 
+        const u=prompt("URL Imagen:"); 
+        if(u) { 
+            pushHistory(); 
+            const cell = btn.parentElement;
+            cell.innerHTML = createImgBlock(u); 
             makeDraggable(); 
-        }
+            cleanUpOldRows();
+        } 
+    }
 
-        function replaceWithImg(btn) { 
-            const u=prompt("URL Imagen:"); 
-            if(u) { 
-                pushHistory(); 
-                const cell = btn.parentElement;
-                cell.innerHTML = createImgBlock(u); 
-                makeDraggable(); 
-                cleanUpOldRows();
-            } 
-        }
+    function imgAlign(b,a) { pushHistory(); const bl=b.closest('.img-block'); bl.style.marginLeft=(a==='left'?'0':(a==='right'?'auto':'auto')); bl.style.marginRight=(a==='right'?'0':(a==='left'?'auto':'auto')); }
+    function imgResize(b,f) { pushHistory(); const bl=b.closest('.img-block'); let w=Math.round(bl.clientWidth*f); bl.style.width=w+'px'; }
+    function deleteImage(b) { pushHistory(); b.closest('.img-block').remove(); cleanUpOldRows(); }
+    function swapUrl(b) { pushHistory(); const i=b.closest('.img-block').querySelector('img'); const u=prompt("Nueva URL:",i.src); if(u) i.src=u; }
+    function insertTextTop() { pushHistory(); document.getElementById('mainEditor').prepend(document.createRange().createContextualFragment('<p>Texto inicio...</p>')); }
+    function insertText() { pushHistory(); insertHTML('<p>Texto...</p>'); }
+    function insertHTML(h) { document.execCommand('insertHTML',false,h); }
+    function exec(c,v=null) { pushHistory(); document.execCommand(c,false,v); }
 
-        function imgAlign(b,a) { pushHistory(); const bl=b.closest('.img-block'); bl.style.marginLeft=(a==='left'?'0':(a==='right'?'auto':'auto')); bl.style.marginRight=(a==='right'?'0':(a==='left'?'auto':'auto')); }
-        function imgResize(b,f) { pushHistory(); const bl=b.closest('.img-block'); let w=Math.round(bl.clientWidth*f); bl.style.width=w+'px'; }
-        function deleteImage(b) { pushHistory(); b.closest('.img-block').remove(); cleanUpOldRows(); }
-        function swapUrl(b) { pushHistory(); const i=b.closest('.img-block').querySelector('img'); const u=prompt("Nueva URL:",i.src); if(u) i.src=u; }
-        function insertTextTop() { pushHistory(); document.getElementById('mainEditor').prepend(document.createRange().createContextualFragment('<p>Texto inicio...</p>')); }
-        function insertText() { pushHistory(); insertHTML('<p>Texto...</p>'); }
-        function insertHTML(h) { document.execCommand('insertHTML',false,h); }
-        function exec(c,v=null) { pushHistory(); document.execCommand(c,false,v); }
+    let zoomState = { scale: 1, pX: 0, pY: 0, sX: 0, sY: 0, isDragging: false, imgs: [], index: 0 };
+    const zoomImg = document.getElementById('zoomImg'); const zoomOverlay = document.getElementById('zoomOverlay');
+    document.addEventListener('DOMContentLoaded', () => { 
+        document.getElementById('search').addEventListener('input', e => renderList(e.target.value)); 
+        mainEditor.addEventListener('click', e => { if(!isEdit && e.target.tagName==='IMG' && e.target.closest('.img-block')) openZoom(e.target.src); }); 
+        zoomImg.addEventListener('mousedown', startDrag); zoomImg.addEventListener('touchstart', startDrag, {passive: false}); window.addEventListener('mousemove', drag); window.addEventListener('touchmove', drag, {passive: false}); window.addEventListener('mouseup', endDrag); window.addEventListener('touchend', endDrag); zoomImg.addEventListener('wheel', handleWheel, {passive: false}); document.addEventListener('keydown', handleKeys); 
+    });
+    function openZoom(src) { zoomState.imgs = Array.from(document.querySelectorAll('#mainEditor img')).map(i => i.src); zoomState.index = zoomState.imgs.indexOf(src); updateZoomImage(); zoomOverlay.style.display = 'flex'; }
+    function closeZoom(force) { if(force || zoomState.scale === 1) zoomOverlay.style.display = 'none'; }
+    function updateZoomImage() { zoomImg.src = zoomState.imgs[zoomState.index]; document.getElementById('zoomCounter').innerText = `${zoomState.index+1} / ${zoomState.imgs.length}`; resetZoom(); }
+    function navigateZoom(dir) { zoomState.index = (zoomState.index+dir+zoomState.imgs.length)%zoomState.imgs.length; updateZoomImage(); }
+    function resetZoom() { zoomState.scale = 1; zoomState.pX = 0; zoomState.pY = 0; updateTransform(); }
+    function updateTransform() { zoomImg.style.transform = `translate(${zoomState.pX}px, ${zoomState.pY}px) scale(${zoomState.scale})`; }
+    function handleWheel(e) { e.preventDefault(); const delta = e.deltaY > 0 ? 0.9 : 1.1; zoomState.scale *= delta; if(zoomState.scale < 1) zoomState.scale = 1; updateTransform(); }
+    let clickStartTime = 0; let startTouchesDistance = 0;
+    function startDrag(e) { if(e.type === 'touchstart' && e.touches.length === 2) { startTouchesDistance = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); return; } clickStartTime = Date.now(); zoomState.isDragging = true; const c = e.type.includes('touch') ? e.touches[0] : e; zoomState.sX = c.clientX - zoomState.pX; zoomState.sY = c.clientY - zoomState.pY; }
+    function drag(e) { if(e.type === 'touchmove' && e.touches.length === 2) { e.preventDefault(); const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); zoomState.scale *= (dist / startTouchesDistance); startTouchesDistance = dist; if(zoomState.scale < 1) zoomState.scale = 1; updateTransform(); return; } if(!zoomState.isDragging) return; e.preventDefault(); const c = e.type.includes('touch') ? e.touches[0] : e; zoomState.pX = c.clientX - zoomState.sX; zoomState.pY = c.clientY - zoomState.sY; updateTransform(); }
+    function endDrag(e) { zoomState.isDragging = false; if(zoomState.scale === 1) { if(Math.abs(zoomState.pX) > 50) { navigateZoom(zoomState.pX > 0 ? -1 : 1); } else if(Date.now() - clickStartTime < 200 && Math.abs(zoomState.pX) < 5) { closeZoom(true); } else { resetZoom(); } } }
+    function handleKeys(e) { if(zoomOverlay.style.display === 'flex') { if(e.key === 'ArrowRight') navigateZoom(1); if(e.key === 'ArrowLeft') navigateZoom(-1); if(e.key === 'Escape') closeZoom(true); } }
 
-        let zoomState = { scale: 1, pX: 0, pY: 0, sX: 0, sY: 0, isDragging: false, imgs: [], index: 0 };
-        const zoomImg = document.getElementById('zoomImg'); const zoomOverlay = document.getElementById('zoomOverlay');
-        document.addEventListener('DOMContentLoaded', () => { 
-            ref.on('value', s => { const val = s.val() || {}; globalLinks = val._GLOBAL_LINKS || {}; countries = val; renderList(); renderGlobalButtons(); if(activeId) updateTabsState(); }); 
-            document.getElementById('search').addEventListener('input', e => renderList(e.target.value)); 
-            mainEditor.addEventListener('click', e => { if(!isEdit && e.target.tagName==='IMG' && e.target.closest('.img-block')) openZoom(e.target.src); }); 
-            zoomImg.addEventListener('mousedown', startDrag); zoomImg.addEventListener('touchstart', startDrag, {passive: false}); window.addEventListener('mousemove', drag); window.addEventListener('touchmove', drag, {passive: false}); window.addEventListener('mouseup', endDrag); window.addEventListener('touchend', endDrag); zoomImg.addEventListener('wheel', handleWheel, {passive: false}); document.addEventListener('keydown', handleKeys); 
-        });
-        function openZoom(src) { zoomState.imgs = Array.from(document.querySelectorAll('#mainEditor img')).map(i => i.src); zoomState.index = zoomState.imgs.indexOf(src); updateZoomImage(); zoomOverlay.style.display = 'flex'; }
-        function closeZoom(force) { if(force || zoomState.scale === 1) zoomOverlay.style.display = 'none'; }
-        function updateZoomImage() { zoomImg.src = zoomState.imgs[zoomState.index]; document.getElementById('zoomCounter').innerText = `${zoomState.index+1} / ${zoomState.imgs.length}`; resetZoom(); }
-        function navigateZoom(dir) { zoomState.index = (zoomState.index+dir+zoomState.imgs.length)%zoomState.imgs.length; updateZoomImage(); }
-        function resetZoom() { zoomState.scale = 1; zoomState.pX = 0; zoomState.pY = 0; updateTransform(); }
-        function updateTransform() { zoomImg.style.transform = `translate(${zoomState.pX}px, ${zoomState.pY}px) scale(${zoomState.scale})`; }
-        function handleWheel(e) { e.preventDefault(); const delta = e.deltaY > 0 ? 0.9 : 1.1; zoomState.scale *= delta; if(zoomState.scale < 1) zoomState.scale = 1; updateTransform(); }
-        let clickStartTime = 0; let startTouchesDistance = 0;
-        function startDrag(e) { if(e.type === 'touchstart' && e.touches.length === 2) { startTouchesDistance = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); return; } clickStartTime = Date.now(); zoomState.isDragging = true; const c = e.type.includes('touch') ? e.touches[0] : e; zoomState.sX = c.clientX - zoomState.pX; zoomState.sY = c.clientY - zoomState.pY; }
-        function drag(e) { if(e.type === 'touchmove' && e.touches.length === 2) { e.preventDefault(); const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); zoomState.scale *= (dist / startTouchesDistance); startTouchesDistance = dist; if(zoomState.scale < 1) zoomState.scale = 1; updateTransform(); return; } if(!zoomState.isDragging) return; e.preventDefault(); const c = e.type.includes('touch') ? e.touches[0] : e; zoomState.pX = c.clientX - zoomState.sX; zoomState.pY = c.clientY - zoomState.sY; updateTransform(); }
-        function endDrag(e) { zoomState.isDragging = false; if(zoomState.scale === 1) { if(Math.abs(zoomState.pX) > 50) { navigateZoom(zoomState.pX > 0 ? -1 : 1); } else if(Date.now() - clickStartTime < 200 && Math.abs(zoomState.pX) < 5) { closeZoom(true); } else { resetZoom(); } } }
-        function handleKeys(e) { if(zoomOverlay.style.display === 'flex') { if(e.key === 'ArrowRight') navigateZoom(1); if(e.key === 'ArrowLeft') navigateZoom(-1); if(e.key === 'Escape') closeZoom(true); } }
-
-        function save() {
-            if(!activeId) return; const clone = document.getElementById('mainEditor').cloneNode(true);
-            clone.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-            clone.querySelectorAll('.img-block').forEach(el => { el.removeAttribute('id'); el.removeAttribute('draggable'); el.contentEditable="false"; el.classList.remove('dragging'); });
-            if(!countries[activeId].datos) countries[activeId].datos = {};
-            countries[activeId].datos[activeTab] = clone.innerHTML;
-            ref.child(activeId).child('datos').child(activeTab).set(clone.innerHTML).then(() => { alert("✅ GUARDADO"); updateTabsState(); });
-        }
-        function nuevoPaisManual() { const n = prompt("Nombre:"); if(!n) return; const id = n.toUpperCase().replace(/\s+/g, '_').normalize("NFD").replace(/[\u0300-\u036f]/g, ""); ref.child(id).set({ nombre: n, datos: { permiso: "", itv: "", seguro: "", personales: "", otros: "" } }); }
-        function eliminarPais() { const name = countries[activeId].nombre; if(prompt(`⚠️ Escribe el nombre EXACTO para eliminar ${name}:`) === name) { ref.child(activeId).remove().then(() => location.reload()); } }
+    function save() {
+        if(!isUserAuthenticated) return alert("No autorizado.");
+        if(!activeId) return; const clone = document.getElementById('mainEditor').cloneNode(true);
+        clone.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        clone.querySelectorAll('.img-block').forEach(el => { el.removeAttribute('id'); el.removeAttribute('draggable'); el.contentEditable="false"; el.classList.remove('dragging'); });
+        if(!countries[activeId].datos) countries[activeId].datos = {};
+        countries[activeId].datos[activeTab] = clone.innerHTML;
+        ref.child(activeId).child('datos').child(activeTab).set(clone.innerHTML).then(() => { alert("✅ GUARDADO"); updateTabsState(); });
+    }
+    function nuevoPaisManual() { if(!isUserAuthenticated) return alert("No autorizado."); const n = prompt("Nombre:"); if(!n) return; const id = n.toUpperCase().replace(/\s+/g, '_').normalize("NFD").replace(/[\u0300-\u036f]/g, ""); ref.child(id).set({ nombre: n, datos: { permiso: "", itv: "", seguro: "", personales: "", otros: "" } }); }
+    function eliminarPais() { if(!isUserAuthenticated) return alert("No autorizado."); const name = countries[activeId].nombre; if(prompt(`⚠️ Escribe el nombre EXACTO para eliminar ${name}:`) === name) { ref.child(activeId).remove().then(() => location.reload()); } }
     </script>
 </body>
 </html>
