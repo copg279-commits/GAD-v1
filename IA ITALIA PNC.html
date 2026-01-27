@@ -53,6 +53,9 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     #aiResultBox { animation: slideDown 0.5s ease-out; }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Mensaje de estado auth */
+    #auth-loading-msg { text-align: center; color: #6b7280; margin-top: 20px; font-weight: bold; }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col pb-16 relative">
@@ -125,8 +128,10 @@
       </div>
   </div>
   
-  <div class="bg-white shadow-xl rounded-xl p-6 mt-4 text-center w-11/12 max-w-md mx-auto mb-12 border border-gray-100">
-    <h3 class="text-lg font-semibold mb-4 text-gray-700">Base de Datos Local</h3>
+  <div id="auth-loading-msg">Conectando con base de datos V4...</div>
+
+  <div id="db-panel" class="bg-white shadow-xl rounded-xl p-6 mt-4 text-center w-11/12 max-w-md mx-auto mb-12 border border-gray-100" style="display:none;">
+    <h3 class="text-lg font-semibold mb-4 text-gray-700">Base de Datos Local (V4)</h3>
     <div class="flex gap-2">
         <button id="mostrarFormularioBtn" class="flex-1 bg-gray-600 text-white py-2 rounded-lg shadow hover:bg-gray-700 text-xs font-bold uppercase">+ Añadir Manual</button>
         <button id="mostrarListadoBtn" class="flex-1 bg-blue-500 text-white py-2 rounded-lg shadow hover:bg-blue-600 text-xs font-bold uppercase">Ver Lista</button>
@@ -155,26 +160,49 @@
     <p>&copy; GAD - Todos los derechos reservados</p>
   </footer>
 
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script> 
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   
   <script>
-    // --- CONFIG ---
-    
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
+    // --- 1. CONFIGURACIÓN V4 (REVISADA) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+      authDomain: "gad-alicante-v4.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v4",
+      storageBucket: "gad-alicante-v4.firebasestorage.app",
+      messagingSenderId: "119727545224",
+      appId: "1:119727545224:web:36880c50d196c456cdb83d"
+    };
 
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database(), licenciasNuevasRef = db.ref('licencias_italia');
-    let datosCompletos = [], geminiApiKey = localStorage.getItem('ai_api_key') || '', geminiModelName = localStorage.getItem('gemini_model_name') || 'gemini-1.5-flash';
+    const db = firebase.database();
+    const auth = firebase.auth(); // Instancia de Auth
+    const licenciasNuevasRef = db.ref('licencias_italia');
+    
+    let datosCompletos = [];
+    let isUserAuthenticated = false; // Bandera de seguridad
+    let geminiApiKey = localStorage.getItem('ai_api_key') || '', geminiModelName = localStorage.getItem('gemini_model_name') || 'gemini-1.5-flash';
 
+    // --- 2. SISTEMA DE SEGURIDAD ESTRICTA (WAIT FOR AUTH) ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            isUserAuthenticated = true;
+            console.log("Usuario V4 conectado (Italia):", user.email);
+            
+            // UI: Ocultar carga y mostrar panel
+            document.getElementById('auth-loading-msg').style.display = 'none';
+            document.getElementById('db-panel').style.display = 'block';
+            
+            // INICIAR CARGA DE DATOS (Solo ahora)
+            cargarDatos();
+        } else {
+            console.warn("Usuario no autenticado en V4");
+            document.getElementById('auth-loading-msg').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú.</span>";
+        }
+    });
+
+    // --- CONFIG UI ---
     function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('hidden'); document.getElementById('apiKeyInput').value = geminiApiKey; document.getElementById('modelInput').value = geminiModelName; }
     function saveSettings() { const key = document.getElementById('apiKeyInput').value.trim(), model = document.getElementById('modelInput').value.trim(); if(key && model) { geminiApiKey = key; geminiModelName = model; localStorage.setItem('ai_api_key', key); localStorage.setItem('gemini_model_name', model); alert("Guardado."); toggleSettings(); } }
 
@@ -209,7 +237,7 @@ const firebaseConfig = {
         Array.from(files).forEach(file => { if (file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = e => { if (imagesBuffer.length < 2) { imagesBuffer.push(e.target.result.replace(/^data:(.*,)?/, '')); updateImageStatus(); } }; reader.readAsDataURL(file); } }); 
     }
 
-    // --- IA ---
+    // --- IA (Gemini) ---
     async function processBufferedImages() {
         if (imagesBuffer.length < 2) return; document.getElementById('loadingOverlay').classList.remove('hidden');
         const PROMPT = `Analiza DOS imágenes (Anverso/Reverso) ID Italia. 1. ANVERSO: FECHA Campo 4a. 2. REVERSO: NÚMERO SOPORTE (2 letras+numeros, abajo derecha). JSON: {"numero": "VALOR", "fecha": "DD/MM/AAAA"}`;
@@ -326,6 +354,13 @@ const firebaseConfig = {
         const output = document.getElementById("output");
         if(!num) return;
         if (!validarFormatoItalia(num)) { output.innerHTML = "<div class='bg-red-100 text-red-700 p-3 rounded font-bold'>Formato inválido (2 Letras + 7 Números)</div>"; return; }
+        
+        // Check de seguridad
+        if(!isUserAuthenticated && datosCompletos.length === 0) {
+             output.innerHTML = "<div class='text-orange-500 font-bold'>Conectando con V4... Espera un segundo.</div>";
+             return;
+        }
+
         const exacto = datosCompletos.find(d => d.numero === num);
         if (exacto) { output.innerHTML = `<div class='bg-blue-50 border border-blue-200 p-4 rounded'><p class='text-green-600 font-bold text-xl'>✅ EXISTE</p><p class="text-gray-600">Fecha registrada: <strong>${exacto.fecha}</strong></p></div>`; return; }
 
@@ -349,7 +384,10 @@ const firebaseConfig = {
     dropZone.addEventListener('dragleave', e => { if (e.target === dropZone) dropZone.classList.remove('drag-active'); });
     dropZone.addEventListener('drop', e => { dropZone.classList.remove('drag-active'); handleFiles(e.dataTransfer.files); });
     window.addEventListener('paste', e => { const files = []; Array.from(e.clipboardData.items).forEach(i => { if (i.type.startsWith("image")) files.push(i.getAsFile()); }); handleFiles(files); });
-    document.addEventListener('DOMContentLoaded', cargarDatos);
+    
+    // IMPORTANTE: Ya no llamamos a cargarDatos() aquí directamente. Lo hará el Auth Listener.
+    // document.addEventListener('DOMContentLoaded', cargarDatos); <-- ELIMINADO
+    
     document.getElementById("numero").addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -358,12 +396,53 @@ const firebaseConfig = {
     });
 
     // --- CRUD Y AUX ---
-    function cargarDatos() { licenciasNuevasRef.once('value').then(s => { datosCompletos = []; const d = s.val(); if (d) Object.keys(d).forEach(k => datosCompletos.push({ ...d[k], key: k })); datosCompletos.sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true })); renderTabla(); }); }
+    function cargarDatos() { 
+        // Usamos .on() para actualizaciones en tiempo real (más seguro que once en este contexto)
+        licenciasNuevasRef.on('value', (s) => { 
+            datosCompletos = []; 
+            const d = s.val(); 
+            if (d) Object.keys(d).forEach(k => datosCompletos.push({ ...d[k], key: k })); 
+            datosCompletos.sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true })); 
+            renderTabla(); 
+        }); 
+    }
+    
     document.getElementById('mostrarFormularioBtn').onclick = () => { document.getElementById('formularioNuevosDatos').classList.toggle('hidden'); document.getElementById('cpiDataTable').classList.add('hidden'); };
     document.getElementById('mostrarListadoBtn').onclick = () => { document.getElementById('cpiDataTable').classList.toggle('hidden'); document.getElementById('formularioNuevosDatos').classList.add('hidden'); };
-    function guardarNuevoNumero() { const num = document.getElementById('nuevoNumero').value.trim().toUpperCase(), date = document.getElementById('nuevaFecha').value; if(!num || !date) return alert("Faltan datos"); const [y,m,d] = date.split('-'); const fFmt = `${d}/${m}/${y}`; if (!validarFormatoItalia(num)) return alert("Formato incorrecto"); const chk = verificarCongruencia(num, fFmt); if(chk.esFraude) return alert(chk.mensajeClaro); licenciasNuevasRef.child(num).set({ numero: num, fecha: fFmt }).then(() => { alert("Guardado OK"); cargarDatos(); }); }
-    function guardarDesdeAI() { if(!window.tempAiData) return; licenciasNuevasRef.child(window.tempAiData.numero).set(window.tempAiData).then(() => { alert("Añadido."); document.getElementById('aiResultBox').classList.add('hidden'); cargarDatos(); }); }
-    function renderTabla() { const tb = document.getElementById('cpiList'); tb.innerHTML = ''; [...datosCompletos].sort((a,b) => { const [d1,m1,y1]=a.fecha.split('/'); const [d2,m2,y2]=b.fecha.split('/'); return new Date(`${y2}-${m2}-${d2}`) - new Date(`${y1}-${m1}-${d1}`); }).forEach(d => { tb.innerHTML += `<tr class="bg-white border-b hover:bg-gray-50"><td class="px-4 py-3 font-mono font-bold">${d.numero}</td><td class="px-4 py-3">${d.fecha}</td><td class="px-4 py-3 text-right"><span onclick="if(confirm('¿Borrar?')) licenciasNuevasRef.child('${d.key}').remove().then(cargarDatos)" class="text-red-500 font-bold cursor-pointer">X</span></td></tr>`; }); }
+    
+    function guardarNuevoNumero() { 
+        if(!isUserAuthenticated) return alert("No tienes permisos en V4.");
+        const num = document.getElementById('nuevoNumero').value.trim().toUpperCase(), date = document.getElementById('nuevaFecha').value; 
+        if(!num || !date) return alert("Faltan datos"); 
+        const [y,m,d] = date.split('-'); 
+        const fFmt = `${d}/${m}/${y}`; 
+        if (!validarFormatoItalia(num)) return alert("Formato incorrecto"); 
+        const chk = verificarCongruencia(num, fFmt); 
+        if(chk.esFraude) return alert(chk.mensajeClaro); 
+        licenciasNuevasRef.child(num).set({ numero: num, fecha: fFmt }).then(() => { alert("Guardado OK"); }); 
+    }
+    
+    function guardarDesdeAI() { 
+        if(!isUserAuthenticated) return alert("No autorizado.");
+        if(!window.tempAiData) return; 
+        licenciasNuevasRef.child(window.tempAiData.numero).set(window.tempAiData).then(() => { alert("Añadido."); document.getElementById('aiResultBox').classList.add('hidden'); }); 
+    }
+    
+    function eliminarRegistro(key) {
+        if(!isUserAuthenticated) return alert("No autorizado.");
+        if(confirm('¿Borrar?')) licenciasNuevasRef.child(key).remove();
+    }
+
+    function renderTabla() { 
+        const tb = document.getElementById('cpiList'); tb.innerHTML = ''; 
+        [...datosCompletos].sort((a,b) => { 
+            const [d1,m1,y1]=a.fecha.split('/'); 
+            const [d2,m2,y2]=b.fecha.split('/'); 
+            return new Date(`${y2}-${m2}-${d2}`) - new Date(`${y1}-${m1}-${d1}`); 
+        }).forEach(d => { 
+            tb.innerHTML += `<tr class="bg-white border-b hover:bg-gray-50"><td class="px-4 py-3 font-mono font-bold">${d.numero}</td><td class="px-4 py-3">${d.fecha}</td><td class="px-4 py-3 text-right"><span onclick="eliminarRegistro('${d.key}')" class="text-red-500 font-bold cursor-pointer">X</span></td></tr>`; 
+        }); 
+    }
   </script>
 </body>
 </html>
