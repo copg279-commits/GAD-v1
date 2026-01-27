@@ -45,7 +45,6 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
       position: sticky; 
       top: 0; 
-      /* CORRECCIÓN: Z-index muy alto para tapar el contenido al hacer scroll */
       z-index: 1000; 
     }
     header.mode-interv { background-color: var(--color-interv); }
@@ -73,7 +72,6 @@
     .sticky-menu-bar {
         position: sticky;
         top: 155px; 
-        /* CORRECCIÓN: Z-index alto pero menor que el header */
         z-index: 900;
         margin-bottom: 20px;
         background: rgba(255, 255, 255, 0.95);
@@ -107,7 +105,6 @@
         border: 1px solid #ddd;
     }
     .thumbnail-img:hover { 
-        /* CORRECCIÓN: Z-index máximo para que la foto ampliada tape el header si es necesario */
         transform: scale(3.5); z-index: 2000; position: relative; 
         box-shadow: 0 15px 30px rgba(0,0,0,0.3); background: white;     
     }
@@ -117,7 +114,6 @@
     .red-cross-overlay {
         position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         pointer-events: none; 
-        /* CORRECCIÓN: Z-index bajo. Se queda pegado a la foto y el header (1000) lo tapará */
         z-index: 10;
         color: rgba(220, 38, 38, 0.85); font-size: 4rem; text-shadow: 0 0 5px white;
     }
@@ -162,7 +158,6 @@
     .modal-overlay { 
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px);
         display: flex; justify-content: center; align-items: center; visibility: hidden; opacity: 0; 
-        /* CORRECCIÓN: Z-index muy superior a todo */
         z-index: 3000; 
         transition: opacity 0.3s; 
     }
@@ -232,7 +227,15 @@
     /* AYUDA EDITABLE */
     .help-panel { background: #fff; border: 1px solid #e5e7eb; padding: 25px; margin-bottom: 25px; border-radius: 12px; border-left: 6px solid #3b82f6; display: none; }
     .editing-border { border: 2px dashed #3b82f6; padding: 10px; background-color: #f0f9ff; cursor: text; }
-
+    
+    /* MENSAJE DE ESTADO INICIAL */
+    #loading-auth {
+        text-align: center;
+        padding: 20px;
+        font-size: 1.2rem;
+        color: #666;
+        font-weight: bold;
+    }
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -253,91 +256,95 @@
         </div>
     </div>
 
-    <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100 mb-8 flex flex-wrap items-center gap-5 justify-between sticky-menu-bar">
-        <div class="flex gap-3">
-            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5">
-                <i class="fas fa-plus-circle mr-2"></i> NUEVO
-            </button>
-            <button onclick="toggleHelp()" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5">
-                <i class="fas fa-question-circle mr-2"></i> AYUDA
-            </button>
-        </div>
+    <div id="loading-auth">Conectando con Base de Datos V4...</div>
 
-        <div class="flex-grow max-w-lg relative">
-            <i class="fas fa-search absolute left-4 top-4 text-gray-400 text-lg"></i>
-            <input type="text" id="searchInput" placeholder="Buscar atestado..." class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500">
-        </div>
-
-        <div id="filtersArea" class="flex items-center"></div>
-    </div>
-
-    <div id="helpPanel" class="help-panel">
-        <div class="flex justify-between items-start mb-6">
-            <h3 class="font-bold text-3xl text-gray-800"><i class="fas fa-info-circle text-blue-500 mr-2"></i> Guía de Uso</h3>
-            <div class="flex gap-2">
-                <button id="btnHelpEdit" onclick="toggleHelpEdit()" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded font-bold">
-                    <i class="fas fa-edit"></i> Editar Guía
+    <div id="main-content" style="display:none;">
+        <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100 mb-8 flex flex-wrap items-center gap-5 justify-between sticky-menu-bar">
+            <div class="flex gap-3">
+                <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5">
+                    <i class="fas fa-plus-circle mr-2"></i> NUEVO
                 </button>
-                <button onclick="toggleHelp()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-2xl"></i></button>
+                <button onclick="toggleHelp()" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5">
+                    <i class="fas fa-question-circle mr-2"></i> AYUDA
+                </button>
             </div>
+
+            <div class="flex-grow max-w-lg relative">
+                <i class="fas fa-search absolute left-4 top-4 text-gray-400 text-lg"></i>
+                <input type="text" id="searchInput" placeholder="Buscar atestado..." class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500">
+            </div>
+
+            <div id="filtersArea" class="flex items-center"></div>
         </div>
-        
-        <div id="helpContent">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-6">
-                    <div>
-                        <h4 class="font-extrabold text-blue-800 text-lg border-b-2 border-blue-100 pb-2 mb-3">PROCEDIMIENTOS RÁPIDOS</h4>
-                        <div class="space-y-3 text-sm text-gray-700">
-                            <p><i class="fas fa-plus-circle text-blue-600"></i> <strong>Nuevo:</strong> Rellene los datos. El "DSV" es automático.</p>
-                            <p><i class="fas fa-gavel text-green-600"></i> <strong>Judicializar:</strong> Al editar, marque la casilla verde. El documento pasará a la pestaña "Judicializados".</p>
-                            <p><i class="fas fa-sign-out-alt text-red-500"></i> <strong>Salida:</strong> Cambie el estado a "Devuelto" o "Entregado". Se pondrá marrón y con aspa roja.</p>
+
+        <div id="helpPanel" class="help-panel">
+            <div class="flex justify-between items-start mb-6">
+                <h3 class="font-bold text-3xl text-gray-800"><i class="fas fa-info-circle text-blue-500 mr-2"></i> Guía de Uso</h3>
+                <div class="flex gap-2">
+                    <button id="btnHelpEdit" onclick="toggleHelpEdit()" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded font-bold">
+                        <i class="fas fa-edit"></i> Editar Guía
+                    </button>
+                    <button onclick="toggleHelp()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-2xl"></i></button>
+                </div>
+            </div>
+            
+            <div id="helpContent">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-extrabold text-blue-800 text-lg border-b-2 border-blue-100 pb-2 mb-3">PROCEDIMIENTOS RÁPIDOS</h4>
+                            <div class="space-y-3 text-sm text-gray-700">
+                                <p><i class="fas fa-plus-circle text-blue-600"></i> <strong>Nuevo:</strong> Rellene los datos. El "DSV" es automático.</p>
+                                <p><i class="fas fa-gavel text-green-600"></i> <strong>Judicializar:</strong> Al editar, marque la casilla verde. El documento pasará a la pestaña "Judicializados".</p>
+                                <p><i class="fas fa-sign-out-alt text-red-500"></i> <strong>Salida:</strong> Cambie el estado a "Devuelto" o "Entregado". Se pondrá marrón y con aspa roja.</p>
+                            </div>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                            <h4 class="font-bold text-yellow-800 mb-2"><i class="fas fa-filter mr-2"></i> ¿DÓNDE ESTÁ EL FILTRO?</h4>
+                            <p class="text-sm text-gray-700 mb-2">Está arriba a la derecha, junto al buscador. Cambia según la pestaña:</p>
+                            <ul class="text-xs space-y-1 text-gray-600 list-disc pl-4">
+                                <li><strong>En Intervenidos:</strong> Filtra Activos vs Devueltos.</li>
+                                <li><strong>En Judicializados:</strong> Filtra por estados (Trámite, Condena, etc.).</li>
+                            </ul>
                         </div>
                     </div>
-                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                        <h4 class="font-bold text-yellow-800 mb-2"><i class="fas fa-filter mr-2"></i> ¿DÓNDE ESTÁ EL FILTRO?</h4>
-                        <p class="text-sm text-gray-700 mb-2">Está arriba a la derecha, junto al buscador. Cambia según la pestaña:</p>
-                        <ul class="text-xs space-y-1 text-gray-600 list-disc pl-4">
-                            <li><strong>En Intervenidos:</strong> Filtra Activos vs Devueltos.</li>
-                            <li><strong>En Judicializados:</strong> Filtra por estados (Trámite, Condena, etc.).</li>
+                    <div>
+                        <h4 class="font-extrabold text-blue-800 text-lg border-b-2 border-blue-100 pb-2 mb-3">LEYENDA DE ESTADOS</h4>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-center gap-2 p-2 rounded bg-gray-50 border border-gray-100">
+                                <i class="fas fa-circle text-green-600 text-lg"></i> 
+                                <span><strong>Judicializado/Condena:</strong> Activo en juzgado.</span>
+                            </li>
+                            <li class="flex items-center gap-2 p-2 rounded bg-gray-50 border border-gray-100">
+                                <i class="fas fa-circle text-red-600 text-lg"></i> 
+                                <span><strong>En Trámite:</strong> Pendiente de resolución.</span>
+                            </li>
+                            <li class="flex items-center gap-2 p-2 rounded bg-gray-50 border border-gray-100">
+                                <i class="fas fa-circle" style="color: #8B4513;"></i>
+                                <span style="color: #8B4513;"><strong>Entregado/Devuelto:</strong> Color marrón. Ya no está en depósito.</span>
+                            </li>
+                            <li class="flex items-center gap-2 mt-4">
+                                <span class="bg-cyan-100 text-cyan-800 px-2 py-1 rounded font-bold border border-cyan-300 text-xs">DISPONIBLE</span>
+                                <span class="text-gray-600">Material didáctico.</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-bold border border-purple-300 text-xs">PERITADO</span>
+                                <span class="text-gray-600">Analizado por GAD.</span>
+                            </li>
                         </ul>
                     </div>
                 </div>
-                <div>
-                    <h4 class="font-extrabold text-blue-800 text-lg border-b-2 border-blue-100 pb-2 mb-3">LEYENDA DE ESTADOS</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li class="flex items-center gap-2 p-2 rounded bg-gray-50 border border-gray-100">
-                            <i class="fas fa-circle text-green-600 text-lg"></i> 
-                            <span><strong>Judicializado/Condena:</strong> Activo en juzgado.</span>
-                        </li>
-                        <li class="flex items-center gap-2 p-2 rounded bg-gray-50 border border-gray-100">
-                            <i class="fas fa-circle text-red-600 text-lg"></i> 
-                            <span><strong>En Trámite:</strong> Pendiente de resolución.</span>
-                        </li>
-                        <li class="flex items-center gap-2 p-2 rounded bg-gray-50 border border-gray-100">
-                            <i class="fas fa-circle" style="color: #8B4513;"></i>
-                            <span style="color: #8B4513;"><strong>Entregado/Devuelto:</strong> Color marrón. Ya no está en depósito.</span>
-                        </li>
-                        <li class="flex items-center gap-2 mt-4">
-                            <span class="bg-cyan-100 text-cyan-800 px-2 py-1 rounded font-bold border border-cyan-300 text-xs">DISPONIBLE</span>
-                            <span class="text-gray-600">Material didáctico.</span>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-bold border border-purple-300 text-xs">PERITADO</span>
-                            <span class="text-gray-600">Analizado por GAD.</span>
-                        </li>
-                    </ul>
-                </div>
             </div>
         </div>
-    </div>
 
-    <div class="results-container">
-        <table id="dataTable">
-            <thead id="tableHead"></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-        <div id="loading" class="text-center py-12"><i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i><p class="text-gray-500 text-lg">Cargando...</p></div>
-        <div id="noData" class="hidden text-center py-12"><i class="fas fa-folder-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-400 text-lg">Sin resultados.</p></div>
+        <div class="results-container">
+            <table id="dataTable">
+                <thead id="tableHead"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div id="loading" class="text-center py-12"><i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i><p class="text-gray-500 text-lg">Cargando...</p></div>
+            <div id="noData" class="hidden text-center py-12"><i class="fas fa-folder-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-400 text-lg">Sin resultados.</p></div>
+        </div>
     </div>
   </main>
 
@@ -360,6 +367,7 @@
                 
                 <div class="col-span-1"><label>Fecha Suceso</label><input type="date" id="fechaSuceso" required></div>
                 <div class="col-span-1"><label>País</label><input type="text" id="pais" list="paisesList" placeholder="País" required><datalist id="paisesList"></datalist></div>
+                
                 <div class="col-span-1"><label>Tipo</label>
                     <select id="tipoDocumento" required>
                         <option value="PNC">PNC</option><option value="PIC">PIC</option><option value="TIE">TIE</option>
@@ -367,6 +375,7 @@
                         <option value="ITV">ITV</option><option value="SOA">SOA</option><option value="OTRO">OTRO</option>
                     </select>
                 </div>
+                
                 <div class="col-span-1"><label>Nº Atestado (DSV)</label><input type="text" id="atestadoNumero" required placeholder="Nº" class="input-blue"></div>
 
                 <div class="col-span-1"><label>Resultado</label>
@@ -380,6 +389,7 @@
                         </optgroup>
                     </select>
                 </div>
+                
                 <div class="col-span-1"><label class="text-red-700">F. Devolución</label><input type="date" id="fechaDevolucion" class="input-red"></div>
                 <div class="col-span-2"><label>Enlace Imagen</label><input type="text" id="documentoUrl" placeholder="URL Imagen"></div>
 
@@ -398,9 +408,10 @@
                          ¿Acta? <select id="tieneActaSelect" onchange="toggleActaUrl()" style="width: auto; height: 26px; padding: 0 5px; border-radius: 4px; border:1px solid #ccc"><option value="No">No</option><option value="Sí">Sí</option></select>
                     </label>
                 </div>
+                
                 <div class="col-span-2 flex items-center">
                     <input type="text" id="actaUrl" placeholder="URL del Acta" class="bg-teal-50 border-teal-200 text-teal-800 hidden w-full">
-                    </div>
+                </div>
 
                 <div id="judicialPanel" class="hidden">
                     <div class="col-span-1"><label>Juzgado</label><select id="juzgado"><option value="Se desconoce">Se desconoce</option></select></div>
@@ -453,39 +464,63 @@
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
   
   <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
+    // --- 1. CONFIGURACIÓN FIREBASE V4 ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+      authDomain: "gad-alicante-v4.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v4",
+      storageBucket: "gad-alicante-v4.firebasestorage.app",
+      messagingSenderId: "119727545224",
+      appId: "1:119727545224:web:36880c50d196c456cdb83d"
+    };
     
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
     const mainRef = db.ref('documentos_intervenidos');
-    const systemRef = db.ref('configuracion_global/ayuda'); // NODO AYUDA
+    const systemRef = db.ref('configuracion_global/ayuda');
 
     let appMode = 'INTERVENIDOS'; 
     let allData = [];
     let intFilter = 'all'; 
     let judFilter = 'ALL';
     let isEditingHelp = false;
+    let isUserAuthenticated = false;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // --- 2. SISTEMA DE SEGURIDAD ESTRICTA (WAIT FOR AUTH) ---
+    // Este es el "freno de mano" que evita el error de permisos en V4
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            isUserAuthenticated = true;
+            console.log("Usuario V4 Autenticado:", user.email);
+            
+            document.getElementById('loading-auth').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            
+            // INICIAMOS LA LÓGICA DE DATOS SOLO AHORA
+            iniciarAplicacion();
+        } else {
+            console.warn("Usuario no autenticado");
+            document.getElementById('loading-auth').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú Principal.</span>";
+        }
+    });
+
+    function iniciarAplicacion() {
+        // Inicializar selects
         const jSelect = document.getElementById('juzgado');
         for(let i=1; i<=15; i++) jSelect.innerHTML += `<option value="Instrucción ${i}">Instrucción ${i}</option>`;
         for(let i=1; i<=10; i++) jSelect.innerHTML += `<option value="Penal ${i}">Penal ${i}</option>`;
 
+        // Cargar países
         db.ref('paises').on('value', s => {
             document.getElementById('paisesList').innerHTML = (s.val()||[]).map(p=>`<option value="${p}"></option>`).join('');
         });
 
+        // Cargar datos principales
         mainRef.on('value', snapshot => {
             allData = [];
             snapshot.forEach(child => {
@@ -493,8 +528,12 @@ const firebaseConfig = {
             });
             render();
             document.getElementById('loading').classList.add('hidden');
+        }, (error) => {
+            console.error("Error Firebase:", error);
+            alert("Error de conexión: " + error.code);
         });
 
+        // Cargar ayuda
         systemRef.on('value', snap => {
             const val = snap.val();
             if(val) document.getElementById('helpContent').innerHTML = val;
@@ -511,9 +550,11 @@ const firebaseConfig = {
         });
 
         updateFilters();
-    });
+    }
 
+    // --- RESTO DE FUNCIONALIDADES UI (Sin tocar lógica interna) ---
     window.toggleHelpEdit = function() {
+        if(!isUserAuthenticated) return alert("No autorizado.");
         const content = document.getElementById('helpContent');
         const btn = document.getElementById('btnHelpEdit');
         
@@ -683,6 +724,7 @@ const firebaseConfig = {
 
     // CRUD
     window.openModal = function() {
+        if(!isUserAuthenticated) return alert("No autorizado.");
         document.getElementById('docForm').reset();
         document.getElementById('recordKey').value = '';
         document.getElementById('modalTitle').textContent = 'Nuevo Documento';
@@ -728,6 +770,7 @@ const firebaseConfig = {
 
     document.getElementById('docForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if(!isUserAuthenticated) return alert("No autorizado.");
         const key = document.getElementById('recordKey').value;
         let atestado = document.getElementById('atestadoNumero').value.trim();
         if (!atestado.toUpperCase().startsWith('DSV')) atestado = "DSV " + atestado;
@@ -762,7 +805,10 @@ const firebaseConfig = {
         } catch (error) { alert("Error: " + error.message); }
     });
 
-    window.del = async function(key) { if (confirm('¿Borrar definitivamente?')) await mainRef.child(key).remove(); };
+    window.del = async function(key) { 
+        if(!isUserAuthenticated) return alert("No autorizado.");
+        if (confirm('¿Borrar definitivamente?')) await mainRef.child(key).remove(); 
+    };
     
     window.view = function(key) {
         const item = allData.find(d => d.key === key);
