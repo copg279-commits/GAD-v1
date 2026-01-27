@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Panel GAD Alicante - Reparto de Expedientes</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
 
     <style>
         :root { --blue-main: #1a73e8; --blue-dark: #0d47a1; --success: #28a745; --danger: #d93025; --bg: #f4f7f9; }
@@ -35,6 +35,9 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
         .modal-content { background: white; margin: 10% auto; padding: 25px; border-radius: 12px; width: 80%; max-width: 500px; position: relative; }
         .count-badge { font-weight: bold; color: var(--danger); font-size: 0.9em; }
+        
+        /* Mensaje de carga inicial */
+        #auth-status { text-align: center; color: #666; margin-bottom: 10px; font-weight: bold; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -42,8 +45,10 @@
 <div class="container">
     <button class="help-btn" onclick="document.getElementById('helpModal').style.display='block'">?</button>
     <h1>GAD Alicante - Reparto de Expedientes</h1>
+    
+    <div id="auth-status">Conectando con base de datos V4...</div>
 
-    <div class="db-panel">
+    <div class="db-panel" id="db-controls" style="opacity: 0.5; pointer-events: none;">
         <strong>📁 Nodo: repartos</strong>
         <input type="text" id="saveName" placeholder="Nombre (Ej: Enero 2026)">
         <button class="btn-db btn-save" onclick="guardarReparto()">Guardar</button>
@@ -76,40 +81,61 @@
 </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
+    // --- 1. CONFIGURACIÓN V4 ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+      authDomain: "gad-alicante-v4.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v4",
+      storageBucket: "gad-alicante-v4.firebasestorage.app",
+      messagingSenderId: "119727545224",
+      appId: "1:119727545224:web:36880c50d196c456cdb83d"
+    };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
+    
     let currentData = null;
     let inicializado = false;
-    let lastChecked = null; // Para la lógica de Shift
+    let lastChecked = null;
+    let isUserAuthenticated = false;
 
-    db.ref('repartos').on('value', (snapshot) => {
-        const select = document.getElementById('historyList');
-        const prev = select.value;
-        select.innerHTML = '<option value="">Consultar anteriores...</option>';
-        let claves = [];
-        snapshot.forEach((child) => {
-            claves.push(child.key);
-            let opt = document.createElement('option');
-            opt.value = child.key; opt.text = child.key;
-            select.appendChild(opt);
-        });
-        if (!inicializado && claves.length > 0) {
-            claves.sort();
-            const ultimo = claves[claves.length - 1];
-            select.value = ultimo;
-            cargarReparto(); inicializado = true;
-        } else { select.value = prev; }
+    // --- 2. SEGURIDAD ESTRICTA (V4) ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            isUserAuthenticated = true;
+            document.getElementById('auth-status').style.display = 'none';
+            document.getElementById('db-controls').style.opacity = '1';
+            document.getElementById('db-controls').style.pointerEvents = 'auto';
+            
+            // INICIAMOS ESCUCHA DE DATOS AHORA
+            iniciarConexionDB();
+        } else {
+            document.getElementById('auth-status').innerHTML = "<span style='color:red;'>⚠️ Acceso Denegado. Inicia sesión en el Menú.</span>";
+        }
     });
+
+    function iniciarConexionDB() {
+        db.ref('repartos').on('value', (snapshot) => {
+            const select = document.getElementById('historyList');
+            const prev = select.value;
+            select.innerHTML = '<option value="">Consultar anteriores...</option>';
+            let claves = [];
+            snapshot.forEach((child) => {
+                claves.push(child.key);
+                let opt = document.createElement('option');
+                opt.value = child.key; opt.text = child.key;
+                select.appendChild(opt);
+            });
+            if (!inicializado && claves.length > 0) {
+                claves.sort();
+                const ultimo = claves[claves.length - 1];
+                select.value = ultimo;
+                cargarReparto(); inicializado = true;
+            } else { select.value = prev; }
+        });
+    }
 
     function corregir(t) { return t.replace(/ESPA\?A/gi, "ESPAÑA").replace(/cauci\?n/gi, "caución"); }
     
@@ -257,6 +283,7 @@ const firebaseConfig = {
     }
 
     function actualizarMatriculaAgrupada(agIdx, tipo, gIdx, val) {
+        if(!isUserAuthenticated) { alert("No tienes permisos."); return; }
         const bloqueStr = tipo === 'ot' ? 'bloqueOtros' : 'bloqueFrancia';
         const agrupados = obtenerAgrupados(currentData[bloqueStr][agIdx]);
         const itemG = agrupados[gIdx];
@@ -267,7 +294,6 @@ const firebaseConfig = {
             if(saveName) db.ref(`repartos/${saveName}/${bloqueStr}/${agIdx}/${idxOriginal}`).update({checked: val});
         });
 
-        // UI local
         const elItem = document.getElementById(`item-${tipo}-${agIdx}-${gIdx}`);
         if(elItem) elItem.classList.toggle('done', val);
         const chk = document.getElementById(`chk-${tipo}-${agIdx}-${gIdx}`);
@@ -290,6 +316,7 @@ const firebaseConfig = {
     }
 
     function toggleGrupoPersistente(agIdx, tipo, val) {
+        if(!isUserAuthenticated) { alert("No tienes permisos."); return; }
         const bloqueStr = tipo === 'ot' ? 'bloqueOtros' : 'bloqueFrancia';
         const saveName = document.getElementById('saveName').value;
         currentData[bloqueStr][agIdx].forEach((item, idx) => {
@@ -310,6 +337,7 @@ const firebaseConfig = {
     }
 
     function saveGeneralStatus(idx, campo, val, reRender = true) {
+        if(!isUserAuthenticated) { alert("No tienes permisos."); return; }
         const saveName = document.getElementById('saveName').value;
         if(!currentData[campo]) currentData[campo] = [false,false,false,false,false];
         currentData[campo][idx] = val;
@@ -330,6 +358,7 @@ const firebaseConfig = {
     }
 
     function guardarReparto() {
+        if(!isUserAuthenticated) return alert("No autorizado.");
         const n = document.getElementById('saveName').value.trim();
         if(!n || !currentData) return alert("Faltan datos.");
         db.ref('repartos/' + n).set(currentData).then(() => alert("Guardado con éxito en repartos."));
