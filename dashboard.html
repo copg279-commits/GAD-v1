@@ -220,7 +220,11 @@
       appId: "1:119727545224:web:36880c50d196c456cdb83d"
   };
   
+  // Lista de correos autorizados para ENTRAR
   const AUTHORIZED_EMAILS = ['gadalicante@gmail.com', 'copg279@gmail.com'];
+  
+  // CORRECCIÓN: SOLO ESTE CORREO SERÁ ADMINISTRADOR
+  const ADMIN_EMAIL = 'copg279@gmail.com';
 
   if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
   const db = firebase.database();
@@ -476,7 +480,6 @@
       firebase.auth().onAuthStateChanged(async (user) => {
           if (user) {
               // 1. USUARIO AUTORIZADO DETECTADO EN AUTH
-              // Verificamos si es uno de los hardcodeados por si acaso, aunque las reglas DB mandan
               if (AUTHORIZED_EMAILS.includes(user.email)) {
                   document.body.classList.add('loaded'); // Mostrar body
                   
@@ -484,9 +487,10 @@
                   iniciarEscuchaDeDatos();
 
                   const emailKey = sanitizeEmail(user.email);
-                  const isAdmin = user.email === AUTHORIZED_EMAILS[0];
+                  // CORRECCIÓN: SOLO copg279 ES ADMIN
+                  const isAdmin = (user.email === ADMIN_EMAIL);
                   
-                  // Intentamos escribir el acceso. Si las reglas DB fallan, esto dará error en consola
+                  // Intentamos escribir el acceso.
                   try {
                       if (isAdmin) { 
                           await grantAccess(user, true); 
@@ -502,8 +506,6 @@
                       }
                   } catch (e) {
                       console.error("Error de permisos:", e);
-                      // Si falla el acceso a la DB pero Auth está OK, dejamos que intente cargar,
-                      // pero probablemente 'iniciarEscuchaDeDatos' no traiga nada.
                   }
 
               } else {
@@ -525,7 +527,6 @@
       const ip = await getClientIP();
       
       const updateData = {};
-      // Usamos update para no sobrescribir todo si ya existe
       if(isAdmin) {
           db.ref(USERS_NODE + '/' + emailKey).update({email: user.email, nombre: 'Admin', ultimoAcceso: now});
       } else {
@@ -533,7 +534,7 @@
               if (currentData) {
                   return { ...currentData, email: user.email, accesos: (currentData.accesos||0)+1, ultimoAcceso: now };
               }
-              return currentData; // Si no existe no lo creamos aquí, debe crearlo el admin
+              return currentData; 
           });
       }
 
@@ -541,6 +542,7 @@
       
       document.getElementById('user-info-display').innerHTML = `<i class="fas fa-user-circle"></i> ${user.email}`;
       
+      // MOSTRAR PANEL SI ES ADMIN (CORREGIDO PARA SOLO MOSTRAR A copg279)
       if (isAdmin) { 
           adminPanel.style.display = 'flex'; 
           document.getElementById('edit-title-icon').style.display = isEditMode ? 'inline-block' : 'none'; 
@@ -584,7 +586,8 @@
           if(s.val()) {
               const ul = document.getElementById('user-list-to-delete'); if(ul) ul.innerHTML = '';
               Object.entries(s.val()).forEach(([k,v]) => { if(ul) ul.innerHTML += `<li><div class="user-row-header"><span>${v.email}</span></div><div class="user-row-actions"><button onclick="delUser('${k}')">X</button></div></li>`; });
-              if (auth.currentUser?.email === AUTHORIZED_EMAILS[0]) renderAdminCounters(s.val());
+              // CORRECCIÓN: SOLO ADMIN (copg279) VE CONTADORES
+              if (auth.currentUser?.email === ADMIN_EMAIL) renderAdminCounters(s.val());
           }
       }, (error) => {
           console.log("No tienes permisos para ver usuarios (normal si no eres admin)");
