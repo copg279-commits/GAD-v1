@@ -4,484 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buscador de Enlaces OSINT - GAD</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #64748b;
-            --bg-page: #f1f5f9;
-            --bg-card: #ffffff;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-page);
-            color: #334155;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- HEADER Y NAVEGACIÓN --- */
-        header {
-            background-color: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0.75rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .app-icon {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, #2563eb, #1e40af);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.25rem;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
-        }
-
-        /* --- CONTENEDOR PRINCIPAL --- */
-        main {
-            flex-grow: 1;
-            width: 100%;
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-        }
-
-        /* --- TARJETA DE BÚSQUEDA --- */
-        .search-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            border: 1px solid #e2e8f0;
-            margin-bottom: 2rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .search-input-wrapper {
-            position: relative;
-            flex-grow: 1;
-        }
-
-        .search-input-wrapper i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 1.1rem;
-        }
-
-        #searchInput {
-            width: 100%;
-            padding: 1rem 1rem 1rem 3rem;
-            background-color: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #1e293b;
-            transition: all 0.2s;
-        }
-
-        #searchInput:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: white;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-
-        /* --- BOTONES Y CONTROLES --- */
-        .btn-action {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.75rem;
-            font-weight: 700;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-        }
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background-color: #f1f5f9;
-            color: #475569;
-            border: 1px solid #e2e8f0;
-        }
-        .btn-secondary:hover {
-            background-color: #e2e8f0;
-            color: #1e293b;
-        }
-
-        /* --- SWITCH DE EDICIÓN --- */
-        .edit-toggle-wrapper {
-            display: flex;
-            align-items: center;
-            background: #f8fafc;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .toggle-checkbox {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-        }
-
-        .toggle-label {
-            position: relative;
-            width: 44px;
-            height: 24px;
-            background-color: #cbd5e1;
-            border-radius: 9999px;
-            transition: background-color 0.2s;
-            cursor: pointer;
-        }
-
-        .toggle-label:after {
-            content: "";
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 20px;
-            height: 20px;
-            background-color: white;
-            border-radius: 50%;
-            transition: transform 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: var(--primary);
-        }
-
-        .toggle-checkbox:checked + .toggle-label:after {
-            transform: translateX(20px);
-        }
-
-        /* --- GRID DE RESULTADOS --- */
-        .country-card {
-            background: white;
-            border-radius: 1rem;
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            transition: box-shadow 0.2s;
-        }
-        .country-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            border-color: #cbd5e1;
-        }
-
-        .country-header {
-            background: linear-gradient(to right, #f8fafc, #ffffff);
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .country-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #1e293b;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem;
-            padding: 1.5rem;
-        }
-
-        /* --- TARJETAS DE ENLACE --- */
-        .link-item {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
-            padding: 0.75rem 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s;
-            position: relative;
-        }
-
-        .link-item:hover {
-            background-color: white;
-            border-color: #93c5fd;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .link-content {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            flex-grow: 1;
-            min-width: 0;
-        }
-
-        .link-icon {
-            width: 32px;
-            height: 32px;
-            background-color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            border: 1px solid #e2e8f0;
-            flex-shrink: 0;
-        }
-
-        .link-text {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #334155;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .link-item:hover .link-text { color: var(--primary); }
-
-        /* --- CONTROLES DE EDICIÓN (Pequeños botones) --- */
-        .edit-controls {
-            display: flex;
-            gap: 0.25rem;
-            margin-left: 0.5rem;
-            padding-left: 0.5rem;
-            border-left: 1px solid #cbd5e1;
-            opacity: 0.7;
-        }
-        .link-item:hover .edit-controls { opacity: 1; }
-
-        .ctrl-btn {
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            color: #64748b;
-        }
-        .ctrl-btn:hover { background-color: #e2e8f0; color: #1e293b; }
-        .ctrl-btn.delete:hover { background-color: #fee2e2; color: #dc2626; }
-
-        /* --- FORMULARIO DESPLEGABLE --- */
-        #formContainer {
-            background-color: #f0f9ff;
-            border: 1px dashed #3b82f6;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-            display: none;
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        #helpContainer {
-            background-color: #f0fdf4;
-            border: 1px dashed #22c55e;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-            display: none;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- PANTALLA DE CARGA DE SEGURIDAD --- */
-        #auth-loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #f1f5f9; z-index: 9999;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            color: var(--primary);
-        }
-        
-        /* FOOTER */
-        footer {
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            padding: 2rem 0;
-            margin-top: auto;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="auth-loading-screen">
-        <div class="flex flex-col items-center">
-            <i class="fas fa-shield-alt fa-3x mb-4 text-blue-600 animate-pulse"></i>
-            <h2 class="text-xl font-bold text-slate-700">Verificando Acceso V4...</h2>
-            <p class="text-sm text-slate-500 mt-2">Conectando con base de datos segura</p>
-        </div>
-    </div>
-
-    <header>
-        <div class="header-content">
-            <div class="logo-section">
-                <div class="app-icon"><i class="fas fa-network-wired"></i></div>
-                <div>
-                    <h1 class="text-xl font-bold text-slate-800 tracking-tight leading-none">OSINT <span class="text-blue-600">GAD</span></h1>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Recursos de Inteligencia</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-6">
-                <div class="edit-toggle-wrapper">
-                    <span class="text-xs font-bold text-slate-500 mr-3 uppercase">Modo Edición</span>
-                    <div class="relative inline-block w-11 h-6 align-middle select-none">
-                        <input type="checkbox" id="editModeToggle" class="toggle-checkbox" />
-                        <label for="editModeToggle" class="toggle-label"></label>
-                    </div>
-                </div>
-
-                <button onclick="window.location.href='index.html'" class="text-slate-400 hover:text-blue-600 transition-colors text-xl" title="Volver al Menú">
-                    <i class="fas fa-home"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main id="main-content" style="display:none;">
-        
-        <div class="search-card">
-            <div class="flex flex-col md:flex-row gap-4 items-stretch">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Buscar país, herramienta, fuente abierta..." autocomplete="off">
-                </div>
-                
-                <div class="flex gap-2 flex-shrink-0">
-                    <button id="btnAdd" class="btn-action btn-primary hidden">
-                        <i class="fas fa-plus-circle"></i> AÑADIR RECURSO
-                    </button>
-                    <button id="btnHelp" class="btn-action btn-secondary">
-                        <i class="far fa-question-circle"></i> AYUDA
-                    </button>
-                </div>
-            </div>
-
-            <div id="formContainer">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wider"><i class="fas fa-pen-to-square mr-2"></i> Nuevo Enlace</h3>
-                    <button onclick="toggleFormulario()" class="text-slate-400 hover:text-red-500"><i class="fas fa-times"></i></button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">País / Categoría</label>
-                        <input type="text" id="nuevoPais" placeholder="Ej: FRANCIA" class="w-full p-3 bg-white border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Nombre / Descripción</label>
-                        <input type="text" id="nuevaDescripcion" placeholder="Ej: Consulta Matrículas" class="w-full p-3 bg-white border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">URL Destino</label>
-                        <input type="text" id="nuevaUrl" placeholder="https://..." class="w-full p-3 bg-white border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                </div>
-                
-                <div class="flex justify-end pt-2 border-t border-blue-100">
-                    <button onclick="guardarNuevoEnlace()" class="btn-action btn-primary bg-green-600 hover:bg-green-700">
-                        <i class="fas fa-save"></i> GUARDAR ENLACE
-                    </button>
-                </div>
-            </div>
-
-            <div id="helpContainer">
-                <h3 class="text-sm font-bold text-green-800 uppercase tracking-wider mb-3"><i class="fas fa-info-circle mr-2"></i> Guía Rápida</h3>
-                <ul class="text-sm text-slate-600 space-y-2 list-disc pl-5">
-                    <li>Utiliza el <strong>buscador</strong> para filtrar por país o nombre de la herramienta.</li>
-                    <li>Activa el <strong>Modo Edición</strong> (arriba a la derecha) para gestionar los enlaces.</li>
-                    <li>Usa las flechas <i class="fas fa-chevron-up text-xs"></i> <i class="fas fa-chevron-down text-xs"></i> para reordenar los enlaces dentro de su categoría.</li>
-                    <li>Los enlaces se abren siempre en una nueva pestaña segura.</li>
-                </ul>
-            </div>
-        </div>
-
-        <div id="resultsArea" class="space-y-6">
-            <div id="loading" class="text-center py-16">
-                <i class="fas fa-circle-notch fa-spin text-4xl text-blue-300 mb-4"></i>
-                <p class="text-slate-400 font-medium">Cargando recursos...</p>
-            </div>
-        </div>
-
-    </main>
-
-    <footer>
-        <div class="container mx-auto px-4">
-            <p class="font-bold text-slate-700 text-sm">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-            <p class="text-xs text-slate-400 mt-1">Policía Local de Alicante © 2025</p>
-        </div>
-    </footer>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Gris azulado muy suave */
+        }
+        
+        /* Animación del formulario y ayuda */
+        .form-container, .help-container {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        .form-container.active, .help-container.active {
+            opacity: 1;
+        }
+
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #2563EB;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #2563EB;
+        }
+        
+        /* Sombras suaves */
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        /* PANTALLA DE CARGA DE SEGURIDAD (ESTILO GAD) */
+        #auth-loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #f8fafc; z-index: 9999;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #1e3a8a; font-weight: bold; font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-0 text-slate-800">
+
+    <div id="auth-loading-screen">
+        <div class="flex flex-col items-center">
+            <i class="fas fa-shield-alt fa-3x mb-4 text-blue-800 animate-pulse"></i>
+            <span>Conectando con Base de Datos V4...</span>
+        </div>
+    </div>
+
+    <div id="app-content" style="display:none; width: 100%;">
+
+        <header class="bg-gradient-to-r from-blue-900 to-blue-700 w-full shadow-lg py-6">
+            <div class="flex flex-col justify-center items-center">
+                <div class="w-32 h-32 rounded-full overflow-hidden shadow-2xl">
+                    <img src="logogad.png" onerror="this.src='https://via.placeholder.com/150/0000FF/808080?text=GAD'" alt="Logo GAD" class="w-full h-full object-cover block">
+                </div>
+                <h1 class="text-white text-center mt-4 text-2xl font-bold tracking-wider uppercase drop-shadow-md px-4">
+                    Buscador de Enlaces OSINT
+                </h1>
+            </div>
+        </header>
+
+        <div class="w-11/12 max-w-3xl mx-auto mt-6 flex justify-end items-center px-1">
+            <span class="mr-3 text-xs font-bold text-slate-500 uppercase tracking-widest">Modo Edición</span>
+            <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
+                <input type="checkbox" name="toggle" id="editModeToggle" onchange="toggleEditMode()" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 left-0 transition-all duration-200 ease-in-out"/>
+                <label for="editModeToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
+            </div>
+        </div>
+
+        <div id="editHelpBox" class="help-container w-11/12 max-w-3xl mx-auto mt-4 bg-blue-50 border-l-4 border-blue-500 rounded shadow-sm p-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wide">Guía de Administración</h3>
+                    <div class="mt-2 text-sm text-blue-700 space-y-2">
+                        <p><span class="font-bold">1. Prioridad (▲ ▼):</span> Use las flechas para mover enlaces arriba o abajo.</p>
+                        <p><span class="font-bold">2. Gestión de Estado:</span> Marque enlaces como caídos o activos.</p>
+                        <p><span class="font-bold">3. Edición:</span> Modifique nombre, descripción y URL.</p>
+                        <p><span class="font-bold">4. Eliminar:</span> Borra el recurso permanentemente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="countrySearchContainer" class="w-11/12 max-w-3xl mx-auto mt-4">
+            <div class="bg-white p-6 md:p-8 rounded-xl card-shadow border border-slate-200">
+                <label class="block text-slate-600 text-xs font-bold mb-2 uppercase tracking-widest">Seleccionar País</label>
+                
+                <div class="relative w-full">
+                    <select id="paises" onchange="buscar(this.value)"
+                            class="block appearance-none w-full bg-slate-50 border border-slate-300 text-slate-800 font-medium py-3 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition shadow-sm truncate">
+                        <option value="">-- Seleccione un país --</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-2 text-right" id="infoText">Base de datos de recursos documentales</p>
+            </div>
+        </div>
+        
+        <div id="linkList" class="mt-6 w-11/12 max-w-3xl mx-auto text-left" style="display:none;">
+            
+            <div class="bg-blue-800 text-white p-5 rounded-t-xl shadow-md flex items-center justify-center gap-3">
+                <img id="titleFlag" class="h-6 w-auto rounded-sm shadow-sm" src="" alt="" style="display:none;">
+                <h2 class="text-lg md:text-xl font-bold uppercase tracking-wide text-center" id="resultsTitle">Enlaces</h2>
+            </div>
+
+            <div id="linksContainer" class="bg-white p-4 md:p-6 rounded-b-xl shadow-lg border border-t-0 border-slate-200 min-h-[150px] space-y-4">
+                </div>
+
+            <button 
+                onclick="volverAtras()" 
+                class="block mx-auto mt-8 w-full max-w-xs bg-white text-slate-600 font-bold py-3 px-6 rounded-full border border-slate-300 hover:bg-slate-50 hover:text-slate-800 transition shadow-sm uppercase text-xs tracking-widest"
+            >
+                Cerrar Consulta
+            </button>
+        </div>
+
+        <div id="addLinkSection" class="w-11/12 max-w-3xl mx-auto mt-6" style="display: none;">
+            <div class="bg-white rounded-xl shadow-lg border border-green-100 overflow-hidden">
+                <div class="bg-green-700 p-3">
+                    <h3 class="text-white text-sm font-bold text-center uppercase tracking-widest">Gestión de Contenido</h3>
+                </div>
+                <div class="p-6">
+                    <button onclick="toggleFormulario()" id="toggleFormBtn"
+                            class="w-full bg-green-50 text-green-800 font-bold py-3 rounded-lg border border-green-200 hover:bg-green-100 transition shadow-sm flex items-center justify-center gap-2 text-sm uppercase">
+                        <span>+</span> Introducir Nuevo Enlace
+                    </button>
+                    
+                    <div id="formularioEnlace" class="mt-4 form-container">
+                        <div class="bg-slate-50 p-5 rounded-lg border border-slate-200">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label for="nuevoPais" class="block text-xs font-bold text-slate-500 uppercase mb-1">País</label>
+                                    <input type="text" id="nuevoPais" placeholder="Ej: ALEMANIA" class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label for="nuevaDescripcion" class="block text-xs font-bold text-slate-500 uppercase mb-1">Nombre del Recurso</label>
+                                    <input type="text" id="nuevaDescripcion" placeholder="Ej: Registro Civil" class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="nuevaUrl" class="block text-xs font-bold text-slate-500 uppercase mb-1">URL</label>
+                                <input type="url" id="nuevaUrl" placeholder="https://..." class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <button onclick="guardarNuevoEnlace()" class="w-full bg-green-700 text-white font-bold py-2 rounded shadow hover:bg-green-800 transition text-sm uppercase">
+                                Guardar en Base de Datos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-12 flex justify-center pb-8">
+            <button onclick="window.location.href='index.html'"
+                    class="w-11/12 max-w-xs p-3 bg-amber-400 text-amber-900 font-bold rounded shadow-md transition hover:bg-amber-300 border-b-4 border-amber-500 active:border-b-0 active:mt-1 uppercase tracking-widest text-xs">
+                Menú Principal
+            </button>
+        </div>
+
+        <footer class="mt-auto text-center py-8 bg-slate-900 text-slate-400 w-full">
+            <div class="w-11/12 max-w-3xl mx-auto border-t border-slate-700 pt-6 space-y-1">
+                <p class="font-bold text-white tracking-widest text-sm">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+                <p class="font-bold text-slate-300 text-xs">POLICÍA LOCAL DE ALICANTE</p>
+                <p class="text-xs text-slate-500 mt-2">&copy; GAD - Todos los derechos reservados</p>
+            </div>
+        </footer>
+
+    </div>
+
     <script>
-        // --- 1. CONFIGURACIÓN PROYECTO V4 ---
+        // --- 1. CONFIGURACIÓN V4 ---
         const firebaseConfig = {
           apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
           authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -492,210 +200,396 @@
           appId: "1:119727545224:web:36880c50d196c456cdb83d"
         };
 
-        // Inicialización
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
         const enlacesRef = database.ref('enlaces_osint');
 
-        // Variables de Estado
         let enlacesData = {};
         let isEditMode = false;
         let isUserAuthenticated = false;
 
-        // --- 2. SISTEMA DE SEGURIDAD V4 (El "Freno de Mano") ---
+        // --- 2. SEGURIDAD ESTRICTA (WAIT FOR AUTH) ---
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // USUARIO CORRECTO -> ABRIMOS LA PUERTA
                 isUserAuthenticated = true;
                 console.log("Usuario V4 conectado:", user.email);
                 
+                // Mostrar App
                 document.getElementById('auth-loading-screen').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
+                document.getElementById('app-content').style.display = 'block';
                 
-                // INICIAMOS LA ESCUCHA DE DATOS (Solo ahora)
-                cargarEnlacesSeguro();
+                // Iniciar carga de datos
+                initDataLoad();
             } else {
-                // USUARIO INCORRECTO -> BLOQUEO
                 console.warn("Usuario no autenticado");
-                document.getElementById('auth-loading-screen').innerHTML = `
-                    <div class="text-center text-red-600 p-6 bg-red-50 rounded-xl border border-red-200 shadow-xl">
-                        <i class="fas fa-lock fa-3x mb-3"></i><br>
-                        <h2 class="text-xl font-bold">ACCESO DENEGADO</h2>
-                        <p class="mt-2 text-sm text-red-800">Debes iniciar sesión en el Menú Principal (V4)</p>
-                        <button onclick="window.location.href='index.html'" class="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-700 transition">
-                            IR AL MENÚ
-                        </button>
-                    </div>`;
+                document.getElementById('auth-loading-screen').innerHTML = 
+                    "<div class='text-center text-red-600'><i class='fas fa-lock fa-3x mb-3'></i><br>ACCESO DENEGADO<br>Inicia sesión en el Menú Principal</div>";
             }
         });
 
-        // --- FUNCIÓN DE CARGA ---
-        function cargarEnlacesSeguro() {
+        // Banderas
+        const countryMapping = {
+            "ALBANIA": { iso: "al", vehicle: "AL" },
+            "ALEMANIA": { iso: "de", vehicle: "D" },
+            "ANDORRA": { iso: "ad", vehicle: "AND" },
+            "ARGELIA": { iso: "dz", vehicle: "DZ" },
+            "ARGENTINA": { iso: "ar", vehicle: "RA" },
+            "ARMENIA": { iso: "am", vehicle: "AM" },
+            "AUSTRALIA": { iso: "au", vehicle: "AUS" },
+            "AUSTRIA": { iso: "at", vehicle: "A" },
+            "AZERBAIYAN": { iso: "az", vehicle: "AZ" },
+            "BELGICA": { iso: "be", vehicle: "B" },
+            "BIELORRUSIA": { iso: "by", vehicle: "BY" },
+            "BOLIVIA": { iso: "bo", vehicle: "BOL" },
+            "BOSNIA": { iso: "ba", vehicle: "BIH" },
+            "BRASIL": { iso: "br", vehicle: "BR" },
+            "BULGARIA": { iso: "bg", vehicle: "BG" },
+            "CANADA": { iso: "ca", vehicle: "CDN" },
+            "CHILE": { iso: "cl", vehicle: "RCH" },
+            "CHINA": { iso: "cn", vehicle: "RC" },
+            "CHIPRE": { iso: "cy", vehicle: "CY" },
+            "COLOMBIA": { iso: "co", vehicle: "CO" },
+            "COREA DEL SUR": { iso: "kr", vehicle: "ROK" },
+            "CROACIA": { iso: "hr", vehicle: "HR" },
+            "DINAMARCA": { iso: "dk", vehicle: "DK" },
+            "ECUADOR": { iso: "ec", vehicle: "EC" },
+            "EEUU": { iso: "us", vehicle: "USA" },
+            "EGIPTO": { iso: "eg", vehicle: "ET" },
+            "EMIRATOS ARABES": { iso: "ae", vehicle: "UAE" },
+            "ESLOVAQUIA": { iso: "sk", vehicle: "SK" },
+            "ESLOVENIA": { iso: "si", vehicle: "SLO" },
+            "ESPAÑA": { iso: "es", vehicle: "E" },
+            "ESTONIA": { iso: "ee", vehicle: "EST" },
+            "FINLANDIA": { iso: "fi", vehicle: "FIN" },
+            "FRANCIA": { iso: "fr", vehicle: "F" },
+            "GEORGIA": { iso: "ge", vehicle: "GE" },
+            "GRECIA": { iso: "gr", vehicle: "GR" },
+            "HUNGRIA": { iso: "hu", vehicle: "H" },
+            "INDIA": { iso: "in", vehicle: "IND" },
+            "IRLANDA": { iso: "ie", vehicle: "IRL" },
+            "ISLANDIA": { iso: "is", vehicle: "IS" },
+            "ISRAEL": { iso: "il", vehicle: "IL" },
+            "ITALIA": { iso: "it", vehicle: "I" },
+            "JAPON": { iso: "jp", vehicle: "J" },
+            "KAZAJISTAN": { iso: "kz", vehicle: "KZ" },
+            "LETONIA": { iso: "lv", vehicle: "LV" },
+            "LITUANIA": { iso: "lt", vehicle: "LT" },
+            "LUXEMBURGO": { iso: "lu", vehicle: "L" },
+            "MALTA": { iso: "mt", vehicle: "M" },
+            "MARRUECOS": { iso: "ma", vehicle: "MA" },
+            "MEXICO": { iso: "mx", vehicle: "MEX" },
+            "MOLDAVIA": { iso: "md", vehicle: "MD" },
+            "MONACO": { iso: "mc", vehicle: "MC" },
+            "MONTENEGRO": { iso: "me", vehicle: "MNE" },
+            "NORUEGA": { iso: "no", vehicle: "N" },
+            "NUEVA ZELANDA": { iso: "nz", vehicle: "NZ" },
+            "PAISES BAJOS": { iso: "nl", vehicle: "NL" },
+            "PAKISTAN": { iso: "pk", vehicle: "PK" },
+            "PARAGUAY": { iso: "py", vehicle: "PY" },
+            "PERU": { iso: "pe", vehicle: "PE" },
+            "POLONIA": { iso: "pl", vehicle: "PL" },
+            "PORTUGAL": { iso: "pt", vehicle: "P" },
+            "REINO UNIDO": { iso: "gb", vehicle: "UK" },
+            "REPUBLICA CHECA": { iso: "cz", vehicle: "CZ" },
+            "RUMANIA": { iso: "ro", vehicle: "RO" },
+            "RUSIA": { iso: "ru", vehicle: "RUS" },
+            "SAN MARINO": { iso: "sm", vehicle: "RSM" },
+            "SERBIA": { iso: "rs", vehicle: "SRB" },
+            "SUECIA": { iso: "se", vehicle: "S" },
+            "SUIZA": { iso: "ch", vehicle: "CH" },
+            "TUNEZ": { iso: "tn", vehicle: "TN" },
+            "TURQUIA": { iso: "tr", vehicle: "TR" },
+            "UCRANIA": { iso: "ua", vehicle: "UA" },
+            "URUGUAY": { iso: "uy", vehicle: "UY" },
+            "VENEZUELA": { iso: "ve", vehicle: "YV" }
+        };
+
+        function getCountryData(paisName) {
+            if (!paisName) return null;
+            const normalized = paisName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+            if (countryMapping[normalized]) return countryMapping[normalized];
+            const key = Object.keys(countryMapping).find(k => k.normalize("NFD").replace(/[\u0300-\u036f]/g, "") === normalized);
+            if (key) return countryMapping[key];
+            return { iso: null, vehicle: null };
+        }
+
+        const paisesSelect = document.getElementById('paises');
+        const linkList = document.getElementById('linkList');
+        const resultsTitle = document.getElementById('resultsTitle');
+        const titleFlag = document.getElementById('titleFlag');
+        const linksContainer = document.getElementById('linksContainer');
+        const addLinkSection = document.getElementById('addLinkSection');
+        const helpBox = document.getElementById('editHelpBox');
+        const defaultLinkStatus = 'activo';
+
+        function initDataLoad() {
             enlacesRef.on('value', (snapshot) => {
                 enlacesData = snapshot.val() || {};
-                renderizarEnlaces();
-                document.getElementById('loading').style.display = 'none';
-            }, (error) => {
-                console.error("Error Firebase:", error);
-                document.getElementById('loading').innerHTML = `
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <strong class="font-bold">Error de conexión:</strong>
-                        <span class="block sm:inline">${error.message}</span>
-                    </div>`;
+                const paises = Object.keys(enlacesData).sort();
+                const paisSeleccionadoAnterior = paisesSelect.value;
+                
+                paisesSelect.innerHTML = '<option value="">-- SELECCIONAR PAÍS --</option>';
+                
+                paises.forEach(pais => {
+                    const data = getCountryData(pais);
+                    const label = data.vehicle ? `${pais} (${data.vehicle})` : pais;
+                    const option = document.createElement('option');
+                    option.value = pais;
+                    option.textContent = label;
+                    paisesSelect.appendChild(option);
+                });
+                
+                if (paisSeleccionadoAnterior) paisesSelect.value = paisSeleccionadoAnterior;
+                if (paisesSelect.value) buscar(paisesSelect.value, true); 
             });
         }
 
-        // --- RENDERIZADO DE LA INTERFAZ ---
-        function renderizarEnlaces() {
-            const container = document.getElementById('resultsArea');
-            const search = document.getElementById('searchInput').value.trim().toUpperCase();
-            container.innerHTML = '';
+        window.toggleEditMode = function() {
+            const checkbox = document.getElementById('editModeToggle');
+            isEditMode = checkbox.checked;
+            
+            addLinkSection.style.display = isEditMode ? 'block' : 'none';
+            
+            if (isEditMode) {
+                helpBox.style.display = 'block';
+                setTimeout(() => helpBox.classList.add('active'), 10);
+            } else {
+                helpBox.classList.remove('active');
+                setTimeout(() => helpBox.style.display = 'none', 400);
+            }
 
-            const sortedKeys = Object.keys(enlacesData).sort();
-            let hasResults = false;
+            if (paisesSelect.value) {
+                buscar(paisesSelect.value, true);
+            }
+        };
 
-            // Banderas (Diccionario simple para mapear nombres a códigos ISO)
-            const isoMap = { 
-                "ESPAÑA":"es", "FRANCIA":"fr", "ITALIA":"it", "ALEMANIA":"de", "RUMANIA":"ro", 
-                "MARRUECOS":"ma", "ARGELIA":"dz", "PORTUGAL":"pt", "REINO UNIDO":"gb", "UCRANIA":"ua", 
-                "POLONIA":"pl", "BULGARIA":"bg", "BELGICA":"be", "PAISES BAJOS":"nl", "SUIZA":"ch",
-                "ESTONIA":"ee", "LETONIA":"lv", "LITUANIA":"lt", "RUSIA":"ru", "MOLDAVIA":"md",
-                "UE": "eu", "EUROPA": "eu"
-            };
+        window.buscar = function(pais, refreshing = false) {
+            isEditMode = document.getElementById('editModeToggle').checked; 
+            
+            addLinkSection.style.display = isEditMode ? 'block' : 'none';
+            if (isEditMode) {
+                helpBox.style.display = 'block';
+                helpBox.classList.add('active');
+            } else {
+                helpBox.style.display = 'none';
+                helpBox.classList.remove('active');
+            }
 
-            sortedKeys.forEach(paisKey => {
-                if (search && !paisKey.includes(search)) return; 
+            linksContainer.innerHTML = '';
 
-                const paisLinksObj = enlacesData[paisKey];
-                const linksArray = [];
+            if (!pais) {
+                linkList.style.display = 'none';
+                return;
+            }
+
+            linkList.style.display = 'block';
+            
+            const data = getCountryData(pais);
+            const vehicleCode = data.vehicle ? `(${data.vehicle})` : '';
+            
+            resultsTitle.innerHTML = `ENLACES DE ${pais} <span class="text-blue-300 ml-2 text-lg">${vehicleCode}</span>`;
+            
+            if (data.iso) {
+                titleFlag.src = `https://flagcdn.com/h40/${data.iso}.png`;
+                titleFlag.style.display = 'block';
+            } else {
+                titleFlag.style.display = 'none';
+            }
+
+            let results = enlacesData[pais];
+            
+            if (results) {
+                let resultsClone = { ...results };
+                let entries = Object.entries(resultsClone);
                 
-                Object.keys(paisLinksObj).forEach(k => {
-                    linksArray.push({ id: k, ...paisLinksObj[k] });
-                });
+                const needsMigration = entries.some(([, link]) => link.orden === undefined);
+                const ordenValues = entries.map(([, link]) => link.orden).filter(o => o !== undefined);
+                const hasDuplicates = ordenValues.length > 0 && new Set(ordenValues).size !== ordenValues.length;
 
-                // Ordenar por campo 'orden'
-                linksArray.sort((a, b) => (a.orden || 999) - (b.orden || 999));
-
-                if (linksArray.length === 0 && !isEditMode) return; 
-
-                hasResults = true;
-
-                // Construir la tarjeta del país
-                const card = document.createElement('div');
-                card.className = "country-card";
-                
-                // Determinar bandera
-                let flagCode = '';
-                for (const [name, code] of Object.entries(isoMap)) {
-                    if (paisKey.includes(name)) flagCode = code;
+                if (needsMigration || hasDuplicates) {
+                    if (!refreshing) console.log(`Sincronizando orden para ${pais}...`);
+                    const updates = {};
+                    const stableSorted = Object.entries(resultsClone).sort(([, a], [, b]) => {
+                        const nombreA = a.nombre || a.descripcion || '';
+                        const nombreB = b.nombre || b.descripcion || '';
+                        return nombreA.localeCompare(nombreB);
+                    });
+                    stableSorted.forEach(([key], index) => {
+                        updates[`${pais}/${key}/orden`] = index;
+                    });
+                    enlacesRef.update(updates);
+                    linksContainer.innerHTML = `<div class="p-4 text-center text-slate-400 text-sm">Actualizando estructura de datos...</div>`;
+                    return; 
                 }
-                
-                const flagHtml = flagCode 
-                    ? `<img src="https://flagcdn.com/w40/${flagCode}.png" class="h-6 w-auto rounded shadow-sm" alt="${paisKey}">` 
-                    : `<i class="fas fa-globe text-blue-500 text-xl"></i>`;
 
-                // Header de la tarjeta
-                let cardHtml = `
-                    <div class="country-header">
-                        <div class="country-title">
-                            ${flagHtml} <span>${paisKey}</span>
-                        </div>
-                        ${isEditMode ? `
-                            <button onclick="borrarPais('${paisKey}')" class="text-xs font-bold text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition uppercase">
-                                <i class="fas fa-trash-alt mr-1"></i> Borrar Grupo
-                            </button>
-                        ` : ''}
-                    </div>
-                    <div class="links-grid">
-                `;
+                const sortedLinks = Object.entries(resultsClone).sort(([, a], [, b]) => a.orden - b.orden);
 
-                // Links
-                linksArray.forEach(link => {
-                    cardHtml += `
-                        <div class="link-item group">
-                            <a href="${link.url}" target="_blank" class="link-content" title="${link.descripcion}">
-                                <div class="link-icon">
-                                    <i class="fas fa-link text-sm"></i>
-                                </div>
-                                <span class="link-text">${link.descripcion}</span>
-                            </a>
-                            
-                            ${isEditMode ? `
-                                <div class="edit-controls">
-                                    <button onclick="moverEnlace('${paisKey}', '${link.id}', -1)" class="ctrl-btn" title="Subir"><i class="fas fa-chevron-up"></i></button>
-                                    <button onclick="moverEnlace('${paisKey}', '${link.id}', 1)" class="ctrl-btn" title="Bajar"><i class="fas fa-chevron-down"></i></button>
-                                    <button onclick="borrarEnlace('${paisKey}', '${link.id}')" class="ctrl-btn delete" title="Borrar"><i class="fas fa-times"></i></button>
-                                </div>
-                            ` : ''}
+                sortedLinks.forEach(([key, link], index) => {
+                    const linkItem = document.createElement('div');
+                    linkItem.classList.add('bg-white', 'p-4', 'md:p-5', 'rounded-lg', 'border', 'border-slate-100', 'shadow-sm', 'hover:shadow-md', 'transition-shadow');
+
+                    if(link.status === 'caido' && !isEditMode) {
+                         linkItem.classList.add('opacity-75', 'bg-slate-50');
+                    }
+
+                    const linkAnchor = document.createElement('a');
+                    linkAnchor.href = link.url;
+                    linkAnchor.target = "_blank";
+                    linkAnchor.rel = "noreferrer";
+                    linkAnchor.classList.add('block', 'group');
+                    
+                    const linkTitle = document.createElement('h3');
+                    linkTitle.classList.add('font-bold', 'text-base', 'flex', 'items-center', 'gap-2', 'flex-wrap');
+                    
+                    const iconSvg = `<svg class="w-3 h-3 opacity-40 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>`;
+                    
+                    linkTitle.innerHTML = `<span class="break-words">${link.nombre}</span> ${iconSvg}`;
+                    
+                    if (link.status === 'caido') {
+                        linkTitle.classList.add('text-red-500', 'line-through', 'decoration-red-300');
+                    } else {
+                        linkTitle.classList.add('text-blue-800', 'group-hover:text-blue-600');
+                    }
+
+                    const linkDescription = document.createElement('p');
+                    linkDescription.classList.add('text-sm', 'text-slate-500', 'mt-1');
+                    linkDescription.textContent = link.descripcion;
+
+                    linkAnchor.appendChild(linkTitle);
+                    linkAnchor.appendChild(linkDescription);
+                    linkItem.appendChild(linkAnchor);
+                    
+                    const statusContainer = document.createElement('div');
+                    statusContainer.classList.add('mt-3', 'pt-2', 'border-t', 'border-slate-50');
+
+                    const statusTextRow = document.createElement('div');
+                    statusTextRow.classList.add('flex', 'justify-between', 'items-center');
+                    
+                    if (link.status === 'caido') {
+                        statusTextRow.innerHTML = `<span class="text-xs font-bold text-red-500 uppercase tracking-wide flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span> Inactivo</span>`;
+                    } else {
+                        statusTextRow.innerHTML = `<span class="text-xs font-bold text-emerald-600 uppercase tracking-wide flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Activo</span>`;
+                    }
+
+                    if (isEditMode) {
+                        const ordenLabel = document.createElement('span');
+                        ordenLabel.classList.add('text-xs', 'font-mono', 'text-slate-400');
+                        ordenLabel.textContent = `#${link.orden}`;
+                        statusTextRow.appendChild(ordenLabel);
+                    }
+                    
+                    statusContainer.appendChild(statusTextRow);
+
+                    if (isEditMode) {
+                        const buttonRow = document.createElement('div');
+                        buttonRow.classList.add('flex', 'flex-wrap', 'gap-2', 'mt-3');
+                        
+                        const btnClass = "text-xs font-bold px-2 py-1 rounded border transition hover:shadow-sm flex-grow md:flex-grow-0 text-center justify-center";
+                        
+                        const subirBtn = document.createElement('button');
+                        subirBtn.innerHTML = '▲';
+                        subirBtn.className = `${btnClass} bg-slate-50 border-slate-200 text-slate-600 hover:bg-white`;
+                        // Pasamos sortedLinks como argumento
+                        subirBtn.onclick = () => moverEnlace(pais, sortedLinks, index, 'arriba');
+                        if(index === 0) subirBtn.classList.add('opacity-30', 'cursor-not-allowed');
+
+                        const bajarBtn = document.createElement('button');
+                        bajarBtn.innerHTML = '▼';
+                        bajarBtn.className = `${btnClass} bg-slate-50 border-slate-200 text-slate-600 hover:bg-white`;
+                        // Pasamos sortedLinks como argumento
+                        bajarBtn.onclick = () => moverEnlace(pais, sortedLinks, index, 'abajo');
+                        if(index === sortedLinks.length - 1) bajarBtn.classList.add('opacity-30', 'cursor-not-allowed');
+
+                        const editBtn = document.createElement('button');
+                        editBtn.textContent = 'Editar';
+                        editBtn.className = `${btnClass} bg-blue-50 border-blue-100 text-blue-600 hover:bg-blue-100`;
+                        editBtn.onclick = () => toggleEditForm(linkItem, true);
+
+                        const statusBtn = document.createElement('button');
+                        if (link.status === 'caido') {
+                            statusBtn.textContent = 'Activar Link';
+                            statusBtn.className = `${btnClass} bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100`;
+                            statusBtn.onclick = () => toggleLinkStatus(pais, key, 'activo');
+                        } else {
+                            statusBtn.textContent = 'Reportar Link Caído';
+                            statusBtn.className = `${btnClass} bg-orange-50 border-orange-100 text-orange-600 hover:bg-orange-100`;
+                            statusBtn.onclick = () => toggleLinkStatus(pais, key, 'caido');
+                        }
+
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.textContent = 'Borrar';
+                        deleteBtn.className = `${btnClass} bg-red-50 border-red-100 text-red-600 hover:bg-red-100 ml-auto`;
+                        deleteBtn.onclick = () => eliminarEnlace(pais, key);
+
+                        buttonRow.append(subirBtn, bajarBtn, editBtn, statusBtn, deleteBtn);
+                        statusContainer.appendChild(buttonRow);
+                    }
+
+                    linkItem.appendChild(statusContainer);
+
+                    // Formulario de edición inline (oculto por defecto)
+                    const editFormContainer = document.createElement('div');
+                    editFormContainer.classList.add('form-container', 'mt-3', 'bg-slate-50', 'p-3', 'rounded', 'border', 'border-slate-200');
+                    editFormContainer.innerHTML = `
+                        <div class="grid gap-2">
+                            <input type="text" value="${link.nombre}" class="edit-nombre w-full border border-slate-300 rounded px-2 py-1 text-xs" placeholder="Nombre">
+                            <input type="url" value="${link.url}" class="edit-url w-full border border-slate-300 rounded px-2 py-1 text-xs" placeholder="URL">
+                            <input type="text" value="${link.descripcion}" class="edit-descripcion w-full border border-slate-300 rounded px-2 py-1 text-xs" placeholder="Descripción">
+                            <div class="flex gap-2 mt-1">
+                                <button onclick="saveEditedLink('${pais}', '${key}')" class="flex-1 bg-blue-600 text-white text-xs py-1 rounded">Guardar</button>
+                                <button onclick="toggleEditForm(this.closest('.bg-white'), false)" class="flex-1 bg-slate-200 text-slate-600 text-xs py-1 rounded">Cancelar</button>
+                            </div>
                         </div>
                     `;
+                    linkItem.appendChild(editFormContainer);
+                    linksContainer.appendChild(linkItem);
                 });
-
-                cardHtml += `</div>`; // Cierre grid
-                card.innerHTML = cardHtml;
-                container.appendChild(card);
-            });
-
-            if (!hasResults) {
-                container.innerHTML = `
-                    <div class="text-center py-12 bg-white rounded-2xl border-2 border-dashed border-slate-200">
-                        <i class="fas fa-folder-open text-5xl text-slate-200 mb-4"></i>
-                        <p class="text-slate-500 font-medium text-lg">No se encontraron resultados para "${search}".</p>
-                        ${isEditMode ? `<button onclick="toggleFormulario()" class="mt-4 text-blue-600 font-bold hover:underline">Añadir nuevo recurso aquí</button>` : ''}
-                    </div>
-                `;
-            }
-        }
-
-        // --- MANEJO DE EVENTOS ---
-        document.getElementById('searchInput').addEventListener('input', renderizarEnlaces);
-
-        document.getElementById('editModeToggle').addEventListener('change', (e) => {
-            isEditMode = e.target.checked;
-            const btnAdd = document.getElementById('btnAdd');
-            if (isEditMode) {
-                btnAdd.classList.remove('hidden');
-                btnAdd.classList.add('inline-flex');
             } else {
-                btnAdd.classList.add('hidden');
-                btnAdd.classList.remove('inline-flex');
+                linksContainer.innerHTML = `<div class="text-center py-8 text-slate-400">Sin enlaces registrados.</div>`;
             }
-            renderizarEnlaces();
-        });
+        };
 
-        document.getElementById('btnAdd').onclick = toggleFormulario;
-        document.getElementById('btnHelp').onclick = toggleAyuda;
-
-        function toggleFormulario() {
-            const form = document.getElementById('formContainer');
-            if (form.style.display === 'block') {
-                form.style.display = 'none';
+        window.toggleFormulario = function() {
+            const formulario = document.getElementById('formularioEnlace');
+            const toggleBtn = document.getElementById('toggleFormBtn');
+            formulario.classList.toggle('active');
+            
+            if (formulario.classList.contains('active')) {
+                formulario.style.display = 'block';
+                toggleBtn.innerHTML = '<span>×</span> Cancelar';
+                toggleBtn.classList.replace('bg-green-50', 'bg-slate-100');
+                toggleBtn.classList.replace('text-green-800', 'text-slate-600');
             } else {
-                form.style.display = 'block';
-                document.getElementById('nuevoPais').focus();
+                setTimeout(() => formulario.style.display = 'none', 500);
+                toggleBtn.innerHTML = '<span>+</span> Introducir Nuevo Enlace';
+                toggleBtn.classList.replace('bg-slate-100', 'bg-green-50');
+                toggleBtn.classList.replace('text-slate-600', 'text-green-800');
             }
-        }
+        };
 
-        function toggleAyuda() {
-            const help = document.getElementById('helpContainer');
-            help.style.display = (help.style.display === 'block') ? 'none' : 'block';
-        }
+        window.volverAtras = function() {
+            linkList.style.display = 'none';
+            paisesSelect.value = '';
+            resultsTitle.innerHTML = '';
+            titleFlag.style.display = 'none';
+        };
 
-        // --- OPERACIONES CRUD (Protegidas) ---
+        // --- FUNCIONES DE GESTIÓN (Con Seguridad) ---
         window.guardarNuevoEnlace = function() {
-            if(!isUserAuthenticated) return alert("Error: No tienes permisos para escribir en la base de datos.");
+            if(!isUserAuthenticated) return alert("Error: No tienes permisos en V4.");
             
             const paisInput = document.getElementById('nuevoPais').value.trim();
-            // Normalizar país: Mayúsculas y sin acentos para la clave
             const paisKey = paisInput.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
             
             const descripcion = document.getElementById('nuevaDescripcion').value.trim();
             const url = document.getElementById('nuevaUrl').value.trim();
 
-            if (!paisKey || !descripcion || !url) return alert("Por favor, rellena todos los campos.");
+            if (!paisKey || !descripcion || !url) {
+                alert("Por favor, rellena todos los campos.");
+                return;
+            }
 
-            // Calcular orden
             const paisLinks = enlacesData[paisKey] || {};
             const ordenValues = Object.values(paisLinks).map(l => l.orden).filter(o => o !== undefined);
             const maxOrden = ordenValues.length > 0 ? Math.max(...ordenValues) : -1;
@@ -704,54 +598,80 @@
                 nombre: descripcion, 
                 url: url,
                 descripcion: descripcion,
-                status: "active",
+                status: defaultLinkStatus,
                 orden: maxOrden + 1 
             }).then(() => {
                 alert("Enlace guardado correctamente.");
-                // Limpiar campos parciales
+                document.getElementById('nuevoPais').value = '';
                 document.getElementById('nuevaDescripcion').value = '';
                 document.getElementById('nuevaUrl').value = '';
-                // Mantener el país para meter varios seguidos
-            }).catch(e => alert("Error al guardar: " + e.message));
+                toggleFormulario();
+            }).catch(error => {
+                alert("Error al guardar: " + error.message);
+            });
         };
 
-        window.borrarEnlace = function(pais, id) {
-            if(!isUserAuthenticated) return alert("No autorizado.");
-            if (confirm("¿Estás seguro de eliminar este enlace?")) {
-                enlacesRef.child(pais).child(id).remove();
-            }
-        };
-
-        window.borrarPais = function(pais) {
-            if(!isUserAuthenticated) return alert("No autorizado.");
-            if (confirm(`ATENCIÓN: Esto borrará TODOS los enlaces de ${pais}. ¿Continuar?`)) {
-                enlacesRef.child(pais).remove();
-            }
-        };
-
-        window.moverEnlace = function(pais, id, direccion) {
+        // Funciones añadidas para completar la funcionalidad del modo edición
+        window.moverEnlace = function(pais, sortedLinks, index, direccion) {
             if(!isUserAuthenticated) return alert("No autorizado.");
             
-            const links = enlacesData[pais];
-            const linksArray = Object.keys(links).map(k => ({ id: k, ...links[k] }));
-            linksArray.sort((a, b) => (a.orden || 999) - (b.orden || 999));
+            const itemActual = sortedLinks[index];
+            const indexOtro = (direccion === 'arriba') ? index - 1 : index + 1;
+            
+            if (indexOtro < 0 || indexOtro >= sortedLinks.length) return;
+            
+            const itemOtro = sortedLinks[indexOtro];
+            const updates = {};
+            
+            updates[`${pais}/${itemActual[0]}/orden`] = itemOtro[1].orden;
+            updates[`${pais}/${itemOtro[0]}/orden`] = itemActual[1].orden;
+            
+            enlacesRef.update(updates);
+        };
 
-            const index = linksArray.findIndex(l => l.id === id);
-            if (index === -1) return;
+        window.toggleLinkStatus = function(pais, key, status) {
+            if(!isUserAuthenticated) return alert("No autorizado.");
+            enlacesRef.child(pais).child(key).update({ status: status });
+        };
 
-            const newIndex = index + direccion;
-            if (newIndex < 0 || newIndex >= linksArray.length) return;
+        window.eliminarEnlace = function(pais, key) {
+            if(!isUserAuthenticated) return alert("No autorizado.");
+            if (confirm("¿Estás seguro de eliminar este enlace permanentemente?")) {
+                enlacesRef.child(pais).child(key).remove();
+            }
+        };
 
-            // Intercambiar orden
-            const itemA = linksArray[index];
-            const itemB = linksArray[newIndex];
+        window.toggleEditForm = function(linkItem, show) {
+            const formContainer = linkItem.querySelector('.form-container');
+            if (show) {
+                formContainer.style.display = 'block';
+                setTimeout(() => formContainer.classList.add('active'), 10);
+            } else {
+                formContainer.classList.remove('active');
+                setTimeout(() => formContainer.style.display = 'none', 400);
+            }
+        };
 
-            const ordenA = itemA.orden !== undefined ? itemA.orden : index;
-            const ordenB = itemB.orden !== undefined ? itemB.orden : newIndex;
+        window.saveEditedLink = function(pais, key) {
+            if(!isUserAuthenticated) return alert("No autorizado.");
+            
+            // Busca el botón que disparó el evento y sube al contenedor padre
+            const btn = event.target; 
+            const linkElement = btn.closest('.bg-white'); // El contenedor padre del item
+            
+            const nuevoNombre = linkElement.querySelector('.edit-nombre').value.trim();
+            const nuevaUrl = linkElement.querySelector('.edit-url').value.trim();
+            const nuevaDescripcion = linkElement.querySelector('.edit-descripcion').value.trim();
+            
+            if (!nuevoNombre || !nuevaUrl) return alert("Nombre y URL son obligatorios");
 
-            // Actualizar ambos en Firebase
-            enlacesRef.child(pais).child(itemA.id).update({ orden: ordenB });
-            enlacesRef.child(pais).child(itemB.id).update({ orden: ordenA });
+            enlacesRef.child(pais).child(key).update({
+                nombre: nuevoNombre,
+                url: nuevaUrl,
+                descripcion: nuevaDescripcion
+            }).then(() => {
+                toggleEditForm(linkElement, false);
+            });
         };
     </script>
 </body>
