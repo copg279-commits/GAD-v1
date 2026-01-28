@@ -6,7 +6,6 @@
     <title>Buscador de Enlaces OSINT - GAD</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -41,13 +40,13 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
 
-        /* PANTALLA DE CARGA DE SEGURIDAD (ESTILO GAD) */
+        /* PANTALLA DE CARGA DE SEGURIDAD */
         #auth-loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #f8fafc; z-index: 9999;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            color: #1e3a8a; font-weight: bold; font-size: 1.2rem;
+            color: #1e40af; font-weight: bold; font-size: 1.2rem;
         }
     </style>
 </head>
@@ -55,7 +54,10 @@
 
     <div id="auth-loading-screen">
         <div class="flex flex-col items-center">
-            <i class="fas fa-shield-alt fa-3x mb-4 text-blue-800 animate-pulse"></i>
+            <svg class="animate-spin h-10 w-10 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
             <span>Conectando con Base de Datos V4...</span>
         </div>
     </div>
@@ -91,10 +93,10 @@
                 <div class="ml-3">
                     <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wide">Guía de Administración</h3>
                     <div class="mt-2 text-sm text-blue-700 space-y-2">
-                        <p><span class="font-bold">1. Prioridad (▲ ▼):</span> Use las flechas para mover enlaces arriba o abajo.</p>
-                        <p><span class="font-bold">2. Gestión de Estado:</span> Marque enlaces como caídos o activos.</p>
-                        <p><span class="font-bold">3. Edición:</span> Modifique nombre, descripción y URL.</p>
-                        <p><span class="font-bold">4. Eliminar:</span> Borra el recurso permanentemente.</p>
+                        <p><span class="font-bold">1. Prioridad (▲ ▼):</span> Use las flechas para mover enlaces arriba o abajo. Los enlaces superiores tienen mayor visibilidad.</p>
+                        <p><span class="font-bold">2. Gestión de Estado:</span> Si un enlace no funciona, pulse <span class="bg-orange-100 text-orange-800 px-1 rounded text-xs font-bold">Reportar Link Caído</span>. Se marcará en rojo. Cuando esté corregido, pulse <span class="bg-emerald-100 text-emerald-800 px-1 rounded text-xs font-bold">Activar Link</span>.</p>
+                        <p><span class="font-bold">3. Edición:</span> El botón <span class="bg-blue-100 text-blue-800 px-1 rounded text-xs font-bold">Editar</span> permite modificar el nombre, la descripción y la URL del recurso.</p>
+                        <p><span class="font-bold">4. Eliminar:</span> Borra el recurso de forma permanente de la base de datos.</p>
                     </div>
                 </div>
             </div>
@@ -189,7 +191,7 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN V4 ---
+        // --- 1. CONFIGURACIÓN V4 (CORRECTA) ---
         const firebaseConfig = {
           apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
           authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -205,30 +207,6 @@
         const auth = firebase.auth();
         const enlacesRef = database.ref('enlaces_osint');
 
-        let enlacesData = {};
-        let isEditMode = false;
-        let isUserAuthenticated = false;
-
-        // --- 2. SEGURIDAD ESTRICTA (WAIT FOR AUTH) ---
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                isUserAuthenticated = true;
-                console.log("Usuario V4 conectado:", user.email);
-                
-                // Mostrar App
-                document.getElementById('auth-loading-screen').style.display = 'none';
-                document.getElementById('app-content').style.display = 'block';
-                
-                // Iniciar carga de datos
-                initDataLoad();
-            } else {
-                console.warn("Usuario no autenticado");
-                document.getElementById('auth-loading-screen').innerHTML = 
-                    "<div class='text-center text-red-600'><i class='fas fa-lock fa-3x mb-3'></i><br>ACCESO DENEGADO<br>Inicia sesión en el Menú Principal</div>";
-            }
-        });
-
-        // Banderas
         const countryMapping = {
             "ALBANIA": { iso: "al", vehicle: "AL" },
             "ALEMANIA": { iso: "de", vehicle: "D" },
@@ -320,8 +298,30 @@
         const titleFlag = document.getElementById('titleFlag');
         const linksContainer = document.getElementById('linksContainer');
         const addLinkSection = document.getElementById('addLinkSection');
-        const helpBox = document.getElementById('editHelpBox');
+        const helpBox = document.getElementById('editHelpBox'); 
         const defaultLinkStatus = 'activo';
+
+        let enlacesData = {};
+        let isEditMode = false;
+        let isUserAuthenticated = false;
+
+        // --- 2. SISTEMA DE SEGURIDAD ESTRICTA ---
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                isUserAuthenticated = true;
+                console.log("Usuario autorizado:", user.email);
+                
+                document.getElementById('auth-loading-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                
+                // CARGAR DATOS AHORA
+                initDataLoad();
+            } else {
+                console.warn("Usuario no autenticado.");
+                document.getElementById('auth-loading-screen').innerHTML = 
+                    "<div class='text-center text-red-600'><i class='fas fa-lock fa-3x mb-3'></i><br>ACCESO DENEGADO<br>Inicia sesión en el Menú Principal</div>";
+            }
+        });
 
         function initDataLoad() {
             enlacesRef.on('value', (snapshot) => {
@@ -345,12 +345,15 @@
             });
         }
 
+        // --- GESTIÓN DEL MODO EDICIÓN ---
         window.toggleEditMode = function() {
             const checkbox = document.getElementById('editModeToggle');
             isEditMode = checkbox.checked;
             
+            // Mostrar/Ocultar formulario de añadir
             addLinkSection.style.display = isEditMode ? 'block' : 'none';
             
+            // Mostrar/Ocultar cuadro de ayuda
             if (isEditMode) {
                 helpBox.style.display = 'block';
                 setTimeout(() => helpBox.classList.add('active'), 10);
@@ -359,6 +362,7 @@
                 setTimeout(() => helpBox.style.display = 'none', 400);
             }
 
+            // Si ya hay un país seleccionado, refrescar la lista para ver los botones
             if (paisesSelect.value) {
                 buscar(paisesSelect.value, true);
             }
@@ -585,10 +589,7 @@
             const descripcion = document.getElementById('nuevaDescripcion').value.trim();
             const url = document.getElementById('nuevaUrl').value.trim();
 
-            if (!paisKey || !descripcion || !url) {
-                alert("Por favor, rellena todos los campos.");
-                return;
-            }
+            if (!paisKey || !descripcion || !url) return alert("Datos incompletos.");
 
             const paisLinks = enlacesData[paisKey] || {};
             const ordenValues = Object.values(paisLinks).map(l => l.orden).filter(o => o !== undefined);
@@ -601,7 +602,7 @@
                 status: defaultLinkStatus,
                 orden: maxOrden + 1 
             }).then(() => {
-                alert("Enlace guardado correctamente.");
+                alert("Guardado.");
                 document.getElementById('nuevoPais').value = '';
                 document.getElementById('nuevaDescripcion').value = '';
                 document.getElementById('nuevaUrl').value = '';
@@ -636,7 +637,7 @@
 
         window.eliminarEnlace = function(pais, key) {
             if(!isUserAuthenticated) return alert("No autorizado.");
-            if (confirm("¿Estás seguro de eliminar este enlace permanentemente?")) {
+            if (confirm("¿Eliminar definitivamente?")) {
                 enlacesRef.child(pais).child(key).remove();
             }
         };
@@ -663,7 +664,7 @@
             const nuevaUrl = linkElement.querySelector('.edit-url').value.trim();
             const nuevaDescripcion = linkElement.querySelector('.edit-descripcion').value.trim();
             
-            if (!nuevoNombre || !nuevaUrl) return alert("Nombre y URL son obligatorios");
+            if (!nuevoNombre || !nuevaUrl) return alert("Faltan datos");
 
             enlacesRef.child(pais).child(key).update({
                 nombre: nuevoNombre,
