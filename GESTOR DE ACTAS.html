@@ -99,7 +99,7 @@
 
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
-        const auth = firebase.auth(); // Referencia a auth
+        const auth = firebase.auth(); 
         const DB_TEMPLATES_PATH = 'actas'; 
         const DB_SETTINGS_PATH = 'gad_settings_v15'; 
 
@@ -128,6 +128,7 @@
             const [viewMode, setViewMode] = React.useState('dashboard'); 
             const [isLoading, setIsLoading] = React.useState(true);
             const [isEditMode, setIsEditMode] = React.useState(false); 
+            const [currentUser, setCurrentUser] = React.useState(null);
 
             const [layout, setLayout] = React.useState([]);
             const [catTitles, setCatTitles] = React.useState({});
@@ -154,55 +155,53 @@
                 { id: 'col4', sections: ['gestion'] }
             ];
 
-            React.useEffect(() => {
-                // Función de carga de datos
-                const loadData = async () => {
-                    try {
-                        const snap = await db.ref(DB_TEMPLATES_PATH).once('value');
-                        const settingsSnap = await db.ref(DB_SETTINGS_PATH).once('value');
-                        const logoSnap = await db.ref('selector_gad/logo').once('value');
-                        
-                        if (snap.exists()) {
-                            let data = Object.values(snap.val());
-                            setTemplates(data.map((t, idx) => ({ ...t, category: t.category || 'gestion' })));
-                        } else {
-                            // Si no hay datos, iniciamos array vacío para evitar errores
-                            setTemplates([]);
-                        }
-                        
-                        if (settingsSnap.exists()) {
-                            const s = settingsSnap.val();
-                            setCatTitles(s.titles || defaultCats);
-                            setLayout(s.layout || defaultLayout);
-                        } else {
-                            setCatTitles(defaultCats);
-                            setLayout(defaultLayout);
-                        }
-                        if (logoSnap.exists()) setLogo(logoSnap.val());
-                        
-                        setIsLoading(false);
-                    } catch (error) {
-                        console.error("Error cargando datos:", error);
-                        alert("Error de permisos: " + error.message);
-                        setIsLoading(false);
+            const loadData = async () => {
+                try {
+                    const snap = await db.ref(DB_TEMPLATES_PATH).once('value');
+                    const settingsSnap = await db.ref(DB_SETTINGS_PATH).once('value');
+                    const logoSnap = await db.ref('selector_gad/logo').once('value');
+                    
+                    if (snap.exists()) {
+                        let data = Object.values(snap.val());
+                        setTemplates(data.map((t, idx) => ({ ...t, category: t.category || 'gestion' })));
+                    } else {
+                        setTemplates([]);
                     }
-                };
+                    
+                    if (settingsSnap.exists()) {
+                        const s = settingsSnap.val();
+                        setCatTitles(s.titles || defaultCats);
+                        setLayout(s.layout || defaultLayout);
+                    } else {
+                        setCatTitles(defaultCats);
+                        setLayout(defaultLayout);
+                    }
+                    if (logoSnap.exists()) setLogo(logoSnap.val());
+                    
+                    setIsLoading(false);
+                } catch (error) {
+                    console.error("Error cargando datos:", error);
+                    setIsLoading(false);
+                }
+            };
 
-                // ESCUCHA DE AUTENTICACIÓN: SOLO CARGA SI HAY USUARIO
+            React.useEffect(() => {
                 const unsubscribe = auth.onAuthStateChanged((user) => {
                     if (user) {
+                        setCurrentUser(user);
                         console.log("Usuario autenticado en React:", user.email);
                         loadData();
                     } else {
+                        setCurrentUser(null);
+                        setIsLoading(false);
                         console.warn("Usuario no autenticado.");
-                        // Opcional: Redirigir o mostrar mensaje
                     }
                 });
-
                 return () => unsubscribe();
             }, []);
 
             const saveSettings = (newLayout, newTitles) => {
+                if(!auth.currentUser) return alert("No autorizado.");
                 const l = newLayout || layout;
                 const t = newTitles || catTitles;
                 setLayout(l);
@@ -220,7 +219,7 @@
             };
 
             const handleColumnDrop = (e, targetColId) => {
-                if(!isEditMode) return;
+                if(!isEditMode || !auth.currentUser) return;
                 if (e.dataTransfer.getData("type") === "SECTION") {
                     e.preventDefault(); e.stopPropagation();
                     const catKey = e.dataTransfer.getData("catKey");
@@ -240,7 +239,7 @@
             };
 
             const handleNewColumnDrop = (e) => {
-                if(!isEditMode) return;
+                if(!isEditMode || !auth.currentUser) return;
                 if (e.dataTransfer.getData("type") === "SECTION") {
                     e.preventDefault();
                     const catKey = e.dataTransfer.getData("catKey");
@@ -275,7 +274,7 @@
             };
 
             const handleCardDrop = (e, targetCardId, targetCategory) => {
-                if(!isEditMode) return;
+                if(!isEditMode || !auth.currentUser) return;
                 e.preventDefault();
                 e.stopPropagation();
                 setDragOverCardId(null);
@@ -302,7 +301,7 @@
             };
 
             const handleContainerDrop = (e, targetCategory) => {
-                if(!isEditMode) return;
+                if(!isEditMode || !auth.currentUser) return;
                 if (e.dataTransfer.getData("type") === "ITEM") {
                     e.preventDefault();
                     e.stopPropagation();
@@ -323,6 +322,7 @@
 
             // --- FUNCIONES GESTION SECCIONES ---
             const handleAddSection = (colId) => {
+                if(!auth.currentUser) return alert("No autorizado.");
                 const newKey = 'cat_' + Date.now();
                 const newTitle = "NUEVO CONTENEDOR";
                 
@@ -335,12 +335,12 @@
                 });
 
                 saveSettings(newLayout, newTitles);
-                // Auto inicio edición nombre
                 setEditingTitle(newKey);
                 setTempTitle(newTitle);
             };
 
             const handleDeleteSection = (sectionKey, colId) => {
+                if(!auth.currentUser) return alert("No autorizado.");
                 const itemsInCat = templates.filter(t => t.category === sectionKey);
                 if(itemsInCat.length > 0) {
                     alert("⚠️ No puedes borrar un contenedor que tiene actas dentro.\nMueve las actas a otro sitio primero.");
@@ -353,7 +353,6 @@
                         }
                         return col;
                     });
-                    // Limpieza de layout columnas vacias
                     const finalLayout = newLayout.filter(c => c.sections.length > 0);
                     saveSettings(finalLayout);
                 }
@@ -366,6 +365,7 @@
                 setTempTitle(currentVal);
             };
             const saveTitle = () => {
+                if(!auth.currentUser) return;
                 if (tempTitle.trim()) {
                     const newTitles = { ...catTitles, [editingTitle]: tempTitle };
                     saveSettings(null, newTitles);
@@ -375,13 +375,16 @@
 
             const updateUsage = (id, file) => {
                 if(isEditMode) return;
-                const newT = templates.map(t => t.id === id ? { ...t, usageCount: (t.usageCount || 0) + 1 } : t);
-                setTemplates(newT);
-                db.ref(DB_TEMPLATES_PATH).set(newT);
+                if(auth.currentUser) {
+                    const newT = templates.map(t => t.id === id ? { ...t, usageCount: (t.usageCount || 0) + 1 } : t);
+                    setTemplates(newT);
+                    db.ref(DB_TEMPLATES_PATH).set(newT);
+                }
                 window.open(file, '_blank');
             };
 
             const handleResetCounters = () => {
+                if(!auth.currentUser) return alert("No autorizado.");
                 if(confirm("⚠️ ¿Estás seguro de que quieres poner TODOS los contadores a 0?\n\nLa lista Top 10 se reiniciará.")) {
                     const newT = templates.map(t => ({ ...t, usageCount: 0 }));
                     setTemplates(newT);
@@ -396,12 +399,14 @@
             };
             
             const handleSaveForm = () => {
+                if(!auth.currentUser) return alert("No autorizado.");
                 let newT = editItem ? templates.map(t => t.id === editItem.id ? { ...t, ...formData } : t) : [...templates, { ...formData, id: Date.now() }];
                 setTemplates(newT);
                 db.ref(DB_TEMPLATES_PATH).set(newT);
                 setShowModal(false);
             };
             const handleDelete = () => {
+                if(!auth.currentUser) return alert("No autorizado.");
                 if(confirm("¿Borrar acta?")) {
                     const newT = templates.filter(t => t.id !== editItem.id);
                     setTemplates(newT);
@@ -410,7 +415,15 @@
                 }
             };
 
-            if (isLoading) return <div className="h-screen flex items-center justify-center text-cyan-500">Cargando Sistema V16...</div>;
+            if (isLoading) return <div className="h-screen flex items-center justify-center text-cyan-500 font-bold text-xl">Conectando con Base de Datos V4...</div>;
+            
+            if (!currentUser) return (
+                <div className="h-screen flex flex-col items-center justify-center text-red-500">
+                    <div className="text-5xl mb-4">🔒</div>
+                    <h1 className="text-2xl font-bold">ACCESO DENEGADO</h1>
+                    <p className="mt-2 text-slate-400">Inicia sesión en el Menú Principal.</p>
+                </div>
+            );
 
             const topUsed = [...templates].sort((a,b) => (b.usageCount || 0) - (a.usageCount || 0)).slice(0, 10);
 
@@ -422,7 +435,7 @@
                             <div className={`h-20 w-20 relative group ${isEditMode ? 'cursor-pointer hover:scale-105' : ''} transition-transform`}>
                                 <img src={logo} className="h-full w-full object-contain drop-shadow-lg" />
                                 {isEditMode && <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => {
-                                    if(e.target.files[0]) {
+                                    if(e.target.files[0] && auth.currentUser) {
                                         const r = new FileReader();
                                         r.onload = (ev) => { setLogo(ev.target.result); db.ref('selector_gad/logo').set(ev.target.result); };
                                         r.readAsDataURL(e.target.files[0]);
@@ -548,7 +561,6 @@
                                                             );
                                                         })}
                                                         
-                                                        {/* BOTÓN NUEVO CONTENEDOR EN CADA COLUMNA */}
                                                         {isEditMode && (
                                                             <button 
                                                                 onClick={() => handleAddSection(col.id)} 
