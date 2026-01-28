@@ -45,9 +45,23 @@
         /* Loading */
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Pantalla de Carga de Seguridad */
+        #auth-loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #f8fafc; z-index: 9999;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #1e3a8a; font-weight: bold; font-size: 1.2rem;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen pb-6">
+
+    <div id="auth-loading-screen">
+        <span style="font-size: 3rem; margin-bottom: 1rem;">🔐</span>
+        <span>Conectando con Base de Datos V4...</span>
+    </div>
 
     <div id="toast-notification" class="fixed bottom-6 right-6 z-50 bg-gray-900 text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4 border-l-4 border-green-500 max-w-sm">
         <span class="text-2xl">📋</span>
@@ -57,98 +71,123 @@
         </div>
     </div>
 
-    <header class="header-pro py-8 shadow-lg relative z-10">
-        <div class="container mx-auto flex flex-col items-center justify-center">
-            <div class="w-32 h-32 mb-2 flex items-center justify-center">
-                <img src="logogad.png" onerror="this.style.opacity='0'" alt="GAD Logo" class="w-full h-full object-contain drop-shadow-lg">
-            </div>
-            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm">GESTOR DE CLAVES API</h1>
-            <p class="text-blue-100 text-sm font-bold mt-1 tracking-widest uppercase opacity-90">Sincronizado en la Nube (Firebase)</p>
-        </div>
-    </header>
+    <div id="main-content" style="display:none; width: 100%; flex-grow: 1; display: flex; flex-direction: column;">
 
-    <main class="w-full max-w-5xl mx-auto px-4 mt-8 flex-grow">
-        
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8 shadow-sm">
-            <h3 class="text-blue-900 font-bold mb-2 flex items-center gap-2">☁️ Conexión Compartida</h3>
-            <p class="text-sm text-blue-800 mb-2">
-                Estas claves se guardan en la base de datos común. Cualquier cambio que hagas aquí se reflejará para el resto de los 5 usuarios.
-            </p>
-            <ul class="list-disc ml-5 text-sm text-blue-700 space-y-1">
-                <li>Usa el botón <strong>COPIAR</strong> para llevarte la clave a la aplicación principal.</li>
-                <li>Si una clave da error, bórrala o edítala para no confundir a los compañeros.</li>
-            </ul>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    🔑 Listado de Claves
-                    <span id="loading-indicator" class="loader hidden"></span>
-                </h3>
-                <button onclick="agregarFila()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-xs flex items-center gap-2 transition">
-                    <span>➕</span> AÑADIR NUEVA
-                </button>
+        <header class="header-pro py-8 shadow-lg relative z-10">
+            <div class="container mx-auto flex flex-col items-center justify-center">
+                <div class="w-32 h-32 mb-2 flex items-center justify-center">
+                    <img src="logogad.png" onerror="this.style.opacity='0'" alt="GAD Logo" class="w-full h-full object-contain drop-shadow-lg">
+                </div>
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm">GESTOR DE CLAVES API</h1>
+                <p class="text-blue-100 text-sm font-bold mt-1 tracking-widest uppercase opacity-90">Sincronizado en la Nube (Firebase)</p>
             </div>
+        </header>
+
+        <main class="w-full max-w-5xl mx-auto px-4 mt-8 flex-grow">
             
-            <div class="overflow-x-auto">
-                <table class="w-full text-left api-table">
-                    <thead>
-                        <tr>
-                            <th class="w-1/4">Alias / Proyecto</th>
-                            <th class="w-1/2">Clave API (Gemini)</th>
-                            <th class="w-1/6 text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-body">
-                        </tbody>
-                </table>
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8 shadow-sm">
+                <h3 class="text-blue-900 font-bold mb-2 flex items-center gap-2">☁️ Conexión Compartida</h3>
+                <p class="text-sm text-blue-800 mb-2">
+                    Estas claves se guardan en la base de datos común. Cualquier cambio que hagas aquí se reflejará para el resto de los 5 usuarios.
+                </p>
+                <ul class="list-disc ml-5 text-sm text-blue-700 space-y-1">
+                    <li>Usa el botón <strong>COPIAR</strong> para llevarte la clave a la aplicación principal.</li>
+                    <li>Si una clave da error, bórrala o edítala para no confundir a los compañeros.</li>
+                </ul>
             </div>
-            
-            <div id="empty-state" class="hidden p-12 text-center text-gray-400">
-                <p>No hay claves en la nube. Pulsa "Añadir Nueva".</p>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        🔑 Listado de Claves
+                        <span id="loading-indicator" class="loader hidden"></span>
+                    </h3>
+                    <button onclick="agregarFila()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-xs flex items-center gap-2 transition">
+                        <span>➕</span> AÑADIR NUEVA
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left api-table">
+                        <thead>
+                            <tr>
+                                <th class="w-1/4">Alias / Proyecto</th>
+                                <th class="w-1/2">Clave API (Gemini)</th>
+                                <th class="w-1/6 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-body">
+                            </tbody>
+                    </table>
+                </div>
+                
+                <div id="empty-state" class="hidden p-12 text-center text-gray-400">
+                    <p>No hay claves en la nube. Pulsa "Añadir Nueva".</p>
+                </div>
             </div>
-        </div>
 
-        <div class="mt-4 text-center">
-            <p class="text-xs text-gray-400">🔒 Acceso restringido a usuarios con este archivo.</p>
-        </div>
+            <div class="mt-4 text-center">
+                <p class="text-xs text-gray-400">🔒 Acceso restringido a usuarios con este archivo.</p>
+            </div>
 
-    </main>
+        </main>
 
-    <footer class="mt-auto text-center py-6 bg-gray-200">
-        <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-        <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-        <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-        <p>&copy; GAD - Todos los derechos reservados</p>
-    </footer>
+        <footer class="mt-auto text-center py-6 bg-gray-200">
+            <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
+            <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+            <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
+            <p>&copy; GAD - Todos los derechos reservados</p>
+        </footer>
+
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
     <script>
-        // --- 1. CONFIGURACIÓN FIREBASE (La misma que tu app principal) ---
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
+        // --- 1. CONFIGURACIÓN FIREBASE V4 ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+          authDomain: "gad-alicante-v4.firebaseapp.com",
+          databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "gad-alicante-v4",
+          storageBucket: "gad-alicante-v4.firebasestorage.app",
+          messagingSenderId: "119727545224",
+          appId: "1:119727545224:web:36880c50d196c456cdb83d"
+        };
         
-        // Inicializar Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.database();
-        // Usaremos un nodo específico para las claves
+        const auth = firebase.auth(); // INICIALIZAMOS AUTH
         const refClaves = db.ref('gestion_claves_api');
+        
+        let isUserAuthenticated = false;
 
-        // --- 2. LÓGICA DE DATOS ---
+        // --- 2. SISTEMA DE SEGURIDAD ESTRICTA (WAIT FOR AUTH) ---
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                isUserAuthenticated = true;
+                console.log("Usuario V4 conectado:", user.email);
+                
+                document.getElementById('auth-loading-screen').style.display = 'none';
+                // Ojo: main-content tenía display:flex en el style inline, lo respetamos
+                const main = document.getElementById('main-content');
+                main.style.display = 'flex';
+                main.style.flexDirection = 'column';
+                
+                // INICIAR CARGA DE DATOS AHORA
+                iniciarListener();
+            } else {
+                console.warn("Usuario no autenticado");
+                document.getElementById('auth-loading-screen').innerHTML = 
+                    "<div class='text-center text-red-600'><i class='fas fa-lock fa-3x mb-3'></i><br>ACCESO DENEGADO<br>Inicia sesión en el Menú Principal</div>";
+            }
+        });
 
-        // Escuchar cambios en tiempo real
+        // --- 3. LÓGICA DE DATOS ---
+
         function iniciarListener() {
             document.getElementById('loading-indicator').classList.remove('hidden');
             
@@ -169,6 +208,10 @@ const firebaseConfig = {
                     const data = childSnapshot.val();
                     crearFilaHTML(key, data.alias || '', data.api_key || '');
                 });
+            }, (error) => {
+                console.error("Error Firebase:", error);
+                document.getElementById('loading-indicator').classList.add('hidden');
+                showToast("Error de conexión V4");
             });
         }
 
@@ -201,10 +244,11 @@ const firebaseConfig = {
             tbody.appendChild(tr);
         }
 
-        // --- 3. OPERACIONES FIREBASE ---
+        // --- 4. OPERACIONES FIREBASE (PROTEGIDAS) ---
 
         function agregarFila() {
-            // Creamos un nuevo registro vacío en Firebase
+            if(!isUserAuthenticated) return showToast("No autorizado");
+            
             refClaves.push({
                 alias: "Nuevo Proyecto",
                 api_key: ""
@@ -212,24 +256,26 @@ const firebaseConfig = {
         }
 
         function guardarCambioFirebase(key, campo, valor) {
-            // Actualizamos solo el campo modificado
+            if(!isUserAuthenticated) return showToast("No autorizado");
+            
             let updateData = {};
             updateData[campo] = valor;
             refClaves.child(key).update(updateData)
                 .then(() => {
-                    // Opcional: Feedback visual sutil (no intrusivo)
                     console.log("Guardado");
                 })
                 .catch(error => showToast("Error al guardar"));
         }
 
         function borrarFila(key) {
+            if(!isUserAuthenticated) return showToast("No autorizado");
             if(!confirm("¿Seguro que quieres borrar esta clave para todos los usuarios?")) return;
+            
             refClaves.child(key).remove()
                 .catch(error => showToast("Error al borrar"));
         }
 
-        // --- 4. UTILIDADES ---
+        // --- 5. UTILIDADES ---
 
         function copiarAlPortapapeles(texto) {
             if (!texto) {
@@ -253,8 +299,8 @@ const firebaseConfig = {
             }, 2000);
         }
 
-        // Inicializar al cargar
-        document.addEventListener('DOMContentLoaded', iniciarListener);
+        // Eliminamos el listener DOMContentLoaded antiguo porque ahora usamos auth.onAuthStateChanged
+        // document.addEventListener('DOMContentLoaded', iniciarListener); 
 
     </script>
 </body>
