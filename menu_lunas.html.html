@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.A.D. - Selector de Marcas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <style>
+        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* TARJETAS DE MARCA */
+        .brand-card {
+            background: #1e293b; border: 1px solid #334155; transition: all 0.3s;
+            cursor: pointer; position: relative; overflow: hidden; min-height: 100px;
+        }
+        .brand-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        
+        /* Icono de flecha al pasar el ratón */
+        .brand-card::after {
+            content: '\f061'; font-family: 'Font Awesome 5 Free'; font-weight: 900;
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            opacity: 0; transition: opacity 0.3s; font-size: 1.5rem;
+        }
+        .brand-card:hover::after { opacity: 1; color: #3b82f6; }
+
+        /* Botones de Edición (Solo visibles en modo Edit) */
+        .edit-overlay {
+            position: absolute; top: 5px; right: 5px; display: none; gap: 5px; z-index: 50;
+        }
+        .editable .edit-overlay { display: flex; }
+        
+        .btn-mini { padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; }
+        .btn-edit { background: #eab308; color: black; }
+        .btn-del { background: #ef4444; color: white; }
+
+        /* MODAL */
+        #editModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000; display: none;
+            justify-content: center; align-items: center;
+        }
+        .modal-box {
+            background: #1e293b; padding: 25px; border-radius: 12px; border: 1px solid #475569; width: 90%; max-width: 400px;
+        }
+        .inp {
+            width: 100%; background: #0f172a; border: 1px solid #334155;
+            color: white; padding: 10px; margin-bottom: 10px; border-radius: 6px;
+        }
+
+        /* TOGGLE SWITCH */
+        .toggle-wrapper { display: flex; align-items: center; cursor: pointer; }
+        .toggle-checkbox { display: none; }
+        .toggle-label { width: 40px; height: 22px; background-color: #ef4444; border-radius: 9999px; position: relative; transition: 0.3s; }
+        .toggle-circle { width: 16px; height: 16px; background-color: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #22c55e; }
+        .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(18px); }
+    </style>
+</head>
+<body class="p-6 max-w-5xl mx-auto w-full">
+
+    <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+        <div>
+            <h1 class="text-4xl font-bold tracking-widest text-blue-500">G.A.D.</h1>
+            <p class="text-gray-400 mt-1 uppercase text-xs tracking-widest">Base de Datos de Lunas</p>
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <div id="userInfo" class="text-xs text-blue-300 font-mono hidden md:block"></div>
+            
+            <div class="relative">
+                <input type="text" id="searchInput" onkeyup="filterBrands()" placeholder="Buscar..." 
+                       class="bg-slate-800 border border-slate-600 rounded-lg py-2 px-4 text-sm focus:outline-none focus:border-blue-500 w-48">
+                <i class="fas fa-search absolute right-3 top-3 text-gray-500 text-xs"></i>
+            </div>
+
+            <label class="toggle-wrapper">
+                <span class="text-xs font-bold text-gray-400 mr-2">EDITAR</span>
+                <input type="checkbox" id="editSwitch" class="toggle-checkbox" onchange="toggleEdit()">
+                <div class="toggle-label"><div class="toggle-circle"></div></div>
+            </label>
+        </div>
+    </header>
+
+    <div id="brandsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        </div>
+
+    <div id="addBtnContainer" class="hidden mt-6 text-center border-2 border-dashed border-gray-700 rounded-xl p-6 hover:border-blue-500 cursor-pointer transition" onclick="openModal()">
+        <i class="fas fa-plus-circle text-3xl text-gray-500 mb-2"></i>
+        <p class="text-gray-400 font-bold">AÑADIR NUEVO FABRICANTE</p>
+    </div>
+
+    <div id="editModal">
+        <div class="modal-box">
+            <h2 class="text-xl font-bold mb-4 text-blue-400" id="modalTitle">Nueva Marca</h2>
+            <input type="hidden" id="editId">
+            
+            <label class="text-xs text-gray-400">Nombre Fabricante</label>
+            <input type="text" id="inpName" class="inp" placeholder="Ej: Saint-Gobain">
+            
+            <label class="text-xs text-gray-400">Letra / Logo (Texto corto)</label>
+            <input type="text" id="inpLogo" class="inp" placeholder="Ej: S">
+            
+            <label class="text-xs text-gray-400">Color (Clase CSS, ej: red, blue, yellow)</label>
+            <select id="inpColor" class="inp">
+                <option value="red">Rojo</option>
+                <option value="blue">Azul</option>
+                <option value="yellow">Amarillo</option>
+                <option value="green">Verde</option>
+                <option value="gray">Gris</option>
+            </select>
+
+            <label class="text-xs text-gray-400">Descripción Corta</label>
+            <input type="text" id="inpDesc" class="inp" placeholder="Ej: Sistema Visual SEKURIT">
+            
+            <label class="text-xs text-gray-400">Nombre Archivo HTML</label>
+            <input type="text" id="inpUrl" class="inp" placeholder="Ej: laminex.html">
+
+            <div class="flex gap-2 mt-4">
+                <button onclick="saveBrand()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded">GUARDAR</button>
+                <button onclick="closeModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURACIÓN FIREBASE (Misma que tus otros archivos) ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+            authDomain: "gad-alicante-v4.firebaseapp.com",
+            databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "gad-alicante-v4",
+            storageBucket: "gad-alicante-v4.firebasestorage.app",
+            messagingSenderId: "119727545224",
+            appId: "1:119727545224:web:36880c50d196c456cdb83d"
+        };
+
+        let db = null;
+        let auth = null;
+        let brandsData = {};
+        let isEditMode = false;
+
+        // DATOS INICIALES (Si la BD está vacía)
+        const initialBrands = {
+            "b1": {
+                name: "LAMINEX",
+                logo: "L",
+                color: "red",
+                desc: "Sistema Visual (Arco/Central)",
+                url: "laminex.html" // AQUÍ ES DONDE ESTABA EL ERROR 404, AHORA APUNTA AL NOMBRE CORRECTO
+            },
+            "b2": {
+                name: "SAINT-GOBAIN",
+                logo: "S",
+                color: "yellow",
+                desc: "En desarrollo...",
+                url: "#"
+            }
+        };
+
+        window.onload = function() {
+            try {
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                auth = firebase.auth();
+
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        document.getElementById('userInfo').innerText = user.email;
+                        loadBrands();
+                    } else {
+                        window.location.href = 'index.html'; // Seguridad
+                    }
+                });
+            } catch(e) { console.error(e); }
+        };
+
+        function loadBrands() {
+            db.ref('LISTA_MARCAS').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    brandsData = data;
+                    renderBrands();
+                } else {
+                    // Primera vez: subir datos iniciales
+                    db.ref('LISTA_MARCAS').set(initialBrands);
+                }
+            });
+        }
+
+        function renderBrands() {
+            const grid = document.getElementById('brandsGrid');
+            grid.innerHTML = '';
+            
+            // Convertir objeto a array para poder filtrar
+            const list = Object.entries(brandsData);
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            list.forEach(([id, b]) => {
+                if(b.name.toLowerCase().includes(search)) {
+                    // Colores
+                    let colorClass = "text-gray-400 border-gray-500 bg-gray-900/50";
+                    if(b.color === 'red') colorClass = "text-red-400 border-red-500 bg-red-900/50";
+                    if(b.color === 'blue') colorClass = "text-blue-400 border-blue-500 bg-blue-900/50";
+                    if(b.color === 'yellow') colorClass = "text-yellow-400 border-yellow-500 bg-yellow-900/50";
+                    if(b.color === 'green') colorClass = "text-green-400 border-green-500 bg-green-900/50";
+
+                    const card = document.createElement('div');
+                    card.className = 'brand-card p-6 rounded-xl flex items-center gap-4 group';
+                    
+                    // Al hacer clic, navega (si no estamos editando)
+                    card.onclick = (e) => {
+                        if(!isEditMode && !e.target.closest('.edit-overlay')) {
+                            window.location.href = b.url;
+                        }
+                    };
+
+                    card.innerHTML = `
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold border ${colorClass} text-xl">
+                            ${b.logo}
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-blue-400">${b.name}</h3>
+                            <p class="text-xs text-gray-400">${b.desc}</p>
+                        </div>
+                        
+                        <div class="edit-overlay">
+                            <div class="btn-mini btn-edit" onclick="openModal('${id}')"><i class="fas fa-pen"></i></div>
+                            <div class="btn-mini btn-del" onclick="deleteBrand('${id}')"><i class="fas fa-trash"></i></div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+            });
+        }
+
+        function toggleEdit() {
+            isEditMode = document.getElementById('editSwitch').checked;
+            const grid = document.getElementById('brandsGrid');
+            const addBtn = document.getElementById('addBtnContainer');
+            
+            if(isEditMode) {
+                grid.classList.add('editable');
+                addBtn.classList.remove('hidden');
+            } else {
+                grid.classList.remove('editable');
+                addBtn.classList.add('hidden');
+            }
+        }
+
+        function filterBrands() {
+            renderBrands();
+        }
+
+        // === GESTIÓN DEL MODAL ===
+        function openModal(id = null) {
+            document.getElementById('editModal').style.display = 'flex';
+            if(id) {
+                // Editar existente
+                const b = brandsData[id];
+                document.getElementById('modalTitle').innerText = "Editar Marca";
+                document.getElementById('editId').value = id;
+                document.getElementById('inpName').value = b.name;
+                document.getElementById('inpLogo').value = b.logo;
+                document.getElementById('inpColor').value = b.color;
+                document.getElementById('inpDesc').value = b.desc;
+                document.getElementById('inpUrl').value = b.url;
+            } else {
+                // Nuevo
+                document.getElementById('modalTitle').innerText = "Nueva Marca";
+                document.getElementById('editId').value = "";
+                document.getElementById('inpName').value = "";
+                document.getElementById('inpLogo').value = "";
+                document.getElementById('inpColor').value = "gray";
+                document.getElementById('inpDesc').value = "";
+                document.getElementById('inpUrl').value = "";
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function saveBrand() {
+            const id = document.getElementById('editId').value || 'b' + Date.now();
+            const newData = {
+                name: document.getElementById('inpName').value,
+                logo: document.getElementById('inpLogo').value,
+                color: document.getElementById('inpColor').value,
+                desc: document.getElementById('inpDesc').value,
+                url: document.getElementById('inpUrl').value
+            };
+
+            if(!newData.name) return alert("Ponle un nombre al menos.");
+
+            db.ref('LISTA_MARCAS/' + id).set(newData).then(() => {
+                closeModal();
+            });
+        }
+
+        function deleteBrand(id) {
+            if(confirm("¿Seguro que quieres borrar esta marca?")) {
+                db.ref('LISTA_MARCAS/' + id).remove();
+            }
+        }
+    </script>
+</body>
+</html>
