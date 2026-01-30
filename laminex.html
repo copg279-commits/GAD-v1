@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAMINEX - G.A.D. Final v18</title>
+    <title>LAMINEX - G.A.D. Final UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -14,7 +14,7 @@
     <style>
         body { 
             background-color: #1e293b; 
-            font-family: 'Arial', sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             overflow: hidden; 
             user-select: none;
             height: 100vh; width: 100vw; margin: 0;
@@ -25,19 +25,19 @@
         .controls {
             background: #0f172a; padding: 0 20px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #334155; height: 60px; z-index: 200; /* Z-index alto */
+            border-bottom: 1px solid #334155; height: 60px; z-index: 200;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         #statusBadge {
-            font-size: 0.7rem; font-weight: bold; text-transform: uppercase;
-            padding: 4px 10px; border-radius: 4px; color: #64748b; background: #1e293b;
+            font-size: 0.65rem; font-weight: bold; text-transform: uppercase;
+            padding: 3px 8px; border-radius: 4px; color: #64748b; background: #1e293b;
             border: 1px solid #334155; transition: all 0.3s;
         }
         .st-ok { color: #4ade80 !important; border-color: #4ade80 !important; }
         .st-err { color: #ef4444 !important; border-color: #ef4444 !important; }
 
-        /* SWITCH EDITAR */
+        /* SWITCH EDICIÓN */
         .toggle-wrapper { display: flex; align-items: center; cursor: pointer; }
         .toggle-checkbox { display: none; }
         .toggle-label { 
@@ -62,15 +62,13 @@
             border: 4px solid white; position: relative; 
             box-shadow: 0 0 60px rgba(0,0,0,0.5);
         }
-        /* Borde rojo en edición para confirmar visualmente */
         .mode-editing #glassBoard { border: 4px dashed #ef4444; }
 
-        /* --- CAPAS Y ELEMENTOS --- */
-        
-        /* 1. Fondo (Texto) - Al fondo del todo */
-        .bg-text-layer { 
-            position: absolute; inset: 0; z-index: 1; pointer-events: none; 
-        }
+        /* CAPAS */
+        .bg-text-layer { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+        .guides-layer { position: absolute; inset: 0; z-index: 50; pointer-events: none; }
+        .interactive-layer { position: absolute; inset: 0; z-index: 100; }
+
         .bg-text {
             font-family: 'Arial Black', sans-serif; font-size: 5rem; color: #cc0000;
             -webkit-text-stroke: 3px white; position: absolute; left: 50%;
@@ -78,26 +76,15 @@
             letter-spacing: 10px; line-height: 1;
         }
 
-        /* 2. Guías - Encima del fondo, debajo de puntos */
-        .guides-layer { 
-            position: absolute; inset: 0; z-index: 50; pointer-events: none; 
-        }
+        /* Guías */
         .smart-guide { position: absolute; background-color: #00ffff; display: none; box-shadow: 0 0 8px #00ffff; }
         .guide-h { height: 2px; width: 100%; left: 0; } 
         .guide-v { width: 2px; height: 100%; top: 0; } 
 
-        /* 3. Objetos Interactivos (Logo y Puntos) - Arriba del todo */
-        .interactive-layer { 
-            position: absolute; inset: 0; z-index: 100; /* Z-index superior garantizado */
-        }
-
         /* LOGO */
         #dragLogo { 
-            position: absolute; width: 150px; 
-            transform: translate(-50%, -50%); 
-            cursor: default; /* Por defecto no mueve */
-            /* Si falla la imagen, mostrar borde rojo */
-            min-height: 50px; min-width: 50px;
+            position: absolute; width: 150px; transform: translate(-50%, -50%); 
+            cursor: default; -webkit-user-drag: none;
         }
         .mode-editing #dragLogo { cursor: move; border: 1px dashed white; }
 
@@ -105,8 +92,7 @@
         .dot-wrapper {
             position: absolute; width: 44px; height: 44px; 
             transform: translate(-50%, -50%); display: flex;
-            justify-content: center; align-items: center; 
-            cursor: pointer; /* Mano siempre para clicar */
+            justify-content: center; align-items: center; cursor: pointer;
         }
         .dot-point {
             width: 24px; height: 24px; background-color: #ffff00;
@@ -118,34 +104,41 @@
             text-shadow: 0 0 3px black, 0 0 4px black; pointer-events: none; white-space: nowrap;
         }
 
-        /* Posiciones Etiqueta */
+        /* Posiciones */
         .pos-top { bottom: 45px; } .pos-bottom { top: 45px; }
         .pos-left { right: 45px; } .pos-right { left: 45px; }
 
-        /* Estados Puntos */
+        /* Estados */
         .dot-point.selected { background-color: #00ff00; transform: scale(1.4); border: 2px solid #004400; }
-        
-        .mode-editing .dot-wrapper { cursor: move; } /* Cursor mover en edición */
-        .mode-editing .dot-point { 
-            background-color: #fbbf24; border: 2px dashed black; 
-        }
+        .mode-editing .dot-wrapper { cursor: move; }
+        .mode-editing .dot-point { background-color: #fbbf24; border: 2px dashed black; }
 
-        /* Modal Resultado */
-        #resultModal {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: #0f172a; border: 2px solid #3b82f6; padding: 15px 40px;
-            border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            text-align: center; z-index: 300; display: none;
+        /* MODALES (Resultado y Ayuda) */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); 
+            z-index: 300; display: none; justify-content: center; align-items: center;
         }
+        .modal-box {
+            background: #0f172a; border: 1px solid #3b82f6; padding: 25px;
+            border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            text-align: center; max-width: 400px; width: 90%; color: white;
+        }
+        
+        #resultModalBox { border-color: #22c55e; } /* Verde para resultado */
     </style>
 </head>
 <body>
 
     <div class="controls">
         <div class="flex items-center gap-4">
-            <a href="menu_lunas.html" class="text-gray-400 hover:text-white font-bold flex items-center gap-2">
+            <a href="menu_lunas.html" class="text-gray-400 hover:text-white font-bold flex items-center gap-2 text-sm">
                 <i class="fas fa-arrow-left"></i> VOLVER
             </a>
+            
+            <button onclick="toggleHelp()" class="flex items-center gap-2 px-3 py-1 bg-blue-900/50 hover:bg-blue-800 border border-blue-500 rounded text-blue-200 text-xs font-bold transition">
+                <i class="fas fa-question-circle"></i> AYUDA
+            </button>
+
             <div id="statusBadge">Conectando...</div>
         </div>
         
@@ -155,7 +148,7 @@
             <button onclick="restoreFactory()" class="text-xs text-red-400 hover:text-white border border-red-900 px-3 py-1 rounded">Reset</button>
             
             <label class="toggle-wrapper">
-                <span class="text-xs font-bold text-gray-400 mr-3" id="editLabel">PERITAJE</span>
+                <span class="text-xs font-bold text-gray-300 mr-3 transition-colors" id="editLabel">CAMBIAR A EDICIÓN</span>
                 <input type="checkbox" id="editSwitch" class="toggle-checkbox" onchange="toggleEdit()">
                 <div class="toggle-label"><div class="toggle-circle"></div></div>
             </label>
@@ -164,31 +157,62 @@
 
     <div id="workspace">
         <div id="glassBoard">
-            
             <div class="bg-text-layer">
                 <div class="bg-text" style="top: 25%">LAMINEX</div>
                 <div class="bg-text" style="bottom: 25%">CENTRAL</div>
             </div>
-
             <div class="guides-layer">
                 <div id="guideH" class="smart-guide guide-h"></div>
                 <div id="guideV" class="smart-guide guide-v"></div>
             </div>
-
             <div id="dynamicLayer" class="interactive-layer"></div>
-
         </div>
     </div>
 
-    <div id="resultModal">
-        <p class="text-gray-400 text-xs uppercase mb-1">Fecha Fabricación</p>
-        <h2 id="resMonth" class="text-3xl font-bold text-white">--</h2>
-        <p id="resDecades" class="text-green-400 font-mono text-lg tracking-widest mt-1">--</p>
-        <button onclick="closeResult()" class="text-xs text-red-400 underline mt-2 hover:text-white">Cerrar</button>
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal-box" id="resultModalBox">
+            <p class="text-gray-400 text-xs uppercase mb-1">Fecha Fabricación</p>
+            <h2 id="resMonth" class="text-3xl font-bold text-white">--</h2>
+            <p id="resDecades" class="text-green-400 font-mono text-lg tracking-widest mt-1">--</p>
+            <button onclick="closeResult()" class="text-xs text-green-400 underline mt-4 hover:text-white">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-box text-left">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                <h3 class="font-bold text-blue-400"><i class="fas fa-info-circle"></i> GUÍA DE USO</h3>
+                <button onclick="toggleHelp()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="space-y-4 text-sm text-gray-300">
+                <div>
+                    <h4 class="font-bold text-red-400 mb-1"><i class="fas fa-tools"></i> MODO EDICIÓN</h4>
+                    <p>Activa el interruptor arriba a la derecha para:</p>
+                    <ul class="list-disc pl-5 mt-1 text-xs text-gray-400 space-y-1">
+                        <li><strong>Mover Puntos:</strong> Arrástralos a su posición real.</li>
+                        <li><strong>Mover Logo:</strong> Arrastra la imagen central.</li>
+                        <li><strong>Rotar Texto:</strong> Haz clic en un punto para cambiar la etiqueta de sitio (Arriba, Abajo, etc).</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-green-400 mb-1"><i class="fas fa-search"></i> MODO CONSULTA</h4>
+                    <p>Uso normal de la herramienta:</p>
+                    <ul class="list-disc pl-5 mt-1 text-xs text-gray-400 space-y-1">
+                        <li>Selecciona el <strong>Punto del Mes</strong>.</li>
+                        <li>Selecciona el <strong>Punto del Año</strong>.</li>
+                        <li>El sistema calculará la fecha automáticamente.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button onclick="toggleHelp()" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded text-xs">ENTENDIDO</button>
+        </div>
     </div>
 
     <script>
-        // === CONFIGURACIÓN FIREBASE ===
+        // === CONFIGURACIÓN ===
         const firebaseConfig = {
             apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
             authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -238,7 +262,7 @@
 
         // === INICIO ===
         window.onload = function() {
-            renderAll(); // 1. Renderizar inmediato (Offline)
+            renderAll(); 
 
             try {
                 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -252,7 +276,6 @@
                     } else {
                         updateStatus("st-err", "OFFLINE (Público)");
                     }
-                    // Siempre intentamos conectar a DB, tenga o no login (por si reglas true)
                     initDB();
                 });
 
@@ -267,17 +290,15 @@
                 const data = snapshot.val();
                 if (data) {
                     appState = data;
-                    // Asegurar que existan datos si vienen incompletos
                     if(!appState.positions) appState.positions = factoryData.positions;
                     if(!appState.logo) appState.logo = factoryData.logo;
                     renderAll();
                     updateStatus("ok", "SINCRONIZADO");
                 } else {
-                    saveToCloud(); // Crear nodo si no existe
+                    saveToCloud();
                 }
             }, (err) => {
                 console.warn("DB Error:", err.code);
-                // No borramos datos locales si falla DB
                 updateStatus("st-err", "ACCESO DENEGADO");
             });
         }
@@ -303,24 +324,21 @@
             const container = document.getElementById('dynamicLayer');
             container.innerHTML = ''; 
 
-            // LOGO REPARADO
+            // LOGO
             const logo = document.createElement('img');
             logo.id = 'dragLogo';
-            logo.src = 'logogad.PNG'; // 1er intento: Mayúsculas
+            logo.src = 'logogad.PNG'; 
             logo.alt = "LOGO";
-            // Truco: Si falla, prueba minúsculas. Si falla, pone un placeholder visual.
+            logo.draggable = false;
             logo.onerror = function() { 
                 if(this.src.includes('logogad.PNG')) this.src = 'logogad.png';
                 else {
-                    this.style.backgroundColor = 'rgba(255,0,0,0.2)'; // Fondo rojo suave
+                    this.style.backgroundColor = 'rgba(255,0,0,0.2)'; 
                     this.style.border = '1px solid red';
                 }
             };
-            
             logo.style.top = appState.logo.top + '%';
             logo.style.left = appState.logo.left + '%';
-            
-            // Evento
             logo.onmousedown = (e) => handleInput(e, null, 'logo');
             container.appendChild(logo);
 
@@ -334,7 +352,6 @@
 
                 const point = document.createElement('div');
                 point.className = 'dot-point';
-                // Mantener selección visual
                 if ((pos.id.startsWith('m') && selectedMonth === pos.val) ||
                     (pos.id.startsWith('y') && selectedYear === pos.val)) {
                     point.classList.add('selected');
@@ -352,19 +369,15 @@
             });
         }
 
-        // === GESTIÓN INPUT (Clic vs Drag) ===
+        // === INTERACCIÓN ===
         function handleInput(e, dataObj, type) {
-            e.preventDefault(); // Prevenir comportamiento nativo navegador
-            
+            e.preventDefault(); 
             if(!isEditMode && type === 'logo') return;
 
             startX = e.clientX; startY = e.clientY;
             
-            if(isEditMode) {
-                initDrag(e, dataObj, type);
-            }
+            if(isEditMode) initDrag(e, dataObj, type);
 
-            // Detectar clic corto
             const onUp = (ev) => {
                 document.removeEventListener('mouseup', onUp);
                 const dist = Math.sqrt(Math.pow(ev.clientX - startX, 2) + Math.pow(ev.clientY - startY, 2));
@@ -390,12 +403,11 @@
                 const dx = ev.clientX - startX; 
                 const dy = ev.clientY - startY;
 
-                // Umbral movimiento
                 if(Math.abs(dx) > 2 || Math.abs(dy) > 2) {
                     let newLeft = initLeft + ((dx / rect.width) * 100);
                     let newTop = initTop + ((dy / rect.height) * 100);
 
-                    // Lógica Imán (Snap)
+                    // Imán
                     let snappedX = false, snappedY = false;
                     const snapTol = 1.0; 
 
@@ -415,15 +427,12 @@
                     if(!snappedY) guideH.style.display = 'none';
                     if(!snappedX) guideV.style.display = 'none';
 
-                    // Límites
                     newLeft = Math.max(0, Math.min(100, newLeft));
                     newTop = Math.max(0, Math.min(100, newTop));
 
-                    // Mover visualmente el DOM
                     const el = type === 'logo' ? document.getElementById('dragLogo') : document.getElementById(dataObj.id);
                     el.style.top = newTop + '%'; el.style.left = newLeft + '%';
 
-                    // Guardar en RAM
                     if(type === 'logo') { appState.logo.top = newTop; appState.logo.left = newLeft; }
                     else { dataObj.top = newTop; dataObj.left = newLeft; }
                 }
@@ -433,7 +442,7 @@
                 document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp);
                 guideH.style.display = 'none'; guideV.style.display = 'none';
-                saveToCloud(); // Guardar al soltar
+                saveToCloud(); 
             }
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
@@ -461,7 +470,7 @@
             
             if(selectedMonth !== null && selectedYear !== null) {
                 const modal = document.getElementById('resultModal');
-                modal.style.display = 'block';
+                modal.style.display = 'flex'; // FLEX PARA CENTRAR
                 document.getElementById('resMonth').innerText = months[selectedMonth];
                 const y = selectedYear;
                 document.getElementById('resDecades').innerText = `${2000+y} / ${2010+y} / ${2020+y}`;
@@ -473,7 +482,7 @@
             document.getElementById('resultModal').style.display = 'none';
         }
 
-        // === TOGGLE EDICIÓN ===
+        // === CONTROLES ===
         function toggleEdit() {
             isEditMode = document.getElementById('editSwitch').checked;
             const body = document.body;
@@ -481,14 +490,19 @@
 
             if(isEditMode) {
                 body.classList.add('mode-editing');
-                lbl.innerText = "EDICIÓN";
+                lbl.innerText = "CERRAR EDICIÓN";
                 lbl.style.color = "#ef4444";
             } else {
                 body.classList.remove('mode-editing');
-                lbl.innerText = "PERITAJE";
+                lbl.innerText = "CAMBIAR A EDICIÓN";
                 lbl.style.color = "#94a3b8";
                 saveToCloud();
             }
+        }
+
+        function toggleHelp() {
+            const modal = document.getElementById('helpModal');
+            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
         }
 
         function restoreFactory() {
