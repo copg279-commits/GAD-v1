@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAMINEX - G.A.D. v14 (Textos Corregidos)</title>
+    <title>LAMINEX - G.A.D. Herramienta</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
@@ -16,188 +17,100 @@
             font-family: 'Arial', sans-serif; 
             overflow: hidden; 
             user-select: none;
-            height: 100vh;
-            width: 100vw;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
+            height: 100vh; width: 100vw; margin: 0;
+            display: flex; flex-direction: column;
         }
 
-        /* --- CONTROLES SUPERIORES --- */
+        /* BARRA SUPERIOR */
         .controls {
-            background: #0f172a; 
-            padding: 0 20px;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            border-bottom: 1px solid #334155;
-            height: 60px;
-            z-index: 100;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: #0f172a; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #334155; height: 60px; z-index: 100;
         }
 
-        /* Indicador de estado de guardado */
-        #saveStatus {
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            padding: 4px 8px;
-            border-radius: 4px;
-            opacity: 0;
-            transition: opacity 0.5s;
+        /* ESTADO DE CARGA / GUARDADO */
+        #statusBadge {
+            font-size: 0.75rem; font-weight: bold; text-transform: uppercase;
+            padding: 4px 12px; border-radius: 999px;
+            background: #334155; color: #94a3b8;
+            transition: all 0.3s;
         }
-        .status-saving { color: #fbbf24; opacity: 1 !important; } 
-        .status-saved { color: #4ade80; opacity: 1 !important; }
-        .status-error { color: #ef4444; opacity: 1 !important; }
+        .st-loading { background: #eab308 !important; color: #422006 !important; }
+        .st-saved { background: #22c55e !important; color: #022c22 !important; }
+        .st-error { background: #ef4444 !important; color: white !important; }
 
-        /* SWITCH EDICIÓN (Corregido) */
-        .toggle-wrapper { display: flex; align-items: center; cursor: pointer; }
-        .toggle-checkbox { display: none; }
-        .toggle-label {
-            width: 50px; height: 26px;
-            background-color: #ef4444; /* Rojo inicial */
-            border-radius: 9999px;
-            position: relative;
-            transition: background-color 0.3s ease;
-        }
-        .toggle-circle {
-            width: 20px; height: 20px;
-            background-color: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 3px; left: 3px;
-            transition: transform 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        /* Estado ACTIVO */
-        .toggle-checkbox:checked + .toggle-label { background-color: #22c55e; }
-        .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(24px); }
-
-        /* --- ÁREA DE TRABAJO --- */
+        /* WORKSPACE */
         #workspace {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #1e293b;
-            position: relative;
+            flex-grow: 1; display: flex; justify-content: center; align-items: center;
+            background: #1e293b; position: relative;
         }
-
         #glassBoard {
-            width: 900px;
-            height: 550px;
-            background-color: #0055ff;
-            border: 4px solid white;
-            position: relative; 
+            width: 900px; height: 550px; background-color: #0055ff;
+            border: 4px solid white; position: relative; 
             box-shadow: 0 0 50px rgba(0,0,0,0.6);
         }
 
-        /* CAPAS */
-        .layer-bg { z-index: 0; position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
-        .layer-content { z-index: 10; position: absolute; top:0; left:0; width:100%; height:100%; }
-        .layer-guides { z-index: 20; position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
-
         /* TEXTO FONDO */
         .bg-text {
-            font-family: 'Arial Black', sans-serif;
-            font-size: 5rem;
-            color: #cc0000;
-            -webkit-text-stroke: 3px white;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            width: 100%;
-            letter-spacing: 10px;
-            line-height: 1;
+            font-family: 'Arial Black', sans-serif; font-size: 5rem; color: #cc0000;
+            -webkit-text-stroke: 3px white; position: absolute; left: 50%;
+            transform: translateX(-50%); text-align: center; width: 100%;
+            letter-spacing: 10px; line-height: 1; pointer-events:none; z-index: 0;
         }
 
-        /* GUÍAS INTELIGENTES (Láser Cian) */
-        .smart-guide {
-            position: absolute;
-            background-color: #00ffff;
-            display: none;
-            box-shadow: 0 0 5px #00ffff;
-        }
+        /* CAPAS */
+        .layer-content { z-index: 10; position: absolute; top:0; left:0; width:100%; height:100%; }
+
+        /* GUÍAS */
+        .smart-guide { position: absolute; background-color: #00ffff; display: none; box-shadow: 0 0 5px #00ffff; z-index: 50; pointer-events:none; }
         .guide-h { height: 1px; width: 100%; left: 0; } 
         .guide-v { width: 1px; height: 100%; top: 0; } 
 
         /* LOGO */
-        #dragLogo {
-            position: absolute;
-            cursor: pointer;
-            width: 150px;
-            transform: translate(-50%, -50%); 
-        }
+        #dragLogo { position: absolute; cursor: pointer; width: 150px; transform: translate(-50%, -50%); z-index: 5; }
         .editable #dragLogo { border: 2px dashed cyan; cursor: move; }
 
         /* PUNTOS */
         .dot-wrapper {
-            position: absolute;
-            width: 40px; height: 40px; 
-            transform: translate(-50%, -50%); 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            /* background: rgba(255,0,0,0.2);  Descomentar para depurar área de clic */
+            position: absolute; width: 40px; height: 40px; 
+            transform: translate(-50%, -50%); display: flex;
+            justify-content: center; align-items: center; cursor: pointer; z-index: 20;
         }
-
         .dot-point {
-            width: 24px; height: 24px;
-            background-color: #ffff00;
-            border-radius: 50%;
-            border: 1px solid rgba(0,0,0,0.2);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            transition: transform 0.1s;
+            width: 24px; height: 24px; background-color: #ffff00;
+            border-radius: 50%; border: 1px solid rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: transform 0.1s;
         }
-
         .dot-label {
-            position: absolute;
-            font-size: 14px; 
-            color: white;
-            font-weight: bold;
-            text-shadow: 0 0 3px black, 0 0 4px black;
-            pointer-events: none;
-            white-space: nowrap;
+            position: absolute; font-size: 14px; color: white; font-weight: bold;
+            text-shadow: 0 0 3px black, 0 0 4px black; pointer-events: none; white-space: nowrap;
         }
 
-        /* POSICIONES ETIQUETA - AUMENTADA DISTANCIA PARA NO PISAR */
-        .pos-top    { bottom: 45px; } /* Antes 32px -> Ahora 45px (Más separado) */
+        /* POSICIONES ETIQUETA (Separadas para no pisar) */
+        .pos-top    { bottom: 45px; } 
         .pos-bottom { top: 45px; }
         .pos-left   { right: 45px; }
         .pos-right  { left: 45px; }
 
         /* ESTADOS */
         .dot-point:hover { transform: scale(1.2); background-color: white; }
-        
-        .dot-point.selected { 
-            background-color: #00ff00; 
-            transform: scale(1.4);
-            box-shadow: 0 0 15px #00ff00;
-            border: 2px solid #004400;
-        }
+        .dot-point.selected { background-color: #00ff00; transform: scale(1.4); box-shadow: 0 0 15px #00ff00; border: 2px solid #004400; }
+        .editable .dot-point { background-color: #fbbf24; border: 2px dashed black; cursor: move; }
 
-        .editable .dot-point {
-            background-color: #fbbf24; 
-            border: 2px dashed black;
-            cursor: move;
-        }
+        /* SWITCH EDICIÓN */
+        .toggle-wrapper { display: flex; align-items: center; cursor: pointer; }
+        .toggle-checkbox { display: none; }
+        .toggle-label { width: 50px; height: 26px; background-color: #ef4444; border-radius: 9999px; position: relative; transition: 0.3s; }
+        .toggle-circle { width: 20px; height: 20px; background-color: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #22c55e; }
+        .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(24px); }
 
-        /* RESULTADO */
+        /* MODAL RESULTADO */
         #resultModal {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #0f172a;
-            border: 2px solid #3b82f6;
-            padding: 15px 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            text-align: center;
-            z-index: 300;
-            display: none;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #0f172a; border: 2px solid #3b82f6; padding: 15px 40px;
+            border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            text-align: center; z-index: 300; display: none;
         }
     </style>
 </head>
@@ -205,42 +118,38 @@
 
     <div class="controls">
         <div class="flex items-center gap-4">
-            <a href="index.html" class="text-gray-400 hover:text-white font-bold"><i class="fas fa-chevron-left"></i> SALIR</a>
-            <span id="saveStatus">CONECTANDO...</span>
+            <a href="menu_lunas.html" class="text-gray-400 hover:text-white font-bold flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> VOLVER
+            </a>
+            <div id="statusBadge">CONECTANDO...</div>
         </div>
         
         <div class="flex items-center gap-6">
-            <div id="editHelp" class="hidden text-xs text-yellow-300 mr-4 text-right">
-                CLIC: Rotar texto | ARRASTRAR: Mover
-            </div>
-
-            <button onclick="restoreFactory()" class="text-xs text-red-400 hover:text-white border border-red-900 px-3 py-1 rounded">Reset Fábrica</button>
+            <div id="userEmail" class="text-xs text-blue-400 font-mono hidden md:block"></div>
+            
+            <button onclick="restoreFactory()" class="text-xs text-red-400 hover:text-white border border-red-900 px-3 py-1 rounded">Reset</button>
             
             <label class="toggle-wrapper">
                 <span class="text-xs font-bold text-gray-400 mr-3">EDITAR</span>
                 <input type="checkbox" id="editSwitch" class="toggle-checkbox" onchange="toggleEdit()">
-                <div class="toggle-label">
-                    <div class="toggle-circle"></div>
-                </div>
+                <div class="toggle-label"><div class="toggle-circle"></div></div>
             </label>
         </div>
     </div>
 
     <div id="workspace">
         <div id="glassBoard">
-            
-            <div class="layer-bg">
+            <div style="z-index: 0;">
                 <div class="bg-text" style="top: 25%">LAMINEX</div>
                 <div class="bg-text" style="bottom: 25%">CENTRAL</div>
             </div>
 
             <div id="dynamicLayer" class="layer-content"></div>
 
-            <div class="layer-guides">
+            <div class="layer-content" style="pointer-events: none;">
                 <div id="guideH" class="smart-guide guide-h"></div>
                 <div id="guideV" class="smart-guide guide-v"></div>
             </div>
-
         </div>
     </div>
 
@@ -252,7 +161,7 @@
     </div>
 
     <script>
-        // === 1. CONFIGURACIÓN FIREBASE ===
+        // === 1. CONFIGURACIÓN FIREBASE (Tu Config) ===
         const firebaseConfig = {
             apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
             authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -265,8 +174,9 @@
 
         const brandNode = "laminex"; 
         let db = null;
+        let currentUser = null;
 
-        // === 2. DATOS DE FÁBRICA (Respaldo Seguro) ===
+        // === 2. DATOS DE FÁBRICA ===
         const factoryData = {
             logo: { top: 50, left: 50 },
             positions: [
@@ -296,69 +206,75 @@
         };
 
         let appState = JSON.parse(JSON.stringify(factoryData));
-        
         let isEditMode = false;
         let startX = 0, startY = 0; 
         let selectedMonth = null, selectedYear = null;
 
-        // === 3. INICIO ===
+        // === 3. INICIO Y SEGURIDAD ===
         window.onload = function() {
-            renderAll(); // Carga visual inmediata
+            renderAll(); // Cargar visualmente de inmediato
 
             try {
-                firebase.initializeApp(firebaseConfig);
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 db = firebase.database();
-                console.log("Conectado a Firebase");
-                showSaveStatus('saved');
                 
-                // Escuchar datos
-                db.ref('LUNAS/' + brandNode).on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        console.log("Datos recibidos de nube");
-                        appState = data;
-                        if(!appState.positions) appState.positions = factoryData.positions;
-                        renderAll();
+                // VERIFICAR AUTENTICACIÓN
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (user) {
+                        // Usuario autorizado
+                        currentUser = user;
+                        document.getElementById('userEmail').innerText = user.email;
+                        setStatus('loading', 'Cargando datos...');
+                        initDatabaseListener();
                     } else {
-                        console.log("No hay datos en nube. Subiendo fábrica...");
-                        saveToCloud();
+                        // Usuario NO logueado -> Expulsar
+                        alert("Acceso no autorizado. Debes iniciar sesión primero.");
+                        window.location.href = 'index.html';
                     }
-                }, (error) => {
-                    console.error("Error lectura:", error);
-                    showSaveStatus('error');
-                    alert("No se pudo leer Firebase. ¿Están las reglas en TRUE?");
                 });
+
             } catch(e) {
-                console.error("Error Init Firebase:", e);
+                console.error("Firebase Error:", e);
+                setStatus('error', 'Error Config');
             }
         };
 
-        function showSaveStatus(status) {
-            const el = document.getElementById('saveStatus');
-            if(status === 'saving') {
-                el.innerText = "GUARDANDO...";
-                el.className = "status-saving";
-                el.style.opacity = '1';
-            } else if (status === 'saved') {
-                el.innerText = "CONECTADO / GUARDADO";
-                el.className = "status-saved";
-                el.style.opacity = '1';
-                setTimeout(() => { el.style.opacity = '0'; }, 3000);
-            } else if (status === 'error') {
-                el.innerText = "ERROR PERMISOS";
-                el.className = "status-error";
-                el.style.opacity = '1';
-            }
+        function initDatabaseListener() {
+            // Escuchar cambios en la DB
+            db.ref('LUNAS/' + brandNode).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    appState = data;
+                    if(!appState.positions) appState.positions = factoryData.positions;
+                    renderAll();
+                    setStatus('saved', 'Sincronizado');
+                } else {
+                    // Si no hay datos, guardar fábrica
+                    saveToCloud();
+                }
+            }, (error) => {
+                console.error("Error DB:", error);
+                setStatus('error', 'Sin Permiso DB');
+            });
+        }
+
+        function setStatus(type, msg) {
+            const el = document.getElementById('statusBadge');
+            el.innerText = msg;
+            el.className = ''; // Limpiar clases
+            if(type === 'loading') el.classList.add('st-loading');
+            if(type === 'saved') el.classList.add('st-saved');
+            if(type === 'error') el.classList.add('st-error');
         }
 
         function saveToCloud() {
-            if(db) {
-                showSaveStatus('saving');
+            if(db && currentUser) {
+                setStatus('loading', 'Guardando...');
                 db.ref('LUNAS/' + brandNode).set(appState)
-                  .then(() => showSaveStatus('saved'))
+                  .then(() => setStatus('saved', 'Guardado'))
                   .catch((err) => {
                       console.error(err);
-                      showSaveStatus('error');
+                      setStatus('error', 'Error Guardado');
                   });
             }
         }
@@ -368,17 +284,17 @@
             const container = document.getElementById('dynamicLayer');
             container.innerHTML = ''; 
 
-            // LOGO
+            // Logo
             const logo = document.createElement('img');
             logo.id = 'dragLogo';
-            logo.src = 'logogad.PNG';
+            logo.src = 'logogad.PNG'; // Asegúrate que este archivo existe
             logo.onerror = function() { this.style.display='none'; };
             logo.style.top = appState.logo.top + '%';
             logo.style.left = appState.logo.left + '%';
             logo.onmousedown = (e) => handleInput(e, null, 'logo');
             container.appendChild(logo);
 
-            // PUNTOS
+            // Puntos
             appState.positions.forEach(pos => {
                 const wrap = document.createElement('div');
                 wrap.className = 'dot-wrapper';
@@ -404,19 +320,16 @@
             });
         }
 
-        // === 5. INPUT HANDLER (CLIC vs DRAG) ===
+        // === 5. INTERACCIÓN (Input) ===
         function handleInput(e, dataObj, type) {
             e.preventDefault();
-            startX = e.clientX;
-            startY = e.clientY;
-            let hasMoved = false;
-
+            startX = e.clientX; startY = e.clientY;
+            
             if(isEditMode) initDrag(e, dataObj, type);
 
             const onUp = (ev) => {
                 document.removeEventListener('mouseup', onUp);
                 const dist = Math.sqrt(Math.pow(ev.clientX - startX, 2) + Math.pow(ev.clientY - startY, 2));
-                
                 if(dist < 5) { 
                     if(isEditMode && type === 'dot') rotateLabel(dataObj);
                     else if (!isEditMode && type === 'dot') selectDot(dataObj);
@@ -428,26 +341,20 @@
         function initDrag(e, dataObj, type) {
             const board = document.getElementById('glassBoard');
             const rect = board.getBoundingClientRect();
-            
             const initTop = type === 'logo' ? appState.logo.top : dataObj.top;
             const initLeft = type === 'logo' ? appState.logo.left : dataObj.left;
-
             const guideH = document.getElementById('guideH');
             const guideV = document.getElementById('guideV');
 
             function onMouseMove(ev) {
-                const dist = Math.sqrt(Math.pow(ev.clientX - startX, 2) + Math.pow(ev.clientY - startY, 2));
-                if (dist > 3) {
-                    const dx = ev.clientX - startX;
-                    const dy = ev.clientY - startY;
-
+                const dx = ev.clientX - startX; const dy = ev.clientY - startY;
+                if(Math.abs(dx) > 3 || Math.abs(dy) > 3) {
                     let newLeft = initLeft + ((dx / rect.width) * 100);
                     let newTop = initTop + ((dy / rect.height) * 100);
 
-                    // ALINEACIÓN INTELIGENTE (IMÁN)
+                    // Guías Inteligentes
                     let snappedX = false, snappedY = false;
                     const snapTol = 1.0; 
-
                     if (type === 'dot') {
                         appState.positions.forEach(other => {
                             if (other.id === dataObj.id) return;
@@ -461,16 +368,16 @@
                             }
                         });
                     }
-
                     if(!snappedY) guideH.style.display = 'none';
                     if(!snappedX) guideV.style.display = 'none';
 
+                    // Límites
                     newLeft = Math.max(0, Math.min(100, newLeft));
                     newTop = Math.max(0, Math.min(100, newTop));
 
+                    // Aplicar
                     const el = type === 'logo' ? document.getElementById('dragLogo') : document.getElementById(dataObj.id);
-                    el.style.top = newTop + '%';
-                    el.style.left = newLeft + '%';
+                    el.style.top = newTop + '%'; el.style.left = newLeft + '%';
 
                     if(type === 'logo') { appState.logo.top = newTop; appState.logo.left = newLeft; }
                     else { dataObj.top = newTop; dataObj.left = newLeft; }
@@ -480,11 +387,9 @@
             function onMouseUp() {
                 document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp);
-                guideH.style.display = 'none';
-                guideV.style.display = 'none';
+                guideH.style.display = 'none'; guideV.style.display = 'none';
                 saveToCloud();
             }
-
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
         }
@@ -492,28 +397,22 @@
         function rotateLabel(dataObj) {
             const order = ['pos-top', 'pos-right', 'pos-bottom', 'pos-left'];
             let current = dataObj.pos || 'pos-top';
-            let idx = order.indexOf(current);
-            dataObj.pos = order[(idx + 1) % 4];
-            saveToCloud();
-            renderAll();
+            dataObj.pos = order[(order.indexOf(current) + 1) % 4];
+            saveToCloud(); renderAll();
         }
 
+        // === 6. PERITAJE ===
         const months = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
         function selectDot(dataObj) {
             const isMonth = dataObj.id.startsWith('m');
-            const allDots = document.querySelectorAll('.dot-point');
-            allDots.forEach(d => {
+            document.querySelectorAll('.dot-point').forEach(d => {
                 const pid = d.parentElement.id;
-                if ((isMonth && pid.startsWith('m')) || (!isMonth && pid.startsWith('y'))) {
-                    d.classList.remove('selected');
-                }
+                if ((isMonth && pid.startsWith('m')) || (!isMonth && pid.startsWith('y'))) d.classList.remove('selected');
             });
             document.getElementById(dataObj.id).querySelector('.dot-point').classList.add('selected');
 
-            if(isMonth) selectedMonth = dataObj.val;
-            else selectedYear = dataObj.val;
-
+            if(isMonth) selectedMonth = dataObj.val; else selectedYear = dataObj.val;
             if(selectedMonth !== null && selectedYear !== null) {
                 const modal = document.getElementById('resultModal');
                 modal.style.display = 'block';
@@ -524,30 +423,21 @@
         }
 
         function closeResult() {
-            selectedMonth = null; selectedYear = null;
-            renderAll();
+            selectedMonth = null; selectedYear = null; renderAll();
             document.getElementById('resultModal').style.display = 'none';
         }
 
         function toggleEdit() {
             isEditMode = document.getElementById('editSwitch').checked;
             const board = document.getElementById('glassBoard');
-            const help = document.getElementById('editHelp');
-            if(isEditMode) {
-                board.style.borderColor = '#ef4444';
-                help.style.display = 'block';
-            } else {
-                board.style.borderColor = 'white';
-                help.style.display = 'none';
-                saveToCloud();
-            }
+            if(isEditMode) board.style.borderColor = '#ef4444';
+            else { board.style.borderColor = 'white'; saveToCloud(); }
         }
 
         function restoreFactory() {
             if(confirm("¿Restaurar configuración de fábrica?")) {
                 appState = JSON.parse(JSON.stringify(factoryData));
-                saveToCloud();
-                renderAll();
+                saveToCloud(); renderAll();
             }
         }
     </script>
