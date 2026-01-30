@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AUTOMOTIVE - Final Balance</title>
+    <title>AUTOMOTIVE - FINAL STABLE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -12,42 +12,41 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
-        /* --- CORE LAYOUT --- */
+        /* --- CORE --- */
         body { 
             background-color: #1e293b; 
             font-family: 'Segoe UI', system-ui, sans-serif; 
             min-height: 100vh; width: 100vw; margin: 0;
             display: flex; flex-direction: column;
-            overflow-y: auto; /* Scroll vertical si es necesario */
-            overflow-x: hidden;
+            overflow-x: hidden; /* Evita scroll lateral global */
         }
 
-        /* --- CONTROLES SUPERIORES --- */
+        /* --- CONTROLES --- */
         .controls {
-            background: #0f172a; padding: 0 1rem;
+            background: #0f172a; padding: 0 15px;
             display: flex; justify-content: space-between; align-items: center;
             height: 60px; z-index: 100; flex-shrink: 0; border-bottom: 1px solid #334155;
             position: sticky; top: 0; width: 100%;
         }
         .status-badge {
-            font-size: 10px; padding: 2px 6px; border-radius: 4px;
+            font-size: 10px; padding: 2px 8px; border-radius: 4px;
             background: #1e293b; border: 1px solid #334155; color: #94a3b8; margin-left: 8px;
         }
         .st-ok { color: #4ade80; border-color: #4ade80; }
 
         /* Switch */
-        .toggle-wrapper { display: flex; align-items: center; cursor: pointer; }
+        .toggle-wrapper { display: flex; align-items: center; cursor: pointer; gap: 8px; }
         .toggle-checkbox { display: none; }
-        .toggle-label { 
-            width: 40px; height: 22px; background-color: #334155; 
+        .toggle-track { 
+            width: 44px; height: 24px; background-color: #334155; 
             border-radius: 99px; position: relative; transition: 0.3s; 
         }
         .toggle-circle { 
-            width: 16px; height: 16px; background-color: white; 
+            width: 18px; height: 18px; background-color: white; 
             border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; 
         }
-        .toggle-checkbox:checked + .toggle-label { background-color: #ef4444; } 
-        .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(18px); }
+        .toggle-checkbox:checked + .toggle-track { background-color: #ef4444; } 
+        .toggle-checkbox:checked + .toggle-track .toggle-circle { transform: translateX(20px); }
 
         /* --- LEYENDA EXTERNA --- */
         .legend-external {
@@ -59,31 +58,37 @@
             font-size: 12px; letter-spacing: 1px;
         }
 
-        /* --- ESPACIO DE TRABAJO --- */
+        /* --- WORKSPACE --- */
         #workspace {
             flex-grow: 1; display: flex; justify-content: center; align-items: center;
             background: #1e293b; position: relative; width: 100%; 
-            padding: 20px 10px; box-sizing: border-box;
+            padding: 10px; box-sizing: border-box;
+            /* Permite scroll vertical en móviles si el tablero es muy alto */
+            overflow-y: auto; 
         }
 
-        /* --- EL TABLERO PROPORCIONAL --- */
+        /* --- TABLERO MAESTRO --- */
         #glassBoard {
-            width: 100%; max-width: 900px; 
+            width: 100%; 
+            /* Máximo ancho en PC para no ser gigante */
+            max-width: 1000px; 
+            /* Proporción fija 16:9. Esto asegura que la relación de aspecto nunca cambie */
             aspect-ratio: 16/9; 
             background-color: #ffffff; 
             border: 4px solid #cbd5e1; 
             position: relative; 
-            box-shadow: 0 0 50px rgba(0,0,0,0.6); 
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); 
             border-radius: 8px;
             overflow: hidden;
-            /* Clave para el escalado perfecto */
+            
+            /* CLAVE PARA EL ESCALADO: Unidades cqw (Container Query Width) */
             container-type: inline-size; 
         }
         .mode-editing #glassBoard { border: 4px dashed #ef4444; }
 
-        /* --- ELEMENTOS ESCALABLES (cqw) --- */
+        /* --- ELEMENTOS ESCALABLES (TODO EN %) --- */
 
-        /* 1. TEXTO AUTOMOTIVE (REDUCIDO A 10cqw PARA QUE QUEPAN LOS PUNTOS) */
+        /* 1. TEXTO AUTOMOTIVE (REDUCIDO A 8.5cqw - ESPACIO LATERAL GARANTIZADO) */
         .brand-text {
             font-family: 'Arial Black', sans-serif; font-weight: 900;
             color: #cc0000; 
@@ -92,17 +97,17 @@
             position: absolute; transform: translate(-50%, -50%); 
             text-align: center; white-space: nowrap; cursor: default; z-index: 5;
             
-            /* TAMAÑO CORREGIDO: Antes 13cqw (muy grande), ahora 10cqw */
-            font-size: 10cqw; 
-            letter-spacing: 0.3cqw; 
+            /* TAMAÑO FIJO RELATIVO: 8.5% del ancho del contenedor */
+            font-size: 8.5cqw; 
+            letter-spacing: 0.2cqw; 
             line-height: 1;
         }
         .mode-editing .brand-text { cursor: move; border: 1px dashed #ef4444; }
 
-        /* 2. MARCA DE AGUA (ALTO COMPLETO) */
+        /* 2. MARCA DE AGUA */
         .watermark-logo {
             position: absolute; transform: translate(-50%, -50%);
-            height: 100%; /* Ocupa todo el alto */
+            height: 100%; /* Todo el alto */
             width: auto; opacity: 0.15; 
             z-index: 1; pointer-events: none;
             object-fit: contain;
@@ -111,7 +116,7 @@
             border: 1px dashed #94a3b8; pointer-events: auto; cursor: move; opacity: 0.4;
         }
 
-        /* 3. PUNTOS Y ETIQUETAS */
+        /* 3. PUNTOS */
         .dot-wrapper {
             position: absolute; 
             width: 5cqw; height: 5cqw; 
@@ -119,7 +124,7 @@
             z-index: 20; touch-action: none;
         }
         .dot-point {
-            width: 2.5cqw; height: 2.5cqw; 
+            width: 2.2cqw; height: 2.2cqw; 
             background-color: #fbbf24; border-radius: 50%; 
             border: 0.3cqw solid #334155; 
             box-shadow: 0 0.4cqw 0.8cqw rgba(0,0,0,0.3); 
@@ -127,15 +132,13 @@
         .dot-label {
             position: absolute; color: #0f172a; font-weight: 800;
             pointer-events: none; white-space: nowrap;
-            font-size: 2.2cqw; 
+            font-size: 2cqw; /* Texto etiqueta proporcional */
             text-shadow: 0 0 2px white;
         }
-
-        /* Distancia etiqueta-punto (Ajustada) */
-        .pos-top { bottom: 120%; } 
-        .pos-bottom { top: 120%; } 
-        .pos-left { right: 120%; } 
-        .pos-right { left: 120%; }
+        
+        /* Distancias */
+        .pos-top { bottom: 130%; } .pos-bottom { top: 130%; } 
+        .pos-left { right: 130%; } .pos-right { left: 130%; }
 
         .dot-point.selected { 
             background-color: #22c55e; transform: scale(1.3); 
@@ -175,23 +178,25 @@
 
     <div class="controls">
         <div class="flex items-center gap-3">
-            <a href="menu_lunas.html" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-arrow-left"></i></a>
-            <div>
-                <h1 class="text-white font-bold text-sm tracking-wider">AUTOMOTIVE</h1>
-                <div id="statusBadge" class="status-badge">Cargando...</div>
-            </div>
+            <a href="menu_lunas.html" class="text-slate-400 hover:text-white text-lg font-bold flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> <span class="hidden sm:inline">VOLVER</span>
+            </a>
+            
+            <div id="statusBadge" class="status-badge">Cargando...</div>
         </div>
         
         <div class="flex items-center gap-4">
-            <button onclick="restoreFactory()" class="text-[10px] bg-red-900 text-red-100 px-2 py-1 rounded border border-red-500 hover:bg-red-800 transition">
-                RESET FÁBRICA
+            <button onclick="restoreFactory()" class="text-[10px] bg-red-900 text-red-100 px-2 py-1 rounded border border-red-500 hover:bg-red-800 transition uppercase font-bold">
+                Reset Fábrica
             </button>
-            <button onclick="toggleModal('helpModal')" class="text-slate-400 hover:text-white"><i class="far fa-question-circle text-xl"></i></button>
+
+            <button onclick="toggleModal('helpModal')" class="text-slate-400 hover:text-white text-xl"><i class="far fa-question-circle"></i></button>
+            
             <div class="flex items-center gap-2 border-l border-slate-700 pl-3">
-                <span id="editLabel" class="text-[10px] font-bold text-slate-500 hidden md:block">CAMBIAR A EDICIÓN</span>
+                <span id="editLabel" class="text-[10px] font-bold text-slate-500 uppercase hidden md:block">Cambiar a Edición</span>
                 <label class="toggle-wrapper">
                     <input type="checkbox" id="editSwitch" class="toggle-checkbox" onchange="toggleEdit()">
-                    <div class="toggle-label"><div class="toggle-circle"></div></div>
+                    <div class="toggle-track"><div class="toggle-circle"></div></div>
                 </label>
             </div>
         </div>
@@ -212,9 +217,9 @@
     <div id="resultModal" class="modal-overlay" onclick="closeResult()">
         <div class="result-box" onclick="event.stopPropagation()">
             <div id="resMonthName" class="res-month">--</div>
-            <p class="text-xs text-slate-500 mb-1 uppercase tracking-widest">Posibles años</p>
+            <p class="text-xs text-slate-500 mb-1 uppercase tracking-widest font-bold">Posibles años de fabricación</p>
             <div id="resYearsList" class="res-years-list">--</div>
-            <button onclick="closeResult()" class="mt-6 bg-slate-200 hover:bg-slate-300 text-slate-800 px-8 py-2 rounded-full font-bold transition text-sm">Cerrar</button>
+            <button onclick="closeResult()" class="mt-6 bg-slate-200 hover:bg-slate-300 text-slate-800 px-8 py-2 rounded-full font-bold transition text-sm w-full">CERRAR</button>
         </div>
     </div>
 
@@ -228,15 +233,16 @@
                 <div>
                     <h4 class="font-bold text-red-400 mb-1"><i class="fas fa-tools"></i> MODO EDICIÓN</h4>
                     <ul class="list-disc pl-5 mt-1 text-xs text-gray-400 space-y-1">
-                        <li>Arrastra puntos y logo a su lugar real.</li>
-                        <li>Clic en punto para mover la etiqueta (Arriba/Abajo).</li>
+                        <li>Arrastra puntos y logo.</li>
+                        <li>Clic en punto para rotar etiqueta.</li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-bold text-green-400 mb-1"><i class="fas fa-search"></i> MODO CONSULTA</h4>
+                    <p>Uso normal de la herramienta:</p>
                     <ul class="list-disc pl-5 mt-1 text-xs text-gray-400 space-y-1">
-                        <li>Selecciona Mes y Año.</li>
-                        <li>El sistema calcula la fecha.</li>
+                        <li>Selecciona el <strong>Punto del Mes</strong>.</li>
+                        <li>Selecciona el <strong>Punto del Año</strong>.</li>
                     </ul>
                 </div>
             </div>
@@ -258,39 +264,39 @@
         const NODE_NAME = "automotive"; 
         let db = null;
         
-        /* DATOS FÁBRICA - ALINEACIÓN RECTA (Y=35/65) */
-        /* Ajuste de X para que el texto (10cqw) encaje en el centro y deje sitio a Ene/Dic */
+        /* DATOS FÁBRICA - TEXTO REDUCIDO PARA QUE QUEPAN ENE/DIC */
+        /* Brand text size 8.5cqw -> Leaves ~15% margin on each side */
         const factoryData = {
             brandText: { text: "AUTOMOTIVE", x: 50, y: 50 },
             logoImg: { src: "logogad.png", x: 50, y: 50 },
             points: [
                 // Fila Superior (Años)
-                { id: 'y1', val: 1, label: '1', x: 22, y: 35, pos: 'pos-top' },
-                { id: 'y2', val: 2, label: '2', x: 28, y: 35, pos: 'pos-top' },
-                { id: 'y3', val: 3, label: '3', x: 34, y: 35, pos: 'pos-top' },
-                { id: 'y4', val: 4, label: '4', x: 40, y: 35, pos: 'pos-top' },
-                { id: 'y5', val: 5, label: '5', x: 46, y: 35, pos: 'pos-top' },
-                { id: 'y6', val: 6, label: '6', x: 52, y: 35, pos: 'pos-top' },
-                { id: 'y7', val: 7, label: '7', x: 58, y: 35, pos: 'pos-top' },
-                { id: 'y8', val: 8, label: '8', x: 64, y: 35, pos: 'pos-top' },
-                { id: 'y9', val: 9, label: '9', x: 70, y: 35, pos: 'pos-top' },
-                { id: 'y0', val: 0, label: '0', x: 76, y: 35, pos: 'pos-top' },
+                { id: 'y1', val: 1, label: '1', x: 23, y: 35, pos: 'pos-top' },
+                { id: 'y2', val: 2, label: '2', x: 29, y: 35, pos: 'pos-top' },
+                { id: 'y3', val: 3, label: '3', x: 35, y: 35, pos: 'pos-top' },
+                { id: 'y4', val: 4, label: '4', x: 41, y: 35, pos: 'pos-top' },
+                { id: 'y5', val: 5, label: '5', x: 47, y: 35, pos: 'pos-top' },
+                { id: 'y6', val: 6, label: '6', x: 53, y: 35, pos: 'pos-top' },
+                { id: 'y7', val: 7, label: '7', x: 59, y: 35, pos: 'pos-top' },
+                { id: 'y8', val: 8, label: '8', x: 65, y: 35, pos: 'pos-top' },
+                { id: 'y9', val: 9, label: '9', x: 71, y: 35, pos: 'pos-top' },
+                { id: 'y0', val: 0, label: '0', x: 77, y: 35, pos: 'pos-top' },
 
                 // Fila Inferior (Meses)
-                { id: 'm2', val: 2, label: 'Feb', x: 22, y: 65, pos: 'pos-bottom' },
-                { id: 'm3', val: 3, label: 'Mar', x: 28, y: 65, pos: 'pos-bottom' },
-                { id: 'm4', val: 4, label: 'Abr', x: 34, y: 65, pos: 'pos-bottom' },
-                { id: 'm5', val: 5, label: 'May', x: 40, y: 65, pos: 'pos-bottom' },
-                { id: 'm6', val: 6, label: 'Jun', x: 46, y: 65, pos: 'pos-bottom' },
-                { id: 'm7', val: 7, label: 'Jul', x: 52, y: 65, pos: 'pos-bottom' },
-                { id: 'm8', val: 8, label: 'Ago', x: 58, y: 65, pos: 'pos-bottom' },
-                { id: 'm9', val: 9, label: 'Sep', x: 64, y: 65, pos: 'pos-bottom' },
-                { id: 'm10', val: 10, label: 'Oct', x: 70, y: 65, pos: 'pos-bottom' },
-                { id: 'm11', val: 11, label: 'Nov', x: 76, y: 65, pos: 'pos-bottom' },
+                { id: 'm2', val: 2, label: 'Feb', x: 23, y: 65, pos: 'pos-bottom' },
+                { id: 'm3', val: 3, label: 'Mar', x: 29, y: 65, pos: 'pos-bottom' },
+                { id: 'm4', val: 4, label: 'Abr', x: 35, y: 65, pos: 'pos-bottom' },
+                { id: 'm5', val: 5, label: 'May', x: 41, y: 65, pos: 'pos-bottom' },
+                { id: 'm6', val: 6, label: 'Jun', x: 47, y: 65, pos: 'pos-bottom' },
+                { id: 'm7', val: 7, label: 'Jul', x: 53, y: 65, pos: 'pos-bottom' },
+                { id: 'm8', val: 8, label: 'Ago', x: 59, y: 65, pos: 'pos-bottom' },
+                { id: 'm9', val: 9, label: 'Sep', x: 65, y: 65, pos: 'pos-bottom' },
+                { id: 'm10', val: 10, label: 'Oct', x: 71, y: 65, pos: 'pos-bottom' },
+                { id: 'm11', val: 11, label: 'Nov', x: 77, y: 65, pos: 'pos-bottom' },
 
-                // Extremos (Con espacio ahora que el texto es más pequeño)
-                { id: 'm1', val: 1, label: 'Ene', x: 10, y: 50, pos: 'pos-left' },
-                { id: 'm12', val: 12, label: 'Dic', x: 88, y: 50, pos: 'pos-right' }
+                // Extremos - AHORA EN 7% y 93% (HAY ESPACIO)
+                { id: 'm1', val: 1, label: 'Ene', x: 7, y: 50, pos: 'pos-left' },
+                { id: 'm12', val: 12, label: 'Dic', x: 93, y: 50, pos: 'pos-right' }
             ]
         };
 
@@ -329,7 +335,7 @@
         }
 
         function restoreFactory() {
-            if(confirm("¿Restaurar alineación original?")) {
+            if(confirm("¿Restaurar alineación y tamaño correcto?")) {
                 appState = JSON.parse(JSON.stringify(factoryData));
                 save(); render();
             }
@@ -343,7 +349,6 @@
             const layer = document.getElementById('dynamicLayer');
             layer.innerHTML = '';
 
-            // 1. Logo
             const img = document.createElement('img');
             img.className = 'watermark-logo';
             img.src = appState.logoImg.src || "logogad.png";
@@ -354,7 +359,6 @@
             img.addEventListener('touchstart', e => startDrag(e, 'img'), {passive: false});
             layer.appendChild(img);
 
-            // 2. Texto
             const brand = document.createElement('div');
             brand.className = 'brand-text';
             brand.textContent = appState.brandText.text;
@@ -364,7 +368,6 @@
             brand.addEventListener('touchstart', e => startDrag(e, 'brand'), {passive: false});
             layer.appendChild(brand);
 
-            // 3. Puntos
             appState.points.forEach(p => {
                 const wrap = document.createElement('div');
                 wrap.className = 'dot-wrapper';
@@ -404,10 +407,10 @@
         }
 
         function showResult() {
-            const monthsFull = ["", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+            const monthsFull = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
             const yDigit = parseInt(selected.y);
             document.getElementById('resMonthName').textContent = monthsFull[selected.m];
-            document.getElementById('resYearsList').innerHTML = `${2000 + yDigit}, ${2010 + yDigit}, ${2020 + yDigit}`;
+            document.getElementById('resYearsList').textContent = `${2000 + yDigit}, ${2010 + yDigit}, ${2020 + yDigit}`;
             document.getElementById('resultModal').style.display = 'flex';
         }
 
@@ -417,7 +420,6 @@
             render();
         }
 
-        /* --- DRAG & SNAP LOGIC --- */
         function startDrag(e, type, id) {
             if(!isEditMode) return;
             e.stopPropagation();
