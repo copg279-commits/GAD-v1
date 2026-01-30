@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.A.D. - Selector de Marcas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; }
+        .brand-card {
+            background: #1e293b; border: 1px solid #334155; transition: all 0.3s;
+            cursor: pointer; position: relative; overflow: hidden;
+        }
+        .brand-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .brand-card::after {
+            content: '\f061'; font-family: 'Font Awesome 5 Free'; font-weight: 900;
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .brand-card:hover::after { opacity: 1; color: #3b82f6; }
+    </style>
+</head>
+<body class="p-6 max-w-4xl mx-auto">
+
+    <header class="text-center mb-10">
+        <h1 class="text-4xl font-bold tracking-widest text-blue-500">G.A.D.</h1>
+        <p class="text-gray-400 mt-2 uppercase text-sm tracking-widest">Glass Age Decoder - Base de Datos</p>
+    </header>
+
+    <div class="mb-8 relative">
+        <input type="text" id="searchInput" onkeyup="filterBrands()" placeholder="Buscar fabricante (ej: Laminex, Sekurit...)" 
+               class="w-full bg-slate-800 border border-slate-600 rounded-lg py-4 px-6 text-lg focus:outline-none focus:border-blue-500">
+        <i class="fas fa-search absolute right-6 top-5 text-gray-500"></i>
+    </div>
+
+    <div id="brandsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <a href="laminex.html" class="brand-card p-6 rounded-xl flex items-center gap-4 group" data-name="laminex lig">
+            <div class="w-12 h-12 bg-red-900/50 rounded-full flex items-center justify-center text-red-400 font-bold border border-red-500">L</div>
+            <div>
+                <h3 class="text-xl font-bold text-white group-hover:text-blue-400">LAMINEX</h3>
+                <p class="text-xs text-gray-400">Sistema Visual (Arco/Central)</p>
+            </div>
+        </a>
+
+        <a href="#" class="brand-card p-6 rounded-xl flex items-center gap-4 group opacity-50 cursor-not-allowed" data-name="saint gobain sekurit">
+            <div class="w-12 h-12 bg-yellow-900/50 rounded-full flex items-center justify-center text-yellow-400 font-bold border border-yellow-500">S</div>
+            <div>
+                <h3 class="text-xl font-bold text-white">SAINT-GOBAIN</h3>
+                <p class="text-xs text-gray-400">En desarrollo...</p>
+            </div>
+        </a>
+
+        </div>
+
+    <script>
+        function filterBrands() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const cards = document.querySelectorAll('.brand-card');
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                if (name.includes(filter)) {
+                    card.style.display = "flex";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
