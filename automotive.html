@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AUTOMOTIVE - G.A.D. Final</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <style>
+        /* --- CORE --- */
+        body { 
+            background-color: #1e293b; 
+            font-family: 'Segoe UI', sans-serif; 
+            overflow: hidden; 
+            height: 100vh; width: 100vw; margin: 0;
+            display: flex; flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        .controls {
+            background: #0f172a; padding: 0 1rem;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 60px; z-index: 50; flex-shrink: 0; border-bottom: 1px solid #334155;
+        }
+        .status-badge {
+            font-size: 10px; padding: 2px 6px; border-radius: 4px;
+            background: #1e293b; border: 1px solid #334155; color: #94a3b8; margin-left: 8px;
+        }
+        .st-ok { color: #4ade80; border-color: #4ade80; }
+        .st-warn { color: #fbbf24; border-color: #fbbf24; }
+
+        /* Switch */
+        .toggle-wrapper { display: flex; align-items: center; cursor: pointer; }
+        .toggle-checkbox { display: none; }
+        .toggle-label { 
+            width: 40px; height: 22px; background-color: #334155; 
+            border-radius: 99px; position: relative; transition: 0.3s; 
+        }
+        .toggle-circle { 
+            width: 16px; height: 16px; background-color: white; 
+            border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; 
+        }
+        .toggle-checkbox:checked + .toggle-label { background-color: #ef4444; } 
+        .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(18px); }
+
+        /* --- WORKSPACE --- */
+        #workspace {
+            flex-grow: 1; display: flex; justify-content: center; align-items: center;
+            background: #1e293b; position: relative; width: 100%; padding: 5px; box-sizing: border-box;
+        }
+
+        #glassBoard {
+            width: 100%; max-width: 900px; 
+            aspect-ratio: 16/9; 
+            background-color: #0055ff;
+            border: 3px solid white; position: relative; 
+            box-shadow: 0 0 30px rgba(0,0,0,0.5); border-radius: 8px;
+            container-type: inline-size; overflow: hidden;
+        }
+        .mode-editing #glassBoard { border: 3px dashed #ef4444; }
+
+        /* --- LOGO MARCA DE AGUA (SOLICITADO) --- */
+        .watermark-logo {
+            position: absolute; 
+            transform: translate(-50%, -50%);
+            width: clamp(200px, 50cqw, 500px); /* Grande */
+            opacity: 0.15; /* Muy transparente */
+            z-index: 1; /* Al fondo */
+            pointer-events: none; /* No bloquea clicks */
+            filter: grayscale(100%);
+        }
+        .mode-editing .watermark-logo {
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            pointer-events: auto; /* Se puede mover en edición */
+            cursor: move;
+            opacity: 0.4;
+        }
+
+        /* --- TEXTO AUTOMOTIVE --- */
+        .brand-text {
+            font-family: 'Arial Black', sans-serif; font-weight: 900;
+            color: #cc0000; -webkit-text-stroke: 1.5px white; 
+            position: absolute; transform: translate(-50%, -50%); 
+            text-align: center; white-space: nowrap; cursor: default; z-index: 5;
+            /* Tamaño ajustado para alinear puntos */
+            font-size: clamp(2.5rem, 11cqw, 5.5rem); 
+            letter-spacing: clamp(2px, 1.5cqw, 8px);
+        }
+        .mode-editing .brand-text { cursor: move; border: 1px dashed rgba(255,255,255,0.5); }
+
+        /* --- PUNTOS --- */
+        .dot-wrapper {
+            position: absolute; 
+            width: clamp(24px, 5cqw, 40px); height: clamp(24px, 5cqw, 40px);
+            transform: translate(-50%, -50%); display: flex; justify-content: center; align-items: center; 
+            z-index: 20; touch-action: none;
+        }
+        .dot-point {
+            width: clamp(14px, 3cqw, 20px); height: clamp(14px, 3cqw, 20px);
+            background-color: #fbbf24; border-radius: 50%; border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4); 
+        }
+        .dot-label {
+            position: absolute; color: white; font-weight: bold;
+            text-shadow: 1px 1px 2px black; pointer-events: none; white-space: nowrap;
+            font-size: clamp(12px, 3cqw, 18px);
+        }
+
+        /* Ajuste de etiquetas pegadas al punto */
+        .pos-top { bottom: 24px; } 
+        .pos-bottom { top: 24px; } 
+        .pos-left { right: 24px; } 
+        .pos-right { left: 24px; }
+
+        .dot-point.selected { background-color: #22c55e; transform: scale(1.3); border-color: white; box-shadow: 0 0 15px #22c55e; }
+
+        /* --- RESULTADOS --- */
+        #resultBar {
+            position: fixed; bottom: -120px; left: 0; right: 0;
+            background: rgba(15, 23, 42, 0.95); border-top: 2px solid #22c55e;
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; backdrop-filter: blur(5px);
+        }
+        #resultBar.show { bottom: 0; }
+        .res-content h2 { margin: 0; font-size: 1.5rem; color: white; line-height: 1; }
+        .res-content p { margin: 5px 0 0; color: #4ade80; font-family: monospace; font-size: 0.9rem; }
+        .close-btn { background: #334155; color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <div class="flex items-center gap-3">
+            <a href="menu_lunas.html" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-arrow-left"></i></a>
+            <div>
+                <h1 class="text-white font-bold text-sm tracking-wider">AUTOMOTIVE</h1>
+                <div id="statusBadge" class="status-badge">Local / Demo</div>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <button onclick="toggleHelp()" class="text-slate-400 hover:text-white"><i class="far fa-question-circle text-xl"></i></button>
+            
+            <div class="flex items-center gap-2 border-l border-slate-700 pl-3">
+                <span id="editLabel" class="text-[10px] font-bold text-slate-500 hidden md:block">EDITAR</span>
+                <label class="toggle-wrapper">
+                    <input type="checkbox" id="editSwitch" class="toggle-checkbox" onchange="toggleEdit()">
+                    <div class="toggle-label"><div class="toggle-circle"></div></div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="workspace">
+        <div id="glassBoard">
+            <div id="dynamicLayer"></div>
+        </div>
+    </div>
+
+    <div id="resultBar">
+        <div class="res-content">
+            <h2 id="resText">--</h2>
+            <p id="resYears">Selecciona mes y año</p>
+        </div>
+        <button class="close-btn" onclick="closeResult()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div id="helpModal" class="fixed inset-0 bg-black/80 z-[200] hidden items-center justify-center p-4 backdrop-blur-sm" onclick="toggleHelp()">
+        <div class="bg-slate-800 p-6 rounded-xl max-w-sm w-full border border-slate-600 shadow-2xl" onclick="event.stopPropagation()">
+            <h3 class="text-xl font-bold text-white mb-4">Guía Automotive</h3>
+            <ul class="space-y-3 text-slate-300 text-sm">
+                <li class="flex gap-2"><i class="fas fa-dot-circle text-yellow-400 mt-1"></i> <span><strong>AÑOS (1-0):</strong> Fila SUPERIOR, sobre las letras.</span></li>
+                <li class="flex gap-2"><i class="fas fa-dot-circle text-yellow-400 mt-1"></i> <span><strong>MESES (Feb-Nov):</strong> Fila INFERIOR, bajo las letras.</span></li>
+                <li class="flex gap-2"><i class="fas fa-arrows-alt-h text-blue-400 mt-1"></i> <span><strong>Ene/Dic:</strong> En los extremos laterales.</span></li>
+            </ul>
+            <button onclick="toggleHelp()" class="mt-6 w-full bg-blue-600 text-white py-2 rounded-lg font-bold">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+            authDomain: "gad-alicante-v4.firebaseapp.com",
+            databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "gad-alicante-v4",
+            storageBucket: "gad-alicante-v4.firebasestorage.app",
+            messagingSenderId: "119727545224",
+            appId: "1:119727545224:web:36880c50d196c456cdb83d"
+        };
+
+        const NODE_NAME = "automotive"; 
+        let db = null;
+        
+        /* CALIBRACIÓN REALISTA DE COORDENADAS:
+           Texto centrado en 50,50. 
+           Ancho aprox texto: 80% del contenedor.
+           Separación entre letras aprox 7.5%.
+        */
+        const factoryData = {
+            brandText: { text: "AUTOMOTIVE", x: 50, y: 50 },
+            logoImg: { src: "logogad.png", x: 50, y: 50 }, // CENTRADO COMO MARCA DE AGUA
+            points: [
+                // --- AÑOS (ENCIMA DE LETRAS) ---
+                { id: 'y1', val: 1, label: '1', x: 16, y: 35, pos: 'pos-top' }, // A
+                { id: 'y2', val: 2, label: '2', x: 23.5, y: 35, pos: 'pos-top' }, // U
+                { id: 'y3', val: 3, label: '3', x: 31, y: 35, pos: 'pos-top' }, // T
+                { id: 'y4', val: 4, label: '4', x: 38.5, y: 35, pos: 'pos-top' }, // O
+                { id: 'y5', val: 5, label: '5', x: 46, y: 35, pos: 'pos-top' }, // M
+                { id: 'y6', val: 6, label: '6', x: 53.5, y: 35, pos: 'pos-top' }, // O
+                { id: 'y7', val: 7, label: '7', x: 61, y: 35, pos: 'pos-top' }, // T
+                { id: 'y8', val: 8, label: '8', x: 68.5, y: 35, pos: 'pos-top' }, // I
+                { id: 'y9', val: 9, label: '9', x: 76, y: 35, pos: 'pos-top' }, // V
+                { id: 'y0', val: 0, label: '0', x: 83.5, y: 35, pos: 'pos-top' }, // E
+
+                // --- MESES (DEBAJO DE LETRAS) ---
+                { id: 'm2', val: 2, label: 'Feb', x: 16, y: 65, pos: 'pos-bottom' }, // A
+                { id: 'm3', val: 3, label: 'Mar', x: 23.5, y: 65, pos: 'pos-bottom' }, // U
+                { id: 'm4', val: 4, label: 'Abr', x: 31, y: 65, pos: 'pos-bottom' }, // T
+                { id: 'm5', val: 5, label: 'May', x: 38.5, y: 65, pos: 'pos-bottom' }, // O
+                { id: 'm6', val: 6, label: 'Jun', x: 46, y: 65, pos: 'pos-bottom' }, // M
+                { id: 'm7', val: 7, label: 'Jul', x: 53.5, y: 65, pos: 'pos-bottom' }, // O
+                { id: 'm8', val: 8, label: 'Ago', x: 61, y: 65, pos: 'pos-bottom' }, // T
+                { id: 'm9', val: 9, label: 'Sep', x: 68.5, y: 65, pos: 'pos-bottom' }, // I
+                { id: 'm10', val: 10, label: 'Oct', x: 76, y: 65, pos: 'pos-bottom' }, // V
+                { id: 'm11', val: 11, label: 'Nov', x: 83.5, y: 65, pos: 'pos-bottom' }, // E
+
+                // --- EXTREMOS ---
+                { id: 'm1', val: 1, label: 'Ene', x: 6, y: 50, pos: 'pos-left' }, // Izquierda
+                { id: 'm12', val: 12, label: 'Dic', x: 94, y: 50, pos: 'pos-right' } // Derecha
+            ]
+        };
+
+        let appState = JSON.parse(JSON.stringify(factoryData));
+        let isEditMode = false;
+        let selected = { m: null, y: null };
+        let dragItem = null;
+
+        window.onload = function() {
+            render(); 
+            try {
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                firebase.auth().onAuthStateChanged(u => {
+                    const badge = document.getElementById('statusBadge');
+                    if(u) {
+                        badge.innerText = "ONLINE"; badge.className = "status-badge st-ok";
+                        initSync();
+                    } else {
+                        badge.innerText = "LOCAL (Público)"; badge.className = "status-badge st-warn";
+                        initSync();
+                    }
+                });
+            } catch(e) { console.log("Offline mode"); }
+        };
+
+        function initSync() {
+            if(!db) return;
+            db.ref(`LUNAS/${NODE_NAME}`).on('value', snap => {
+                if(snap.val()) {
+                    appState = snap.val();
+                    if(!appState.points) appState.points = factoryData.points;
+                    if(!appState.brandText) appState.brandText = factoryData.brandText;
+                    if(!appState.logoImg) appState.logoImg = factoryData.logoImg;
+                    render();
+                }
+            });
+        }
+
+        function save() {
+            if(db) db.ref(`LUNAS/${NODE_NAME}`).set(appState).catch(e => console.warn("No write perm"));
+        }
+
+        function render() {
+            const layer = document.getElementById('dynamicLayer');
+            layer.innerHTML = '';
+
+            // 1. Marca de Agua (LOGO) - AL FONDO
+            const img = document.createElement('img');
+            img.className = 'watermark-logo';
+            img.src = appState.logoImg.src || "logogad.png";
+            img.onerror = function() { this.src = "https://via.placeholder.com/150?text=LOGO"; }; 
+            img.style.left = appState.logoImg.x + '%';
+            img.style.top = appState.logoImg.y + '%';
+            img.addEventListener('mousedown', e => startDrag(e, 'img'));
+            img.addEventListener('touchstart', e => startDrag(e, 'img'), {passive: false});
+            layer.appendChild(img);
+
+            // 2. Texto AUTOMOTIVE
+            const brand = document.createElement('div');
+            brand.className = 'brand-text';
+            brand.textContent = appState.brandText.text;
+            brand.style.left = appState.brandText.x + '%';
+            brand.style.top = appState.brandText.y + '%';
+            brand.addEventListener('mousedown', e => startDrag(e, 'brand'));
+            brand.addEventListener('touchstart', e => startDrag(e, 'brand'), {passive: false});
+            layer.appendChild(brand);
+
+            // 3. Puntos
+            appState.points.forEach(p => {
+                const wrap = document.createElement('div');
+                wrap.className = 'dot-wrapper';
+                wrap.style.left = p.x + '%';
+                wrap.style.top = p.y + '%';
+
+                const dot = document.createElement('div');
+                dot.className = 'dot-point';
+                if( (p.id.startsWith('m') && selected.m === p.val) ||
+                    (p.id.startsWith('y') && selected.y === p.val) ) {
+                    dot.classList.add('selected');
+                }
+
+                const lbl = document.createElement('span');
+                lbl.className = `dot-label ${p.pos || 'pos-top'}`;
+                lbl.textContent = p.label;
+
+                wrap.appendChild(dot);
+                wrap.appendChild(lbl);
+                wrap.addEventListener('mousedown', e => handleInput(e, p));
+                wrap.addEventListener('touchstart', e => handleInput(e, p), {passive: false});
+                layer.appendChild(wrap);
+            });
+        }
+
+        function handleInput(e, p) {
+            if(e.type === 'touchstart') e.preventDefault();
+            if(isEditMode) startDrag(e, 'point', p.id);
+            else selectPoint(p);
+        }
+
+        function selectPoint(p) {
+            const isMonth = p.id.startsWith('m');
+            if(isMonth) selected.m = p.val; else selected.y = p.val;
+            render();
+            updateResultBar();
+        }
+
+        function updateResultBar() {
+            const bar = document.getElementById('resultBar');
+            const txt = document.getElementById('resText');
+            const years = document.getElementById('resYears');
+            const months = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
+            if(selected.m !== null && selected.y !== null) {
+                const y = parseInt(selected.y);
+                txt.innerHTML = `${months[selected.m]} <span class="text-yellow-400">.${y}</span>`;
+                years.textContent = `Posibles: ${2000+y}, ${2010+y}, ${2020+y}`;
+                bar.classList.add('show');
+            } else if(selected.m !== null || selected.y !== null) {
+                bar.classList.add('show');
+                txt.textContent = selected.m ? months[selected.m] : `Año .${selected.y}`;
+                years.textContent = "Selección incompleta...";
+            }
+        }
+
+        function closeResult() {
+            document.getElementById('resultBar').classList.remove('show');
+            selected = { m: null, y: null };
+            render();
+        }
+
+        function startDrag(e, type, id) {
+            if(!isEditMode) return;
+            e.stopPropagation();
+            if(e.type === 'mousedown') e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            dragItem = { type, id, startX: clientX, startY: clientY, moved: false };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('touchmove', onMove, {passive: false});
+            document.addEventListener('mouseup', onEnd);
+            document.addEventListener('touchend', onEnd);
+        }
+
+        function onMove(e) {
+            if(!dragItem) return;
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            if(Math.abs(clientX - dragItem.startX) > 5 || Math.abs(clientY - dragItem.startY) > 5) dragItem.moved = true;
+
+            if(dragItem.moved) {
+                const board = document.getElementById('glassBoard');
+                const rect = board.getBoundingClientRect();
+                let x = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+                let y = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+
+                if(dragItem.type === 'brand') { appState.brandText.x = x; appState.brandText.y = y; }
+                else if(dragItem.type === 'img') { appState.logoImg.x = x; appState.logoImg.y = y; }
+                else if(dragItem.type === 'point') {
+                    const p = appState.points.find(pt => pt.id === dragItem.id);
+                    if(p) { p.x = x; p.y = y; }
+                }
+                render();
+            }
+        }
+
+        function onEnd() {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('mouseup', onEnd);
+            document.removeEventListener('touchend', onEnd);
+            if(!dragItem.moved && dragItem.type === 'point') rotateLabel(dragItem.id);
+            else if (dragItem.moved) save();
+            dragItem = null;
+        }
+
+        function rotateLabel(id) {
+            const p = appState.points.find(pt => pt.id === id);
+            const posOrder = ['pos-top', 'pos-right', 'pos-bottom', 'pos-left'];
+            p.pos = posOrder[(posOrder.indexOf(p.pos || 'pos-top') + 1) % 4];
+            render(); save();
+        }
+
+        function toggleEdit() {
+            isEditMode = document.getElementById('editSwitch').checked;
+            const lbl = document.getElementById('editLabel');
+            if(isEditMode) {
+                document.body.classList.add('mode-editing');
+                lbl.innerText = "SALIR EDICIÓN"; lbl.classList.replace('text-slate-500', 'text-red-500');
+            } else {
+                document.body.classList.remove('mode-editing');
+                lbl.innerText = "EDITAR"; lbl.classList.replace('text-red-500', 'text-slate-500');
+                save();
+            }
+        }
+        function toggleHelp() {
+            const m = document.getElementById('helpModal');
+            m.classList.toggle('hidden'); m.classList.toggle('flex');
+        }
+    </script>
+</body>
+</html>
