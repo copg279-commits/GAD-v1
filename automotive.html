@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>AUTOMOTIVE - DUAL ENGINE REAL</title>
+    <title>AUTOMOTIVE - DUAL ENGINE FINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -21,11 +21,11 @@
             display: flex; flex-direction: column;
         }
 
-        /* BARRA SUPERIOR (Común) */
+        /* BARRA SUPERIOR */
         .controls {
             background: #0f172a; padding: 0 15px;
             display: flex; justify-content: space-between; align-items: center;
-            height: 60px; z-index: 100; flex-shrink: 0; border-bottom: 1px solid #334155;
+            height: 60px; z-index: 1000; flex-shrink: 0; border-bottom: 1px solid #334155;
         }
         
         #statusBadge {
@@ -50,7 +50,7 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #ef4444; } 
         .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(20px); }
 
-        /* MODALES (Comunes) */
+        /* MODALES */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
             z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px);
@@ -68,31 +68,31 @@
         .res-years { font-family: monospace; font-size: 1.4rem; color: #15803d; font-weight: bold; }
 
         /* ==========================================================================
-           MOTOR 1: ESCRITORIO (SAGRADO - NO TOCAR)
-           Se activa cuando la pantalla es mayor de 900px
+           MOTOR 1: ESCRITORIO (SAGRADO - COPIA EXACTA DE AUTOMOTIVE.HTML)
+           Se activa > 900px
            ========================================================================== */
         @media (min-width: 901px) {
-            #mobile-engine { display: none !important; } /* Ocultar motor móvil */
+            #mobile-engine { display: none !important; }
             
-            #workspace {
-                flex-grow: 1; display: flex; justify-content: center; align-items: center;
-                background: #1e293b; position: relative; padding: 20px;
+            #desktop-engine {
+                flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                background: #1e293b; padding: 20px; overflow: auto;
             }
 
-            /* Contenedor Fijo 900x500 */
-            #boardContainer { width: 900px; flex-shrink: 0; }
-
+            /* Leyenda pegada al tablero */
             .legend-top {
-                width: 100%; background: #f1f5f9; border: 4px solid #cbd5e1; border-bottom: none;
+                width: 900px; background: #f1f5f9; border: 4px solid #cbd5e1; border-bottom: none;
                 text-align: center; padding: 10px 0; border-radius: 8px 8px 0 0;
                 color: #475569; font-weight: 800; font-size: 14px; letter-spacing: 1px; text-transform: uppercase;
+                flex-shrink: 0;
             }
 
+            /* Tablero Fijo 900x500 */
             #glassBoard {
-                width: 100%; height: 500px; background-color: #ffffff;
+                width: 900px; height: 500px; background-color: #ffffff;
                 border: 4px solid #cbd5e1; position: relative; 
                 box-shadow: 0 0 50px rgba(0,0,0,0.5); border-radius: 0 0 8px 8px;
-                overflow: hidden; 
+                overflow: hidden; flex-shrink: 0;
             }
             .mode-editing #glassBoard { border: 4px dashed #ef4444; }
 
@@ -108,6 +108,7 @@
             .watermark-logo {
                 position: absolute; transform: translate(-50%, -50%);
                 height: 90%; width: auto; opacity: 0.15; z-index: 1; pointer-events: none;
+                object-fit: contain;
             }
             .mode-editing .watermark-logo { border: 1px dashed #94a3b8; pointer-events: auto; cursor: move; opacity: 0.4; }
 
@@ -132,72 +133,90 @@
 
             .dot-point.selected { background-color: #22c55e; transform: scale(1.4); border-color: #14532d; box-shadow: 0 0 10px #22c55e; }
             
+            /* Guías solo en escritorio */
             .guide-line { position: absolute; background-color: #06b6d4; z-index: 50; display: none; pointer-events: none; box-shadow: 0 0 2px cyan; }
             .guide-h { height: 1px; width: 100%; left: 0; } .guide-v { width: 1px; height: 100%; top: 0; }
         }
 
         /* ==========================================================================
-           MOTOR 2: MÓVIL (NUEVO Y ADAPTABLE)
-           Se activa cuando la pantalla es menor o igual a 900px
+           MOTOR 2: MÓVIL (NUEVO DISEÑO AJUSTADO)
+           Se activa <= 900px. Diseño 100% fluido y ajustado visualmente.
            ========================================================================== */
         @media (max-width: 900px) {
-            #workspace { display: none !important; } /* Ocultar motor escritorio */
+            #desktop-engine { display: none !important; }
             
-            /* Contenedor Móvil */
             #mobile-engine {
                 display: flex; flex-direction: column; flex-grow: 1;
-                background-color: #ffffff; /* Fondo blanco directo */
+                background-color: #ffffff;
                 position: relative;
+                width: 100vw; min-height: calc(100vh - 60px);
                 overflow: hidden;
             }
 
-            /* Leyenda Móvil (Más pequeña) */
             .mobile-legend {
-                background: #f1f5f9; padding: 8px; text-align: center;
-                color: #475569; font-weight: 800; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase;
-                border-bottom: 1px solid #cbd5e1; z-index: 10;
+                background: #f1f5f9; padding: 10px; text-align: center;
+                color: #475569; font-weight: 800; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
+                border-bottom: 1px solid #cbd5e1; z-index: 10; flex-shrink: 0;
             }
 
-            /* Área de tablero móvil (Ocupa todo el resto) */
             #mobileBoard {
                 flex-grow: 1; position: relative; width: 100%; height: 100%;
-                overflow: hidden; /* Sin scroll, es un canvas interactivo */
+                display: flex; align-items: center; justify-content: center;
+                background: #fff;
             }
 
-            /* Elementos Móviles (Escalados con VW/VH o fijos pequeños) */
+            /* Contenedor relativo para agrupar visualmente */
+            .m-center-group {
+                position: relative;
+                width: 100%; height: 100%;
+            }
+
+            /* ELEMENTOS MÓVILES (Estilos propios, no afectan al PC) */
+            
+            /* Texto Grande */
             .m-brand-text {
                 font-family: 'Arial Black', sans-serif; font-weight: 900; color: #cc0000;
                 position: absolute; transform: translate(-50%, -50%); 
                 text-align: center; white-space: nowrap; cursor: default; z-index: 5;
-                font-size: 12vw; /* Grande en móvil */
-                width: 100%;
+                font-size: 13vw; /* Grande */
+                width: 100%; line-height: 1;
             }
             
             .m-watermark {
                 position: absolute; transform: translate(-50%, -50%);
-                width: 80%; opacity: 0.15; z-index: 1; pointer-events: none;
+                width: 95%; height: auto; opacity: 0.15; z-index: 1; pointer-events: none;
             }
 
+            /* Puntos más pequeños y manejables */
             .m-dot-wrapper {
-                position: absolute; width: 40px; height: 40px; 
+                position: absolute; width: 10vw; height: 10vw; 
                 transform: translate(-50%, -50%); display: flex;
                 justify-content: center; align-items: center; z-index: 20;
             }
             .m-dot-point {
-                width: 18px; height: 18px; background-color: #fbbf24;
+                width: 4vw; height: 4vw; background-color: #fbbf24;
                 border-radius: 50%; border: 1px solid #334155;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                box-shadow: 0 1px 2px rgba(0,0,0,0.3);
             }
             .m-dot-label {
                 position: absolute; color: #0f172a; font-weight: 800;
-                font-size: 11px; pointer-events: none; white-space: nowrap;
+                font-size: 3vw; pointer-events: none; white-space: nowrap;
                 text-shadow: 0 0 2px white;
             }
             
-            .m-pos-top { bottom: 25px; } .m-pos-bottom { top: 25px; }
-            .m-pos-left { right: 25px; } .m-pos-right { left: 25px; }
+            /* Etiquetas pegadas al punto */
+            .m-pos-top { bottom: 120%; } .m-pos-bottom { top: 120%; }
+            .m-pos-left { right: 120%; } .m-pos-right { left: 120%; }
             
             .m-dot-point.selected { background-color: #22c55e; transform: scale(1.3); border-color: #14532d; }
+
+            /* Ajuste Horizontal (Landscape) */
+            @media (orientation: landscape) {
+                .m-brand-text { font-size: 10vh; }
+                .m-dot-wrapper { width: 8vh; height: 8vh; }
+                .m-dot-point { width: 3.5vh; height: 3.5vh; }
+                .m-dot-label { font-size: 3vh; }
+            }
         }
     </style>
 </head>
@@ -205,47 +224,52 @@
 
     <div class="controls">
         <div class="flex items-center gap-4">
-            <a href="menu_lunas.html" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 font-bold text-xs md:text-sm">
+            <a href="menu_lunas.html" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 font-bold text-sm">
                 <i class="fas fa-arrow-left"></i> <span class="hidden md:inline">VOLVER</span>
             </a>
-            <button onclick="toggleHelp()" class="text-slate-400 hover:text-white text-xl"><i class="far fa-circle-question"></i></button>
+            
+            <button onclick="toggleHelp()" class="text-slate-400 hover:text-white transition text-xl">
+                <i class="far fa-circle-question"></i>
+            </button>
+
             <div id="statusBadge" class="hidden md:block">Conectando...</div>
         </div>
         
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-6">
             <div id="userInfo" class="hidden md:block text-xs font-mono text-blue-400"></div>
+            
             <label class="toggle-wrapper">
-                <span class="text-[10px] font-bold text-gray-300 md:text-xs" id="editLabel">EDICIÓN</span>
+                <span class="text-xs font-bold text-gray-300 mr-3 transition-colors" id="editLabel">CAMBIAR A EDICIÓN</span>
                 <input type="checkbox" id="editSwitch" class="toggle-checkbox" onchange="toggleEdit()">
                 <div class="toggle-label"><div class="toggle-circle"></div></div>
             </label>
         </div>
     </div>
 
-    <div id="workspace">
-        <div id="boardContainer">
-            <div class="legend-top">SEÑALA LOS PUNTOS TAL Y COMO FIGURAN EN LA LUNA DEL VEHÍCULO</div>
-            <div id="glassBoard">
-                <div id="guideH" class="guide-line guide-h"></div>
-                <div id="guideV" class="guide-line guide-v"></div>
-                <div id="dynamicLayer"></div>
-            </div>
+    <div id="desktop-engine">
+        <div class="legend-top">SEÑALA LOS PUNTOS TAL Y COMO FIGURAN EN LA LUNA DEL VEHÍCULO</div>
+        <div id="glassBoard">
+            <div id="guideH" class="guide-line guide-h"></div>
+            <div id="guideV" class="guide-line guide-v"></div>
+            <div id="desktopLayer"></div>
         </div>
     </div>
 
     <div id="mobile-engine">
         <div class="mobile-legend">Puntos según luna del vehículo</div>
         <div id="mobileBoard">
-            <div id="mobileDynamicLayer"></div>
+            <div class="m-center-group">
+                <div id="mobileLayer" style="width:100%; height:100%; position:relative;"></div>
+            </div>
         </div>
     </div>
 
     <div id="resultModal" class="modal-overlay" onclick="closeResult()">
         <div class="result-box" onclick="event.stopPropagation()">
             <div id="resMonthName" class="res-month">--</div>
-            <p class="text-xs text-slate-500 mb-1 uppercase tracking-widest font-bold">Años probables</p>
+            <p class="text-xs text-slate-500 mb-1 uppercase tracking-widest font-bold">Años de fabricación</p>
             <div id="resYearsList" class="res-years">--</div>
-            <button onclick="closeResult()" class="mt-6 bg-slate-200 hover:bg-slate-300 text-slate-800 px-8 py-2 rounded-full font-bold transition text-sm w-full">CERRAR</button>
+            <button onclick="closeResult()" class="mt-6 bg-slate-200 hover:bg-slate-300 text-slate-800 px-8 py-2 rounded-full font-bold transition text-sm">CERRAR</button>
         </div>
     </div>
 
@@ -263,8 +287,8 @@
                 <div class="bg-slate-800 p-3 rounded">
                     <h4 class="font-bold text-red-400 mb-1">Modo Edición</h4>
                     <ul class="list-disc pl-5 mt-1 text-xs text-gray-400 space-y-1">
-                        <li><strong>Mover:</strong> Arrastra puntos o logo.</li>
-                        <li><strong>Rotar:</strong> Clic en un punto para cambiar la etiqueta de sitio.</li>
+                        <li><strong>Mover:</strong> Arrástralos a su posición real.</li>
+                        <li><strong>Rotar:</strong> Clic en un punto para cambiar la etiqueta.</li>
                     </ul>
                 </div>
             </div>
@@ -273,7 +297,6 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
             authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -290,7 +313,7 @@
         let selected = { m: null, y: null };
         let dragItem = null;
 
-        // DATOS BASE (Desktop Reference)
+        // DATOS BASE (Alineación recta perfecta para PC)
         const factoryData = {
             brandText: { text: "AUTOMOTIVE", x: 50, y: 50 },
             logoImg: { src: "logogad.png", x: 50, y: 50 },
@@ -362,18 +385,19 @@
 
         // === RENDERIZADO DUAL ===
         function render() {
-            // DETECTAR MÓVIL VS ESCRITORIO
+            // DETECTAR MOTOR
             const isMobile = window.innerWidth <= 900;
-            const containerId = isMobile ? 'mobileDynamicLayer' : 'dynamicLayer';
+            const containerId = isMobile ? 'mobileLayer' : 'desktopLayer';
             const container = document.getElementById(containerId);
             
-            if(!container) return; // Seguridad
+            if(!container) return;
             container.innerHTML = '';
 
             // Logo
             const img = document.createElement('img');
             img.className = isMobile ? 'm-watermark' : 'watermark-logo';
             img.src = appState.logoImg.src || "logogad.png";
+            // Posicionamiento
             img.style.left = appState.logoImg.x + '%';
             img.style.top = appState.logoImg.y + '%';
             if(isEditMode) initDrag(img, 'img', appState.logoImg);
@@ -392,6 +416,7 @@
             appState.points.forEach(p => {
                 const wrap = document.createElement('div');
                 wrap.className = isMobile ? 'm-dot-wrapper' : 'dot-wrapper';
+                // En móvil aplicamos un offset visual CSS si lo deseas, pero aquí uso las coordenadas base
                 wrap.style.left = p.x + '%';
                 wrap.style.top = p.y + '%';
 
@@ -419,7 +444,6 @@
             });
         }
 
-        // EVENT LISTENER PARA CAMBIO DE TAMAÑO (Para re-renderizar si pasas de móvil a PC)
         window.addEventListener('resize', render);
 
         function selectPoint(p) {
@@ -446,7 +470,8 @@
         // --- DRAG SYSTEM ---
         function initDrag(el, type, dataObj) {
             let startX, startY;
-            const board = window.innerWidth <= 900 ? document.getElementById('mobileBoard') : document.getElementById('glassBoard');
+            const isMobile = window.innerWidth <= 900;
+            const board = isMobile ? document.getElementById('mobileBoard') : document.getElementById('glassBoard');
 
             const onStart = (e) => {
                 if(e.type === 'mousedown') e.preventDefault();
@@ -467,15 +492,14 @@
                 const dx = cx - startX;
                 const dy = cy - startY;
 
-                // Convertir a % del contenedor actual (sea móvil o PC)
                 const moveX_pct = (dx / rect.width) * 100;
                 const moveY_pct = (dy / rect.height) * 100;
 
                 dataObj.x += moveX_pct;
                 dataObj.y += moveY_pct;
 
-                // Snap (Solo PC visualmente, lógica para ambos)
-                if (type === 'point' && window.innerWidth > 900) {
+                // Snap (Solo escritorio visualmente)
+                if (type === 'point' && !isMobile) {
                     const guideH = document.getElementById('guideH');
                     const guideV = document.getElementById('guideV');
                     let snapped = false;
@@ -503,12 +527,11 @@
                 document.removeEventListener('touchmove', onMove);
                 document.removeEventListener('mouseup', onEnd);
                 document.removeEventListener('touchend', onEnd);
-                if(window.innerWidth > 900) {
+                if(!isMobile) {
                     document.getElementById('guideH').style.display = 'none';
                     document.getElementById('guideV').style.display = 'none';
                 }
                 
-                // Click simple rota etiqueta
                 const endX = event.type.includes('mouse') ? event.clientX : event.changedTouches[0].clientX;
                 if(Math.abs(startX - endX) < 5 && type === 'point') {
                     const order = ['pos-top', 'pos-right', 'pos-bottom', 'pos-left'];
@@ -534,7 +557,7 @@
                 lbl.innerText = "CAMBIAR A EDICIÓN"; lbl.style.color = "#94a3b8";
                 save();
             }
-            render(); // Re-render para activar/desactivar handlers
+            render(); 
         }
 
         function toggleHelp() {
