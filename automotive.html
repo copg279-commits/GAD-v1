@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>AUTOMOTIVE - DUAL SYSTEM</title>
+    <title>AUTOMOTIVE - FINAL CORRECTO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -12,113 +12,104 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
-        /* --- ESTILOS BASE --- */
+        /* --- ESTILOS BASE (Idénticos a tu versión estable) --- */
         body { 
             background-color: #1e293b; 
             font-family: 'Segoe UI', system-ui, sans-serif; 
             margin: 0; padding: 0;
             width: 100%; min-height: 100vh;
             display: flex; flex-direction: column;
+            overflow-x: auto; /* Permitir scroll lateral si es necesario en PC */
         }
 
         /* --- BARRA SUPERIOR --- */
         .controls {
-            background: #0f172a; padding: 0 15px;
+            background: #0f172a; padding: 0 20px;
             display: flex; justify-content: space-between; align-items: center;
             height: 60px; z-index: 100; flex-shrink: 0; border-bottom: 1px solid #334155;
+            min-width: 940px; /* Evita que la barra se rompa en pantallas muy pequeñas */
         }
-        .status-badge {
-            font-size: 10px; padding: 2px 8px; border-radius: 4px;
-            background: #1e293b; border: 1px solid #334155; color: #94a3b8; margin-left: 8px;
+        
+        #statusBadge {
+            font-size: 0.65rem; font-weight: bold; text-transform: uppercase;
+            padding: 3px 8px; border-radius: 4px; color: #64748b; background: #1e293b;
+            border: 1px solid #334155; transition: all 0.3s;
         }
-        .st-ok { color: #4ade80; border-color: #4ade80; }
+        .st-ok { color: #4ade80 !important; border-color: #4ade80 !important; }
 
-        /* SWITCH EDICIÓN (ESTILO ANTIGUO) */
-        .switch-wrap { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .switch-input { display: none; }
-        .switch-track { 
+        /* SWITCH EDICIÓN (ESTILO ORIGINAL) */
+        .toggle-wrapper { display: flex; align-items: center; cursor: pointer; gap: 8px; }
+        .toggle-checkbox { display: none; }
+        .toggle-label { 
             width: 44px; height: 24px; background-color: #334155; 
             border-radius: 99px; position: relative; transition: 0.3s; 
-            border: 1px solid #475569;
         }
-        .switch-circle { 
+        .toggle-circle { 
             width: 18px; height: 18px; background-color: white; 
-            border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; 
+            border-radius: 50%; position: absolute; top: 3px; left: 3px; 
+            transition: 0.3s; 
         }
-        .switch-input:checked + .switch-track { background-color: #ef4444; border-color: #ef4444; } 
-        .switch-input:checked + .switch-track .switch-circle { transform: translateX(20px); }
-        .edit-label { font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #ef4444; } 
+        .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(20px); }
 
-        /* BOTÓN FULLSCREEN (SOLO MÓVIL) */
-        .btn-mobile-only { display: none; }
-        @media (max-width: 768px) {
-            .btn-mobile-only { display: flex; align-items: center; gap: 5px; background: #334155; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
-        }
-
-        /* --- CONTENEDOR PRINCIPAL --- */
+        /* --- ÁREA DE TRABAJO --- */
         #workspace {
             flex-grow: 1; 
-            position: relative;
-            width: 100%; 
             display: flex; 
-            flex-direction: column;
-            align-items: center;
-            justify-content: center; /* Centrado en PC */
-            background-color: #1e293b;
-            overflow: auto;
+            justify-content: center; 
+            align-items: center; /* Centrado vertical y horizontal */
+            background: #1e293b; 
+            position: relative; 
             padding: 20px;
+            transform-origin: top center; /* Punto de pivote para el escalado móvil */
         }
 
-        /* LEYENDA (SOLO PC) */
-        .legend-box {
-            background: #f1f5f9; width: 1000px; text-align: center;
-            padding: 10px 0; border-radius: 8px 8px 0 0;
-            border: 4px solid #cbd5e1; border-bottom: none;
-            display: block; /* Visible por defecto (PC) */
+        /* --- TABLERO (DIMENSIONES FIJAS SAGRADAS) --- */
+        /* Este contenedor agrupa la leyenda y el tablero para escalar juntos */
+        #boardContainer {
+            width: 900px;
+            flex-shrink: 0;
         }
-        .legend-text {
+
+        /* LEYENDA SUPERIOR */
+        .legend-top {
+            width: 100%;
+            background: #f1f5f9; border: 4px solid #cbd5e1; border-bottom: none;
+            text-align: center; padding: 10px 0; border-radius: 8px 8px 0 0;
             color: #475569; font-weight: 800; font-size: 14px; letter-spacing: 1px; text-transform: uppercase;
         }
 
-        /* --- TABLERO (BASE FIJA 1000x562) --- */
+        /* TABLERO DE VIDRIO */
         #glassBoard {
-            width: 1000px; 
-            height: 562px; /* 16:9 Aspect Ratio */
-            background-color: #ffffff; 
+            width: 100%; 
+            height: 500px; 
+            background-color: #ffffff; /* Fondo Blanco */
             border: 4px solid #cbd5e1; 
             position: relative; 
             box-shadow: 0 0 50px rgba(0,0,0,0.5); 
-            border-radius: 0 0 8px 8px; /* Redondeo abajo para encajar con leyenda */
-            overflow: hidden;
-            
-            /* TRUCO PARA MÓVIL Y PC: Transform Scale */
-            transform-origin: top center; 
-            transition: transform 0.2s ease;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden; 
         }
-        
         .mode-editing #glassBoard { border: 4px dashed #ef4444; }
 
-        /* --- ELEMENTOS INTERNOS (COORDENADAS FIJAS RELATIVAS AL TABLERO DE 1000PX) --- */
+        /* --- ELEMENTOS INTERNOS (POSICIONAMIENTO %) --- */
 
-        /* TEXTO AUTOMOTIVE (ROJO PURO, SIN BORDE BLANCO) */
+        /* TEXTO AUTOMOTIVE (ROJO PURO, SIN BORDE) */
         .brand-text {
             font-family: 'Arial Black', sans-serif; font-weight: 900;
             color: #cc0000; 
-            /* Borde blanco eliminado a petición */
-            /* -webkit-text-stroke: 2px white; REMOVED */ 
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2); /* Sombra suave para separar del fondo */
+            /* SIN STROKE BLANCO */
             position: absolute; transform: translate(-50%, -50%); 
             text-align: center; white-space: nowrap; cursor: default; z-index: 5;
-            font-size: 85px; /* TAMAÑO FIJO */
+            font-size: 5rem; /* Tamaño original */
             letter-spacing: 2px;
-            line-height: 1;
         }
         .mode-editing .brand-text { cursor: move; border: 1px dashed #ef4444; }
 
-        /* MARCA DE AGUA (ALTO COMPLETO) */
+        /* MARCA DE AGUA (GRANDE Y CENTRADA) */
         .watermark-logo {
             position: absolute; transform: translate(-50%, -50%);
-            height: 100%; width: auto; opacity: 0.15; 
+            height: 90%; width: auto; opacity: 0.15; 
             z-index: 1; pointer-events: none;
             object-fit: contain;
         }
@@ -128,121 +119,114 @@
 
         /* PUNTOS */
         .dot-wrapper {
-            position: absolute; 
-            width: 50px; height: 50px; 
-            transform: translate(-50%, -50%); display: flex; justify-content: center; align-items: center; 
-            z-index: 20; touch-action: none;
+            position: absolute; width: 44px; height: 44px; 
+            transform: translate(-50%, -50%); display: flex;
+            justify-content: center; align-items: center; cursor: pointer;
+            z-index: 20;
         }
         .dot-point {
-            width: 22px; height: 22px; 
-            background-color: #fbbf24; border-radius: 50%; 
-            border: 2px solid #334155; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
+            width: 24px; height: 24px; background-color: #fbbf24;
+            border-radius: 50%; border: 1px solid rgba(0,0,0,0.5);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
         }
         .dot-label {
             position: absolute; color: #0f172a; font-weight: 800;
-            pointer-events: none; white-space: nowrap;
-            font-size: 20px; 
-            text-shadow: 0 0 3px white; /* Borde blanco para legibilidad */
+            font-size: 14px; pointer-events: none; white-space: nowrap;
+            text-shadow: 0 0 2px white;
         }
         
-        /* DISTANCIAS ETIQUETAS */
-        .pos-top { bottom: 35px; } 
-        .pos-bottom { top: 35px; } 
-        /* SEPARACIÓN LATERAL AUMENTADA (A PETICIÓN) */
-        .pos-left { right: 45px; }  /* Antes 35px */
-        .pos-right { left: 45px; }  /* Antes 35px */
+        /* Distancias */
+        .pos-top { bottom: 35px; } .pos-bottom { top: 35px; } 
+        .pos-left { right: 35px; } .pos-right { left: 35px; }
 
-        .dot-point.selected { background-color: #22c55e; transform: scale(1.4); border-color: #14532d; box-shadow: 0 0 15px #22c55e; }
+        .dot-point.selected { background-color: #22c55e; transform: scale(1.4); border-color: #14532d; box-shadow: 0 0 10px #22c55e; }
 
-        /* --- COMPORTAMIENTO MÓVIL (MEDIA QUERIES) --- */
-        @media (max-width: 1024px) {
-            #workspace {
-                padding: 0;
-                justify-content: flex-start; /* Alinear arriba */
-                background-color: #000; /* Fondo negro en móvil para resaltar */
-                padding-top: 10px;
-            }
-            
-            /* Ocultar leyenda en móvil para ganar espacio */
-            .legend-box { display: none; }
-            
-            #glassBoard {
-                border-radius: 0;
-                border: none;
-                /* El JS se encarga del escalado exacto al ancho */
-            }
-        }
+        /* GUÍAS */
+        .guide-line { position: absolute; background-color: #06b6d4; z-index: 50; display: none; pointer-events: none; box-shadow: 0 0 2px cyan; }
+        .guide-h { height: 1px; width: 100%; left: 0; }
+        .guide-v { width: 1px; height: 100%; top: 0; }
 
         /* MODAL RESULTADO */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: none; justify-content: center; align-items: center; }
-        .result-box { background: white; border: 4px solid #22c55e; padding: 25px; border-radius: 12px; text-align: center; width: 350px; max-width: 90%; }
-        .res-month { font-size: 2.5rem; font-weight: 900; color: #cc0000; text-transform: uppercase; line-height: 1; }
-        .res-years { font-family: monospace; font-size: 1.2rem; color: #15803d; font-weight: bold; margin-top: 5px;}
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
+            z-index: 300; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px);
+        }
+        .result-box {
+            background: white; border: 4px solid #22c55e; padding: 25px;
+            border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            text-align: center; max-width: 90%; width: 400px; color: #1e293b;
+        }
+        .res-month { font-size: 2.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 10px; color: #cc0000; text-transform: uppercase; }
+        .res-years { font-family: monospace; font-size: 1.4rem; color: #15803d; font-weight: bold; }
         
         /* AYUDA */
-        .help-box { background: #0f172a; border: 1px solid #3b82f6; padding: 25px; border-radius: 12px; text-align: left; max-width: 400px; width: 90%; color: white; }
+        .help-box {
+            background: #0f172a; border: 1px solid #3b82f6; padding: 25px;
+            border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            text-align: left; max-width: 400px; width: 90%; color: white;
+        }
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <div class="flex items-center gap-3">
-            <a href="menu_lunas.html" class="text-slate-400 hover:text-white text-lg font-bold flex items-center gap-2">
-                <i class="fas fa-arrow-left"></i> <span class="hidden sm:inline">VOLVER</span>
+        <div class="flex items-center gap-4">
+            <a href="menu_lunas.html" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 font-bold text-sm">
+                <i class="fas fa-arrow-left"></i> VOLVER
             </a>
             
-            <button onclick="toggleFullScreen()" class="btn-mobile-only">
-                <i class="fas fa-expand"></i> FULL
+            <button onclick="toggleHelp()" class="text-slate-400 hover:text-white transition text-xl">
+                <i class="far fa-circle-question"></i>
             </button>
 
-            <div id="statusBadge" class="status-badge">Cargando...</div>
+            <div id="statusBadge">Conectando...</div>
         </div>
         
-        <div class="flex items-center gap-4">
-            <button onclick="restoreFactory()" class="hidden text-[10px] text-red-500 border border-red-500 px-1 rounded">R</button>
-
-            <button onclick="toggleModal('helpModal')" class="text-slate-400 hover:text-white text-xl"><i class="far fa-question-circle"></i></button>
+        <div class="flex items-center gap-6">
+            <div id="userInfo" class="hidden md:block text-xs font-mono text-blue-400"></div>
             
-            <label class="switch-wrap">
-                <span id="editLabel" class="edit-label">PERITAJE</span>
-                <input type="checkbox" id="editSwitch" class="switch-input" onchange="toggleEdit()">
-                <div class="switch-track"><div class="switch-circle"></div></div>
+            <label class="toggle-wrapper">
+                <span class="text-xs font-bold text-gray-300 mr-3 transition-colors" id="editLabel">CAMBIAR A EDICIÓN</span>
+                <input type="checkbox" id="editSwitch" class="toggle-checkbox" onchange="toggleEdit()">
+                <div class="toggle-label"><div class="toggle-circle"></div></div>
             </label>
         </div>
     </div>
 
     <div id="workspace">
-        
-        <div class="legend-box">
-            <span class="legend-text">Señala los puntos tal y como figuran en la luna del vehículo</span>
-        </div>
+        <div id="boardContainer">
+            <div class="legend-top">
+                SEÑALA LOS PUNTOS TAL Y COMO FIGURAN EN LA LUNA DEL VEHÍCULO
+            </div>
 
-        <div id="glassBoard">
-            <div id="dynamicLayer"></div>
+            <div id="glassBoard">
+                <div id="guideH" class="guide-line guide-h"></div>
+                <div id="guideV" class="guide-line guide-v"></div>
+                <div id="dynamicLayer"></div>
+            </div>
         </div>
     </div>
 
     <div id="resultModal" class="modal-overlay" onclick="closeResult()">
         <div class="result-box" onclick="event.stopPropagation()">
             <div id="resMonthName" class="res-month">--</div>
-            <p class="text-xs text-slate-500 mt-2 uppercase tracking-widest font-bold">Años de fabricación</p>
+            <p class="text-xs text-slate-500 mb-1 uppercase tracking-widest font-bold">Posibles años de fabricación</p>
             <div id="resYearsList" class="res-years">--</div>
-            <button onclick="closeResult()" class="mt-6 bg-slate-200 hover:bg-slate-300 w-full py-2 rounded text-sm font-bold">CERRAR</button>
+            <button onclick="closeResult()" class="mt-6 bg-slate-200 hover:bg-slate-300 text-slate-800 px-8 py-2 rounded-full font-bold transition text-sm">CERRAR</button>
         </div>
     </div>
 
-    <div id="helpModal" class="modal-overlay" onclick="toggleModal('helpModal')">
+    <div id="helpModal" class="modal-overlay" onclick="toggleHelp()">
         <div class="help-box" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
                 <h3 class="font-bold text-blue-400"><i class="fas fa-info-circle"></i> GUÍA DE USO</h3>
-                <button onclick="toggleModal('helpModal')" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
+                <button onclick="toggleHelp()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
             <div class="space-y-4 text-sm text-gray-300">
-                <p>Selecciona un <strong>Mes</strong> y un <strong>Año</strong> para calcular la fecha.</p>
-                <p class="text-xs text-slate-500">Usa el interruptor superior para entrar en Modo Edición y ajustar la posición de los puntos si es necesario.</p>
+                <p>Selecciona un <strong>Mes</strong> y un <strong>Año</strong>.</p>
+                <p class="text-xs text-slate-500">Usa el interruptor para ajustar la posición en Modo Edición.</p>
             </div>
-            <button onclick="toggleModal('helpModal')" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded text-xs">ENTENDIDO</button>
+            <button onclick="toggleHelp()" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded text-xs">ENTENDIDO</button>
         </div>
     </div>
 
@@ -261,83 +245,87 @@
         let db = null;
         let isEditMode = false;
         let selected = { m: null, y: null };
-        let currentScale = 1;
+        let dragItem = null;
+        let scaleFactor = 1; // Factor de escala para móvil
 
-        // DATOS BASE (Coordenadas fijas en tablero 1000x562)
+        // DATOS BASE (Alineación recta, texto centrado, Ene/Dic separados)
         const factoryData = {
-            brandText: { text: "AUTOMOTIVE", x: 500, y: 281 }, // Centro exacto (500, 281)
-            logoImg: { src: "logogad.png", x: 500, y: 281 },
+            brandText: { text: "AUTOMOTIVE", x: 50, y: 50 },
+            logoImg: { src: "logogad.png", x: 50, y: 50 },
             points: [
-                // Fila Superior (Años)
-                { id: 'y1', val: 1, label: '1', x: 230, y: 196, pos: 'pos-top' },
-                { id: 'y2', val: 2, label: '2', x: 290, y: 196, pos: 'pos-top' },
-                { id: 'y3', val: 3, label: '3', x: 350, y: 196, pos: 'pos-top' },
-                { id: 'y4', val: 4, label: '4', x: 410, y: 196, pos: 'pos-top' },
-                { id: 'y5', val: 5, label: '5', x: 470, y: 196, pos: 'pos-top' },
-                { id: 'y6', val: 6, label: '6', x: 530, y: 196, pos: 'pos-top' },
-                { id: 'y7', val: 7, label: '7', x: 590, y: 196, pos: 'pos-top' },
-                { id: 'y8', val: 8, label: '8', x: 650, y: 196, pos: 'pos-top' },
-                { id: 'y9', val: 9, label: '9', x: 710, y: 196, pos: 'pos-top' },
-                { id: 'y0', val: 0, label: '0', x: 770, y: 196, pos: 'pos-top' },
-                // Fila Inferior (Meses)
-                { id: 'm2', val: 2, label: 'Feb', x: 230, y: 365, pos: 'pos-bottom' },
-                { id: 'm3', val: 3, label: 'Mar', x: 290, y: 365, pos: 'pos-bottom' },
-                { id: 'm4', val: 4, label: 'Abr', x: 350, y: 365, pos: 'pos-bottom' },
-                { id: 'm5', val: 5, label: 'May', x: 410, y: 365, pos: 'pos-bottom' },
-                { id: 'm6', val: 6, label: 'Jun', x: 470, y: 365, pos: 'pos-bottom' },
-                { id: 'm7', val: 7, label: 'Jul', x: 530, y: 365, pos: 'pos-bottom' },
-                { id: 'm8', val: 8, label: 'Ago', x: 590, y: 365, pos: 'pos-bottom' },
-                { id: 'm9', val: 9, label: 'Sep', x: 650, y: 365, pos: 'pos-bottom' },
-                { id: 'm10', val: 10, label: 'Oct', x: 710, y: 365, pos: 'pos-bottom' },
-                { id: 'm11', val: 11, label: 'Nov', x: 770, y: 365, pos: 'pos-bottom' },
-                // Extremos (Separdos más)
-                { id: 'm1', val: 1, label: 'Ene', x: 80, y: 281, pos: 'pos-left' },
-                { id: 'm12', val: 12, label: 'Dic', x: 920, y: 281, pos: 'pos-right' }
+                { id: 'y1', val: 1, label: '1', x: 23, y: 35, pos: 'pos-top' },
+                { id: 'y2', val: 2, label: '2', x: 29, y: 35, pos: 'pos-top' },
+                { id: 'y3', val: 3, label: '3', x: 35, y: 35, pos: 'pos-top' },
+                { id: 'y4', val: 4, label: '4', x: 41, y: 35, pos: 'pos-top' },
+                { id: 'y5', val: 5, label: '5', x: 47, y: 35, pos: 'pos-top' },
+                { id: 'y6', val: 6, label: '6', x: 53, y: 35, pos: 'pos-top' },
+                { id: 'y7', val: 7, label: '7', x: 59, y: 35, pos: 'pos-top' },
+                { id: 'y8', val: 8, label: '8', x: 65, y: 35, pos: 'pos-top' },
+                { id: 'y9', val: 9, label: '9', x: 71, y: 35, pos: 'pos-top' },
+                { id: 'y0', val: 0, label: '0', x: 77, y: 35, pos: 'pos-top' },
+                { id: 'm2', val: 2, label: 'Feb', x: 23, y: 65, pos: 'pos-bottom' },
+                { id: 'm3', val: 3, label: 'Mar', x: 29, y: 65, pos: 'pos-bottom' },
+                { id: 'm4', val: 4, label: 'Abr', x: 35, y: 65, pos: 'pos-bottom' },
+                { id: 'm5', val: 5, label: 'May', x: 41, y: 65, pos: 'pos-bottom' },
+                { id: 'm6', val: 6, label: 'Jun', x: 47, y: 65, pos: 'pos-bottom' },
+                { id: 'm7', val: 7, label: 'Jul', x: 53, y: 65, pos: 'pos-bottom' },
+                { id: 'm8', val: 8, label: 'Ago', x: 59, y: 65, pos: 'pos-bottom' },
+                { id: 'm9', val: 9, label: 'Sep', x: 65, y: 65, pos: 'pos-bottom' },
+                { id: 'm10', val: 10, label: 'Oct', x: 71, y: 65, pos: 'pos-bottom' },
+                { id: 'm11', val: 11, label: 'Nov', x: 77, y: 65, pos: 'pos-bottom' },
+                { id: 'm1', val: 1, label: 'Ene', x: 7, y: 50, pos: 'pos-left' },
+                { id: 'm12', val: 12, label: 'Dic', x: 93, y: 50, pos: 'pos-right' }
             ]
         };
 
         let appState = JSON.parse(JSON.stringify(factoryData));
 
-        // === LÓGICA DE ESCALADO HÍBRIDA ===
+        // === AJUSTE PANTALLA (SOLO MÓVIL) ===
+        // Esta función NO toca nada si la pantalla es grande (PC)
         function resizeBoard() {
-            const board = document.getElementById('glassBoard');
-            const containerW = window.innerWidth;
-            const targetW = 1000; // Ancho base PC
+            const container = document.getElementById('workspace');
+            const boardContainer = document.getElementById('boardContainer');
+            const boardW = 900; // Ancho fijo original
+            const screenW = container.clientWidth;
 
-            if (containerW < 1020) {
-                // MÓVIL/TABLET: Escalar para ajustar al ancho
-                currentScale = containerW / targetW;
-                board.style.transform = `scale(${currentScale})`;
-                // Ajustar altura del contenedor padre para que no sobre espacio abajo
-                document.getElementById('workspace').style.height = (562 * currentScale + 50) + 'px';
+            // Si la pantalla es más pequeña que el tablero (MÓVIL)
+            if (screenW < boardW + 40) { 
+                scaleFactor = (screenW - 20) / boardW; // Margen 20px
+                boardContainer.style.transform = `scale(${scaleFactor})`;
+                // Ajustar margen negativo para eliminar espacio vacío
+                const originalHeight = boardContainer.offsetHeight; // Altura total (Leyenda + Tablero)
+                const scaledHeight = originalHeight * scaleFactor;
+                boardContainer.style.marginBottom = `-${originalHeight - scaledHeight}px`;
             } else {
-                // PC: Escala 1:1, centrado
-                currentScale = 1;
-                board.style.transform = `scale(1)`;
-                document.getElementById('workspace').style.height = 'auto';
+                // PC: Sin escala
+                scaleFactor = 1;
+                boardContainer.style.transform = 'none';
+                boardContainer.style.marginBottom = '0';
             }
         }
 
         window.addEventListener('resize', resizeBoard);
 
-        // === INICIALIZACIÓN ===
+        // === INICIO ===
         window.onload = function() {
-            resizeBoard();
             render(); 
+            resizeBoard(); // Ejecutar ajuste al inicio
+            
             try {
                 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 db = firebase.database();
                 firebase.auth().onAuthStateChanged(u => {
                     const badge = document.getElementById('statusBadge');
                     if(u) {
-                        badge.innerText = "ONLINE"; badge.classList.add('st-ok');
+                        document.getElementById('userInfo').innerText = u.email;
+                        updateStatus("st-ok", "ONLINE");
                         initSync();
                     } else {
-                        badge.innerText = "LOCAL";
+                        updateStatus("st-ok", "LOCAL");
                         initSync();
                     }
                 });
-            } catch(e) {}
+            } catch(e) { console.log("Offline mode"); }
         };
 
         function initSync() {
@@ -350,54 +338,45 @@
             });
         }
 
-        function restoreFactory() {
-            if(confirm("¿Resetear a valores por defecto?")) {
-                appState = JSON.parse(JSON.stringify(factoryData));
-                save(); render();
-            }
-        }
-
         function save() {
             if(db) db.ref(`LUNAS/${NODE_NAME}`).set(appState).catch(console.warn);
         }
 
+        function updateStatus(cls, txt) {
+            const el = document.getElementById('statusBadge');
+            el.className = ''; el.classList.add(cls); el.innerText = txt;
+        }
+
+        // === RENDERIZADO ===
         function render() {
             const layer = document.getElementById('dynamicLayer');
-            if(!layer) {
-                const l = document.createElement('div');
-                l.id = 'dynamicLayer';
-                document.getElementById('glassBoard').appendChild(l);
-            } else {
-                layer.innerHTML = '';
-            }
-            
-            // Re-render en orden
-            const content = document.getElementById('dynamicLayer');
+            layer.innerHTML = '';
 
-            // 1. Logo
+            // Logo
             const img = document.createElement('img');
             img.className = 'watermark-logo';
             img.src = appState.logoImg.src || "logogad.png";
-            img.style.left = appState.logoImg.x + 'px';
-            img.style.top = appState.logoImg.y + 'px';
+            img.onerror = function() { this.src = "https://via.placeholder.com/150?text=LOGO"; }; 
+            img.style.left = appState.logoImg.x + '%';
+            img.style.top = appState.logoImg.y + '%';
             if(isEditMode) initDrag(img, 'img', appState.logoImg);
-            content.appendChild(img);
+            layer.appendChild(img);
 
-            // 2. Texto
+            // Texto
             const brand = document.createElement('div');
             brand.className = 'brand-text';
             brand.textContent = appState.brandText.text;
-            brand.style.left = appState.brandText.x + 'px';
-            brand.style.top = appState.brandText.y + 'px';
+            brand.style.left = appState.brandText.x + '%';
+            brand.style.top = appState.brandText.y + '%';
             if(isEditMode) initDrag(brand, 'brand', appState.brandText);
-            content.appendChild(brand);
+            layer.appendChild(brand);
 
-            // 3. Puntos
+            // Puntos
             appState.points.forEach(p => {
                 const wrap = document.createElement('div');
                 wrap.className = 'dot-wrapper';
-                wrap.style.left = p.x + 'px';
-                wrap.style.top = p.y + 'px';
+                wrap.style.left = p.x + '%';
+                wrap.style.top = p.y + '%';
 
                 const dot = document.createElement('div');
                 dot.className = 'dot-point';
@@ -419,11 +398,10 @@
                     wrap.onclick = () => selectPoint(p);
                     wrap.ontouchend = (e) => { e.preventDefault(); selectPoint(p); };
                 }
-                content.appendChild(wrap);
+                layer.appendChild(wrap);
             });
         }
 
-        // --- LÓGICA ---
         function selectPoint(p) {
             const isMonth = p.id.startsWith('m');
             if(isMonth) selected.m = p.val; else selected.y = p.val;
@@ -432,10 +410,10 @@
         }
 
         function showResult() {
-            const months = ["", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
-            const y = parseInt(selected.y);
+            const months = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            const yDigit = parseInt(selected.y);
             document.getElementById('resMonthName').textContent = months[selected.m];
-            document.getElementById('resYearsList').textContent = `${2000+y}, ${2010+y}, ${2020+y}`;
+            document.getElementById('resYearsList').textContent = `${2000+yDigit}, ${2010+yDigit}, ${2020+yDigit}`;
             document.getElementById('resultModal').style.display = 'flex';
         }
 
@@ -445,82 +423,104 @@
             render();
         }
 
-        // --- DRAG ---
+        // --- DRAG SYSTEM CON SOPORTE DE ESCALA ---
         function initDrag(el, type, dataObj) {
             let startX, startY;
-            let moved = false;
-
-            const start = (e) => {
+            
+            const onStart = (e) => {
                 if(e.type === 'mousedown') e.preventDefault();
                 startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
                 startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-                moved = false;
-                document.addEventListener('mousemove', move);
-                document.addEventListener('touchmove', move, {passive: false});
-                document.addEventListener('mouseup', end);
-                document.addEventListener('touchend', end);
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, {passive: false});
+                document.addEventListener('mouseup', onEnd);
+                document.addEventListener('touchend', onEnd);
             };
 
-            const move = (e) => {
+            const onMove = (e) => {
+                e.preventDefault();
                 const cx = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
                 const cy = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-                if(Math.abs(cx - startX) > 2 || Math.abs(cy - startY) > 2) moved = true;
                 
-                if(moved) {
-                    e.preventDefault();
-                    // Ajustar por el zoom actual
-                    const dx = (cx - startX) / currentScale;
-                    const dy = (cy - startY) / currentScale;
-                    
-                    dataObj.x += dx;
-                    dataObj.y += dy;
-                    
-                    startX = cx;
-                    startY = cy;
-                    render();
+                // Ajustar movimiento por el factor de escala (si estamos en móvil)
+                const dx = (cx - startX) / scaleFactor;
+                const dy = (cy - startY) / scaleFactor;
+
+                // Dimensiones fijas del tablero
+                const boardW = 900;
+                const boardH = 500;
+
+                const moveX_pct = (dx / boardW) * 100;
+                const moveY_pct = (dy / boardH) * 100;
+
+                let newX = dataObj.x + moveX_pct;
+                let newY = dataObj.y + moveY_pct;
+
+                // Snap (Guías)
+                if (type === 'point') {
+                    const guideH = document.getElementById('guideH');
+                    const guideV = document.getElementById('guideV');
+                    let snapped = false;
+                    appState.points.forEach(other => {
+                        if(other === dataObj) return;
+                        if(Math.abs(newX - other.x) < 1) { 
+                            newX = other.x; 
+                            guideV.style.left = newX + '%'; guideV.style.display = 'block'; snapped = true;
+                        }
+                        if(Math.abs(newY - other.y) < 1) { 
+                            newY = other.y; 
+                            guideH.style.top = newY + '%'; guideH.style.display = 'block'; snapped = true;
+                        }
+                    });
+                    if(!snapped) { guideH.style.display = 'none'; guideV.style.display = 'none'; }
                 }
+
+                dataObj.x = Math.max(0, Math.min(100, newX));
+                dataObj.y = Math.max(0, Math.min(100, newY));
+                
+                startX = cx;
+                startY = cy;
+                render();
             };
 
-            const end = () => {
-                document.removeEventListener('mousemove', move);
-                document.removeEventListener('touchmove', move);
-                document.removeEventListener('mouseup', end);
-                document.removeEventListener('touchend', end);
+            const onEnd = () => {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('mouseup', onEnd);
+                document.removeEventListener('touchend', onEnd);
+                document.getElementById('guideH').style.display = 'none';
+                document.getElementById('guideV').style.display = 'none';
                 
-                if(!moved && type === 'point') {
-                    // Rotar etiqueta
+                // Click simple rota etiqueta (si no se movió mucho)
+                const endX = event.type.includes('mouse') ? event.clientX : event.changedTouches[0].clientX;
+                if(Math.abs(startX - endX) < 5 && type === 'point') {
                     const order = ['pos-top', 'pos-right', 'pos-bottom', 'pos-left'];
                     dataObj.pos = order[(order.indexOf(dataObj.pos || 'pos-top') + 1) % 4];
                     render();
-                    save();
-                } else if(moved) {
-                    save();
                 }
+                save();
             };
 
-            el.onmousedown = start;
-            el.ontouchstart = start;
+            el.onmousedown = onStart;
+            el.ontouchstart = onStart;
         }
 
         function toggleEdit() {
             isEditMode = document.getElementById('editSwitch').checked;
-            document.body.classList.toggle('mode-editing', isEditMode);
+            const body = document.body;
             const lbl = document.getElementById('editLabel');
-            lbl.innerText = isEditMode ? "CERRAR EDICIÓN" : "PERITAJE";
-            lbl.style.color = isEditMode ? "#ef4444" : "#94a3b8";
-            render();
-        }
-
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(e => console.log(e));
+            if(isEditMode) {
+                body.classList.add('mode-editing');
+                lbl.innerText = "CERRAR EDICIÓN"; lbl.style.color = "#ef4444";
             } else {
-                if (document.exitFullscreen) document.exitFullscreen();
+                body.classList.remove('mode-editing');
+                lbl.innerText = "CAMBIAR A EDICIÓN"; lbl.style.color = "#94a3b8";
+                save();
             }
         }
 
-        function toggleModal(id) {
-            const m = document.getElementById(id);
+        function toggleHelp() {
+            const m = document.getElementById('helpModal');
             m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
         }
     </script>
