@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AUTOMOTIVE - Responsive PRO</title>
+    <title>AUTOMOTIVE - Final Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -16,8 +16,10 @@
         body { 
             background-color: #1e293b; 
             font-family: 'Segoe UI', system-ui, sans-serif; 
-            overflow: hidden; 
-            height: 100vh; width: 100vw; margin: 0;
+            /* CORRECCIÓN MÓVIL HORIZONTAL: Permitir scroll si no cabe */
+            overflow-x: hidden; 
+            overflow-y: auto;
+            min-height: 100vh; width: 100vw; margin: 0;
             display: flex; flex-direction: column;
         }
 
@@ -26,6 +28,7 @@
             background: #0f172a; padding: 0 1rem;
             display: flex; justify-content: space-between; align-items: center;
             height: 60px; z-index: 50; flex-shrink: 0; border-bottom: 1px solid #334155;
+            position: sticky; top: 0; /* Barra fija arriba */
         }
         .status-badge {
             font-size: 10px; padding: 2px 6px; border-radius: 4px;
@@ -50,99 +53,95 @@
         /* --- WORKSPACE --- */
         #workspace {
             flex-grow: 1; display: flex; justify-content: center; align-items: center;
-            background: #1e293b; position: relative; width: 100%; padding: 10px; box-sizing: border-box;
+            background: #1e293b; position: relative; width: 100%; 
+            padding: 20px 10px; /* Un poco más de margen vertical */
+            box-sizing: border-box;
+            min-height: calc(100vh - 60px); /* Asegura altura mínima */
         }
 
-        /* EL TABLERO MÁGICO (Responsive Container) */
         #glassBoard {
             width: 100%; max-width: 900px; 
-            aspect-ratio: 16/9; /* Mantiene la forma rectangular siempre */
+            aspect-ratio: 16/9; 
             background-color: #ffffff; 
             border: 4px solid #cbd5e1; 
             position: relative; 
             box-shadow: 0 0 40px rgba(0,0,0,0.5); 
             border-radius: 8px;
-            overflow: hidden;
-            
-            /* ESTA ES LA CLAVE DEL ESCALADO: */
-            container-type: inline-size; 
+            container-type: inline-size; overflow: hidden;
         }
         .mode-editing #glassBoard { border: 4px dashed #ef4444; }
 
-        /* --- LEYENDA SUPERIOR --- */
+        /* --- LEYENDA SUPERIOR FIJA --- */
         .legend-bar {
             position: absolute; top: 0; left: 0; width: 100%;
-            text-align: center;
-            background: rgba(241, 245, 249, 0.9);
-            border-bottom: 1px solid #e2e8f0;
-            padding: 1.5cqw 0; /* Padding dinámico */
-            z-index: 10;
+            text-align: center; background: rgba(241, 245, 249, 0.95);
+            border-bottom: 1px solid #e2e8f0; padding: 8px 0; z-index: 10;
         }
         .legend-text {
-            color: #475569; font-weight: bold; text-transform: uppercase;
-            font-size: 2.5cqw; /* Texto escala con el ancho del contenedor */
-            letter-spacing: 0.1cqw;
+            color: #475569; font-weight: 700; text-transform: uppercase;
+            font-size: clamp(10px, 2vw, 14px); letter-spacing: 1px;
         }
 
-        /* --- MARCA DE AGUA --- */
+        /* --- MARCA DE AGUA (ORDEN: OCUPAR TODO EL ALTO) --- */
         .watermark-logo {
             position: absolute; transform: translate(-50%, -50%);
-            height: 70%; width: auto; opacity: 0.15; 
+            height: 100%; /* Toca bordes superior e inferior */
+            width: auto; opacity: 0.15; 
             z-index: 1; pointer-events: none;
+            object-fit: contain; /* Asegura que se vea entero sin deformar */
         }
         .mode-editing .watermark-logo {
             border: 1px dashed #94a3b8; pointer-events: auto; cursor: move; opacity: 0.4;
         }
 
-        /* --- TEXTO AUTOMOTIVE (Escalado) --- */
+        /* --- TEXTO AUTOMOTIVE (TAMAÑOS NORMALIZADOS Y ADAPTABLES) --- */
         .brand-text {
             font-family: 'Arial Black', sans-serif; font-weight: 900;
-            color: #cc0000; text-shadow: 0.2cqw 0.2cqw 0px rgba(0,0,0,0.1);
-            -webkit-text-stroke: 0.15cqw white;
+            color: #cc0000; text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+            -webkit-text-stroke: 1px white;
             position: absolute; transform: translate(-50%, -50%); 
             text-align: center; white-space: nowrap; cursor: default; z-index: 5;
-            
-            /* TAMAÑO DINÁMICO: Siempre ocupará lo mismo proporcionalmente */
-            font-size: 13cqw; 
-            letter-spacing: 0.5cqw;
+            /* Escalado suave: Min 24px, Max 70px, ideal para móvil y desktop */
+            font-size: clamp(24px, 7vw, 70px); 
+            letter-spacing: clamp(1px, 0.5vw, 4px);
         }
         .mode-editing .brand-text { cursor: move; border: 1px dashed #ef4444; }
 
-        /* --- PUNTOS (Escalado) --- */
+        /* --- PUNTOS Y ETIQUETAS (TAMAÑOS NORMALIZADOS) --- */
         .dot-wrapper {
             position: absolute; 
-            /* El tamaño del área de clic escala */
-            width: 5cqw; height: 5cqw;
+            /* Tamaño de área táctil adaptable */
+            width: clamp(32px, 5vw, 44px); height: clamp(32px, 5vw, 44px);
             transform: translate(-50%, -50%); display: flex; justify-content: center; align-items: center; 
             z-index: 20; touch-action: none;
         }
         .dot-point {
-            /* El punto amarillo escala */
-            width: 2.5cqw; height: 2.5cqw;
+            /* Punto visual adaptable */
+            width: clamp(18px, 3vw, 24px); height: clamp(18px, 3vw, 24px);
             background-color: #fbbf24; border-radius: 50%; 
-            border: 0.3cqw solid #475569; box-shadow: 0 0.5cqw 1cqw rgba(0,0,0,0.2); 
+            border: 2px solid #475569; box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
         }
         .dot-label {
             position: absolute; color: #1e293b; font-weight: 800;
             pointer-events: none; white-space: nowrap;
-            /* El texto del mes/año escala */
-            font-size: 2.2cqw; 
+            /* Texto etiqueta adaptable y legible */
+            font-size: clamp(12px, 2vw, 16px);
         }
         
-        /* Distancia dinámica relativa al tamaño del punto */
-        .pos-top { bottom: 120%; } 
-        .pos-bottom { top: 120%; } 
-        .pos-left { right: 120%; } 
-        .pos-right { left: 120%; }
+        /* Distancia de etiquetas (Separadas para no amontonar) */
+        .pos-top { bottom: 140%; } 
+        .pos-bottom { top: 140%; } 
+        .pos-left { right: 140%; } 
+        .pos-right { left: 140%; }
 
-        .dot-point.selected { background-color: #22c55e; transform: scale(1.3); border-color: #14532d; box-shadow: 0 0 2cqw #22c55e; }
+        .dot-point.selected { background-color: #22c55e; transform: scale(1.3); border-color: #14532d; box-shadow: 0 0 15px #22c55e; }
 
         /* --- GUÍAS --- */
-        .guide-line { position: absolute; background-color: #06b6d4; z-index: 50; pointer-events: none; display: none; }
+        .guide-line { position: absolute; background-color: #06b6d4; z-index: 50; pointer-events: none; display: none; box-shadow: 0 0 4px #06b6d4;}
         .guide-h { height: 1px; width: 100%; left: 0; }
         .guide-v { width: 1px; height: 100%; top: 0; }
 
-        /* --- RESULTADO --- */
+        /* --- MODAL RESULTADO --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
             z-index: 300; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px);
@@ -152,10 +151,11 @@
             border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             text-align: center; max-width: 90%; width: 450px; color: #1e293b;
         }
-        .res-month { font-size: 2.5rem; font-weight: 900; line-height: 1; margin-bottom: 15px; color: #cc0000; text-transform: uppercase; }
+        .res-month { font-size: 3rem; font-weight: 900; line-height: 1; margin-bottom: 15px; color: #cc0000; }
+        .res-years-label { font-size: 0.9rem; color: #64748b; margin-bottom: 5px; }
         .res-years-list { font-family: monospace; font-size: 1.5rem; color: #15803d; font-weight: bold; }
         
-        /* --- AYUDA --- */
+        /* --- AYUDA LAMINEX ORIGINAL --- */
         .help-box {
             background: #0f172a; border: 1px solid #3b82f6; padding: 25px;
             border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
@@ -192,12 +192,11 @@
     <div id="workspace">
         <div id="glassBoard">
             <div class="legend-bar">
-                <span class="legend-text">Señala los puntos tal y como figuran en la luna</span>
+                <span class="legend-text">Señala los puntos tal y como figuran en la luna del vehículo</span>
             </div>
 
             <div id="guideH" class="guide-line guide-h"></div>
             <div id="guideV" class="guide-line guide-v"></div>
-
             <div id="dynamicLayer"></div>
         </div>
     </div>
@@ -205,7 +204,7 @@
     <div id="resultModal" class="modal-overlay" onclick="closeResult()">
         <div class="result-box" onclick="event.stopPropagation()">
             <div id="resMonthName" class="res-month">--</div>
-            <p class="text-sm text-slate-500 mb-2">Posibles años de fabricación:</p>
+            <p class="res-years-label">Posibles años de fabricación:</p>
             <div id="resYearsList" class="res-years-list">--</div>
             <button onclick="closeResult()" class="mt-8 bg-slate-200 hover:bg-slate-300 text-slate-800 px-8 py-3 rounded-full font-bold transition">Cerrar</button>
         </div>
@@ -217,13 +216,12 @@
                 <h3 class="font-bold text-blue-400"><i class="fas fa-info-circle"></i> GUÍA DE USO</h3>
                 <button onclick="toggleModal('helpModal')" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
-            
             <div class="space-y-4 text-sm text-gray-300">
                 <div>
                     <h4 class="font-bold text-red-400 mb-1"><i class="fas fa-tools"></i> MODO EDICIÓN</h4>
                     <ul class="list-disc pl-5 mt-1 text-xs text-gray-400 space-y-1">
-                        <li>Mueve los puntos y el logo si no cuadran.</li>
-                        <li>Haz clic en un punto para cambiar la posición del texto.</li>
+                        <li>Arrástra puntos y logo a su posición real.</li>
+                        <li>Clic en un punto para rotar su etiqueta.</li>
                     </ul>
                 </div>
                 <div>
@@ -252,35 +250,34 @@
         const NODE_NAME = "automotive"; 
         let db = null;
         
-        // --- DATOS FÁBRICA RECALCULADOS PARA NO CHOCAR ---
-        // Se ha bajado la Y superior a 30% y subido la inferior a 70% para dejar sitio al texto en móviles.
+        /* DATOS FÁBRICA ALINEADOS EN LÍNEA RECTA */
         const factoryData = {
             brandText: { text: "AUTOMOTIVE", x: 50, y: 50 },
             logoImg: { src: "logogad.png", x: 50, y: 50 },
             points: [
-                // Fila Superior (Años) Y=30% (Más separado del centro)
-                { id: 'y1', val: 1, label: '1', x: 20, y: 30, pos: 'pos-top' },
-                { id: 'y2', val: 2, label: '2', x: 26.6, y: 30, pos: 'pos-top' },
-                { id: 'y3', val: 3, label: '3', x: 33.2, y: 30, pos: 'pos-top' },
-                { id: 'y4', val: 4, label: '4', x: 39.8, y: 30, pos: 'pos-top' },
-                { id: 'y5', val: 5, label: '5', x: 46.4, y: 30, pos: 'pos-top' },
-                { id: 'y6', val: 6, label: '6', x: 53, y: 30, pos: 'pos-top' },
-                { id: 'y7', val: 7, label: '7', x: 59.6, y: 30, pos: 'pos-top' },
-                { id: 'y8', val: 8, label: '8', x: 66.2, y: 30, pos: 'pos-top' },
-                { id: 'y9', val: 9, label: '9', x: 72.8, y: 30, pos: 'pos-top' },
-                { id: 'y0', val: 0, label: '0', x: 79.4, y: 30, pos: 'pos-top' },
+                // Fila Superior (Años) Y=36% - Rectos
+                { id: 'y1', val: 1, label: '1', x: 20, y: 36, pos: 'pos-top' },
+                { id: 'y2', val: 2, label: '2', x: 26.6, y: 36, pos: 'pos-top' },
+                { id: 'y3', val: 3, label: '3', x: 33.2, y: 36, pos: 'pos-top' },
+                { id: 'y4', val: 4, label: '4', x: 39.8, y: 36, pos: 'pos-top' },
+                { id: 'y5', val: 5, label: '5', x: 46.4, y: 36, pos: 'pos-top' },
+                { id: 'y6', val: 6, label: '6', x: 53, y: 36, pos: 'pos-top' },
+                { id: 'y7', val: 7, label: '7', x: 59.6, y: 36, pos: 'pos-top' },
+                { id: 'y8', val: 8, label: '8', x: 66.2, y: 36, pos: 'pos-top' },
+                { id: 'y9', val: 9, label: '9', x: 72.8, y: 36, pos: 'pos-top' },
+                { id: 'y0', val: 0, label: '0', x: 79.4, y: 36, pos: 'pos-top' },
 
-                // Fila Inferior (Meses) Y=70% (Más separado del centro)
-                { id: 'm2', val: 2, label: 'Feb', x: 20, y: 70, pos: 'pos-bottom' },
-                { id: 'm3', val: 3, label: 'Mar', x: 26.6, y: 70, pos: 'pos-bottom' },
-                { id: 'm4', val: 4, label: 'Abr', x: 33.2, y: 70, pos: 'pos-bottom' },
-                { id: 'm5', val: 5, label: 'May', x: 39.8, y: 70, pos: 'pos-bottom' },
-                { id: 'm6', val: 6, label: 'Jun', x: 46.4, y: 70, pos: 'pos-bottom' },
-                { id: 'm7', val: 7, label: 'Jul', x: 53, y: 70, pos: 'pos-bottom' },
-                { id: 'm8', val: 8, label: 'Ago', x: 59.6, y: 70, pos: 'pos-bottom' },
-                { id: 'm9', val: 9, label: 'Sep', x: 66.2, y: 70, pos: 'pos-bottom' },
-                { id: 'm10', val: 10, label: 'Oct', x: 72.8, y: 70, pos: 'pos-bottom' },
-                { id: 'm11', val: 11, label: 'Nov', x: 79.4, y: 70, pos: 'pos-bottom' },
+                // Fila Inferior (Meses) Y=64% - Rectos
+                { id: 'm2', val: 2, label: 'Feb', x: 20, y: 64, pos: 'pos-bottom' },
+                { id: 'm3', val: 3, label: 'Mar', x: 26.6, y: 64, pos: 'pos-bottom' },
+                { id: 'm4', val: 4, label: 'Abr', x: 33.2, y: 64, pos: 'pos-bottom' },
+                { id: 'm5', val: 5, label: 'May', x: 39.8, y: 64, pos: 'pos-bottom' },
+                { id: 'm6', val: 6, label: 'Jun', x: 46.4, y: 64, pos: 'pos-bottom' },
+                { id: 'm7', val: 7, label: 'Jul', x: 53, y: 64, pos: 'pos-bottom' },
+                { id: 'm8', val: 8, label: 'Ago', x: 59.6, y: 64, pos: 'pos-bottom' },
+                { id: 'm9', val: 9, label: 'Sep', x: 66.2, y: 64, pos: 'pos-bottom' },
+                { id: 'm10', val: 10, label: 'Oct', x: 72.8, y: 64, pos: 'pos-bottom' },
+                { id: 'm11', val: 11, label: 'Nov', x: 79.4, y: 64, pos: 'pos-bottom' },
 
                 // Extremos
                 { id: 'm1', val: 1, label: 'Ene', x: 10, y: 50, pos: 'pos-left' },
@@ -323,10 +320,9 @@
         }
 
         function restoreFactory() {
-            if(confirm("¿Los puntos se ven mal? Esto restaurará la alineación y el tamaño.")) {
+            if(confirm("¿Restaurar alineación original?")) {
                 appState = JSON.parse(JSON.stringify(factoryData));
-                save(); 
-                render();
+                save(); render();
             }
         }
 
@@ -338,7 +334,6 @@
             const layer = document.getElementById('dynamicLayer');
             layer.innerHTML = '';
 
-            // Logo
             const img = document.createElement('img');
             img.className = 'watermark-logo';
             img.src = appState.logoImg.src || "logogad.png";
@@ -349,7 +344,6 @@
             img.addEventListener('touchstart', e => startDrag(e, 'img'), {passive: false});
             layer.appendChild(img);
 
-            // Texto
             const brand = document.createElement('div');
             brand.className = 'brand-text';
             brand.textContent = appState.brandText.text;
@@ -359,7 +353,6 @@
             brand.addEventListener('touchstart', e => startDrag(e, 'brand'), {passive: false});
             layer.appendChild(brand);
 
-            // Puntos
             appState.points.forEach(p => {
                 const wrap = document.createElement('div');
                 wrap.className = 'dot-wrapper';
@@ -401,10 +394,8 @@
         function showResult() {
             const monthsFull = ["", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
             const yDigit = parseInt(selected.y);
-            
             document.getElementById('resMonthName').textContent = monthsFull[selected.m];
             document.getElementById('resYearsList').innerHTML = `${2000 + yDigit}, ${2010 + yDigit}, ${2020 + yDigit}`;
-            
             document.getElementById('resultModal').style.display = 'flex';
         }
 
