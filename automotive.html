@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>AUTOMOTIVE - DUAL ENGINE FIXED</title>
+    <title>AUTOMOTIVE - FINAL VERIFIED</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -12,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
-        /* --- ESTILOS GENERALES --- */
+        /* --- ESTILOS COMUNES --- */
         body { 
             background-color: #1e293b; 
             font-family: 'Segoe UI', system-ui, sans-serif; 
@@ -22,7 +22,6 @@
             overflow-x: hidden;
         }
 
-        /* --- BARRA SUPERIOR (Común) --- */
         .controls {
             background: #0f172a; padding: 0 15px;
             display: flex; justify-content: space-between; align-items: center;
@@ -36,24 +35,24 @@
         }
         .st-ok { color: #4ade80 !important; border-color: #4ade80 !important; }
 
-        /* SWITCH EDICIÓN */
         .toggle-wrapper { display: flex; align-items: center; cursor: pointer; gap: 8px; }
         .toggle-checkbox { display: none; }
         .toggle-track { 
             width: 44px; height: 24px; background-color: #334155; 
-            border-radius: 99px; position: relative; transition: 0.3s; 
-            border: 1px solid #475569;
+            border-radius: 99px; position: relative; transition: 0.3s; border: 1px solid #475569;
         }
         .toggle-circle { 
             width: 18px; height: 18px; background-color: white; 
-            border-radius: 50%; position: absolute; top: 3px; left: 3px; 
-            transition: 0.3s; 
+            border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; 
         }
         .toggle-checkbox:checked + .toggle-track { background-color: #ef4444; border-color: #ef4444; } 
         .toggle-checkbox:checked + .toggle-track .toggle-circle { transform: translateX(20px); }
         .edit-label { font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; }
 
-        /* --- MOTOR 1: ESCRITORIO (CÓDIGO DE TU ARCHIVO ESTABLE) --- */
+        /* ==========================================================================
+           MOTOR 1: ESCRITORIO (CÓDIGO ORIGINAL - NO TOCADO)
+           Se activa > 900px
+           ========================================================================== */
         @media (min-width: 901px) {
             #mobile-engine { display: none !important; }
             
@@ -63,7 +62,13 @@
                 overflow-y: auto; 
             }
 
-            /* Contenedor Maestro PC */
+            .legend-external {
+                background: #f8fafc; border-bottom: 1px solid #cbd5e1;
+                padding: 10px; text-align: center; width: 100%; z-index: 40;
+            }
+            .legend-text { color: #334155; font-weight: 800; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+
+            /* Contenedor Fijo 1000px */
             #glassBoard {
                 width: 100%; max-width: 1000px; aspect-ratio: 16/9; 
                 background-color: #ffffff; border: 4px solid #cbd5e1; 
@@ -72,7 +77,6 @@
             }
             .mode-editing #glassBoard { border: 4px dashed #ef4444; }
 
-            /* Elementos PC (Estilo Original) */
             .brand-text {
                 font-family: 'Arial Black', sans-serif; font-weight: 900; color: #cc0000; 
                 -webkit-text-stroke: 0.15cqw white; text-shadow: 0.2cqw 0.2cqw 0 rgba(0,0,0,0.1);
@@ -110,16 +114,10 @@
             .dot-point.selected { background-color: #22c55e; transform: scale(1.3); border-color: #14532d; box-shadow: 0 0 2cqw #22c55e; }
             .guide-line { position: absolute; background-color: #06b6d4; z-index: 50; display: none; pointer-events: none; box-shadow: 0 0 2px cyan; }
             .guide-h { height: 1px; width: 100%; left: 0; } .guide-v { width: 1px; height: 100%; top: 0; }
-            
-            .legend-external {
-                background: #f8fafc; border-bottom: 1px solid #cbd5e1;
-                padding: 10px; text-align: center; width: 100%; z-index: 40;
-            }
-            .legend-text { color: #334155; font-weight: 800; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
         }
 
         /* ==========================================================================
-           MOTOR 2: MÓVIL (NUEVO - OPTIMIZADO PARA VERTICAL)
+           MOTOR 2: MÓVIL (NUEVA ESTRUCTURA VERTICAL)
            <= 900px
            ========================================================================== */
         @media (max-width: 900px) {
@@ -127,31 +125,35 @@
             
             #mobile-engine {
                 display: flex; flex-direction: column; flex-grow: 1;
-                background-color: #ffffff; width: 100vw; height: calc(100vh - 60px);
+                background-color: #ffffff; width: 100%; height: 100%;
                 position: relative; overflow: hidden;
             }
 
             .mobile-legend {
-                background: #f1f5f9; padding: 10px; text-align: center;
+                background: #f1f5f9; padding: 12px; text-align: center;
                 color: #475569; font-weight: 800; font-size: 11px; text-transform: uppercase;
                 border-bottom: 1px solid #cbd5e1; z-index: 10; flex-shrink: 0;
             }
 
+            /* Contenedor flexible móvil */
             #mobileBoard {
-                flex-grow: 1; position: relative; width: 100%; height: 100%;
-                /* Centrado vertical y horizontal */
+                flex-grow: 1; position: relative; width: 100%;
+                /* Usamos un contenedor interno para centrar verticalmente */
                 display: flex; align-items: center; justify-content: center;
             }
 
-            /* Contenedor relativo móvil */
-            .m-container { position: relative; width: 100%; height: 100%; }
+            .m-inner-box {
+                position: relative;
+                width: 100%; 
+                height: 60vh; /* Altura de trabajo segura */
+            }
 
-            /* TEXTO AUTOMOTIVE MÓVIL */
+            /* TEXTO MÓVIL */
             .m-brand-text {
                 font-family: 'Arial Black', sans-serif; font-weight: 900; color: #cc0000;
                 position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
                 text-align: center; white-space: nowrap; cursor: default; z-index: 5;
-                font-size: 12vw; width: 100%;
+                font-size: 14vw; width: 100%; line-height: 1;
             }
 
             /* LOGO MÓVIL */
@@ -167,7 +169,7 @@
                 justify-content: center; align-items: center; z-index: 20;
             }
             .m-dot-point {
-                width: 5.5vw; height: 5.5vw; background-color: #fbbf24;
+                width: 5vw; height: 5vw; background-color: #fbbf24;
                 border-radius: 50%; border: 1px solid #334155;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             }
@@ -178,8 +180,8 @@
             }
             
             /* Etiquetas pegadas */
-            .m-pos-top { bottom: 115%; } .m-pos-bottom { top: 115%; }
-            .m-pos-left { right: 115%; } .m-pos-right { left: 115%; }
+            .m-pos-top { bottom: 110%; } .m-pos-bottom { top: 110%; }
+            .m-pos-left { right: 110%; } .m-pos-right { left: 110%; }
             
             .m-dot-point.selected { background-color: #22c55e; transform: scale(1.3); border-color: #14532d; }
         }
@@ -224,9 +226,9 @@
     </div>
 
     <div id="mobile-engine">
-        <div class="mobile-legend">Señala los puntos tal y como figuran en la luna</div>
+        <div class="mobile-legend">Señala los puntos como en la luna</div>
         <div id="mobileBoard">
-            <div class="m-container">
+            <div class="m-inner-box">
                 <div id="mobileLayer" style="width:100%; height:100%; position:relative;"></div>
             </div>
         </div>
@@ -248,8 +250,22 @@
                 <button onclick="toggleModal('helpModal')" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
             <div class="space-y-4 text-sm text-gray-300">
-                <p>Selecciona un <strong>Mes</strong> y un <strong>Año</strong>.</p>
-                <p class="text-xs text-slate-500">Usa el interruptor para ajustar la posición en Modo Edición.</p>
+                <div class="p-2 border-b border-gray-700">
+                    <h4 class="text-green-400 font-bold mb-1">MODO CONSULTA</h4>
+                    <ul class="list-disc pl-4 text-xs text-gray-400 space-y-1">
+                        <li>Selecciona el <strong>Punto del Mes</strong>.</li>
+                        <li>Selecciona el <strong>Punto del Año</strong>.</li>
+                        <li>El sistema calculará la fecha automáticamente.</li>
+                    </ul>
+                </div>
+                <div class="p-2">
+                    <h4 class="text-red-400 font-bold mb-1">MODO EDICIÓN</h4>
+                    <ul class="list-disc pl-4 text-xs text-gray-400 space-y-1">
+                        <li>Activa el interruptor superior.</li>
+                        <li>Arrastra los puntos a su posición real.</li>
+                        <li>Haz clic en un punto para rotar su etiqueta.</li>
+                    </ul>
+                </div>
             </div>
             <button onclick="toggleModal('helpModal')" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded text-xs">ENTENDIDO</button>
         </div>
@@ -272,7 +288,7 @@
         let selected = { m: null, y: null };
         let dragItem = null;
 
-        // DATOS BASE (ESCRITORIO) - NO TOCAR
+        // DATOS BASE (Desktop) - NO TOCAR
         const factoryData = {
             brandText: { text: "AUTOMOTIVE", x: 50, y: 50 },
             logoImg: { src: "logogad.png", x: 50, y: 50 },
@@ -345,7 +361,7 @@
             if(!container) return;
             container.innerHTML = '';
 
-            // Logo
+            // 1. Logo
             const img = document.createElement('img');
             img.className = isMobile ? 'm-watermark' : 'watermark-logo';
             img.src = appState.logoImg.src || "logogad.png";
@@ -354,7 +370,7 @@
             if(isEditMode) initDrag(img, 'img', appState.logoImg);
             container.appendChild(img);
 
-            // Texto
+            // 2. Texto
             const brand = document.createElement('div');
             brand.className = isMobile ? 'm-brand-text' : 'brand-text';
             brand.textContent = appState.brandText.text;
@@ -363,28 +379,40 @@
             if(isEditMode) initDrag(brand, 'brand', appState.brandText);
             container.appendChild(brand);
 
-            // Puntos
+            // 3. Puntos
             appState.points.forEach(p => {
                 const wrap = document.createElement('div');
                 wrap.className = isMobile ? 'm-dot-wrapper' : 'dot-wrapper';
                 
-                // --- TRUCO VISUAL PARA MÓVIL (NO TOCA DB) ---
+                // --- TRUCO VISUAL: FORZAR POSICIONES EN MÓVIL ---
                 if(isMobile) {
-                    let visualY = p.y;
+                    // Aquí es donde evitamos que se superpongan o se "adivinen".
+                    // 1. Detectar si es fila de arriba (y < 50) o abajo (y > 50) o lateral.
+                    
+                    let visualY = 50; // Default
                     let visualX = p.x;
 
-                    // FUERZA LA SEPARACIÓN VERTICAL
-                    if (p.y < 50) visualY = 30; // Años bien arriba
-                    if (p.y > 50) visualY = 70; // Meses bien abajo
-
-                    // FUERZA LA SEPARACIÓN LATERAL
-                    if (p.pos === 'pos-left') visualX = 5; 
-                    if (p.pos === 'pos-right') visualX = 95;
+                    if (p.pos === 'pos-left') { 
+                        // Enero: A la izquierda total, centrado vertical
+                        visualX = 5; visualY = 50; 
+                    } 
+                    else if (p.pos === 'pos-right') { 
+                        // Diciembre: A la derecha total, centrado vertical
+                        visualX = 95; visualY = 50; 
+                    }
+                    else if (p.y < 50) { 
+                        // Años (Fila Arriba): Forzar al 30% de altura (lejos del centro)
+                        visualY = 30; 
+                    } 
+                    else { 
+                        // Meses (Fila Abajo): Forzar al 70% de altura (lejos del centro)
+                        visualY = 70; 
+                    }
 
                     wrap.style.left = visualX + '%';
                     wrap.style.top = visualY + '%';
                 } else {
-                    // Escritorio usa los datos reales
+                    // ESCRITORIO: Usar datos reales de la DB
                     wrap.style.left = p.x + '%';
                     wrap.style.top = p.y + '%';
                 }
@@ -423,7 +451,7 @@
         }
 
         function showResult() {
-            const months = ["", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+            const months = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
             const yDigit = parseInt(selected.y);
             document.getElementById('resMonthName').textContent = months[selected.m];
             document.getElementById('resYearsList').textContent = `${2000+yDigit}, ${2010+yDigit}, ${2020+yDigit}`;
@@ -439,6 +467,7 @@
         // --- DRAG SYSTEM ---
         function initDrag(el, type, dataObj) {
             let startX, startY;
+            // Detectar en qué motor estamos para usar las dimensiones correctas
             const isMobile = window.innerWidth <= 900;
             const board = isMobile ? document.getElementById('mobileBoard') : document.getElementById('glassBoard');
 
@@ -461,12 +490,14 @@
                 const dx = cx - startX;
                 const dy = cy - startY;
 
+                // Calcular porcentaje de movimiento relativo al contenedor actual
                 const moveX_pct = (dx / rect.width) * 100;
                 const moveY_pct = (dy / rect.height) * 100;
 
                 dataObj.x += moveX_pct;
                 dataObj.y += moveY_pct;
 
+                // SNAP (Solo en escritorio, en móvil es libre o forzado)
                 if (type === 'point' && !isMobile) {
                     const guideH = document.getElementById('guideH');
                     const guideV = document.getElementById('guideV');
