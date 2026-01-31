@@ -11,11 +11,13 @@
             --text-color: #f0f0f0;
             --accent-red: #d32f2f;
             --dot-off: #444444;
-            --dot-on: #ffd700;
-            --glow: 0 0 12px rgba(255, 215, 0, 0.8);
+            --dot-on: #ffd700; /* Amarillo estándar para los otros */
+            --nippon-red: #ef4444; /* Rojo específico Nippon */
+            --nippon-blue: #3b82f6; /* Azul específico Nippon */
+            --glow: 0 0 12px rgba(255, 215, 0, 0.7);
             --label-text: #999;
             
-            /* Tamaños base dinámicos */
+            /* Variables de tamaño dinámicas */
             --letter-size: 2.5rem;
             --dot-size: 14px;
         }
@@ -33,14 +35,14 @@
             overflow-x: hidden;
         }
 
-        /* --- NAVEGACIÓN --- */
+        /* --- NAVEGACIÓN (GRID 3 COLUMNAS) --- */
         .tabs-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 5px;
             width: 100%;
             max-width: 600px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .tab-btn {
@@ -50,7 +52,7 @@
             padding: 0;
             cursor: pointer;
             text-transform: uppercase;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: bold;
             letter-spacing: 0.5px;
             border-radius: 4px;
@@ -59,6 +61,8 @@
             align-items: center;
             justify-content: center;
             height: 40px;
+            text-align: center;
+            line-height: 1.1;
         }
 
         .tab-btn.active {
@@ -72,7 +76,7 @@
             background: var(--panel-bg);
             border: 1px solid #3a3a3a;
             border-radius: 8px;
-            padding: 25px 2px; /* Padding lateral mínimo */
+            padding: 25px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -82,21 +86,22 @@
             max-width: 800px;
             box-sizing: border-box;
             position: relative;
+            min-height: 400px;
         }
 
         .brand-section {
             display: none;
             flex-direction: column;
-            gap: 35px; /* Más espacio vertical entre Mes y Año */
+            gap: 30px;
             width: 100%;
             align-items: center;
         }
         .brand-section.active { display: flex; }
 
-        /* --- ESTRUCTURA FLEXBOX --- */
+        /* --- ESTILOS COMUNES (Laminex, etc) --- */
         .word-row {
             display: flex;
-            align-items: center; /* Alineación vertical central */
+            align-items: center;
             justify-content: center;
             width: 100%;
             position: relative;
@@ -130,7 +135,6 @@
             z-index: 1;
         }
 
-        /* --- PUNTOS LATERALES Y FLOTANTES --- */
         .side-col {
             display: flex;
             flex-direction: column;
@@ -140,11 +144,9 @@
             max-width: 50px;
             position: relative;
             height: 100%;
-            /* AJUSTE CLAVE: Empujamos un poco abajo los laterales para compensar la etiqueta y que el punto quede CENTRADO con la letra */
             padding-top: 10px; 
         }
 
-        /* Contenedor del punto */
         .dot-wrapper {
             display: flex;
             flex-direction: column;
@@ -155,13 +157,11 @@
             z-index: 2;
         }
         
-        /* Posicionamiento Absoluto para Diagonales */
         .dot-wrapper.absolute {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
         }
-        /* AJUSTE CLAVE: Reducimos distancia para que no parezcan "tan altos" */
         .pos-top-floating { top: -35px; } 
         .pos-bot-floating { bottom: -35px; }
         
@@ -170,16 +170,17 @@
             color: var(--label-text);
             text-transform: uppercase;
             font-weight: bold;
-            margin-bottom: 1px; /* Pegamos más el texto al punto */
+            margin-bottom: 1px;
             white-space: nowrap;
         }
         .lbl-bot { margin-bottom: 0; margin-top: 1px; }
 
-        input[type="radio"] { display: none; }
+        input[type="radio"], input[type="checkbox"] { display: none; }
 
         label {
             display: flex; justify-content: center; align-items: center;
             padding: 8px; margin: -8px; cursor: pointer;
+            z-index: 10;
         }
 
         .dot {
@@ -188,10 +189,81 @@
             border: 2px solid #666; border-radius: 50%;
             transition: all 0.2s;
         }
+        /* Estilo activo genérico */
         input[type="radio"]:checked + .dot {
             background-color: var(--dot-on); border-color: #fff;
             box-shadow: var(--glow); transform: scale(1.3);
         }
+
+        /* --- ESTILOS NIPPON SAFETY --- */
+        .nippon-wrapper {
+            position: relative;
+            width: 100%;
+            height: 320px; /* Altura fija para el canvas simulado */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .nippon-letter {
+            position: absolute;
+            font-family: 'Arial Black', sans-serif;
+            font-weight: 900;
+            color: #cc0000;
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+            transform-origin: center center;
+            display: flex; justify-content: center; align-items: center;
+            pointer-events: none;
+            line-height: 1;
+        }
+
+        .n-dot {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.15s;
+            z-index: 20;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #333;
+        }
+        
+        /* Puntos Rojos (Meses) */
+        .n-dot-red { background-color: #7f1d1d; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .n-dot-red.selected { 
+            background-color: var(--nippon-red); 
+            border-color: white; 
+            transform: scale(1.4); 
+            box-shadow: 0 0 15px var(--nippon-red); 
+        }
+
+        /* Puntos Azules (Años) */
+        .n-dot-blue { 
+            background-color: #1e3a8a; 
+            display: flex; justify-content: center; align-items: center;
+            color: #aaa; font-size: 10px; font-weight: bold;
+            width: 24px; height: 24px;
+        }
+        .n-dot-blue.selected { 
+            background-color: var(--nippon-blue); 
+            border-color: white; 
+            color: white;
+            transform: scale(1.3); 
+            box-shadow: 0 0 15px var(--nippon-blue); 
+        }
+
+        .btn-calc-nippon {
+            background: #22c55e; color: #022c22;
+            font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
+            padding: 12px 30px; border-radius: 6px;
+            font-size: 1rem; border: none; cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+        }
+        .btn-calc-nippon:active { transform: scale(0.98); }
+
 
         /* --- ESTILOS GENÉRICO --- */
         .generic-wrapper { display: flex; justify-content: center; gap: 2%; width: 100%; }
@@ -229,36 +301,18 @@
         .res-sub { color: #aaa; font-size: 0.8rem; }
         .hl { color: var(--dot-on); }
 
-        /* --- AJUSTES MÓVIL CRÍTICOS --- */
-        
-        /* Ajuste general para móvil */
+        /* --- MEDIA QUERIES --- */
         @media (max-width: 600px) {
             :root { --letter-size: 1.8rem; --dot-size: 12px; }
-            .pos-top-floating { top: -28px; } /* Más bajito */
+            .pos-top-floating { top: -28px; } 
             .pos-bot-floating { bottom: -28px; }
-            .glass-container { padding: 20px 0; } /* Sin padding lateral */
+            .glass-container { padding: 20px 0; }
+            /* Ajuste Nippon para móvil */
+            .nippon-wrapper { transform: scale(0.85); margin: -20px 0; }
         }
-
-        /* AJUSTE ESPECÍFICO PARA TEMPERLITE EN MÓVIL ESTRECHO */
-        /* Necesitamos que entren 12 columnas (Ene + 10 letras + Dic) */
-        @media (max-width: 450px) {
-            /* Regla especial para secciones muy anchas */
-            #temperlite .letters-group { gap: 1px; } /* Pegar letras */
-            #temperlite .letter-col { width: 7vw; } /* Letras más estrechas */
-            #temperlite .letter { font-size: 1.4rem; } /* Fuente más pequeña */
-            
-            #lamisafe .letters-group { gap: 2px; }
-            #lamisafe .letter { font-size: 1.5rem; }
-            
-            /* Asegurar que Ene/Dic en laterales tengan espacio */
-            .side-col { width: 10vw; padding-top: 8px; } 
-            .lbl { font-size: 0.45rem; } /* Etiqueta mini */
-        }
-        
-        /* Ultra pequeño (iPhone SE, Fold cerrado) */
-        @media (max-width: 340px) {
-            #temperlite .letter { font-size: 1.1rem; }
-            .dot-wrapper { height: 25px; }
+        @media (max-width: 360px) {
+            :root { --letter-size: 1.4rem; --dot-size: 10px; }
+            .nippon-wrapper { transform: scale(0.7); margin: -40px 0; }
         }
     </style>
 </head>
@@ -269,6 +323,7 @@
         <div class="tab-btn" onclick="openTab('tempalex')">Tempalex</div>
         <div class="tab-btn" onclick="openTab('temperlite')">Temperlite</div>
         <div class="tab-btn" onclick="openTab('lamisafe')">Lamisafe</div>
+        <div class="tab-btn" onclick="openTab('nippon')">Nippon Safety</div>
         <div class="tab-btn" onclick="openTab('generic')">Genérico</div>
     </div>
 
@@ -279,7 +334,6 @@
                 <div class="side-col">
                     <div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div>
                 </div>
-
                 <div class="letters-group">
                     <div class="letter-col">
                         <div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div>
@@ -297,18 +351,15 @@
                         <div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Dic</span></div>
                     </div>
                 </div>
-
                 <div class="side-col">
                     <div class="dot-wrapper absolute pos-top-floating"><span class="lbl">Oct</span><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label></div>
                     <div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div>
                 </div>
             </div>
-
             <div class="word-row" style="margin-top: 30px;">
                 <div class="side-col">
                     <div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div>
                 </div>
-
                 <div class="letters-group">
                     <div class="letter-col"><div class="letter">C</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div>
                     <div class="letter-col"><div class="letter">E</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="8" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">8</span></div></div>
@@ -318,7 +369,6 @@
                     <div class="letter-col"><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="4" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">4</span></div></div>
                     <div class="letter-col"><div class="letter">L</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="3" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">3</span></div></div>
                 </div>
-
                 <div class="side-col">
                     <div class="dot-wrapper absolute pos-top-floating"><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">1</span></div>
                     <div class="dot-wrapper"><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">2</span></div>
@@ -331,7 +381,6 @@
                 <div class="side-col">
                     <div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div>
                 </div>
-
                 <div class="letters-group">
                     <div class="letter-col">
                         <div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div>
@@ -350,12 +399,10 @@
                         <div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Dic</span></div>
                     </div>
                 </div>
-
                 <div class="side-col">
                     <div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div>
                 </div>
             </div>
-            
             <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (CENTRAL)</p>
             <div class="word-row" style="margin-top: 30px;">
                  <div class="side-col"><div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div></div>
@@ -392,7 +439,6 @@
                 </div>
                 <div class="side-col"><div class="dot-wrapper"><span class="lbl">Dic</span><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label></div></div>
             </div>
-            
             <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (ASAHI)</p>
             <div class="word-row">
                  <div class="letters-group">
@@ -432,7 +478,6 @@
                     <div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div>
                 </div>
             </div>
-            
             <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (ASAHI)</p>
             <div class="word-row">
                  <div class="letters-group">
@@ -443,6 +488,12 @@
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">4</span><label><input type="radio" name="anio" value="4" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div>
                  </div>
             </div>
+        </div>
+
+        <div id="nippon" class="brand-section">
+            <div class="nippon-wrapper" id="nipponBoard">
+                </div>
+            <button onclick="calcNippon()" class="btn-calc-nippon">CALCULAR</button>
         </div>
 
         <div id="generic" class="brand-section">
@@ -456,12 +507,10 @@
                     <div class="g-row" onclick="selectGenMonth('Mayo', this)"><div class="g-dot"></div><div class="g-dot"></div><span class="month-name">May</span></div>
                     <div class="g-row" onclick="selectGenMonth('Junio', this)"><div class="g-dot"></div><span class="month-name">Jun</span></div>
                 </div>
-
                 <div class="year-center">
                     <input type="number" class="year-input" id="genYearInput" placeholder="5" oninput="calc()">
                     <span style="color:#777; font-size:0.5rem; text-transform:uppercase; margin-top:5px;">AÑO</span>
                 </div>
-
                 <div class="semester-block">
                     <div class="sem-title">Derecha</div>
                     <div class="g-row" onclick="selectGenMonth('Julio', this)"><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><span class="month-name">Jul</span></div>
@@ -483,16 +532,52 @@
     </div>
 
     <script>
+        // --- NIPPON DATA ---
+        const YEAR_TABLE_NIPPON = {
+            "A": [1991, 2021], "B": [1992, 2022], "C": [1993, 2023], "D": [1994, 2024],
+            "AB": [1995, 2025], "AC": [1996, 2026], "AD": [1997, 2027], "BC": [1998, 2028], "BD": [1999, 2029], "CD": [2000, 2030],
+            "AE": [2001], "BE": [2002], "CE": [2003], "DE": [2004], "ABE": [2005], "ACE": [2006], "ADE": [2007], "BCE": [2008], "BDE": [2009], "CDE": [2010],
+            "AF": [2011], "BF": [2012], "CF": [2013], "DF": [2014], "ABF": [2015], "ACF": [2016], "ADF": [2017], "BCF": [2018], "BDF": [2019], "CDF": [2020]
+        };
+        let nipponSel = { m: null, yDots: [] };
+
+        const NIPPON_ELEMENTS = [
+            // NIPPON (Arriba)
+            { type: 'letter', char: 'N', x: 25, y: 40, rot: -20 }, { type: 'dot', id: 'm1', val: 1, color: 'red', x: 25, y: 30 },
+            { type: 'letter', char: 'I', x: 35, y: 35, rot: -10 }, { type: 'dot', id: 'm2', val: 2, color: 'red', x: 35, y: 25 },
+            { type: 'letter', char: 'P', x: 45, y: 32, rot: -5 },  { type: 'dot', id: 'm3', val: 3, color: 'red', x: 45, y: 22 },
+            { type: 'letter', char: 'P', x: 55, y: 32, rot: 5 },   { type: 'dot', id: 'm4', val: 4, color: 'red', x: 55, y: 22 },
+            { type: 'letter', char: 'O', x: 65, y: 35, rot: 10 },  { type: 'dot', id: 'm5', val: 5, color: 'red', x: 65, y: 25 },
+            { type: 'letter', char: 'N', x: 75, y: 40, rot: 20 },  { type: 'dot', id: 'm6', val: 6, color: 'red', x: 75, y: 30 },
+            // SAFETY (Abajo)
+            { type: 'letter', char: 'S', x: 25, y: 60, rot: 20 },  { type: 'dot', id: 'm7', val: 7, color: 'red', x: 25, y: 70 },
+            { type: 'letter', char: 'A', x: 35, y: 65, rot: 10 },  { type: 'dot', id: 'm8', val: 8, color: 'red', x: 35, y: 75 },
+            { type: 'letter', char: 'F', x: 45, y: 68, rot: 5 },   { type: 'dot', id: 'm9', val: 9, color: 'red', x: 45, y: 78 },
+            { type: 'letter', char: 'E', x: 55, y: 68, rot: -5 },  { type: 'dot', id: 'm10', val: 10, color: 'red', x: 55, y: 78 },
+            { type: 'letter', char: 'T', x: 65, y: 65, rot: -10 }, { type: 'dot', id: 'm11', val: 11, color: 'red', x: 65, y: 75 },
+            { type: 'letter', char: 'Y', x: 75, y: 60, rot: -20 }, { type: 'dot', id: 'm12', val: 12, color: 'red', x: 75, y: 70 },
+            // AÑOS
+            { type: 'dot', id: 'yA', val: 'A', label: 'A', color: 'blue', x: 15, y: 40 },
+            { type: 'dot', id: 'yB', val: 'B', label: 'B', color: 'blue', x: 85, y: 40 },
+            { type: 'dot', id: 'yC', val: 'C', label: 'C', color: 'blue', x: 15, y: 60 },
+            { type: 'dot', id: 'yD', val: 'D', label: 'D', color: 'blue', x: 85, y: 60 },
+            { type: 'dot', id: 'yE', val: 'E', label: 'E', color: 'blue', x: 30, y: 56 },
+            { type: 'dot', id: 'yF', val: 'F', label: 'F', color: 'blue', x: 70, y: 56 }
+        ];
+
+        // --- APP LOGIC ---
         function openTab(id) {
             document.querySelectorAll('.brand-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             
             const btns = Array.from(document.querySelectorAll('.tab-btn'));
-            const index = ['laminex', 'tempalex', 'temperlite', 'lamisafe', 'generic'].indexOf(id);
-            if(index >= 0) btns[index].classList.add('active');
+            const map = ['laminex', 'tempalex', 'temperlite', 'lamisafe', 'nippon', 'generic'];
+            const idx = map.indexOf(id);
+            if(idx >= 0 && btns[idx]) btns[idx].classList.add('active');
 
             resetCalc();
+            if(id === 'nippon') renderNippon();
         }
 
         function resetCalc() {
@@ -502,8 +587,13 @@
             document.getElementById('genYearInput').value = "";
             document.getElementById('res-main').innerText = "--";
             document.getElementById('res-sub').innerText = "Selecciona los datos";
+            
+            // Reset Nippon
+            nipponSel = { m: null, yDots: [] };
+            renderNippon();
         }
 
+        // --- LÓGICA GENERAL ---
         function selectGenMonth(mes, el) {
             document.querySelectorAll('.g-row').forEach(r => r.classList.remove('active'));
             el.classList.add('active');
@@ -513,8 +603,9 @@
 
         function calc() {
             const activeSec = document.querySelector('.brand-section.active');
-            let mVal = null, aVal = null;
+            if(activeSec.id === 'nippon') return; // Nippon tiene su propio botón
 
+            let mVal = null, aVal = null;
             if (activeSec.id === 'generic') {
                 mVal = document.getElementById('genMonthHidden').value;
                 aVal = document.getElementById('genYearInput').value;
@@ -541,6 +632,82 @@
                 sub.innerText = "Falta el Mes";
             }
         }
+
+        // --- LÓGICA NIPPON ---
+        function renderNippon() {
+            const container = document.getElementById('nipponBoard');
+            if(!container) return;
+            container.innerHTML = '';
+
+            NIPPON_ELEMENTS.forEach(el => {
+                const div = document.createElement('div');
+                div.style.left = el.x + '%';
+                div.style.top = el.y + '%';
+                
+                if (el.type === 'letter') {
+                    div.className = 'nippon-letter';
+                    div.textContent = el.char;
+                    div.style.transform = `translate(-50%, -50%) rotate(${el.rot}deg)`;
+                } else if (el.type === 'dot') {
+                    div.className = `n-dot n-dot-${el.color}`;
+                    div.id = el.id;
+                    if(el.label) div.textContent = el.label;
+                    
+                    let isSelected = false;
+                    if (el.color === 'red') isSelected = (nipponSel.m === el.val);
+                    else isSelected = nipponSel.yDots.includes(el.val);
+                    
+                    if(isSelected) div.classList.add('selected');
+
+                    div.onclick = (e) => handleNipponClick(e, el);
+                    div.style.transform = `translate(-50%, -50%)`;
+                }
+                container.appendChild(div);
+            });
+        }
+
+        function handleNipponClick(e, el) {
+            e.stopPropagation();
+            if (el.color === 'red') {
+                nipponSel.m = (nipponSel.m === el.val) ? null : el.val;
+            } else {
+                const idx = nipponSel.yDots.indexOf(el.val);
+                if (idx > -1) nipponSel.yDots.splice(idx, 1);
+                else nipponSel.yDots.push(el.val);
+                nipponSel.yDots.sort();
+            }
+            renderNippon();
+        }
+
+        function calcNippon() {
+            const main = document.getElementById('res-main');
+            const sub = document.getElementById('res-sub');
+            
+            if (nipponSel.m === null && nipponSel.yDots.length === 0) return;
+
+            const months = ["", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+            const pattern = nipponSel.yDots.join('');
+            const monthText = nipponSel.m ? months[nipponSel.m] : "Mes ?";
+            
+            let years = YEAR_TABLE_NIPPON[pattern];
+            
+            if(years) {
+                main.innerHTML = `<span style="color:#ef4444">${monthText}</span>`;
+                sub.innerHTML = `Fechas: <span style="color:#4ade80; font-weight:bold; font-size:1.1rem;">${years.join(" / ")}</span>`;
+            } else {
+                if (nipponSel.yDots.length > 0) {
+                    main.innerText = "Combinación Inválida";
+                    sub.innerText = "Revisa los puntos azules";
+                } else {
+                    main.innerText = monthText;
+                    sub.innerText = "Falta seleccionar Año";
+                }
+            }
+        }
+        
+        window.addEventListener('resize', () => {
+            if(document.getElementById('nippon').classList.contains('active')) renderNippon();
+        });
     </script>
 </body>
 </html>
