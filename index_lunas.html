@@ -11,13 +11,12 @@
             --text-color: #f0f0f0;
             --accent-red: #d32f2f;
             --dot-off: #444444;
-            --dot-on: #ffd700; /* Amarillo estándar */
-            --nippon-red: #ef4444; /* Rojo Nippon */
-            --nippon-blue: #3b82f6; /* Azul Nippon */
+            --dot-on: #ffd700;
+            --nippon-red: #ef4444;
+            --nippon-blue: #3b82f6;
             --glow: 0 0 12px rgba(255, 215, 0, 0.7);
             --label-text: #999;
             
-            /* Variables de tamaño */
             --letter-size: 2.5rem;
             --dot-size: 14px;
         }
@@ -76,7 +75,7 @@
             background: var(--panel-bg);
             border: 1px solid #3a3a3a;
             border-radius: 8px;
-            padding: 25px 0;
+            padding: 25px 0 60px 0; /* Padding inferior extra para los logos */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -87,27 +86,21 @@
             box-sizing: border-box;
             position: relative;
             min-height: 400px;
-            /* IMPORTANTE: Para que la marca de agua no tape */
             z-index: 1; 
         }
 
-        /* --- MARCA DE AGUA (Watermark) --- */
-        .glass-container::before {
-            content: "";
+        /* --- LOGOS INFERIORES --- */
+        .corner-logo {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50%; /* Tamaño de la marca de agua */
-            height: 50%;
-            background-image: url('logogad.png'); /* TU IMAGEN AQUÍ */
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: contain;
-            opacity: 0.15; /* Transparencia sutil */
-            z-index: -1;   /* Detrás del contenido */
-            pointer-events: none; /* Click-through */
+            bottom: 15px;
+            height: 40px; /* Tamaño ajustable según necesidad */
+            width: auto;
+            opacity: 0.8;
+            z-index: 5;
+            pointer-events: none;
         }
+        .logo-left { left: 15px; }
+        .logo-right { right: 15px; }
 
         .brand-section {
             display: none;
@@ -115,11 +108,26 @@
             gap: 30px;
             width: 100%;
             align-items: center;
-            position: relative; /* Asegura z-index */
+            position: relative;
         }
         .brand-section.active { display: flex; }
 
-        /* --- ESTRUCTURA GENERAL (Laminex/Otros) --- */
+        /* --- ESTILOS AYUDA --- */
+        .help-content {
+            padding: 0 20px;
+            color: #ccc;
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .help-content h3 { color: #ffd700; border-bottom: 1px solid #444; padding-bottom: 5px; margin-top: 0;}
+        .help-content h4 { color: var(--accent-red); margin-bottom: 5px; }
+        .help-content p { margin-bottom: 15px; }
+        .help-note { background: rgba(0,0,0,0.3); padding: 10px; border-left: 3px solid #ffd700; border-radius: 4px; font-size: 0.85rem; }
+
+        /* --- ESTRUCTURA GENERAL --- */
         .word-row {
             display: flex;
             align-items: center;
@@ -174,7 +182,7 @@
             justify-content: center;
             height: 30px;
             position: relative;
-            z-index: 10; /* Encima de la marca de agua */
+            z-index: 10;
         }
         
         .dot-wrapper.absolute {
@@ -210,7 +218,6 @@
             transition: all 0.2s;
         }
         
-        /* Estilos Activos Generales */
         input[type="radio"]:checked + .dot {
             background-color: var(--dot-on); border-color: #fff;
             box-shadow: var(--glow); transform: scale(1.3);
@@ -251,7 +258,17 @@
             border: 2px solid #333;
         }
         
-        /* Puntos Rojos Nippon */
+        .n-lbl {
+            font-size: 0.55rem;
+            color: #aaa;
+            font-weight: bold;
+            position: absolute;
+            white-space: nowrap;
+            text-shadow: 1px 1px 2px black;
+        }
+        .n-lbl-top { top: -18px; }
+        .n-lbl-bot { bottom: -18px; }
+
         .n-dot-red { background-color: #7f1d1d; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
         .n-dot-red.selected { 
             background-color: var(--nippon-red); 
@@ -260,7 +277,6 @@
             box-shadow: 0 0 15px var(--nippon-red); 
         }
 
-        /* Puntos Azules Nippon */
         .n-dot-blue { 
             background-color: #1e3a8a; 
             display: flex; justify-content: center; align-items: center;
@@ -285,7 +301,6 @@
             z-index: 10;
         }
         .btn-calc-nippon:active { transform: scale(0.98); }
-
 
         /* --- ESTILOS GENÉRICO --- */
         .generic-wrapper { display: flex; justify-content: center; gap: 2%; width: 100%; }
@@ -312,26 +327,54 @@
             color: white; font-size: 2rem; font-weight: bold; width: 100%; text-align: center; padding: 0;
         }
 
-        /* --- RESULTADO --- */
+        /* --- RESULTADO Y BOTÓN AYUDA --- */
         .result-box {
             margin-top: 20px; background: rgba(30, 30, 30, 0.95);
-            border-left: 5px solid var(--dot-on); padding: 15px; width: auto;
-            min-width: 280px; max-width: 90%; text-align: center;
+            border-left: 5px solid var(--dot-on); padding: 15px 15px 15px 25px;
+            width: auto; min-width: 280px; max-width: 90%; 
             border-radius: 0 8px 8px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             position: relative; z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
         }
-        .res-main { font-size: 1.3rem; color: white; font-weight: bold; margin-bottom: 4px; }
+        
+        .res-content {
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .res-main { font-size: 1.3rem; color: white; font-weight: bold; margin-bottom: 4px; line-height: 1.2; display: block;}
         .res-sub { color: #aaa; font-size: 0.8rem; }
         .hl { color: var(--dot-on); }
+
+        .help-btn-small {
+            background: #444;
+            color: #ffd700;
+            border: 1px solid #666;
+            border-radius: 4px;
+            padding: 5px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .help-btn-small:hover { background: #555; color: #fff; }
 
         /* --- MEDIA QUERIES --- */
         @media (max-width: 600px) {
             :root { --letter-size: 1.8rem; --dot-size: 12px; }
             .pos-top-floating { top: -28px; } 
             .pos-bot-floating { bottom: -28px; }
-            .glass-container { padding: 20px 0; }
-            /* Ajuste Nippon para móvil */
+            .glass-container { padding: 20px 0 50px 0; }
             .nippon-wrapper { transform: scale(0.85); margin: -20px 0; }
+            
+            .corner-logo { height: 30px; bottom: 10px; }
+            .logo-left { left: 10px; }
+            .logo-right { right: 10px; }
         }
         @media (max-width: 360px) {
             :root { --letter-size: 1.4rem; --dot-size: 10px; }
@@ -351,12 +394,29 @@
     </div>
 
     <div class="glass-container">
+        
+        <img src="logogad2.png" alt="Logo Izq" class="corner-logo logo-left">
+        <img src="logogad.png" alt="Logo Der" class="corner-logo logo-right">
+
+        <div id="help" class="brand-section">
+            <div class="help-content">
+                <h3>GUÍA DE USO</h3>
+                <p>Selecciona el fabricante de la luna y marca los puntos tal como aparecen en el cristal.</p>
+                
+                <h4>¿Cómo funciona?</h4>
+                <p>La mayoría de fabricantes (Laminex, Temperlite, etc.) usan un sistema de <strong>lectura directa</strong>: un punto indica el mes y otro el año.</p>
+                
+                <h4>El caso especial: NIPPON SAFETY</h4>
+                <div class="help-note">
+                    <strong>¿Por qué tiene botón CALCULAR?</strong><br>
+                    A diferencia de los demás, Nippon Safety utiliza una <strong>Tabla de Verdad</strong> compleja. No basta con mirar un punto; el año se determina mediante la combinación de múltiples puntos azules (A, B, C, D, E, F) activos simultáneamente.
+                </div>
+            </div>
+        </div>
 
         <div id="laminex" class="brand-section active">
             <div class="word-row">
-                <div class="side-col">
-                    <div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div>
-                </div>
+                <div class="side-col"><div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div></div>
                 <div class="letters-group">
                     <div class="letter-col">
                         <div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div>
@@ -380,9 +440,7 @@
                 </div>
             </div>
             <div class="word-row" style="margin-top: 30px;">
-                <div class="side-col">
-                    <div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div>
-                </div>
+                <div class="side-col"><div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div></div>
                 <div class="letters-group">
                     <div class="letter-col"><div class="letter">C</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div>
                     <div class="letter-col"><div class="letter">E</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="8" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">8</span></div></div>
@@ -401,9 +459,7 @@
 
         <div id="tempalex" class="brand-section">
             <div class="word-row">
-                <div class="side-col">
-                    <div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div>
-                </div>
+                <div class="side-col"><div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div></div>
                 <div class="letters-group">
                     <div class="letter-col">
                         <div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div>
@@ -422,11 +478,8 @@
                         <div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Dic</span></div>
                     </div>
                 </div>
-                <div class="side-col">
-                    <div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div>
-                </div>
+                <div class="side-col"><div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div></div>
             </div>
-            <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (CENTRAL)</p>
             <div class="word-row" style="margin-top: 30px;">
                  <div class="side-col"><div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div></div>
                  <div class="letters-group">
@@ -514,8 +567,7 @@
         </div>
 
         <div id="nippon" class="brand-section">
-            <div class="nippon-wrapper" id="nipponBoard">
-                </div>
+            <div class="nippon-wrapper" id="nipponBoard"></div>
             <button onclick="calcNippon()" class="btn-calc-nippon">CALCULAR</button>
         </div>
 
@@ -550,12 +602,15 @@
     </div>
 
     <div class="result-box">
-        <div class="res-main" id="res-main">--</div>
-        <div class="res-sub" id="res-sub">Selecciona los datos</div>
+        <div class="res-content">
+            <div class="res-main" id="res-main">--</div>
+            <div class="res-sub" id="res-sub">Selecciona los datos</div>
+        </div>
+        <button class="help-btn-small" onclick="openTab('help')">AYUDA</button>
     </div>
 
     <script>
-        // --- NIPPON DATA ---
+        // --- NIPPON CONFIG ---
         const YEAR_TABLE_NIPPON = {
             "A": [1991, 2021], "B": [1992, 2022], "C": [1993, 2023], "D": [1994, 2024],
             "AB": [1995, 2025], "AC": [1996, 2026], "AD": [1997, 2027], "BC": [1998, 2028], "BD": [1999, 2029], "CD": [2000, 2030],
@@ -564,21 +619,22 @@
         };
         let nipponSel = { m: null, yDots: [] };
 
+        // Elementos Nippon CON ETIQUETAS Y POSICIONES
         const NIPPON_ELEMENTS = [
-            // NIPPON (Arriba)
-            { type: 'letter', char: 'N', x: 25, y: 40, rot: -20 }, { type: 'dot', id: 'm1', val: 1, color: 'red', x: 25, y: 30 },
-            { type: 'letter', char: 'I', x: 35, y: 35, rot: -10 }, { type: 'dot', id: 'm2', val: 2, color: 'red', x: 35, y: 25 },
-            { type: 'letter', char: 'P', x: 45, y: 32, rot: -5 },  { type: 'dot', id: 'm3', val: 3, color: 'red', x: 45, y: 22 },
-            { type: 'letter', char: 'P', x: 55, y: 32, rot: 5 },   { type: 'dot', id: 'm4', val: 4, color: 'red', x: 55, y: 22 },
-            { type: 'letter', char: 'O', x: 65, y: 35, rot: 10 },  { type: 'dot', id: 'm5', val: 5, color: 'red', x: 65, y: 25 },
-            { type: 'letter', char: 'N', x: 75, y: 40, rot: 20 },  { type: 'dot', id: 'm6', val: 6, color: 'red', x: 75, y: 30 },
-            // SAFETY (Abajo)
-            { type: 'letter', char: 'S', x: 25, y: 60, rot: 20 },  { type: 'dot', id: 'm7', val: 7, color: 'red', x: 25, y: 70 },
-            { type: 'letter', char: 'A', x: 35, y: 65, rot: 10 },  { type: 'dot', id: 'm8', val: 8, color: 'red', x: 35, y: 75 },
-            { type: 'letter', char: 'F', x: 45, y: 68, rot: 5 },   { type: 'dot', id: 'm9', val: 9, color: 'red', x: 45, y: 78 },
-            { type: 'letter', char: 'E', x: 55, y: 68, rot: -5 },  { type: 'dot', id: 'm10', val: 10, color: 'red', x: 55, y: 78 },
-            { type: 'letter', char: 'T', x: 65, y: 65, rot: -10 }, { type: 'dot', id: 'm11', val: 11, color: 'red', x: 65, y: 75 },
-            { type: 'letter', char: 'Y', x: 75, y: 60, rot: -20 }, { type: 'dot', id: 'm12', val: 12, color: 'red', x: 75, y: 70 },
+            // NIPPON (Arriba) - Etiquetas encima (top)
+            { type: 'letter', char: 'N', x: 25, y: 40, rot: -20 }, { type: 'dot', id: 'm1', val: 1, color: 'red', x: 25, y: 30, label: 'ENE', lblPos: 'top' },
+            { type: 'letter', char: 'I', x: 35, y: 35, rot: -10 }, { type: 'dot', id: 'm2', val: 2, color: 'red', x: 35, y: 25, label: 'FEB', lblPos: 'top' },
+            { type: 'letter', char: 'P', x: 45, y: 32, rot: -5 },  { type: 'dot', id: 'm3', val: 3, color: 'red', x: 45, y: 22, label: 'MAR', lblPos: 'top' },
+            { type: 'letter', char: 'P', x: 55, y: 32, rot: 5 },   { type: 'dot', id: 'm4', val: 4, color: 'red', x: 55, y: 22, label: 'ABR', lblPos: 'top' },
+            { type: 'letter', char: 'O', x: 65, y: 35, rot: 10 },  { type: 'dot', id: 'm5', val: 5, color: 'red', x: 65, y: 25, label: 'MAY', lblPos: 'top' },
+            { type: 'letter', char: 'N', x: 75, y: 40, rot: 20 },  { type: 'dot', id: 'm6', val: 6, color: 'red', x: 75, y: 30, label: 'JUN', lblPos: 'top' },
+            // SAFETY (Abajo) - Etiquetas debajo (bot)
+            { type: 'letter', char: 'S', x: 25, y: 60, rot: 20 },  { type: 'dot', id: 'm7', val: 7, color: 'red', x: 25, y: 70, label: 'JUL', lblPos: 'bot' },
+            { type: 'letter', char: 'A', x: 35, y: 65, rot: 10 },  { type: 'dot', id: 'm8', val: 8, color: 'red', x: 35, y: 75, label: 'AGO', lblPos: 'bot' },
+            { type: 'letter', char: 'F', x: 45, y: 68, rot: 5 },   { type: 'dot', id: 'm9', val: 9, color: 'red', x: 45, y: 78, label: 'SEP', lblPos: 'bot' },
+            { type: 'letter', char: 'E', x: 55, y: 68, rot: -5 },  { type: 'dot', id: 'm10', val: 10, color: 'red', x: 55, y: 78, label: 'OCT', lblPos: 'bot' },
+            { type: 'letter', char: 'T', x: 65, y: 65, rot: -10 }, { type: 'dot', id: 'm11', val: 11, color: 'red', x: 65, y: 75, label: 'NOV', lblPos: 'bot' },
+            { type: 'letter', char: 'Y', x: 75, y: 60, rot: -20 }, { type: 'dot', id: 'm12', val: 12, color: 'red', x: 75, y: 70, label: 'DIC', lblPos: 'bot' },
             // AÑOS
             { type: 'dot', id: 'yA', val: 'A', label: 'A', color: 'blue', x: 15, y: 40 },
             { type: 'dot', id: 'yB', val: 'B', label: 'B', color: 'blue', x: 85, y: 40 },
@@ -588,13 +644,13 @@
             { type: 'dot', id: 'yF', val: 'F', label: 'F', color: 'blue', x: 70, y: 56 }
         ];
 
-        // --- APP LOGIC ---
         function openTab(id) {
             document.querySelectorAll('.brand-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             
             const btns = Array.from(document.querySelectorAll('.tab-btn'));
+            // Mapeo ID -> Indice en botones
             const map = ['laminex', 'tempalex', 'temperlite', 'lamisafe', 'nippon', 'generic'];
             const idx = map.indexOf(id);
             if(idx >= 0 && btns[idx]) btns[idx].classList.add('active');
@@ -611,12 +667,10 @@
             document.getElementById('res-main').innerText = "--";
             document.getElementById('res-sub').innerText = "Selecciona los datos";
             
-            // Reset Nippon
             nipponSel = { m: null, yDots: [] };
-            renderNippon();
+            if(document.getElementById('nippon').classList.contains('active')) renderNippon();
         }
 
-        // --- LÓGICA GENERAL ---
         function selectGenMonth(mes, el) {
             document.querySelectorAll('.g-row').forEach(r => r.classList.remove('active'));
             el.classList.add('active');
@@ -626,7 +680,8 @@
 
         function calc() {
             const activeSec = document.querySelector('.brand-section.active');
-            if(activeSec.id === 'nippon') return; // Nippon tiene su propio botón
+            // Si está en Nippon o Ayuda, no hace cálculo automático general
+            if(activeSec.id === 'nippon' || activeSec.id === 'help') return;
 
             let mVal = null, aVal = null;
             if (activeSec.id === 'generic') {
@@ -656,7 +711,6 @@
             }
         }
 
-        // --- LÓGICA NIPPON ---
         function renderNippon() {
             const container = document.getElementById('nipponBoard');
             if(!container) return;
@@ -664,26 +718,41 @@
 
             NIPPON_ELEMENTS.forEach(el => {
                 const div = document.createElement('div');
+                div.className = 'n-elem'; // Clase auxiliar para posicionar
+                // Posicionamiento absoluto en %
+                div.style.position = 'absolute';
                 div.style.left = el.x + '%';
                 div.style.top = el.y + '%';
+                div.style.transform = 'translate(-50%, -50%)';
                 
                 if (el.type === 'letter') {
-                    div.className = 'nippon-letter';
-                    div.textContent = el.char;
-                    div.style.transform = `translate(-50%, -50%) rotate(${el.rot}deg)`;
+                    const span = document.createElement('div');
+                    span.className = 'nippon-letter';
+                    span.textContent = el.char;
+                    span.style.transform = `rotate(${el.rot}deg)`;
+                    div.appendChild(span);
                 } else if (el.type === 'dot') {
-                    div.className = `n-dot n-dot-${el.color}`;
-                    div.id = el.id;
-                    if(el.label) div.textContent = el.label;
+                    const dot = document.createElement('div');
+                    dot.className = `n-dot n-dot-${el.color}`;
+                    dot.id = el.id;
+                    if(el.color === 'blue' && el.label) dot.textContent = el.label;
                     
                     let isSelected = false;
                     if (el.color === 'red') isSelected = (nipponSel.m === el.val);
                     else isSelected = nipponSel.yDots.includes(el.val);
                     
-                    if(isSelected) div.classList.add('selected');
+                    if(isSelected) dot.classList.add('selected');
+                    
+                    // Añadir etiqueta de mes si es rojo
+                    if (el.color === 'red' && el.label) {
+                        const lbl = document.createElement('div');
+                        lbl.className = `n-lbl n-lbl-${el.lblPos}`;
+                        lbl.textContent = el.label;
+                        div.appendChild(lbl);
+                    }
 
-                    div.onclick = (e) => handleNipponClick(e, el);
-                    div.style.transform = `translate(-50%, -50%)`;
+                    dot.onclick = (e) => handleNipponClick(e, el);
+                    div.appendChild(dot);
                 }
                 container.appendChild(div);
             });
