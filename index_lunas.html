@@ -15,7 +15,7 @@
             --glow: 0 0 12px rgba(255, 215, 0, 0.8);
             --label-text: #999;
             
-            /* Variables de tamaño dinámicas */
+            /* Tamaños base dinámicos */
             --letter-size: 2.5rem;
             --dot-size: 14px;
         }
@@ -33,7 +33,7 @@
             overflow-x: hidden;
         }
 
-        /* --- NAVEGACIÓN (GRID 3 COLUMNAS) --- */
+        /* --- NAVEGACIÓN --- */
         .tabs-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -47,7 +47,7 @@
             background: #333;
             border: 1px solid #444;
             color: #aaa;
-            padding: 0; /* Quitamos padding interno para ganar espacio */
+            padding: 0;
             cursor: pointer;
             text-transform: uppercase;
             font-size: 0.7rem;
@@ -72,7 +72,7 @@
             background: var(--panel-bg);
             border: 1px solid #3a3a3a;
             border-radius: 8px;
-            padding: 25px 0; /* Padding lateral 0 para maximizar ancho móvil */
+            padding: 25px 2px; /* Padding lateral mínimo */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -87,16 +87,16 @@
         .brand-section {
             display: none;
             flex-direction: column;
-            gap: 30px;
+            gap: 35px; /* Más espacio vertical entre Mes y Año */
             width: 100%;
             align-items: center;
         }
         .brand-section.active { display: flex; }
 
-        /* --- ESTRUCTURA FLEXBOX BLINDADA --- */
+        /* --- ESTRUCTURA FLEXBOX --- */
         .word-row {
             display: flex;
-            align-items: center; /* ALINEACIÓN VERTICAL CENTRADA CRÍTICA */
+            align-items: center; /* Alineación vertical central */
             justify-content: center;
             width: 100%;
             position: relative;
@@ -105,7 +105,7 @@
         .letters-group {
             display: flex;
             justify-content: center;
-            gap: 1vw; /* Espacio flexible pero pequeño */
+            gap: 1vw; 
         }
 
         .letter-col {
@@ -113,7 +113,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 9vw; /* Ancho relativo */
+            width: 9vw;
             max-width: 45px;
             position: relative;
         }
@@ -130,19 +130,21 @@
             z-index: 1;
         }
 
-        /* --- PUNTOS LATERALES (Los que deben estar alineados) --- */
+        /* --- PUNTOS LATERALES Y FLOTANTES --- */
         .side-col {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Centrado vertical estricto */
+            justify-content: center;
             width: 12vw;
             max-width: 50px;
             position: relative;
             height: 100%;
+            /* AJUSTE CLAVE: Empujamos un poco abajo los laterales para compensar la etiqueta y que el punto quede CENTRADO con la letra */
+            padding-top: 10px; 
         }
 
-        /* Contenedor de un punto con su etiqueta */
+        /* Contenedor del punto */
         .dot-wrapper {
             display: flex;
             flex-direction: column;
@@ -153,26 +155,25 @@
             z-index: 2;
         }
         
-        /* CLASE PARA PUNTOS FLOTANTES (Absolutos) 
-           Esto permite poner Octubre/Enero/Dic sin mover los puntos centrales */
+        /* Posicionamiento Absoluto para Diagonales */
         .dot-wrapper.absolute {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
         }
-        /* Posiciones específicas */
-        .pos-top-floating { top: -45px; } /* Para Octubre encima de Noviembre */
-        .pos-bot-floating { bottom: -45px; } /* Para Diciembre debajo */
+        /* AJUSTE CLAVE: Reducimos distancia para que no parezcan "tan altos" */
+        .pos-top-floating { top: -35px; } 
+        .pos-bot-floating { bottom: -35px; }
         
         .lbl {
             font-size: 0.55rem;
             color: var(--label-text);
             text-transform: uppercase;
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 1px; /* Pegamos más el texto al punto */
             white-space: nowrap;
         }
-        .lbl-bot { margin-bottom: 0; margin-top: 2px; }
+        .lbl-bot { margin-bottom: 0; margin-top: 1px; }
 
         input[type="radio"] { display: none; }
 
@@ -192,10 +193,8 @@
             box-shadow: var(--glow); transform: scale(1.3);
         }
 
-        /* --- GENÉRICO --- */
-        .generic-wrapper {
-            display: flex; justify-content: center; gap: 2%; width: 100%;
-        }
+        /* --- ESTILOS GENÉRICO --- */
+        .generic-wrapper { display: flex; justify-content: center; gap: 2%; width: 100%; }
         .semester-block { display: flex; flex-direction: column; gap: 6px; width: 44%; }
         .sem-title {
             text-align: center; color: #888; font-size: 0.65rem; margin-bottom: 5px;
@@ -208,7 +207,7 @@
         }
         .semester-block:last-child .g-row { justify-content: flex-start; }
         .g-row.active { background: rgba(211, 47, 47, 0.2); border: 1px solid var(--accent-red); }
-        .g-dot { width: 8px; height: 8px; background: #555; border-radius: 50%; border: 1px solid #666; }
+        .g-dot { width: 8px; height: 8px; background: #555; border-radius: 50%; border: 1px solid #666; flex-shrink: 0; }
         .g-row.active .g-dot { background: var(--dot-on); box-shadow: 0 0 5px var(--dot-on); border-color: #fff; }
         .month-name { font-size: 0.6rem; color: #bbb; min-width: 20px; text-align: center; }
         .semester-block:first-child .month-name { margin-left: 4px; }
@@ -230,19 +229,36 @@
         .res-sub { color: #aaa; font-size: 0.8rem; }
         .hl { color: var(--dot-on); }
 
-        /* --- MEDIA QUERIES PARA MÓVIL EXTREMO --- */
+        /* --- AJUSTES MÓVIL CRÍTICOS --- */
+        
+        /* Ajuste general para móvil */
         @media (max-width: 600px) {
             :root { --letter-size: 1.8rem; --dot-size: 12px; }
-            .pos-top-floating { top: -35px; } /* Ajuste altura flotante */
-            .pos-bot-floating { bottom: -35px; }
+            .pos-top-floating { top: -28px; } /* Más bajito */
+            .pos-bot-floating { bottom: -28px; }
+            .glass-container { padding: 20px 0; } /* Sin padding lateral */
         }
-        @media (max-width: 360px) {
-            :root { --letter-size: 1.4rem; --dot-size: 10px; }
-            .tab-btn { font-size: 0.6rem; }
-            .pos-top-floating { top: -30px; }
-            .pos-bot-floating { bottom: -30px; }
-            /* Asegurar que el ancho permita ver los laterales */
-            .side-col { width: 14vw; }
+
+        /* AJUSTE ESPECÍFICO PARA TEMPERLITE EN MÓVIL ESTRECHO */
+        /* Necesitamos que entren 12 columnas (Ene + 10 letras + Dic) */
+        @media (max-width: 450px) {
+            /* Regla especial para secciones muy anchas */
+            #temperlite .letters-group { gap: 1px; } /* Pegar letras */
+            #temperlite .letter-col { width: 7vw; } /* Letras más estrechas */
+            #temperlite .letter { font-size: 1.4rem; } /* Fuente más pequeña */
+            
+            #lamisafe .letters-group { gap: 2px; }
+            #lamisafe .letter { font-size: 1.5rem; }
+            
+            /* Asegurar que Ene/Dic en laterales tengan espacio */
+            .side-col { width: 10vw; padding-top: 8px; } 
+            .lbl { font-size: 0.45rem; } /* Etiqueta mini */
+        }
+        
+        /* Ultra pequeño (iPhone SE, Fold cerrado) */
+        @media (max-width: 340px) {
+            #temperlite .letter { font-size: 1.1rem; }
+            .dot-wrapper { height: 25px; }
         }
     </style>
 </head>
@@ -288,7 +304,8 @@
                 </div>
             </div>
 
-            <div class="word-row" style="margin-top: 40px;"> <div class="side-col">
+            <div class="word-row" style="margin-top: 30px;">
+                <div class="side-col">
                     <div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div>
                 </div>
 
@@ -340,7 +357,7 @@
             </div>
             
             <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (CENTRAL)</p>
-            <div class="word-row" style="margin-top: 40px;">
+            <div class="word-row" style="margin-top: 30px;">
                  <div class="side-col"><div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div></div>
                  <div class="letters-group">
                     <div class="letter-col"><div class="letter">C</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div>
@@ -473,7 +490,7 @@
             
             const btns = Array.from(document.querySelectorAll('.tab-btn'));
             const index = ['laminex', 'tempalex', 'temperlite', 'lamisafe', 'generic'].indexOf(id);
-            if(index >= 0 && btns[index]) btns[index].classList.add('active');
+            if(index >= 0) btns[index].classList.add('active');
 
             resetCalc();
         }
