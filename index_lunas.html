@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Decodificador Lunas Profesional</title>
+    <title>Decodificador Lunas Final</title>
     <style>
         :root {
-            --bg-color: #000000;
-            --panel-bg: #111111;
-            --text-color: #eeeeee;
+            --bg-color: #1a1a1a; 
+            --panel-bg: #252525;
+            --text-color: #f0f0f0;
             --accent-red: #d32f2f;
-            --dot-off: #333333;
+            --dot-off: #444444;
             --dot-on: #ffd700;
-            --glow: 0 0 10px rgba(255, 215, 0, 0.6);
-            --label-text: #777777;
+            --glow: 0 0 12px rgba(255, 215, 0, 0.7);
+            --label-text: #999;
         }
 
         body {
@@ -23,92 +23,88 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px;
+            padding: 5px; /* Mínimo padding para aprovechar ancho */
             margin: 0;
             min-height: 100vh;
-            overflow-x: hidden; /* Evitar scroll horizontal */
+            overflow-x: hidden;
         }
 
-        /* --- NAVEGACIÓN (Scroll horizontal en móvil) --- */
-        .tabs-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            white-space: nowrap;
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-            -webkit-overflow-scrolling: touch; /* Suavidad en iOS */
-            display: flex;
-            justify-content: center;
-        }
-
+        /* --- NAVEGACIÓN (GRID 3 COLUMNAS) --- */
         .tabs-container {
-            display: inline-flex;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 por línea exactos */
             gap: 5px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 10px;
         }
 
         .tab-btn {
-            background: #222;
+            background: #333;
             border: 1px solid #444;
             color: #aaa;
-            padding: 10px 15px;
+            padding: 10px 5px; /* Padding reducido lateral */
             cursor: pointer;
             text-transform: uppercase;
-            font-size: 0.7rem;
+            font-size: 0.65rem; /* Texto ajustado para caber */
             font-weight: bold;
             letter-spacing: 0.5px;
             border-radius: 4px;
             transition: all 0.2s;
-            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 40px;
         }
 
         .tab-btn.active {
             background: var(--accent-red);
-            border-color: var(--accent-red);
             color: white;
-            box-shadow: 0 0 8px rgba(211, 47, 47, 0.5);
+            border-color: var(--accent-red);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        /* --- CONTENEDOR PRINCIPAL ESCALABLE --- */
+        /* --- CONTENEDOR PRINCIPAL --- */
         .glass-container {
             background: var(--panel-bg);
-            border: 1px solid #333;
+            border: 1px solid #3a3a3a;
             border-radius: 8px;
-            padding: 20px 10px;
+            padding: 20px 0; /* Sin padding lateral interno para maximizar espacio */
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
-            width: 100%;
-            max-width: 800px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%; /* Ocupa todo el ancho disponible */
             position: relative;
             box-sizing: border-box;
+            overflow: hidden; /* Evita desbordes */
         }
 
-        /* SECCIONES DE MARCA */
+        /* --- SECCIONES ESCALABLES --- */
         .brand-section {
             display: none;
             flex-direction: column;
-            gap: 25px;
+            gap: 20px;
             width: 100%;
-            align-items: center;
-            /* Aquí está la magia del escalado para móvil */
-            transform-origin: top center;
-            transition: transform 0.3s ease;
+            align-items: center; /* CENTRADO CRÍTICO */
+            justify-content: center;
         }
         .brand-section.active { display: flex; }
 
-        /* --- ESTRUCTURA DE LETRAS Y PUNTOS (GRID FIJO) --- */
+        /* --- ESTRUCTURA --- */
         .word-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            /* En móvil, si es muy ancho, reduciremos el zoom */
+            width: 100%;
         }
 
         .letters-group {
             display: flex;
-            gap: 8px; /* Reducido ligeramente */
+            justify-content: center;
+            gap: 2vw; /* Espacio dinámico */
         }
 
         .letter-col {
@@ -116,83 +112,86 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 38px; /* Ancho base */
+            width: 10vw; /* Ancho relativo a pantalla */
+            max-width: 45px;
             position: relative;
         }
 
         .letter {
             font-family: 'Arial Black', sans-serif;
-            font-size: 2.2rem; /* Tamaño base */
+            font-size: 8vw; /* Tamaño relativo a pantalla */
+            max-font-size: 2.8rem; /* Tope máximo */
             color: var(--accent-red);
-            text-shadow: 0 3px 6px rgba(0,0,0,0.9);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
             line-height: 1;
-            margin: 4px 0;
+            margin: 5px 0;
             cursor: default;
             user-select: none;
         }
+        /* Tope de tamaño para escritorio */
+        @media (min-width: 500px) { .letter { font-size: 2.5rem; } }
 
         /* --- PUNTOS --- */
         .side-dots {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 12px;
-            padding: 0 10px; /* Reducido */
+            gap: 15px;
+            padding: 0 2vw;
         }
 
         .dot-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 30px;
+            height: 35px;
             justify-content: center;
         }
 
         .lbl {
-            font-size: 0.5rem;
+            font-size: 0.55rem;
             color: var(--label-text);
             text-transform: uppercase;
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
             white-space: nowrap;
         }
-        .lbl-bot { margin-bottom: 0; margin-top: 2px; }
+        .lbl-bot { margin-bottom: 0; margin-top: 3px; }
 
         input[type="radio"] { display: none; }
 
-        /* Estilo del botón (punto) */
-        .dot {
-            width: 12px; /* Un poco más pequeño para móvil */
-            height: 12px;
-            background-color: var(--dot-off);
-            border: 2px solid #555;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        /* Zona de toque ampliada invisible para facilitar el dedo en móvil */
+        /* Área táctil grande */
         label {
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 5px; /* Área de clic extra */
-            margin: -5px;
+            padding: 8px; /* Facilita el toque */
+            margin: -8px;
             cursor: pointer;
+            z-index: 10;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            background-color: var(--dot-off);
+            border: 2px solid #666;
+            border-radius: 50%;
+            transition: all 0.2s;
         }
 
         input[type="radio"]:checked + .dot {
             background-color: var(--dot-on);
             border-color: #fff;
             box-shadow: var(--glow);
-            transform: scale(1.2);
+            transform: scale(1.3);
         }
 
-        /* --- GENÉRICO (REDSEÑADO COMPACTO) --- */
+        /* --- GENÉRICO --- */
         .generic-wrapper {
             display: flex;
             justify-content: center;
-            gap: 10px; /* Gap reducido */
+            gap: 2%;
             width: 100%;
         }
 
@@ -200,64 +199,65 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+            width: 42%; /* Ajuste de ancho */
         }
         
         .sem-title {
             text-align: center;
             color: #888;
-            font-size: 0.65rem;
-            margin-bottom: 4px;
+            font-size: 0.7rem;
+            margin-bottom: 5px;
             text-transform: uppercase;
-            border-bottom: 1px solid #333;
-            padding-bottom: 2px;
+            border-bottom: 1px solid #444;
         }
 
         .g-row {
             display: flex;
             align-items: center;
-            justify-content: flex-end; /* Alinear puntos hacia el centro (año) */
-            gap: 3px;
-            padding: 6px 8px;
+            justify-content: flex-end;
+            gap: 2px;
+            padding: 6px 4px;
             border-radius: 4px;
-            background: #1a1a1a;
-            border: 1px solid #333;
+            background: rgba(255,255,255,0.05);
             cursor: pointer;
-            height: 20px;
+            height: 24px;
         }
-        /* El segundo semestre alinea a la izquierda */
         .semester-block:last-child .g-row { justify-content: flex-start; }
 
-        .g-row.active { background: #3a1c1c; border-color: var(--accent-red); }
+        .g-row.active {
+            background: rgba(211, 47, 47, 0.2);
+            border: 1px solid var(--accent-red);
+        }
 
         .g-dot {
             width: 8px;
             height: 8px;
-            background: #444;
+            background: #555;
             border-radius: 50%;
-            border: 1px solid #555;
+            border: 1px solid #666;
+            flex-shrink: 0;
         }
         .g-row.active .g-dot {
             background: var(--dot-on);
-            box-shadow: 0 0 4px var(--dot-on);
+            box-shadow: 0 0 5px var(--dot-on);
             border-color: #fff;
         }
 
         .month-name {
-            font-size: 0.6rem;
-            color: #888;
+            font-size: 0.65rem;
+            color: #bbb;
             min-width: 20px;
             text-align: center;
         }
-        .semester-block:first-child .month-name { margin-left: 5px; } /* Texto a la derecha de puntos en Sem 1 */
-        .semester-block:last-child .month-name { margin-right: 5px; order: -1; } /* Texto a la izquierda de puntos en Sem 2 */
+        .semester-block:first-child .month-name { margin-left: 4px; }
+        .semester-block:last-child .month-name { margin-right: 4px; order: -1; }
 
         .year-center {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
             padding-top: 20px;
-            width: 60px;
+            width: 14%;
         }
         .year-input {
             background: transparent;
@@ -269,68 +269,42 @@
             width: 100%;
             text-align: center;
             padding: 0;
-            border-radius: 0;
+            font-family: inherit;
         }
+        .year-input:focus { outline: none; border-color: var(--dot-on); }
 
         /* --- RESULTADO --- */
         .result-box {
-            margin-top: 15px;
-            background: #151515;
-            border-top: 3px solid var(--dot-on);
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 6px solid var(--dot-on); 
             padding: 15px;
-            width: 100%;
-            box-sizing: border-box;
+            width: 90%;
             text-align: center;
-            border-radius: 0 0 6px 6px;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-        .res-main { font-size: 1.2rem; color: white; font-weight: bold; margin-bottom: 4px; line-height: 1.2;}
-        .res-sub { color: #888; font-size: 0.8rem; }
+        
+        .res-main { 
+            font-size: 1.4rem; 
+            color: white; 
+            font-weight: bold; 
+            margin-bottom: 5px; 
+            line-height: 1.2;
+        }
+        .res-sub { color: #aaa; font-size: 0.9rem; }
         .hl { color: var(--dot-on); }
 
-        /* --- MEDIA QUERIES PARA ESCALADO MÓVIL --- */
-        @media (max-width: 600px) {
-            /* Forzar reducción de tamaño si la pantalla es estrecha */
-            .letter { font-size: 1.8rem; }
-            .letter-col { width: 30px; }
-            .side-dots { padding: 0 2px; }
-            .dot-wrapper { height: 28px; }
-            .letters-group { gap: 4px; }
-            
-            /* Ajuste crítico para el Genérico en pantallas muy pequeñas */
-            .g-dot { width: 6px; height: 6px; }
-            .g-row { padding: 5px; gap: 2px; }
-            .month-name { font-size: 0.55rem; }
-            .year-input { font-size: 2rem; }
-            
-            /* Si aún así no cabe, usamos transform scale */
-            .brand-section {
-                transform: scale(0.9); /* Reducir al 90% por defecto en móviles pequeños */
-                width: 111%; /* Compensar el ancho al escalar (100/0.9) */
-                margin-left: -5.5%; /* Centrar */
-                margin-bottom: -20px; /* Eliminar espacio vacío generado */
-            }
-        }
-
-        @media (max-width: 380px) {
-            .brand-section {
-                transform: scale(0.75); /* Reducir más en móviles muy estrechos */
-                width: 133%;
-                margin-left: -16.5%;
-                margin-bottom: -60px;
-            }
-        }
     </style>
 </head>
 <body>
 
-    <div class="tabs-wrapper">
-        <div class="tabs-container">
-            <button class="tab-btn active" onclick="openTab('laminex')">Laminex</button>
-            <button class="tab-btn" onclick="openTab('tempalex')">Tempalex</button>
-            <button class="tab-btn" onclick="openTab('temperlite')">Temperlite</button>
-            <button class="tab-btn" onclick="openTab('lamisafe')">Lamisafe</button>
-            <button class="tab-btn" onclick="openTab('generic')">Genérico</button>
-        </div>
+    <div class="tabs-container">
+        <div class="tab-btn active" onclick="openTab('laminex')">Laminex</div>
+        <div class="tab-btn" onclick="openTab('tempalex')">Tempalex</div>
+        <div class="tab-btn" onclick="openTab('temperlite')">Temperlite</div>
+        <div class="tab-btn" onclick="openTab('lamisafe')">Lamisafe</div>
+        <div class="tab-btn" onclick="openTab('generic')">Genérico</div>
     </div>
 
     <div class="glass-container">
@@ -381,6 +355,7 @@
             </div>
         </div>
 
+
         <div id="tempalex" class="brand-section">
             <div class="word-row">
                 <div class="side-dots">
@@ -409,7 +384,7 @@
                 </div>
             </div>
             
-            <p style="color:#555; text-transform:uppercase; font-size:0.6rem; margin:0;">Año: CENTRAL</p>
+            <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (CENTRAL)</p>
             <div class="word-row">
                  <div class="side-dots"><div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div></div>
                  <div class="letters-group">
@@ -446,7 +421,7 @@
                 <div class="side-dots"><div class="dot-wrapper"><span class="lbl">Dic</span><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label></div></div>
             </div>
             
-            <p style="color:#555; text-transform:uppercase; font-size:0.6rem; margin:0;">Año: ASAHI</p>
+            <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (ASAHI)</p>
             <div class="word-row">
                  <div class="letters-group">
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">0</span><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="5" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">5</span></div></div>
@@ -486,7 +461,7 @@
                 </div>
             </div>
             
-            <p style="color:#555; text-transform:uppercase; font-size:0.6rem; margin:0;">Año: ASAHI</p>
+            <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (ASAHI)</p>
             <div class="word-row">
                  <div class="letters-group">
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">0</span><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="5" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">5</span></div></div>
@@ -512,8 +487,8 @@
                 </div>
 
                 <div class="year-center">
-                    <span style="color:#666; font-size:0.55rem; text-transform:uppercase;">Año</span>
                     <input type="number" class="year-input" id="genYearInput" placeholder="5" oninput="calc()">
+                    <span style="color:#777; font-size:0.5rem; text-transform:uppercase; margin-top:5px;">AÑO</span>
                 </div>
 
                 <div class="semester-block">
@@ -542,13 +517,10 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             
-            const btns = document.querySelectorAll('.tab-btn');
-            if(id==='laminex') btns[0].classList.add('active');
-            if(id==='tempalex') btns[1].classList.add('active');
-            if(id==='temperlite') btns[2].classList.add('active');
-            if(id==='lamisafe') btns[3].classList.add('active');
-            if(id==='generic') btns[4].classList.add('active');
-            
+            const btns = Array.from(document.querySelectorAll('.tab-btn'));
+            const index = ['laminex', 'tempalex', 'temperlite', 'lamisafe', 'generic'].indexOf(id);
+            if(index >= 0) btns[index].classList.add('active');
+
             resetCalc();
         }
 
