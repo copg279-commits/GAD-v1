@@ -37,7 +37,7 @@
         /* --- NAVEGACIÓN --- */
         .tabs-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 columnas */
+            grid-template-columns: repeat(3, 1fr);
             gap: 5px;
             width: 100%;
             max-width: 600px;
@@ -51,7 +51,7 @@
             padding: 0;
             cursor: pointer;
             text-transform: uppercase;
-            font-size: 0.6rem; /* Un poco más pequeño para que quepan los nombres largos */
+            font-size: 0.6rem;
             font-weight: bold;
             letter-spacing: 0.5px;
             border-radius: 4px;
@@ -59,7 +59,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 45px; /* Un poco más alto para dos líneas */
+            height: 45px;
             text-align: center;
             line-height: 1.1;
             padding: 2px;
@@ -124,7 +124,7 @@
         }
         .brand-section.active { display: flex; }
 
-        /* --- ESTRUCTURA GENERAL (Laminex, etc) --- */
+        /* --- ESTRUCTURA GENERAL --- */
         .word-row {
             display: flex;
             align-items: center;
@@ -147,6 +147,7 @@
             width: 9vw;
             max-width: 45px;
             position: relative;
+            cursor: pointer;
         }
 
         .letter {
@@ -200,6 +201,36 @@
         }
         .lbl-bot { margin-bottom: 0; margin-top: 1px; }
 
+        /* ESTILOS TRIPLEX ESPECÍFICOS */
+        .dot-stack {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 4px;
+            height: 40px;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+        .triplex-num {
+            font-size: 0.8rem;
+            color: #aaa;
+            font-weight: bold;
+            margin-top: -2px;
+        }
+        .triplex-mid-word {
+            text-align: center;
+            color: #777;
+            font-size: 1.8rem; /* MÁS GRANDE */
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 15px 0;
+            text-transform: capitalize; /* Sundym */
+        }
+        /* Clase para letras en minúscula (toughened) */
+        .letter-lower {
+            text-transform: lowercase !important;
+        }
+
         input[type="radio"], input[type="checkbox"] { display: none; }
 
         label {
@@ -215,12 +246,15 @@
             transition: all 0.2s;
         }
         
-        input[type="radio"]:checked + .dot {
+        input[type="radio"]:checked + .dot, .dot.active {
             background-color: var(--dot-on); border-color: #fff;
             box-shadow: var(--glow); transform: scale(1.3);
         }
+        
+        .dot-stack .dot { opacity: 0.2; }
+        .dot-stack .dot.active { opacity: 1; }
 
-        /* --- ESTILOS GENÉRICO (Hyundai Style) --- */
+        /* --- ESTILOS GENÉRICO --- */
         .gen-container {
             display: flex;
             align-items: center;
@@ -230,10 +264,7 @@
             margin-bottom: 20px;
         }
         
-        .gen-dots-group {
-            display: flex;
-            gap: 4px;
-        }
+        .gen-dots-group { display: flex; gap: 4px; }
 
         .gen-dot {
             width: 20px; height: 20px;
@@ -330,26 +361,9 @@
         .n-lbl-bot { bottom: -18px; }
 
         .n-dot-red { background-color: #7f1d1d; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
-        .n-dot-red.selected { 
-            background-color: var(--nippon-red); 
-            border-color: white; 
-            transform: scale(1.4); 
-            box-shadow: 0 0 15px var(--nippon-red); 
-        }
-
-        .n-dot-blue { 
-            background-color: #1e3a8a; 
-            display: flex; justify-content: center; align-items: center;
-            color: #aaa; font-size: 10px; font-weight: bold;
-            width: 24px; height: 24px;
-        }
-        .n-dot-blue.selected { 
-            background-color: var(--nippon-blue); 
-            border-color: white; 
-            color: white;
-            transform: scale(1.3); 
-            box-shadow: 0 0 15px var(--nippon-blue); 
-        }
+        .n-dot-red.selected { background-color: var(--nippon-red); border-color: white; transform: scale(1.4); box-shadow: 0 0 15px var(--nippon-red); }
+        .n-dot-blue { background-color: #1e3a8a; display: flex; justify-content: center; align-items: center; color: #aaa; font-size: 10px; font-weight: bold; width: 24px; height: 24px; }
+        .n-dot-blue.selected { background-color: var(--nippon-blue); border-color: white; color: white; transform: scale(1.3); box-shadow: 0 0 15px var(--nippon-blue); }
 
         .btn-calc-nippon {
             background: #22c55e; color: #022c22;
@@ -397,7 +411,6 @@
             .corner-logo { height: 50px; bottom: 10px; }
             .logo-left { left: 10px; } .logo-right { right: 10px; }
             
-            /* Ajustes Genérico Móvil */
             .gen-num-display { font-size: 4rem; width: 70px; height: 90px; margin: 0 10px; }
             .gen-dot { width: 14px; height: 14px; }
             .gen-dots-group { gap: 3px; }
@@ -405,6 +418,9 @@
             #hyundai .letters-group { gap: 1px; }
             #hyundai .letter-col { width: 7vw; }
             #hyundai .letter { font-size: 1.4rem; }
+            
+            #triplex-months .letters-group { gap: 2px; }
+            #triplex-months .letter { font-size: 1.6rem; }
         }
         @media (max-width: 360px) {
             :root { --letter-size: 1.4rem; --dot-size: 10px; }
@@ -423,6 +439,7 @@
         <div class="tab-btn" onclick="openTab('nippon')">Nippon Safety<br>(Toyota)</div>
         <div class="tab-btn" onclick="openTab('tempalex')">Tempalex</div>
         <div class="tab-btn" onclick="openTab('temperlite')">Temperlite</div>
+        <div class="tab-btn" onclick="openTab('triplex')">Triplex</div>
     </div>
 
     <div class="glass-container">
@@ -433,12 +450,9 @@
         <div id="generic" class="brand-section active">
             <div class="gen-container">
                 <div class="gen-dots-group" id="gen-left-dots"></div>
-                
                 <div class="gen-num-display" id="genNumDisplay" onclick="toggleGenYear()">4</div>
-                
                 <div class="gen-dots-group" id="gen-right-dots"></div>
             </div>
-            
             <p class="input-legend">Toca el número para cambiar el AÑO - Toca los puntos para cambiar el MES</p>
         </div>
 
@@ -447,7 +461,6 @@
                 <div class="side-col">
                     <div class="dot-wrapper"><span class="lbl">Ene</span><label><input type="radio" name="mes" value="Enero" onchange="calc()"><div class="dot"></div></label></div>
                 </div>
-                
                 <div class="letters-group">
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">1</span><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label></div><div class="letter">4</div><div class="dot-wrapper"><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Feb</span></div></div>
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">2</span><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label></div><div class="letter">3</div><div class="dot-wrapper"><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Mar</span></div></div>
@@ -460,7 +473,6 @@
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">9</span><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label></div><div class="letter">4</div><div class="dot-wrapper"><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Oct</span></div></div>
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">0</span><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label></div><div class="letter">4</div><div class="dot-wrapper"><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Nov</span></div></div>
                 </div>
-
                 <div class="side-col">
                     <div class="dot-wrapper"><span class="lbl">Dic</span><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label></div>
                 </div>
@@ -468,30 +480,50 @@
             <p class="input-legend">Marca el punto superior para AÑO y el inferior para MES</p>
         </div>
 
+        <div id="triplex" class="brand-section">
+            <div class="word-row">
+                <div class="letters-group" id="triplex-months">
+                    <div class="letter-col" onclick="toggleTriplex(0, 2)"><div class="dot-stack"><div class="dot" id="tm-0-2"></div><div class="dot" id="tm-0-1"></div></div><div class="letter">T</div></div>
+                    <div class="letter-col" onclick="toggleTriplex(1, 1)"><div class="dot-stack"><div class="dot" id="tm-1-1"></div></div><div class="letter">R</div></div>
+                    <div class="letter-col" onclick="toggleTriplex(2, 1)"><div class="dot-stack"><div class="dot" id="tm-2-1"></div></div><div class="letter">I</div></div>
+                    <div class="letter-col" onclick="toggleTriplex(3, 1)"><div class="dot-stack"><div class="dot" id="tm-3-1"></div></div><div class="letter">P</div></div>
+                    <div class="letter-col" onclick="toggleTriplex(4, 1)"><div class="dot-stack"><div class="dot" id="tm-4-1"></div></div><div class="letter">L</div></div>
+                    <div class="letter-col" onclick="toggleTriplex(5, 1)"><div class="dot-stack"><div class="dot" id="tm-5-1"></div></div><div class="letter">E</div></div>
+                    <div class="letter-col" onclick="toggleTriplex(6, 2)"><div class="dot-stack"><div class="dot" id="tm-6-2"></div><div class="dot" id="tm-6-1"></div></div><div class="letter">X</div></div>
+                </div>
+            </div>
+            <p class="triplex-mid-word">Sundym</p>
+            <div class="word-row">
+                <div class="letters-group">
+                    <div class="letter-col" onclick="setTriplexYear(1)"><div class="letter letter-lower">T</div><div class="dot-wrapper"><div class="dot" id="ty-1"></div><span class="triplex-num">1</span></div></div>
+                    <div class="letter-col" onclick="setTriplexYear(2)"><div class="letter letter-lower">O</div><div class="dot-wrapper"><div class="dot" id="ty-2"></div><span class="triplex-num">2</span></div></div>
+                    <div class="letter-col" onclick="setTriplexYear(3)"><div class="letter letter-lower">U</div><div class="dot-wrapper"><div class="dot" id="ty-3"></div><span class="triplex-num">3</span></div></div>
+                    <div class="letter-col" onclick="setTriplexYear(4)"><div class="letter letter-lower">G</div><div class="dot-wrapper"><div class="dot" id="ty-4"></div><span class="triplex-num">4</span></div></div>
+                    <div class="letter-col" onclick="setTriplexYear(5)"><div class="letter letter-lower">H</div><div class="dot-wrapper"><div class="dot" id="ty-5"></div><span class="triplex-num">5</span></div></div>
+                    <div class="letter-col" onclick="setTriplexYear(6)"><div class="letter letter-lower">E</div><div class="dot-wrapper"><div class="dot" id="ty-6"></div><span class="triplex-num">6</span></div></div>
+                    <div class="letter-col" onclick="setTriplexYear(7)"><div class="letter letter-lower">N</div><div class="dot-wrapper"><div class="dot" id="ty-7"></div><span class="triplex-num">7</span></div></div>
+                    <div class="letter-col" onclick="setTriplexYear(8)"><div class="letter letter-lower">E</div><div class="dot-wrapper"><div class="dot" id="ty-8"></div><span class="triplex-num">8</span></div></div>
+                    <div class="letter-col" onclick="setTriplexYear(9)"><div class="letter letter-lower">D</div><div class="dot-wrapper"><div class="dot" id="ty-9"></div><span class="triplex-num">9</span></div></div>
+                    <div class="letter-col" onclick="setTriplexYear(0)"><div class="letter letter-lower" style="opacity:0">.</div><div class="dot-wrapper"><div class="dot" id="ty-0"></div><span class="triplex-num">0</span></div></div>
+                </div>
+            </div>
+            <button onclick="calcTriplexResult()" class="btn-calc-nippon">CALCULAR</button>
+            <p class="input-legend">Marca los puntos y pulsa Calcular. (Permite selección múltiple)</p>
+        </div>
+
         <div id="laminex" class="brand-section">
             <div class="word-row">
                 <div class="side-col"><div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div></div>
                 <div class="letters-group">
-                    <div class="letter-col">
-                        <div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div>
-                        <div class="letter">L</div>
-                        <div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Enero" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Ene</span></div>
-                    </div>
+                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">L</div><div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Enero" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Ene</span></div></div>
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Abr</span><label><input type="radio" name="mes" value="Abril" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div></div>
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">May</span><label><input type="radio" name="mes" value="Mayo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">M</div></div>
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jun</span><label><input type="radio" name="mes" value="Junio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div></div>
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jul</span><label><input type="radio" name="mes" value="Julio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">N</div></div>
                     <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Ago</span><label><input type="radio" name="mes" value="Agosto" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div>
-                    <div class="letter-col">
-                        <div class="dot-wrapper"><span class="lbl">Sep</span><label><input type="radio" name="mes" value="Septiembre" onchange="calc()"><div class="dot"></div></label></div>
-                        <div class="letter">X</div>
-                        <div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Dic</span></div>
-                    </div>
+                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Sep</span><label><input type="radio" name="mes" value="Septiembre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">X</div><div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Dic</span></div></div>
                 </div>
-                <div class="side-col">
-                    <div class="dot-wrapper absolute pos-top-floating"><span class="lbl">Oct</span><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label></div>
-                    <div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div>
-                </div>
+                <div class="side-col"><div class="dot-wrapper absolute pos-top-floating"><span class="lbl">Oct</span><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label></div><div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div></div>
             </div>
             <div class="word-row" style="margin-top: 30px;">
                 <div class="side-col"><div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div></div>
@@ -504,124 +536,29 @@
                     <div class="letter-col"><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="4" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">4</span></div></div>
                     <div class="letter-col"><div class="letter">L</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="3" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">3</span></div></div>
                 </div>
-                <div class="side-col">
-                    <div class="dot-wrapper absolute pos-top-floating"><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">1</span></div>
-                    <div class="dot-wrapper"><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">2</span></div>
-                </div>
+                <div class="side-col"><div class="dot-wrapper absolute pos-top-floating"><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">1</span></div><div class="dot-wrapper"><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">2</span></div></div>
             </div>
-            <p class="input-legend">Marca el punto rojo (Mes) y el punto amarillo (Año)</p>
+            <p class="input-legend">Marca el punto del MES y el punto del AÑO</p>
         </div>
 
         <div id="tempalex" class="brand-section">
-            <div class="word-row">
-                <div class="side-col"><div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div></div>
-                <div class="letters-group">
-                    <div class="letter-col">
-                        <div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div>
-                        <div class="letter">T</div>
-                        <div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Enero" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Ene</span></div>
-                    </div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Abr</span><label><input type="radio" name="mes" value="Abril" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">May</span><label><input type="radio" name="mes" value="Mayo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">M</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jun</span><label><input type="radio" name="mes" value="Junio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">P</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jul</span><label><input type="radio" name="mes" value="Julio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Ago</span><label><input type="radio" name="mes" value="Agosto" onchange="calc()"><div class="dot"></div></label></div><div class="letter">L</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Sep</span><label><input type="radio" name="mes" value="Septiembre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div>
-                    <div class="letter-col">
-                        <div class="dot-wrapper"><span class="lbl">Oct</span><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label></div>
-                        <div class="letter">X</div>
-                        <div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Dic</span></div>
-                    </div>
-                </div>
-                <div class="side-col"><div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div></div>
-            </div>
-            <div class="word-row" style="margin-top: 30px;">
-                 <div class="side-col"><div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div></div>
-                 <div class="letters-group">
-                    <div class="letter-col"><div class="letter">C</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div>
-                    <div class="letter-col"><div class="letter">E</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="8" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">8</span></div></div>
-                    <div class="letter-col"><div class="letter">N</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="7" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">7</span></div></div>
-                    <div class="letter-col"><div class="letter">T</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="6" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">6</span></div></div>
-                    <div class="letter-col"><div class="letter">R</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="5" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">5</span></div></div>
-                    <div class="letter-col"><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="4" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">4</span></div></div>
-                    <div class="letter-col"><div class="letter">L</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="3" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">3</span></div></div>
-                 </div>
-                 <div class="side-col">
-                    <div class="dot-wrapper absolute pos-top-floating"><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">1</span></div>
-                    <div class="dot-wrapper"><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">2</span></div>
-                </div>
-            </div>
+            <div class="word-row"><div class="side-col"><div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div></div><div class="letters-group"><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">T</div><div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Enero" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Ene</span></div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Abr</span><label><input type="radio" name="mes" value="Abril" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">May</span><label><input type="radio" name="mes" value="Mayo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">M</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jun</span><label><input type="radio" name="mes" value="Junio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">P</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jul</span><label><input type="radio" name="mes" value="Julio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Ago</span><label><input type="radio" name="mes" value="Agosto" onchange="calc()"><div class="dot"></div></label></div><div class="letter">L</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Sep</span><label><input type="radio" name="mes" value="Septiembre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Oct</span><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">X</div><div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Dic</span></div></div></div><div class="side-col"><div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div></div></div>
+            <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (CENTRAL)</p>
+            <div class="word-row" style="margin-top: 30px;"><div class="side-col"><div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div></div><div class="letters-group"><div class="letter-col"><div class="letter">C</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div><div class="letter-col"><div class="letter">E</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="8" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">8</span></div></div><div class="letter-col"><div class="letter">N</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="7" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">7</span></div></div><div class="letter-col"><div class="letter">T</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="6" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">6</span></div></div><div class="letter-col"><div class="letter">R</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="5" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">5</span></div></div><div class="letter-col"><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="4" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">4</span></div></div><div class="letter-col"><div class="letter">L</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="3" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">3</span></div></div></div><div class="side-col"><div class="dot-wrapper absolute pos-top-floating"><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">1</span></div><div class="dot-wrapper"><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">2</span></div></div></div>
             <p class="input-legend">Marca el punto del MES y el punto del AÑO</p>
         </div>
 
         <div id="temperlite" class="brand-section">
-            <div class="word-row">
-                <div class="side-col"><div class="dot-wrapper"><span class="lbl">Ene</span><label><input type="radio" name="mes" value="Enero" onchange="calc()"><div class="dot"></div></label></div></div>
-                <div class="letters-group">
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div><div class="letter">T</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Abr</span><label><input type="radio" name="mes" value="Abril" onchange="calc()"><div class="dot"></div></label></div><div class="letter">M</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">May</span><label><input type="radio" name="mes" value="Mayo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">P</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jun</span><label><input type="radio" name="mes" value="Junio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jul</span><label><input type="radio" name="mes" value="Julio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">R</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Ago</span><label><input type="radio" name="mes" value="Agosto" onchange="calc()"><div class="dot"></div></label></div><div class="letter">L</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Sep</span><label><input type="radio" name="mes" value="Septiembre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Oct</span><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">T</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div>
-                </div>
-                <div class="side-col"><div class="dot-wrapper"><span class="lbl">Dic</span><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label></div></div>
-            </div>
-            
+            <div class="word-row"><div class="side-col"><div class="dot-wrapper"><span class="lbl">Ene</span><label><input type="radio" name="mes" value="Enero" onchange="calc()"><div class="dot"></div></label></div></div><div class="letters-group"><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div><div class="letter">T</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Abr</span><label><input type="radio" name="mes" value="Abril" onchange="calc()"><div class="dot"></div></label></div><div class="letter">M</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">May</span><label><input type="radio" name="mes" value="Mayo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">P</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jun</span><label><input type="radio" name="mes" value="Junio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jul</span><label><input type="radio" name="mes" value="Julio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">R</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Ago</span><label><input type="radio" name="mes" value="Agosto" onchange="calc()"><div class="dot"></div></label></div><div class="letter">L</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Sep</span><label><input type="radio" name="mes" value="Septiembre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Oct</span><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">T</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div></div><div class="side-col"><div class="dot-wrapper"><span class="lbl">Dic</span><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label></div></div></div>
             <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (ASAHI)</p>
-            <div class="word-row">
-                 <div class="letters-group">
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">0</span><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="5" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">5</span></div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">1</span><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label></div><div class="letter">S</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="6" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">6</span></div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">2</span><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="7" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">7</span></div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">3</span><label><input type="radio" name="anio" value="3" onchange="calc()"><div class="dot"></div></label></div><div class="letter">H</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="8" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">8</span></div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">4</span><label><input type="radio" name="anio" value="4" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div>
-                 </div>
-            </div>
+            <div class="word-row"><div class="letters-group"><div class="letter-col"><div class="dot-wrapper"><span class="lbl">0</span><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="5" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">5</span></div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">1</span><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label></div><div class="letter">S</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="6" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">6</span></div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">2</span><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="7" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">7</span></div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">3</span><label><input type="radio" name="anio" value="3" onchange="calc()"><div class="dot"></div></label></div><div class="letter">H</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="8" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">8</span></div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">4</span><label><input type="radio" name="anio" value="4" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div></div></div>
             <p class="input-legend">Marca el punto del MES y el punto del AÑO</p>
         </div>
 
         <div id="lamisafe" class="brand-section">
-            <div class="word-row">
-                <div class="side-col">
-                    <div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div>
-                </div>
-                <div class="letters-group">
-                    <div class="letter-col">
-                        <div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div>
-                        <div class="letter">L</div>
-                        <div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Enero" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Ene</span></div>
-                    </div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Abr</span><label><input type="radio" name="mes" value="Abril" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">May</span><label><input type="radio" name="mes" value="Mayo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">M</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jun</span><label><input type="radio" name="mes" value="Junio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jul</span><label><input type="radio" name="mes" value="Julio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">S</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Ago</span><label><input type="radio" name="mes" value="Agosto" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Sep</span><label><input type="radio" name="mes" value="Septiembre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">F</div></div>
-                    <div class="letter-col">
-                        <div class="dot-wrapper"><span class="lbl">Oct</span><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label></div>
-                        <div class="letter">E</div>
-                        <div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Dic</span></div>
-                    </div>
-                </div>
-                <div class="side-col">
-                    <div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div>
-                </div>
-            </div>
+            <div class="word-row"><div class="side-col"><div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div></div><div class="letters-group"><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">L</div><div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Enero" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Ene</span></div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Abr</span><label><input type="radio" name="mes" value="Abril" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">May</span><label><input type="radio" name="mes" value="Mayo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">M</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jun</span><label><input type="radio" name="mes" value="Junio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jul</span><label><input type="radio" name="mes" value="Julio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">S</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Ago</span><label><input type="radio" name="mes" value="Agosto" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Sep</span><label><input type="radio" name="mes" value="Septiembre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">F</div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">Oct</span><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div><div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Dic</span></div></div></div><div class="side-col"><div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div></div></div>
             <p style="color:#777; font-size:0.6rem; letter-spacing:1px; margin:0;">AÑO (ASAHI)</p>
-            <div class="word-row">
-                 <div class="letters-group">
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">0</span><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="5" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">5</span></div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">1</span><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label></div><div class="letter">S</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="6" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">6</span></div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">2</span><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="7" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">7</span></div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">3</span><label><input type="radio" name="anio" value="3" onchange="calc()"><div class="dot"></div></label></div><div class="letter">H</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="8" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">8</span></div></div>
-                    <div class="letter-col"><div class="dot-wrapper"><span class="lbl">4</span><label><input type="radio" name="anio" value="4" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div>
-                 </div>
-            </div>
+            <div class="word-row"><div class="letters-group"><div class="letter-col"><div class="dot-wrapper"><span class="lbl">0</span><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="5" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">5</span></div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">1</span><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label></div><div class="letter">S</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="6" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">6</span></div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">2</span><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="7" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">7</span></div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">3</span><label><input type="radio" name="anio" value="3" onchange="calc()"><div class="dot"></div></label></div><div class="letter">H</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="8" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">8</span></div></div><div class="letter-col"><div class="dot-wrapper"><span class="lbl">4</span><label><input type="radio" name="anio" value="4" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div></div></div>
             <p class="input-legend">Marca el punto del MES y el punto del AÑO</p>
         </div>
 
@@ -640,14 +577,18 @@
                 <p>Selecciona el fabricante de la luna en las pestañas superiores y marca los puntos tal como aparecen en el cristal del vehículo.</p>
                 
                 <h4>Funcionamiento General</h4>
-                <p>La mayoría de fabricantes (Laminex, Temperlite, etc.) usan un sistema de <strong>lectura directa</strong>:
-                <br>• Un punto indica el <strong>MES</strong>.
-                <br>• Otro punto indica el año (terminación).</p>
+                <p>La mayoría de fabricantes usan un sistema de <strong>lectura directa</strong>: un punto indica el MES y otro el AÑO.</p>
                 
+                <h4>Triplex</h4>
+                <p>Usa lógica de Bloques: <br>
+                - Puntos simples (Ene-Abr)<br>
+                - T(2 puntos) + otro (May-Ago)<br>
+                - X(2 puntos) + otro (Sep-Dic)</p>
+
                 <h4>Caso Especial: NIPPON SAFETY</h4>
                 <div class="help-note">
                     <strong>¿Por qué tiene botón CALCULAR?</strong><br>
-                    Nippon Safety utiliza una <strong>Tabla Combinatoria</strong> compleja. El año no lo da un solo punto, sino la combinación de varios puntos azules (A, B, C, D, E, F) activos a la vez. Marca todos los que veas y pulsa calcular.
+                    Nippon Safety utiliza una Tabla Combinatoria compleja. El año no lo da un solo punto, sino la combinación de varios. Marca todos los puntos visibles.
                 </div>
             </div>
             <button class="close-help-btn" onclick="closeHelp()">Cerrar Ayuda</button>
@@ -663,7 +604,10 @@
     </div>
 
     <script>
-        // --- NIPPON CONFIG ---
+        // --- TRIPLEX STATE ---
+        let triplexState = { months: [0,0,0,0,0,0,0], year: null };
+
+        // --- NIPPON STATE ---
         const YEAR_TABLE_NIPPON = {
             "A": [1991, 2021], "B": [1992, 2022], "C": [1993, 2023], "D": [1994, 2024],
             "AB": [1995, 2025], "AC": [1996, 2026], "AD": [1997, 2027], "BC": [1998, 2028], "BD": [1999, 2029], "CD": [2000, 2030],
@@ -671,7 +615,7 @@
             "AF": [2011], "BF": [2012], "CF": [2013], "DF": [2014], "ABF": [2015], "ACF": [2016], "ADF": [2017], "BCF": [2018], "BDF": [2019], "CDF": [2020]
         };
         let nipponSel = { m: null, yDots: [] };
-
+        
         const NIPPON_ELEMENTS = [
             { type: 'letter', char: 'N', x: 25, y: 40, rot: -20 }, { type: 'dot', id: 'm1', val: 1, color: 'red', x: 25, y: 30, label: 'ENE', lblPos: 'top' },
             { type: 'letter', char: 'I', x: 35, y: 35, rot: -10 }, { type: 'dot', id: 'm2', val: 2, color: 'red', x: 35, y: 25, label: 'FEB', lblPos: 'top' },
@@ -693,7 +637,7 @@
             { type: 'dot', id: 'yF', val: 'F', label: 'F', color: 'blue', x: 70, y: 56 }
         ];
 
-        /* --- LOGICA GENÉRICO (ESTILO HYUNDAI) --- */
+        /* --- GENÉRICO (HYUNDAI STYLE) --- */
         let genState = { yearDigit: 4, leftDots: 0, rightDots: 0 };
 
         function initGeneric() {
@@ -733,10 +677,8 @@
                 // Visualización espejo
                 let isActive = false;
                 if (side === 'left') {
-                    // Left: 1=Lejos, 6=Cerca. Active from right (6) to left (1)
                     if (i > (6 - activeCount)) isActive = true;
                 } else {
-                    // Right: 1=Cerca, 6=Lejos. Active from left (1) to right (6)
                     if (i <= activeCount) isActive = true;
                 }
                 
@@ -753,12 +695,8 @@
             let monthIndex = 0;
             
             if (genState.leftDots > 0) {
-                // Izq: 6 puntos = Enero, 1 punto = Junio
-                // Formula: 7 - puntos
                 monthIndex = 7 - genState.leftDots;
             } else if (genState.rightDots > 0) {
-                // Der: 6 puntos = Julio, 1 punto = Diciembre
-                // Formula: 13 - puntos
                 monthIndex = 13 - genState.rightDots;
             }
 
@@ -776,6 +714,98 @@
             }
         }
 
+        // --- TRIPLEX LOGIC ---
+        function toggleTriplex(idx, max) {
+            const currentVal = triplexState.months[idx];
+            // No reset: permite acumular puntos
+            let nextVal = currentVal + 1;
+            if (nextVal > max) nextVal = 0;
+            triplexState.months[idx] = nextVal;
+            
+            updateTriplexVisuals();
+            // No auto-calculate
+        }
+
+        function setTriplexYear(val) {
+            triplexState.year = (triplexState.year === val) ? null : val;
+            updateTriplexVisuals();
+            // No auto-calculate
+        }
+
+        function updateTriplexVisuals() {
+            // Months
+            triplexState.months.forEach((count, idx) => {
+                const d1 = document.getElementById(`tm-${idx}-1`);
+                const d2 = document.getElementById(`tm-${idx}-2`);
+                if(d1) d1.classList.remove('active');
+                if(d2) d2.classList.remove('active');
+                if(count >= 1 && d1) d1.classList.add('active');
+                if(count >= 2 && d2) d2.classList.add('active');
+            });
+            // Years
+            for(let i=0; i<=9; i++) {
+                const yd = document.getElementById(`ty-${i}`);
+                if(yd) {
+                    if(triplexState.year === i) yd.classList.add('active');
+                    else yd.classList.remove('active');
+                }
+            }
+        }
+
+        function calcTriplexResult() {
+            const main = document.getElementById('res-main');
+            const sub = document.getElementById('res-sub');
+            
+            // Lógica Combinatoria 4-4-4
+            // T(0), R(1), I(2), P(3), L(4), E(5), X(6)
+            const s = triplexState.months;
+            let mText = "";
+
+            // Check High Priority (Blocks 2 and 3)
+            // Block 3: X has 2 dots
+            if (s[6] === 2) {
+                if (s[0] >= 1) mText = "OCTUBRE"; // X(2) + T
+                else if (s[1] >= 1) mText = "NOVIEMBRE"; // X(2) + R
+                else if (s[5] >= 1) mText = "DICIEMBRE"; // X(2) + E (Image implies E is used)
+                else mText = "SEPTIEMBRE"; // X(2) Only
+            } 
+            // Block 2: T has 2 dots
+            else if (s[0] === 2) {
+                if (s[1] >= 1) mText = "JUNIO"; // T(2) + R
+                else if (s[5] >= 1) mText = "JULIO"; // T(2) + E
+                else if (s[6] >= 1) mText = "AGOSTO"; // T(2) + X
+                else mText = "MAYO"; // T(2) Only
+            }
+            // Block 1: Single dots
+            else {
+                if (s[0] === 1) mText = "ENERO";
+                else if (s[1] === 1) mText = "FEBRERO";
+                else if (s[5] === 1) mText = "MARZO"; // Image says Mar is E?
+                else if (s[6] === 1) mText = "ABRIL"; // Image says Apr is X?
+            }
+
+            let yText = triplexState.year !== null ? `...${triplexState.year}` : "";
+            let decades = "";
+            if(triplexState.year !== null) {
+                let d = triplexState.year;
+                decades = `Posibles fechas: 199${d} / 200${d} / 201${d} / 202${d}`;
+            }
+
+            if(mText && yText) {
+                main.innerHTML = `<span class="hl">${mText}</span> año <span class="hl">${yText}</span>`;
+                sub.innerText = decades;
+            } else if (mText) {
+                main.innerText = mText;
+                sub.innerText = "Falta seleccionar Año";
+            } else if (yText) {
+                main.innerText = `Año ${yText}`;
+                sub.innerText = "Falta seleccionar Mes";
+            } else {
+                main.innerText = "Combinación Desconocida";
+                sub.innerText = "Revisa los puntos (T, R, E, X)";
+            }
+        }
+
         // --- APP LOGIC ---
         function openTab(id) {
             document.querySelectorAll('.brand-section').forEach(el => el.classList.remove('active'));
@@ -783,7 +813,7 @@
             document.getElementById(id).classList.add('active');
             
             const btns = Array.from(document.querySelectorAll('.tab-btn'));
-            const map = ['generic', 'hyundai', 'laminex', 'lamisafe', 'nippon', 'tempalex', 'temperlite'];
+            const map = ['generic', 'hyundai', 'laminex', 'lamisafe', 'nippon', 'tempalex', 'temperlite', 'triplex'];
             const idx = map.indexOf(id);
             if(idx >= 0 && btns[idx]) btns[idx].classList.add('active');
 
@@ -793,6 +823,9 @@
             } else if (id === 'generic') {
                 initGeneric();
                 calcGeneric();
+            } else if (id === 'triplex') {
+                resetCalc();
+                updateTriplexVisuals();
             } else {
                 resetCalc();
             }
@@ -804,13 +837,15 @@
         function resetCalc() {
             document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
             nipponSel = { m: null, yDots: [] };
+            triplexState = { months: [0,0,0,0,0,0,0], year: null };
+            updateTriplexVisuals();
             document.getElementById('res-main').innerText = "--";
             document.getElementById('res-sub').innerText = "Selecciona los datos";
         }
 
         function calc() {
             const activeSec = document.querySelector('.brand-section.active');
-            if(activeSec.id === 'nippon' || activeSec.id === 'help' || activeSec.id === 'generic') return;
+            if(activeSec.id === 'nippon' || activeSec.id === 'help' || activeSec.id === 'generic' || activeSec.id === 'triplex') return;
 
             const mInp = activeSec.querySelector('input[name="mes"]:checked');
             const aInp = activeSec.querySelector('input[name="anio"]:checked');
