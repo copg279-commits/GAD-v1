@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
         /* --- VARIABLES --- */
         :root {
@@ -399,103 +403,88 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    <script>
+        // CONFIGURACIÓN FIREBASE (PRODUCCIÓN V3)
+const firebaseConfig = {
+  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+  authDomain: "gad-alicante-v4.firebaseapp.com",
+  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "gad-alicante-v4",
+  storageBucket: "gad-alicante-v4.firebasestorage.app",
+  messagingSenderId: "119727545224",
+  appId: "1:119727545224:web:36880c50d196c456cdb83d"
+};
 
-        // CONFIGURACIÓN FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-            authDomain: "gad-alicante-v4.firebaseapp.com",
-            databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "gad-alicante-v4",
-            storageBucket: "gad-alicante-v4.firebasestorage.app",
-            messagingSenderId: "119727545224",
-            appId: "1:119727545224:web:36880c50d196c456cdb83d"
-        };
+        // Inicializar Firebase (Solo si no está ya activo)
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
-        
-        const dbRef = ref(db, 'lunas'); 
+        const db = firebase.database();
+        const auth = firebase.auth();
+        const dbRef = db.ref('lunas');
 
         // ESTADO
         let buttons = [];
         let isEditing = false;
-        let currentId = null; 
+        let currentId = null;
 
-        // --- AUTH & DATA LOGIC (CORE) ---
-        
-        // 1. Escuchar cambios de datos
-        // Esta función se dispara al inicio.
-        // - Si las reglas son TRUE: Descarga datos (snapshot).
-        // - Si las reglas son ESTRICTAS y no hay user: Da error PERMISSION_DENIED.
-        
-        const loadData = () => {
-            onValue(dbRef, (snapshot) => {
+        // --- AUTH & DATA LOGIC ---
+
+        function loadData() {
+            dbRef.on('value', (snapshot) => {
                 const data = snapshot.val();
-                
                 if (data) {
                     buttons = Object.keys(data).map(key => {
                         return { id: key, ...data[key] };
                     });
                     render();
-                    // Ocultar modal login si estaba abierto y cargó datos
+                    document.getElementById('loginModal').style.display = 'none';
+                } else {
+                    // BD vacía
+                    buttons = [];
+                    render();
+                    document.getElementById('gridContainer').innerHTML = '<p style="text-align:center; color:#64748b;">Base de datos vacía. Usa el modo edición (+).</p>';
                     document.getElementById('loginModal').style.display = 'none';
                 }
             }, (error) => {
-                console.error("Error de acceso a BD:", error);
-                if (error.code === 'PERMISSION_DENIED' || error.message.includes('permission_denied')) {
-                    // Reglas estrictas activadas y no logueado
+                console.error("Error BD:", error);
+                if (error.code === 'PERMISSION_DENIED') {
+                    // Si falla por permisos, mostrar login
                     document.getElementById('loginModal').style.display = 'flex';
                     document.getElementById('gridContainer').innerHTML = '<p style="text-align:center; color:#ef4444;">Acceso denegado. Inicia sesión.</p>';
                 }
             });
-        };
+        }
 
-        // 2. Monitor de Autenticación
-        onAuthStateChanged(auth, (user) => {
+        // Monitor de Autenticación (¡CLAVE PARA MÓVIL!)
+        auth.onAuthStateChanged((user) => {
             if (user) {
-                // Usuario logueado
+                // Si el usuario viene logueado del index.html, entra aquí INMEDIATAMENTE
                 document.getElementById('btnLogout').style.display = 'flex';
                 document.getElementById('loginModal').style.display = 'none';
-                // Recargar datos (ahora debería tener permiso)
                 loadData();
             } else {
-                // Usuario no logueado
                 document.getElementById('btnLogout').style.display = 'none';
-                // Intentamos cargar datos igual (por si las reglas son TRUE)
+                // Intentamos cargar (si las reglas son públicas funcionará, si no, saltará error permission_denied)
                 loadData();
             }
         });
 
-        // --- FUNCIONES GLOBALES (Auth) ---
+        // --- FUNCIONES UI ---
 
         window.doLogin = function() {
             const email = document.getElementById('loginEmail').value;
             const pass = document.getElementById('loginPass').value;
-
             if(!email || !pass) { alert("Introduce credenciales"); return; }
 
-            signInWithEmailAndPassword(auth, email, pass)
-                .then((userCredential) => {
-                    // El onAuthStateChanged se encargará del resto
-                })
-                .catch((error) => {
-                    alert("Error de acceso: " + error.message);
-                });
+            auth.signInWithEmailAndPassword(email, pass)
+                .catch((error) => { alert("Error: " + error.message); });
         }
 
         window.doLogout = function() {
-            signOut(auth).then(() => {
-                // Recargar página para limpiar estado o dejar que onAuth maneje
-                window.location.reload();
-            });
+            auth.signOut().then(() => { window.location.reload(); });
         }
-
-        // --- FUNCIONES GLOBALES (App) ---
 
         function sanitizeId(name) {
             return name.trim().toUpperCase().replace(/[^A-Z0-9]/g, '_');
@@ -537,36 +526,27 @@
             const nameVal = document.getElementById('inpName').value.trim().toUpperCase();
             let fileVal = document.getElementById('inpFile').value.trim();
 
-            if (!nameVal || !fileVal) {
-                alert("Rellena todos los campos");
-                return;
-            }
-
+            if (!nameVal || !fileVal) { alert("Rellena todos los campos"); return; }
             if (!fileVal.includes('.')) fileVal += '.html';
 
             const newId = sanitizeId(nameVal);
-            const payload = { 
-                name: nameVal, 
-                file: fileVal
-            };
-            const newItemRef = ref(db, `lunas/${newId}`);
+            const payload = { name: nameVal, file: fileVal };
 
-            set(newItemRef, payload)
+            // Usar update para guardar (si cambia ID hay que borrar el viejo manual, pero simplificamos con set)
+            db.ref('lunas/' + newId).set(payload)
                 .then(() => {
                     if (currentId !== null && currentId !== newId) {
-                        const oldItemRef = ref(db, `lunas/${currentId}`);
-                        remove(oldItemRef); 
+                        db.ref('lunas/' + currentId).remove();
                     }
                     window.closeModal();
                 })
-                .catch((error) => alert("Error al guardar (Verifica permisos): " + error.message));
+                .catch((error) => alert("Error al guardar: " + error.message));
         }
 
         window.deleteBtn = function(id) {
-            if (confirm("¿Borrar permanentemente este fabricante?")) {
-                const itemRef = ref(db, `lunas/${id}`);
-                remove(itemRef)
-                    .catch((error) => alert("Error al borrar (Verifica permisos): " + error.message));
+            if (confirm("¿Borrar permanentemente?")) {
+                db.ref('lunas/' + id).remove()
+                    .catch((error) => alert("Error al borrar: " + error.message));
             }
         }
 
@@ -575,7 +555,6 @@
             if(url) window.location.href = url;
         });
 
-        // --- RENDERIZADO ---
         function render() {
             const grid = document.getElementById('gridContainer');
             const navSelect = document.getElementById('navSelect');
@@ -586,15 +565,11 @@
             buttons.sort((a, b) => a.name.localeCompare(b.name));
 
             buttons.forEach((btn) => {
-                // GRID
+                // CARD
                 const card = document.createElement(isEditing ? 'div' : 'a');
                 card.className = 'btn-card';
-                
-                if (!isEditing) {
-                    card.href = btn.file;
-                } else {
-                    card.onclick = (e) => e.preventDefault();
-                }
+                if (!isEditing) { card.href = btn.file; } 
+                else { card.onclick = (e) => e.preventDefault(); }
 
                 card.innerHTML = `
                     <div class="card-actions">
@@ -603,7 +578,6 @@
                     </div>
                     <div class="btn-label">${btn.name}</div>
                 `;
-
                 grid.appendChild(card);
 
                 // DROPDOWN
@@ -621,10 +595,6 @@
                 grid.appendChild(addBtn);
             }
         }
-        
-        // Iniciar intento de carga
-        loadData();
-
     </script>
 </body>
 </html>
