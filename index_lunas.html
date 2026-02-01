@@ -454,8 +454,6 @@
                 // Si la BD está vacía y tenemos permiso, cargamos iniciales
                 if (!data && !snapshot.exists()) {
                     // Solo si tenemos permiso de escritura (usuario auth o reglas true)
-                    // Intentamos escribir uno para probar
-                    // (Omitido para evitar escritura accidental, solo renderizamos vacío)
                     console.log("BD vacía o nueva.");
                     if(buttons.length === 0) {
                          initialData.forEach(item => {
