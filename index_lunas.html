@@ -15,7 +15,6 @@
             --bg-body: #f3f4f6;
             --text-main: #1e293b;
             --header-blue: #1e40af; /* Azul Cabecera Exacto */
-            --top-bar-red: #dc2626; /* Rojo Barra Volver */
         }
 
         /* --- ESTILOS GLOBALES --- */
@@ -25,38 +24,8 @@
             margin: 0; padding: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* Ocupa al menos toda la altura de la pantalla */
+            min-height: 100vh;
         }
-
-        /* --- BARRA SUPERIOR ROJA --- */
-        .top-bar-strip {
-            background-color: var(--top-bar-red); 
-            color: white;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            height: 45px; /* Un poco más compacta */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            z-index: 100;
-            flex-shrink: 0;
-        }
-
-        .top-back-btn {
-            background-color: rgba(0, 0, 0, 0.2);
-            border: none;
-            margin-right: 15px;
-            font-weight: 800;
-            cursor: pointer;
-            padding: 5px 15px;
-            border-radius: 4px;
-            color: white;
-            height: 30px;
-            display: flex; align-items: center;
-            text-decoration: none;
-            font-size: 0.8rem;
-            transition: background 0.2s;
-        }
-        .top-back-btn:hover { background-color: rgba(0, 0, 0, 0.4); }
 
         /* --- CABECERA AZUL --- */
         header.logo-header {
@@ -65,7 +34,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 1rem 0; /* Reducido para ganar espacio vertical */
+            padding: 1.5rem 0;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             position: relative;
             z-index: 40;
@@ -73,8 +42,8 @@
         }
 
         .logo-container {
-            width: 130px; /* Reducido ligeramente para evitar scroll */
-            height: 130px;
+            width: 140px; 
+            height: 140px;
             background-color: transparent;
             display: flex;
             align-items: center; justify-content: center;
@@ -89,10 +58,10 @@
 
         /* --- CONTENEDOR PRINCIPAL --- */
         .main-content-wrapper {
-            flex-grow: 1; /* Esto hace que ocupe todo el espacio disponible empujando el footer */
+            flex-grow: 1; 
             width: 100%;
             max-width: 900px;
-            margin: 1.5rem auto; /* Márgenes equilibrados */
+            margin: 2rem auto; 
             padding: 0 15px;
             box-sizing: border-box;
             display: flex;
@@ -107,9 +76,19 @@
             border-radius: 12px;
             border-left: 6px solid var(--header-blue);
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap; /* Para adaptar en móvil */
+            gap: 15px;
             align-items: center;
+            justify-content: space-between;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .control-left-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            min-width: 250px;
         }
 
         .control-title {
@@ -120,8 +99,30 @@
             line-height: 1.2;
         }
 
+        /* ESTILO DEL SELECTOR DESPLEGABLE */
+        .nav-select {
+            width: 100%;
+            max-width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .nav-select:hover { border-color: #cbd5e1; }
+        .nav-select:focus { border-color: #3b82f6; background: white; }
+        
+        /* Deshabilitado en modo edición */
+        body.editing .nav-select { opacity: 0.5; pointer-events: none; }
+
+
         /* Switch Styles */
-        .edit-controls { display: flex; align-items: center; gap: 10px; }
+        .edit-controls { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .mode-badge {
             font-size: 0.7rem;
             font-weight: bold;
@@ -147,13 +148,12 @@
         /* --- GRID SYSTEM --- */
         .grid-system {
             display: grid;
-            /* Auto-fill con mínimo 135px asegura buen aspecto en móvil y escritorio */
             grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
             gap: 15px;
             width: 100%;
         }
 
-        /* --- BOTONES MODERNOS --- */
+        /* --- BOTONES MODERNOS (SOLO NOMBRE) --- */
         .btn-card {
             background: linear-gradient(145deg, #1e3a8a, #3b82f6);
             border: none;
@@ -166,7 +166,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            aspect-ratio: 1 / 0.8; /* Rectangular horizontal ligero */
+            aspect-ratio: 1 / 0.6; /* Más apaisado al no tener icono grande */
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             overflow: hidden;
@@ -189,22 +189,16 @@
             background: linear-gradient(145deg, #2563eb, #1e40af);
         }
         
-        .btn-icon {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: white;
-            margin-bottom: 8px;
-            opacity: 0.95;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
+        /* Estilo del Nombre dentro del botón */
         .btn-label {
-            font-size: 0.75rem;
+            font-size: 1.1rem; /* Más grande */
             font-weight: 800;
             line-height: 1.2;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            width: 100%;
+            word-wrap: break-word;
         }
 
         /* --- MODO EDICIÓN --- */
@@ -216,8 +210,7 @@
             box-shadow: none;
         }
         body.editing .btn-card::after { display: none; }
-        body.editing .btn-card .btn-icon { color: #94a3b8; text-shadow: none; }
-        body.editing .btn-card .btn-label { color: #64748b; text-shadow: none; }
+        body.editing .btn-card .btn-label { color: #64748b; text-shadow: none; font-size: 0.9rem; }
         
         .card-actions {
             position: absolute;
@@ -247,7 +240,7 @@
             justify-content: center;
             border-radius: 12px;
             cursor: pointer;
-            aspect-ratio: 1 / 0.8;
+            aspect-ratio: 1 / 0.6;
             font-size: 2rem;
             transition: 0.2s;
         }
@@ -292,8 +285,6 @@
         footer {
             width: 100%;
             padding: 1.5rem 0;
-            /* MAGIA: Esto empuja el pie al fondo si hay poco contenido, 
-               pero deja que baje si hay mucho contenido */
             margin-top: auto; 
             background-color: #e5e7eb;
             text-align: center;
@@ -301,11 +292,6 @@
     </style>
 </head>
 <body>
-
-    <div class="top-bar-strip">
-        <a href="index.html" class="top-back-btn"><i class="fas fa-arrow-left mr-2"></i> VOLVER</a>
-        <span class="ml-auto font-bold text-xs uppercase tracking-widest">GAD ALICANTE</span>
-    </div>
 
     <header class="logo-header">
         <div class="logo-container">
@@ -316,7 +302,14 @@
     <div class="main-content-wrapper">
         
         <div class="control-bar">
-            <div class="control-title">CALCULA LA FECHA DE FABRICACIÓN DE LA LUNA</div>
+            
+            <div class="control-left-group">
+                <div class="control-title">CALCULA LA FECHA DE FABRICACIÓN DE LA LUNA</div>
+                <select id="navSelect" class="nav-select">
+                    <option value="" disabled selected>Seleccionar Fabricante...</option>
+                </select>
+            </div>
+
             <div class="edit-controls">
                 <span class="mode-badge" id="modeBadge">USO</span>
                 <label class="switch">
@@ -468,11 +461,14 @@
                 alert("Rellena todos los campos");
                 return;
             }
-            
+
             if (!fileVal.includes('.')) fileVal += '.html';
 
             const newId = sanitizeId(nameVal);
-            const payload = { name: nameVal, file: fileVal };
+            const payload = { 
+                name: nameVal, 
+                file: fileVal
+            };
             const newItemRef = ref(db, `lunas/${newId}`);
 
             set(newItemRef, payload)
@@ -494,12 +490,27 @@
             }
         }
 
+        // --- EVENT LISTENER PARA EL SELECTOR ---
+        document.getElementById('navSelect').addEventListener('change', function() {
+            const url = this.value;
+            if(url) window.location.href = url;
+        });
+
         // --- RENDERIZADO ---
         function render() {
             const grid = document.getElementById('gridContainer');
+            const navSelect = document.getElementById('navSelect');
+            
             grid.innerHTML = '';
+            
+            // Reiniciar selector manteniendo la opción por defecto
+            navSelect.innerHTML = '<option value="" disabled selected>Seleccionar Fabricante...</option>';
+
+            // Ordenar botones alfabéticamente por Nombre
+            buttons.sort((a, b) => a.name.localeCompare(b.name));
 
             buttons.forEach((btn) => {
+                // 1. CREAR BOTÓN EN GRID
                 const card = document.createElement(isEditing ? 'div' : 'a');
                 card.className = 'btn-card';
                 
@@ -509,18 +520,21 @@
                     card.onclick = (e) => e.preventDefault();
                 }
 
-                const initials = btn.name ? btn.name.substring(0, 2).toUpperCase() : '??';
-
                 card.innerHTML = `
                     <div class="card-actions">
                         <button class="mini-btn edit-mini" onclick="window.openEditor('${btn.id}')">✎</button>
                         <button class="mini-btn del-mini" onclick="window.deleteBtn('${btn.id}')">✕</button>
                     </div>
-                    <div class="btn-icon">${initials}</div>
                     <div class="btn-label">${btn.name}</div>
                 `;
 
                 grid.appendChild(card);
+
+                // 2. AÑADIR OPCIÓN AL DROPDOWN
+                const option = document.createElement('option');
+                option.value = btn.file;
+                option.text = btn.name;
+                navSelect.appendChild(option);
             });
 
             if (isEditing) {
