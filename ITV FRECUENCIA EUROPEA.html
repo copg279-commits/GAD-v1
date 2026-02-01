@@ -106,12 +106,32 @@
             justify-content: center;
             text-align: center;
         }
+        /* --- CÓDIGO NUEVO PARA EL LOGO RESPONSIVE (V4) --- */
+        .logo-container {
+            width: 96px;  /* Tamaño pequeño para MÓVIL */
+            height: 96px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #1e40af;
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Regla para Pantallas Grandes (PC): Crece a 160px */
+        @media (min-width: 768px) {
+            .logo-container {
+                width: 160px;
+                height: 160px;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col pb-16">
 
     <header class="bg-blue-600 w-full flex justify-center items-center py-2">
-<div class="!w-24 !h-24 md:!w-40 md:!h-40 rounded-full overflow-hidden shadow-lg flex items-center justify-center bg-blue-800">
+<div class="logo-container">
     <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
 </div>
     </header>
