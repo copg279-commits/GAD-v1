@@ -58,7 +58,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             text-align: left;
             text-transform: uppercase;
-            /* Flecha personalizada */
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffd700%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat;
             background-position: right 15px top 50%;
@@ -100,7 +99,6 @@
             background: var(--panel-bg);
             border: 1px solid #3a3a3a;
             border-radius: 8px;
-            /* CRUCIAL: Dejamos mucho espacio abajo para logos y resultado */
             padding: 20px 0 120px 0; 
             display: flex;
             flex-direction: column;
@@ -239,6 +237,20 @@
         /* KIA DOT 748 ESPECIFICO */
         .kia-num-label { font-size: 0.6rem; color: #666; margin-top: 2px; }
 
+        /* --- ESTILOS XYG (INTEGRACIÓN NUEVA) --- */
+        .xyg-brand { font-family: 'Arial Black', 'Impact', sans-serif; font-size: 3.5rem; line-height: 1; letter-spacing: -2px; color: #e5e5e5; margin-bottom: 0.5rem; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .xyg-tech-laminated { font-family: 'Courier New', Courier, monospace; color: #e5e5e5; font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; }
+        .xyg-tech-safety { font-family: 'Courier New', Courier, monospace; color: #e5e5e5; font-size: 0.9rem; margin-bottom: 10px; }
+        .xyg-dot-code { font-family: 'Courier New', monospace; color: #e5e5e5; font-size: 0.9rem; font-weight: bold; margin-bottom: 15px; }
+        .xyg-homologation { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 1rem 0; padding-bottom: 0.5rem; border-bottom: 1px solid #444; width: 100%; max-width: 300px; }
+        .xyg-circle-e { border: 2px solid white; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; }
+        .xyg-input { background-color: white; color: black; border: 2px solid #555; border-radius: 4px; text-align: center; font-family: monospace; font-weight: bold; outline: none; }
+        .xyg-year-input { font-size: 2.5rem; width: 80px; height: 60px; background: transparent; color: #e5e5e5; border: 2px dashed #555; }
+        .xyg-sum-input { width: 18%; max-width: 45px; aspect-ratio: 1; font-size: 1.2rem; padding: 0; }
+        .xyg-result-mini { background-color: #333; color: #fff; padding: 5px; border-radius: 4px; font-family: monospace; font-size: 1rem; min-width: 40px; }
+        .xyg-calc-btn { width: 100%; max-width: 300px; margin-top: 2rem; padding: 1rem; background: linear-gradient(to right, #2563eb, #3b82f6); color: white; font-weight: bold; font-size: 1.1rem; border-radius: 12px; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
+        .xyg-calc-btn:active { transform: scale(0.98); }
+
         /* --- MEDIA QUERIES (MÓVIL) --- */
         @media (max-width: 600px) {
             :root { --letter-size: 1.8rem; --dot-size: 12px; }
@@ -294,7 +306,7 @@
                 <option value="tempalex">Tempalex</option>
                 <option value="temperlite">Temperlite</option>
                 <option value="triplex">Triplex</option>
-            </select>
+                <option value="xyg">XYG (Xinyi Glass)</option> </select>
         </div>
         <div class="help-btn-header" onclick="openHelp()">?</div>
     </div>
@@ -446,6 +458,67 @@
             <p class="input-legend">Marca TODOS los puntos azules (Año) y el punto rojo (Mes)</p>
         </div>
 
+        <div id="xyg" class="brand-section">
+            <div class="xyg-brand">XYG</div>
+            <div class="xyg-tech-laminated">LAMINATED</div>
+            <div class="xyg-tech-safety">SAFETY GLASS</div>
+            <div class="xyg-dot-code">DOT-563 AS-1 M-668</div>
+            
+            <div class="xyg-homologation">
+                <div class="xyg-circle-e">E1</div>
+                <span class="r-code" style="font-family:'Courier New', monospace; font-size:1.1rem; font-weight:bold; color:#e5e5e5;">43R-0015322</span>
+            </div>
+    
+            <div class="mt-6 relative flex flex-col items-center" style="margin-top:20px;">
+                <span style="font-size:0.7rem; color:#888; text-transform:uppercase; margin-bottom:5px;">DÍGITO AÑO (Bajo 43R)</span>
+                <div style="display:flex; justify-content:center; align-items:center; gap:10px;">
+                    <span style="font-size:1.5rem; color:#555; letter-spacing:2px;">...</span>
+                    <input type="number" id="xygYearInput" class="xyg-input xyg-year-input" placeholder="#" min="0" max="9" oninput="validateXYGYear(this)">
+                    <span style="font-size:1.5rem; color:#555; letter-spacing:2px;">...</span>
+                </div>
+                <div id="xygYearPreview" style="margin-top:8px; color:#3b82f6; font-weight:bold; font-size:1rem; min-height:1.5rem;">
+                    </div>
+            </div>
+    
+            <div style="margin-top:20px; padding-top:15px; border-top:1px solid #444; width:100%; max-width:400px;">
+                 <span style="font-size:0.7rem; color:#888; text-transform:uppercase; display:block; text-align:left; margin-bottom:5px;">MES (SUMA DE VALORES)</span>
+                 <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; gap:4px; flex-grow:1; justify-content:center;">
+                        <input type="number" min="0" class="xyg-input xyg-sum-input xyg-month-inp" oninput="calcXYGPartial('month')">
+                        <input type="number" min="0" class="xyg-input xyg-sum-input xyg-month-inp" oninput="calcXYGPartial('month')">
+                        <input type="number" min="0" class="xyg-input xyg-sum-input xyg-month-inp" oninput="calcXYGPartial('month')">
+                        <input type="number" min="0" class="xyg-input xyg-sum-input xyg-month-inp" oninput="calcXYGPartial('month')">
+                        <input type="number" min="0" class="xyg-input xyg-sum-input xyg-month-inp" oninput="calcXYGPartial('month')">
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; margin-left:10px;">
+                         <span style="font-size:0.6rem; color:#555;">TOTAL</span>
+                         <div id="xygMonthResultPartial" class="xyg-result-mini" style="color:#fbbf24;">0</div>
+                    </div>
+                </div>
+            </div>
+    
+            <div style="margin-top:15px; padding-top:15px; border-top:1px solid #444; width:100%; max-width:400px;">
+                 <span style="font-size:0.7rem; color:#888; text-transform:uppercase; display:block; text-align:left; margin-bottom:5px;">DÍA (SUMA DE VALORES)</span>
+                 <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; gap:4px; flex-grow:1; justify-content:center;">
+                        <input type="number" min="0" class="xyg-input xyg-sum-input xyg-day-inp" oninput="calcXYGPartial('day')">
+                        <input type="number" min="0" class="xyg-input xyg-sum-input xyg-day-inp" oninput="calcXYGPartial('day')">
+                        <input type="number" min="0" class="xyg-input xyg-sum-input xyg-day-inp" oninput="calcXYGPartial('day')">
+                        <input type="number" min="0" class="xyg-input xyg-sum-input xyg-day-inp" oninput="calcXYGPartial('day')">
+                        <input type="number" min="0" class="xyg-input xyg-sum-input xyg-day-inp" oninput="calcXYGPartial('day')">
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; margin-left:10px;">
+                         <span style="font-size:0.6rem; color:#555;">TOTAL</span>
+                         <div id="xygDayResultPartial" class="xyg-result-mini" style="color:#4ade80;">0</div>
+                    </div>
+                </div>
+            </div>
+    
+            <button onclick="calculateXYGLast()" class="xyg-calc-btn">
+                CALCULAR FECHA COMPLETA
+            </button>
+        </div>
+
     </div>
 
     <div id="helpModal" class="modal-overlay">
@@ -461,6 +534,8 @@
                 <p>Sistema complejo. Marca todos los puntos visibles y pulsa CALCULAR.</p>
                 <h4>KIA (DOT 748)</h4>
                 <p>Puntos superiores: Año (1...0). Puntos inferiores: Mes (1...12).</p>
+                <h4>XYG (Xinyi Glass)</h4>
+                <p>Escribe el dígito del año y suma los números de las filas para mes y día.</p>
             </div>
             <button class="close-btn" onclick="closeHelp()">Cerrar</button>
         </div>
@@ -520,7 +595,7 @@
         // --- FUNCIONES VISUALES (MODALES) ---
         function showResultModal(mainText, subText) {
             document.getElementById('res-modal-main').innerHTML = mainText;
-            document.getElementById('res-modal-sub').innerText = subText;
+            document.getElementById('res-modal-sub').innerHTML = subText; // Cambio a innerHTML para permitir colores
             document.getElementById('resultModal').style.display = 'flex';
         }
 
@@ -544,13 +619,19 @@
                 initGeneric();
             } else if (id === 'triplex') {
                 updateTriplexVisuals();
-            } else if (id === 'kia-dot748') {
-                // Kia init logic if needed, simple radio reset handled by resetCalc
+            } else if (id === 'xyg') {
+                // XYG Init if needed
             }
         }
 
         function resetCalc() {
             document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+            // Reset XYG Inputs
+            document.querySelectorAll('.xyg-input').forEach(i => i.value = '');
+            document.getElementById('xygYearPreview').innerHTML = '';
+            document.getElementById('xygMonthResultPartial').innerText = '0';
+            document.getElementById('xygDayResultPartial').innerText = '0';
+
             nipponSel = { m: null, yDots: [] };
             triplexState = { months: [0,0,0,0,0,0,0], year: null };
             kia748State = { y: null, m: null };
@@ -560,7 +641,8 @@
         // --- CÁLCULO ESTÁNDAR (Laminex, Temperlite, Hyundai...) ---
         function calc() {
             const activeSec = document.querySelector('.brand-section.active');
-            if(activeSec.id === 'nippon' || activeSec.id === 'help' || activeSec.id === 'generic' || activeSec.id === 'triplex' || activeSec.id === 'kia-dot748') return;
+            // Añadido xyg a la lista de ignorados aquí
+            if(activeSec.id === 'nippon' || activeSec.id === 'help' || activeSec.id === 'generic' || activeSec.id === 'triplex' || activeSec.id === 'kia-dot748' || activeSec.id === 'xyg') return;
 
             const mInp = activeSec.querySelector('input[name="mes"]:checked');
             const aInp = activeSec.querySelector('input[name="anio"]:checked');
@@ -800,6 +882,82 @@
         window.addEventListener('resize', () => {
             if(document.getElementById('nippon').classList.contains('active')) renderNippon();
         });
+
+        // ==========================================================
+        // --- LÓGICA XYG (NUEVA INTEGRACIÓN) ---
+        // ==========================================================
+
+        // 1. Validación y Preview del Año
+        function validateXYGYear(input) {
+            // Evitar negativos y limitar longitud
+            if (input.value < 0) input.value = 0;
+            if (input.value.length > 1) input.value = input.value.slice(-1);
+
+            const val = input.value;
+            const preview = document.getElementById('xygYearPreview');
+
+            if (val === "") {
+                preview.innerHTML = "";
+            } else {
+                // Mostrar rangos inmediatamente
+                preview.innerHTML = `200${val} / 201${val} / 202${val}`;
+            }
+        }
+
+        // 2. Suma Parcial (Mes y Día) sin Negativos
+        function calcXYGPartial(type) { // type = 'month' or 'day'
+            const inputs = document.querySelectorAll(`.xyg-${type}-inp`);
+            let total = 0;
+            
+            inputs.forEach(inp => {
+                if(inp.value < 0) inp.value = 0; // Corrección auto negativos
+                const val = parseInt(inp.value);
+                if (!isNaN(val)) total += val;
+            });
+
+            // Actualizar cajita pequeña
+            const display = document.getElementById(type === 'month' ? 'xygMonthResultPartial' : 'xygDayResultPartial');
+            display.innerText = total;
+            return total;
+        }
+
+        // 3. Botón Calcular Final
+        function calculateXYGLast() {
+            // Recoger valores
+            const yearInput = document.getElementById('xygYearInput').value;
+            const monthSum = calcXYGPartial('month'); // Recalcula por seguridad
+            const daySum = calcXYGPartial('day');
+
+            // Validaciones
+            if (yearInput === "") {
+                showResultModal("ERROR", "Debes introducir el dígito del año.");
+                return;
+            }
+            if (monthSum === 0 || monthSum > 12) {
+                showResultModal("ERROR MES", "Suma de mes inválida (0 o >12).");
+                return;
+            }
+            if (daySum === 0 || daySum > 31) {
+                showResultModal("ERROR DÍA", "Suma de día inválida (0 o >31).");
+                return;
+            }
+
+            // Formatear
+            const dayStr = daySum.toString().padStart(2, '0');
+            const monthStr = monthSum.toString().padStart(2, '0');
+            
+            // Construir String de Fechas
+            const possibleYears = `
+                200${yearInput} <span style='color:#666'>/</span> 
+                201${yearInput} <span style='color:#666'>/</span> 
+                202${yearInput}
+            `;
+
+            const finalDate = `<span style='color:#4ade80'>${dayStr}</span> / <span style='color:#fbbf24'>${monthStr}</span>`;
+
+            // Mostrar Modal con la función global existente
+            showResultModal(finalDate, "Posibles años: " + possibleYears);
+        }
 
         // Init
         window.onload = function() {
