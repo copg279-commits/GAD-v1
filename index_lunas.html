@@ -99,7 +99,7 @@
             line-height: 1.2;
         }
 
-        /* ESTILO DEL SELECTOR DESPLEGABLE */
+        /* SELECTOR DESPLEGABLE */
         .nav-select {
             width: 100%;
             max-width: 100%;
@@ -116,12 +116,16 @@
         }
         .nav-select:hover { border-color: #cbd5e1; }
         .nav-select:focus { border-color: #3b82f6; background: white; }
-        
-        /* Deshabilitado en modo edición */
         body.editing .nav-select { opacity: 0.5; pointer-events: none; }
 
 
-        /* Switch Styles */
+        /* Controles Derecha (Switch + Logout) */
+        .right-controls-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .edit-controls { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .mode-badge {
             font-size: 0.7rem;
@@ -132,11 +136,7 @@
             color: #64748b;
             text-transform: uppercase;
         }
-        body.editing .mode-badge { 
-            background: #dbeafe; 
-            color: #1e40af; 
-            border: 1px solid #1e40af;
-        }
+        body.editing .mode-badge { background: #dbeafe; color: #1e40af; border: 1px solid #1e40af; }
 
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -144,6 +144,20 @@
         .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         input:checked + .slider { background-color: var(--header-blue); }
         input:checked + .slider:before { transform: translateX(18px); }
+
+        /* Botón Logout */
+        .logout-btn {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: none; /* Oculto por defecto */
+            align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .logout-btn:hover { background: #fecaca; transform: scale(1.05); }
 
         /* --- GRID SYSTEM --- */
         .grid-system {
@@ -153,7 +167,7 @@
             width: 100%;
         }
 
-        /* --- BOTONES MODERNOS (SOLO NOMBRE) --- */
+        /* --- BOTONES MODERNOS --- */
         .btn-card {
             background: linear-gradient(145deg, #1e3a8a, #3b82f6);
             border: none;
@@ -166,7 +180,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            aspect-ratio: 1 / 0.6; /* Más apaisado al no tener icono grande */
+            aspect-ratio: 1 / 0.6; 
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             overflow: hidden;
@@ -189,9 +203,8 @@
             background: linear-gradient(145deg, #2563eb, #1e40af);
         }
         
-        /* Estilo del Nombre dentro del botón */
         .btn-label {
-            font-size: 1.1rem; /* Más grande */
+            font-size: 1.1rem; 
             font-weight: 800;
             line-height: 1.2;
             text-transform: uppercase;
@@ -201,7 +214,7 @@
             word-wrap: break-word;
         }
 
-        /* --- MODO EDICIÓN --- */
+        /* MODO EDICIÓN */
         body.editing .btn-card {
             background: #f1f5f9;
             border: 2px dashed #94a3b8;
@@ -247,9 +260,9 @@
         .add-card:hover { border-color: #22c55e; color: #22c55e; background: rgba(34, 197, 94, 0.05); }
         body.editing .add-card { display: flex; }
 
-        /* --- MODAL --- */
+        /* --- MODALES --- */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 9999;
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 9999;
             display: none; justify-content: center; align-items: center;
             backdrop-filter: blur(5px);
         }
@@ -281,7 +294,10 @@
         .bm-save:hover { background: #1e3a8a; }
         .bm-cancel { background: #e2e8f0; color: #64748b; }
 
-        /* --- PIE DE PÁGINA --- */
+        /* Estilo Login */
+        .login-helper { font-size: 0.8rem; color: #64748b; margin-bottom: 15px; }
+
+        /* PIE DE PÁGINA */
         footer {
             width: 100%;
             padding: 1.5rem 0;
@@ -310,18 +326,23 @@
                 </select>
             </div>
 
-            <div class="edit-controls">
-                <span class="mode-badge" id="modeBadge">USO</span>
-                <label class="switch">
-                    <input type="checkbox" id="editToggle" onchange="window.toggleMode()">
-                    <span class="slider"></span>
-                </label>
+            <div class="right-controls-group">
+                <div class="edit-controls">
+                    <span class="mode-badge" id="modeBadge">USO</span>
+                    <label class="switch">
+                        <input type="checkbox" id="editToggle" onchange="window.toggleMode()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <button id="btnLogout" class="logout-btn" title="Cerrar Sesión" onclick="window.doLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
         </div>
 
         <div class="grid-system" id="gridContainer">
             <p style="text-align:center; width:100%; color: #64748b; font-weight: 600;">
-                <i class="fas fa-spinner fa-spin mr-2"></i> Cargando datos...
+                <i class="fas fa-spinner fa-spin mr-2"></i> Verificando acceso...
             </p>
         </div>
 
@@ -357,9 +378,31 @@
         </div>
     </div>
 
+    <div id="loginModal" class="modal-overlay" style="z-index: 10000;">
+        <div class="modal-box">
+            <h3 class="modal-title">ACCESO RESTRINGIDO</h3>
+            <p class="login-helper">Esta sección requiere autenticación GAD.</p>
+            
+            <div class="inp-group">
+                <label class="inp-label">CORREO ELECTRÓNICO</label>
+                <input type="email" id="loginEmail" class="modal-inp" placeholder="usuario@gad.es">
+            </div>
+            
+            <div class="inp-group">
+                <label class="inp-label">CONTRASEÑA</label>
+                <input type="password" id="loginPass" class="modal-inp" placeholder="******">
+            </div>
+            
+            <div class="modal-btns">
+                <button class="btn-modal bm-save" onclick="window.doLogin()">INICIAR SESIÓN</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
         // CONFIGURACIÓN FIREBASE
         const firebaseConfig = {
@@ -374,11 +417,16 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const auth = getAuth(app);
         
-        // NODO PRINCIPAL
         const dbRef = ref(db, 'lunas'); 
 
-        // --- DATA INICIAL (Solo si BD vacía) ---
+        // ESTADO
+        let buttons = [];
+        let isEditing = false;
+        let currentId = null; 
+
+        // --- DATA INICIAL (Fallback) ---
         const initialData = [
             { name: 'GENÉRICO', file: 'generico.html' },
             { name: 'HYUNDAI 43R', file: 'hyundai.html' },
@@ -392,34 +440,95 @@
             { name: 'XYG', file: 'xyg.html' }
         ];
 
-        let buttons = [];
-        let isEditing = false;
-        let currentId = null; 
+        // --- AUTH & DATA LOGIC (CORE) ---
+        
+        // 1. Escuchar cambios de datos
+        // Esta función se dispara al inicio.
+        // - Si las reglas son TRUE: Descarga datos (snapshot).
+        // - Si las reglas son ESTRICTAS y no hay user: Da error PERMISSION_DENIED.
+        
+        const loadData = () => {
+            onValue(dbRef, (snapshot) => {
+                const data = snapshot.val();
+                
+                // Si la BD está vacía y tenemos permiso, cargamos iniciales
+                if (!data && !snapshot.exists()) {
+                    // Solo si tenemos permiso de escritura (usuario auth o reglas true)
+                    // Intentamos escribir uno para probar
+                    // (Omitido para evitar escritura accidental, solo renderizamos vacío)
+                    console.log("BD vacía o nueva.");
+                    if(buttons.length === 0) {
+                         initialData.forEach(item => {
+                            const cleanId = sanitizeId(item.name);
+                            set(ref(db, `lunas/${cleanId}`), item).catch(e => console.log("Solo lectura"));
+                        });
+                    }
+                } 
+                
+                if (data) {
+                    buttons = Object.keys(data).map(key => {
+                        return { id: key, ...data[key] };
+                    });
+                    render();
+                    // Ocultar modal login si estaba abierto y cargó datos
+                    document.getElementById('loginModal').style.display = 'none';
+                }
+            }, (error) => {
+                console.error("Error de acceso a BD:", error);
+                if (error.code === 'PERMISSION_DENIED' || error.message.includes('permission_denied')) {
+                    // Reglas estrictas activadas y no logueado
+                    document.getElementById('loginModal').style.display = 'flex';
+                    document.getElementById('gridContainer').innerHTML = '<p style="text-align:center; color:#ef4444;">Acceso denegado. Inicia sesión.</p>';
+                }
+            });
+        };
 
-        // --- HELPER ---
+        // 2. Monitor de Autenticación
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Usuario logueado
+                document.getElementById('btnLogout').style.display = 'flex';
+                document.getElementById('loginModal').style.display = 'none';
+                // Recargar datos (ahora debería tener permiso)
+                loadData();
+            } else {
+                // Usuario no logueado
+                document.getElementById('btnLogout').style.display = 'none';
+                // Intentamos cargar datos igual (por si las reglas son TRUE)
+                loadData();
+            }
+        });
+
+        // --- FUNCIONES GLOBALES (Auth) ---
+
+        window.doLogin = function() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+
+            if(!email || !pass) { alert("Introduce credenciales"); return; }
+
+            signInWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    // El onAuthStateChanged se encargará del resto
+                })
+                .catch((error) => {
+                    alert("Error de acceso: " + error.message);
+                });
+        }
+
+        window.doLogout = function() {
+            signOut(auth).then(() => {
+                // Recargar página para limpiar estado o dejar que onAuth maneje
+                window.location.reload();
+            });
+        }
+
+        // --- FUNCIONES GLOBALES (App) ---
+
         function sanitizeId(name) {
             return name.trim().toUpperCase().replace(/[^A-Z0-9]/g, '_');
         }
 
-        // --- SINCRONIZACIÓN ---
-        onValue(dbRef, (snapshot) => {
-            const data = snapshot.val();
-            
-            if (!data) {
-                // Carga inicial
-                initialData.forEach(item => {
-                    const cleanId = sanitizeId(item.name);
-                    set(ref(db, `lunas/${cleanId}`), item);
-                });
-            } else {
-                buttons = Object.keys(data).map(key => {
-                    return { id: key, ...data[key] };
-                });
-                render();
-            }
-        });
-
-        // --- FUNCIONES ---
         window.toggleMode = function() {
             isEditing = document.getElementById('editToggle').checked;
             document.body.classList.toggle('editing', isEditing);
@@ -430,18 +539,17 @@
         window.openEditor = function(id) {
             currentId = id; 
             const modal = document.getElementById('editorModal');
-            const title = document.getElementById('modalTitle');
             const inName = document.getElementById('inpName');
             const inFile = document.getElementById('inpFile');
 
             if (id === null) {
-                title.innerText = "AÑADIR FABRICANTE";
+                document.getElementById('modalTitle').innerText = "AÑADIR FABRICANTE";
                 inName.value = "";
                 inFile.value = "";
             } else {
                 const btn = buttons.find(b => b.id === id);
                 if(btn) {
-                    title.innerText = "EDITAR FABRICANTE";
+                    document.getElementById('modalTitle').innerText = "EDITAR FABRICANTE";
                     inName.value = btn.name;
                     inFile.value = btn.file;
                 }
@@ -479,18 +587,17 @@
                     }
                     window.closeModal();
                 })
-                .catch((error) => alert("Error: " + error.message));
+                .catch((error) => alert("Error al guardar (Verifica permisos): " + error.message));
         }
 
         window.deleteBtn = function(id) {
             if (confirm("¿Borrar permanentemente este fabricante?")) {
                 const itemRef = ref(db, `lunas/${id}`);
                 remove(itemRef)
-                    .catch((error) => alert("Error: " + error.message));
+                    .catch((error) => alert("Error al borrar (Verifica permisos): " + error.message));
             }
         }
 
-        // --- EVENT LISTENER PARA EL SELECTOR ---
         document.getElementById('navSelect').addEventListener('change', function() {
             const url = this.value;
             if(url) window.location.href = url;
@@ -502,15 +609,12 @@
             const navSelect = document.getElementById('navSelect');
             
             grid.innerHTML = '';
-            
-            // Reiniciar selector manteniendo la opción por defecto
             navSelect.innerHTML = '<option value="" disabled selected>Seleccionar Fabricante...</option>';
 
-            // Ordenar botones alfabéticamente por Nombre
             buttons.sort((a, b) => a.name.localeCompare(b.name));
 
             buttons.forEach((btn) => {
-                // 1. CREAR BOTÓN EN GRID
+                // GRID
                 const card = document.createElement(isEditing ? 'div' : 'a');
                 card.className = 'btn-card';
                 
@@ -530,7 +634,7 @@
 
                 grid.appendChild(card);
 
-                // 2. AÑADIR OPCIÓN AL DROPDOWN
+                // DROPDOWN
                 const option = document.createElement('option');
                 option.value = btn.file;
                 option.text = btn.name;
@@ -545,6 +649,10 @@
                 grid.appendChild(addBtn);
             }
         }
+        
+        // Iniciar intento de carga (si auth es lento, el onAuthStateChanged recogerá el testigo)
+        loadData();
+
     </script>
 </body>
 </html>
