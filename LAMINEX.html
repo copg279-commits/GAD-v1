@@ -2,443 +2,221 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAMINEX - G.A.D. Herramienta</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAMINEX - G.A.D.</title>
     <style>
-        body { 
-            background-color: #1e293b; 
-            font-family: 'Arial', sans-serif; 
-            overflow: hidden; 
-            user-select: none;
-            height: 100vh; width: 100vw; margin: 0;
-            display: flex; flex-direction: column;
+        :root {
+            --bg-color: #1a1a1a; 
+            --panel-bg: #252525;
+            --text-color: #f0f0f0;
+            --accent-red: #d32f2f;
+            --dot-off: #444444;
+            --dot-on: #ffd700;
+            --label-text: #999;
+            --letter-size: 2.5rem;
+            --dot-size: 14px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            margin: 0;
+            min-height: 100vh;
         }
 
         /* BARRA SUPERIOR */
-        .controls {
-            background: #0f172a; padding: 0 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #334155; height: 60px; z-index: 100;
+        .top-bar {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-start;
+        }
+        .back-btn {
+            background: #333;
+            color: #ccc;
+            border: 1px solid #555;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .back-btn:active { transform: scale(0.98); background: #444; color: white; }
+
+        /* CONTENEDOR PRINCIPAL */
+        .glass-container {
+            background: var(--panel-bg);
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            padding: 20px 0 120px 0; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+            position: relative;
+            min-height: 400px;
+            justify-content: center;
         }
 
-        /* ESTADO DE CARGA / GUARDADO */
-        #statusBadge {
-            font-size: 0.75rem; font-weight: bold; text-transform: uppercase;
-            padding: 4px 12px; border-radius: 999px;
-            background: #334155; color: #94a3b8;
-            transition: all 0.3s;
-        }
-        .st-loading { background: #eab308 !important; color: #422006 !important; }
-        .st-saved { background: #22c55e !important; color: #022c22 !important; }
-        .st-error { background: #ef4444 !important; color: white !important; }
+        /* --- ESTILOS LAMINEX ORIGINALES --- */
+        .word-row { display: flex; align-items: center; justify-content: center; width: 100%; position: relative; }
+        .letters-group { display: flex; justify-content: center; gap: 1vw; }
+        .letter-col { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 9vw; max-width: 45px; position: relative; cursor: pointer; }
+        .letter { font-family: 'Arial Black', sans-serif; font-size: var(--letter-size); color: var(--accent-red); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); line-height: 1; margin: 6px 0; cursor: default; user-select: none; }
+        .side-col { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 12vw; max-width: 50px; position: relative; height: 100%; padding-top: 10px; }
+        .dot-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 30px; position: relative; z-index: 10; }
+        .dot-wrapper.absolute { position: absolute; left: 50%; transform: translateX(-50%); }
+        .pos-top-floating { top: -35px; } 
+        .pos-bot-floating { bottom: -35px; }
+        
+        .lbl { font-size: 0.55rem; color: var(--label-text); text-transform: uppercase; font-weight: bold; margin-bottom: 1px; white-space: nowrap; }
+        .lbl-bot { margin-bottom: 0; margin-top: 1px; }
 
-        /* WORKSPACE */
-        #workspace {
-            flex-grow: 1; display: flex; justify-content: center; align-items: center;
-            background: #1e293b; position: relative;
-        }
-        #glassBoard {
-            width: 900px; height: 550px; background-color: #0055ff;
-            border: 4px solid white; position: relative; 
-            box-shadow: 0 0 50px rgba(0,0,0,0.6);
-        }
+        /* PUNTOS Y RADIOS */
+        input[type="radio"] { display: none; }
+        label { display: flex; justify-content: center; align-items: center; padding: 8px; margin: -8px; cursor: pointer; z-index: 10; }
+        .dot { width: var(--dot-size); height: var(--dot-size); background-color: var(--dot-off); border: 2px solid #666; border-radius: 50%; transition: all 0.2s; }
+        input[type="radio"]:checked + .dot { background-color: var(--dot-on); border-color: #fff; box-shadow: 0 0 10px rgba(255, 215, 0, 0.8); transform: scale(1.3); }
 
-        /* TEXTO FONDO */
-        .bg-text {
-            font-family: 'Arial Black', sans-serif; font-size: 5rem; color: #cc0000;
-            -webkit-text-stroke: 3px white; position: absolute; left: 50%;
-            transform: translateX(-50%); text-align: center; width: 100%;
-            letter-spacing: 10px; line-height: 1; pointer-events:none; z-index: 0;
-        }
+        .input-legend { color: #777; font-size: 0.75rem; text-align: center; margin-top: 20px; font-style: italic; padding: 0 10px; }
 
-        /* CAPAS */
-        .layer-content { z-index: 10; position: absolute; top:0; left:0; width:100%; height:100%; }
-
-        /* GUÍAS */
-        .smart-guide { position: absolute; background-color: #00ffff; display: none; box-shadow: 0 0 5px #00ffff; z-index: 50; pointer-events:none; }
-        .guide-h { height: 1px; width: 100%; left: 0; } 
-        .guide-v { width: 1px; height: 100%; top: 0; } 
-
-        /* LOGO */
-        #dragLogo { position: absolute; cursor: pointer; width: 150px; transform: translate(-50%, -50%); z-index: 5; }
-        .editable #dragLogo { border: 2px dashed cyan; cursor: move; }
-
-        /* PUNTOS */
-        .dot-wrapper {
-            position: absolute; width: 40px; height: 40px; 
-            transform: translate(-50%, -50%); display: flex;
-            justify-content: center; align-items: center; cursor: pointer; z-index: 20;
-        }
-        .dot-point {
-            width: 24px; height: 24px; background-color: #ffff00;
-            border-radius: 50%; border: 1px solid rgba(0,0,0,0.2);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: transform 0.1s;
-        }
-        .dot-label {
-            position: absolute; font-size: 14px; color: white; font-weight: bold;
-            text-shadow: 0 0 3px black, 0 0 4px black; pointer-events: none; white-space: nowrap;
-        }
-
-        /* POSICIONES ETIQUETA (Separadas para no pisar) */
-        .pos-top    { bottom: 45px; } 
-        .pos-bottom { top: 45px; }
-        .pos-left   { right: 45px; }
-        .pos-right  { left: 45px; }
-
-        /* ESTADOS */
-        .dot-point:hover { transform: scale(1.2); background-color: white; }
-        .dot-point.selected { background-color: #00ff00; transform: scale(1.4); box-shadow: 0 0 15px #00ff00; border: 2px solid #004400; }
-        .editable .dot-point { background-color: #fbbf24; border: 2px dashed black; cursor: move; }
-
-        /* SWITCH EDICIÓN */
-        .toggle-wrapper { display: flex; align-items: center; cursor: pointer; }
-        .toggle-checkbox { display: none; }
-        .toggle-label { width: 50px; height: 26px; background-color: #ef4444; border-radius: 9999px; position: relative; transition: 0.3s; }
-        .toggle-circle { width: 20px; height: 20px; background-color: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #22c55e; }
-        .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(24px); }
+        /* LOGOS */
+        .corner-logo { position: absolute; bottom: 10px; height: 90px; width: auto; opacity: 0.8; pointer-events: none; }
+        .logo-left { left: 10px; }
+        .logo-right { right: 10px; }
 
         /* MODAL RESULTADO */
-        #resultModal {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: #0f172a; border: 2px solid #3b82f6; padding: 15px 40px;
-            border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            text-align: center; z-index: 300; display: none;
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-box { background: #222; border: 2px solid #ffd700; padding: 25px; width: 85%; max-width: 400px; border-radius: 12px; text-align: center; animation: popIn 0.3s; }
+        @keyframes popIn { from {transform:scale(0.8);opacity:0;} to {transform:scale(1);opacity:1;} }
+        
+        .result-content h2 { color: #ccc; font-size: 1rem; text-transform: uppercase; margin-bottom: 10px; }
+        .res-modal-main { font-size: 2rem; color: #fff; font-weight: bold; margin: 10px 0; }
+        .res-modal-sub { color: #ffd700; font-size: 1.1rem; margin-bottom: 20px; display: block; }
+        .close-btn { width: 100%; background: #d32f2f; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; }
+
+        /* MEDIA QUERIES */
+        @media (max-width: 600px) {
+            :root { --letter-size: 1.8rem; --dot-size: 12px; }
+            .pos-top-floating { top: -28px; } 
+            .pos-bot-floating { bottom: -28px; }
+            .corner-logo { height: 60px; bottom: 10px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <div class="flex items-center gap-4">
-            <a href="menu_lunas.html" class="text-gray-400 hover:text-white font-bold flex items-center gap-2">
-                <i class="fas fa-arrow-left"></i> VOLVER
-            </a>
-            <div id="statusBadge">CONECTANDO...</div>
-        </div>
+    <div class="top-bar">
+        <a href="index_lunas.html" class="back-btn">
+            <span>&#8678;</span> VOLVER AL SELECTOR DE FABRICANTES
+        </a>
+    </div>
+
+    <div class="glass-container">
         
-        <div class="flex items-center gap-6">
-            <div id="userEmail" class="text-xs text-blue-400 font-mono hidden md:block"></div>
-            
-            <button onclick="restoreFactory()" class="text-xs text-red-400 hover:text-white border border-red-900 px-3 py-1 rounded">Reset</button>
-            
-            <label class="toggle-wrapper">
-                <span class="text-xs font-bold text-gray-400 mr-3">EDITAR</span>
-                <input type="checkbox" id="editSwitch" class="toggle-checkbox" onchange="toggleEdit()">
-                <div class="toggle-label"><div class="toggle-circle"></div></div>
-            </label>
-        </div>
-    </div>
+        <img src="logogad2.png" alt="Logo Izq" class="corner-logo logo-left">
+        <img src="logogad.png" alt="Logo Der" class="corner-logo logo-right">
 
-    <div id="workspace">
-        <div id="glassBoard">
-            <div style="z-index: 0;">
-                <div class="bg-text" style="top: 25%">LAMINEX</div>
-                <div class="bg-text" style="bottom: 25%">CENTRAL</div>
+        <div class="word-row">
+            <div class="side-col">
+                <div class="dot-wrapper"><span class="lbl">Feb</span><label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label></div>
             </div>
-
-            <div id="dynamicLayer" class="layer-content"></div>
-
-            <div class="layer-content" style="pointer-events: none;">
-                <div id="guideH" class="smart-guide guide-h"></div>
-                <div id="guideV" class="smart-guide guide-v"></div>
+            <div class="letters-group">
+                <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Mar</span><label><input type="radio" name="mes" value="Marzo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">L</div><div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Enero" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Ene</span></div></div>
+                <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Abr</span><label><input type="radio" name="mes" value="Abril" onchange="calc()"><div class="dot"></div></label></div><div class="letter">A</div></div>
+                <div class="letter-col"><div class="dot-wrapper"><span class="lbl">May</span><label><input type="radio" name="mes" value="Mayo" onchange="calc()"><div class="dot"></div></label></div><div class="letter">M</div></div>
+                <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jun</span><label><input type="radio" name="mes" value="Junio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">I</div></div>
+                <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Jul</span><label><input type="radio" name="mes" value="Julio" onchange="calc()"><div class="dot"></div></label></div><div class="letter">N</div></div>
+                <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Ago</span><label><input type="radio" name="mes" value="Agosto" onchange="calc()"><div class="dot"></div></label></div><div class="letter">E</div></div>
+                <div class="letter-col"><div class="dot-wrapper"><span class="lbl">Sep</span><label><input type="radio" name="mes" value="Septiembre" onchange="calc()"><div class="dot"></div></label></div><div class="letter">X</div><div class="dot-wrapper absolute pos-bot-floating"><label><input type="radio" name="mes" value="Diciembre" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">Dic</span></div></div>
+            </div>
+            <div class="side-col">
+                <div class="dot-wrapper absolute pos-top-floating"><span class="lbl">Oct</span><label><input type="radio" name="mes" value="Octubre" onchange="calc()"><div class="dot"></div></label></div>
+                <div class="dot-wrapper"><span class="lbl">Nov</span><label><input type="radio" name="mes" value="Noviembre" onchange="calc()"><div class="dot"></div></label></div>
             </div>
         </div>
+
+        <div class="word-row" style="margin-top: 30px;">
+            <div class="side-col">
+                <div class="dot-wrapper"><label><input type="radio" name="anio" value="0" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">0</span></div>
+            </div>
+            <div class="letters-group">
+                <div class="letter-col"><div class="letter">C</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="9" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">9</span></div></div>
+                <div class="letter-col"><div class="letter">E</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="8" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">8</span></div></div>
+                <div class="letter-col"><div class="letter">N</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="7" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">7</span></div></div>
+                <div class="letter-col"><div class="letter">T</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="6" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">6</span></div></div>
+                <div class="letter-col"><div class="letter">R</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="5" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">5</span></div></div>
+                <div class="letter-col"><div class="letter">A</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="4" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">4</span></div></div>
+                <div class="letter-col"><div class="letter">L</div><div class="dot-wrapper"><label><input type="radio" name="anio" value="3" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">3</span></div></div>
+            </div>
+            <div class="side-col">
+                <div class="dot-wrapper absolute pos-top-floating"><label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">1</span></div>
+                <div class="dot-wrapper"><label><input type="radio" name="anio" value="2" onchange="calc()"><div class="dot"></div></label><span class="lbl lbl-bot">2</span></div>
+            </div>
+        </div>
+
+        <p class="input-legend">Marca el punto rojo (Mes) y el punto amarillo (Año)</p>
+
     </div>
 
-    <div id="resultModal">
-        <p class="text-gray-400 text-xs uppercase mb-1">Fecha Fabricación</p>
-        <h2 id="resMonth" class="text-3xl font-bold text-white">--</h2>
-        <p id="resDecades" class="text-green-400 font-mono text-lg tracking-widest mt-1">--</p>
-        <button onclick="closeResult()" class="text-xs text-red-400 underline mt-2 hover:text-white">Cerrar</button>
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="result-content">
+                <h2>RESULTADO</h2>
+                <div class="res-modal-main" id="res-modal-main">--</div>
+                <div class="res-modal-sub" id="res-modal-sub">...</div>
+            </div>
+            <button class="close-btn" onclick="closeResult()">CERRAR</button>
+        </div>
     </div>
 
     <script>
-        // === 1. CONFIGURACIÓN FIREBASE (Tu Config) ===
-        const firebaseConfig = {
-            apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-            authDomain: "gad-alicante-v4.firebaseapp.com",
-            databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "gad-alicante-v4",
-            storageBucket: "gad-alicante-v4.firebasestorage.app",
-            messagingSenderId: "119727545224",
-            appId: "1:119727545224:web:36880c50d196c456cdb83d"
-        };
+        let calcTimeout = null;
 
-        const brandNode = "laminex"; 
-        let db = null;
-        let currentUser = null;
-
-        // === 2. DATOS DE FÁBRICA ===
-        const factoryData = {
-            logo: { top: 50, left: 50 },
-            positions: [
-                { id: 'm1', val: 1, label: 'Ene', top: 38, left: 10, pos: 'pos-bottom' },
-                { id: 'm2', val: 2, label: 'Feb', top: 28, left: 10, pos: 'pos-left' },
-                { id: 'm3', val: 3, label: 'Mar', top: 22, left: 24, pos: 'pos-top' },
-                { id: 'm4', val: 4, label: 'Abr', top: 20, left: 33, pos: 'pos-top' },
-                { id: 'm5', val: 5, label: 'May', top: 19, left: 41, pos: 'pos-top' },
-                { id: 'm6', val: 6, label: 'Jun', top: 19, left: 50, pos: 'pos-top' },
-                { id: 'm7', val: 7, label: 'Jul', top: 19, left: 59, pos: 'pos-top' },
-                { id: 'm8', val: 8, label: 'Ago', top: 20, left: 67, pos: 'pos-top' },
-                { id: 'm9', val: 9, label: 'Sep', top: 22, left: 76, pos: 'pos-top' },
-                { id: 'm10', val: 10, label: 'Oct', top: 18, left: 88, pos: 'pos-top' },
-                { id: 'm11', val: 11, label: 'Nov', top: 28, left: 90, pos: 'pos-right' },
-                { id: 'm12', val: 12, label: 'Dic', top: 38, left: 90, pos: 'pos-bottom' },
-                { id: 'y0', val: 0, label: '0', top: 70, left: 10, pos: 'pos-bottom' },
-                { id: 'y9', val: 9, label: '9', top: 76, left: 24, pos: 'pos-bottom' },
-                { id: 'y8', val: 8, label: '8', top: 79, left: 33, pos: 'pos-bottom' },
-                { id: 'y7', val: 7, label: '7', top: 80, left: 41, pos: 'pos-bottom' },
-                { id: 'y6', val: 6, label: '6', top: 80, left: 50, pos: 'pos-bottom' },
-                { id: 'y5', val: 5, label: '5', top: 80, left: 59, pos: 'pos-bottom' },
-                { id: 'y4', val: 4, label: '4', top: 79, left: 67, pos: 'pos-bottom' },
-                { id: 'y3', val: 3, label: '3', top: 76, left: 76, pos: 'pos-bottom' },
-                { id: 'y1', val: 1, label: '1', top: 65, left: 90, pos: 'pos-right' },
-                { id: 'y2', val: 2, label: '2', top: 75, left: 90, pos: 'pos-right' }
-            ]
-        };
-
-        let appState = JSON.parse(JSON.stringify(factoryData));
-        let isEditMode = false;
-        let startX = 0, startY = 0; 
-        let selectedMonth = null, selectedYear = null;
-
-        // === 3. INICIO Y SEGURIDAD ===
-        window.onload = function() {
-            renderAll(); // Cargar visualmente de inmediato
-
-            try {
-                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-                
-                // VERIFICAR AUTENTICACIÓN
-                firebase.auth().onAuthStateChanged((user) => {
-                    if (user) {
-                        // Usuario autorizado
-                        currentUser = user;
-                        document.getElementById('userEmail').innerText = user.email;
-                        setStatus('loading', 'Cargando datos...');
-                        initDatabaseListener();
-                    } else {
-                        // Usuario NO logueado -> Expulsar
-                        alert("Acceso no autorizado. Debes iniciar sesión primero.");
-                        window.location.href = 'index.html';
-                    }
-                });
-
-            } catch(e) {
-                console.error("Firebase Error:", e);
-                setStatus('error', 'Error Config');
-            }
-        };
-
-        function initDatabaseListener() {
-            // Escuchar cambios en la DB
-            db.ref('LUNAS/' + brandNode).on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    appState = data;
-                    if(!appState.positions) appState.positions = factoryData.positions;
-                    renderAll();
-                    setStatus('saved', 'Sincronizado');
-                } else {
-                    // Si no hay datos, guardar fábrica
-                    saveToCloud();
-                }
-            }, (error) => {
-                console.error("Error DB:", error);
-                setStatus('error', 'Sin Permiso DB');
-            });
-        }
-
-        function setStatus(type, msg) {
-            const el = document.getElementById('statusBadge');
-            el.innerText = msg;
-            el.className = ''; // Limpiar clases
-            if(type === 'loading') el.classList.add('st-loading');
-            if(type === 'saved') el.classList.add('st-saved');
-            if(type === 'error') el.classList.add('st-error');
-        }
-
-        function saveToCloud() {
-            if(db && currentUser) {
-                setStatus('loading', 'Guardando...');
-                db.ref('LUNAS/' + brandNode).set(appState)
-                  .then(() => setStatus('saved', 'Guardado'))
-                  .catch((err) => {
-                      console.error(err);
-                      setStatus('error', 'Error Guardado');
-                  });
-            }
-        }
-
-        // === 4. RENDERIZADO ===
-        function renderAll() {
-            const container = document.getElementById('dynamicLayer');
-            container.innerHTML = ''; 
-
-            // Logo
-            const logo = document.createElement('img');
-            logo.id = 'dragLogo';
-            logo.src = 'logogad.PNG'; // Asegúrate que este archivo existe
-            logo.onerror = function() { this.style.display='none'; };
-            logo.style.top = appState.logo.top + '%';
-            logo.style.left = appState.logo.left + '%';
-            logo.onmousedown = (e) => handleInput(e, null, 'logo');
-            container.appendChild(logo);
-
-            // Puntos
-            appState.positions.forEach(pos => {
-                const wrap = document.createElement('div');
-                wrap.className = 'dot-wrapper';
-                wrap.id = pos.id;
-                wrap.style.top = pos.top + '%';
-                wrap.style.left = pos.left + '%';
-
-                const point = document.createElement('div');
-                point.className = 'dot-point';
-                if ((pos.id.startsWith('m') && selectedMonth === pos.val) ||
-                    (pos.id.startsWith('y') && selectedYear === pos.val)) {
-                    point.classList.add('selected');
-                }
-
-                const label = document.createElement('span');
-                label.className = `dot-label ${pos.pos || 'pos-top'}`; 
-                label.innerText = pos.label;
-
-                wrap.appendChild(point);
-                wrap.appendChild(label);
-                wrap.onmousedown = (e) => handleInput(e, pos, 'dot');
-                container.appendChild(wrap);
-            });
-        }
-
-        // === 5. INTERACCIÓN (Input) ===
-        function handleInput(e, dataObj, type) {
-            e.preventDefault();
-            startX = e.clientX; startY = e.clientY;
+        function calc() {
+            const mInp = document.querySelector('input[name="mes"]:checked');
+            const aInp = document.querySelector('input[name="anio"]:checked');
             
-            if(isEditMode) initDrag(e, dataObj, type);
+            let mVal = mInp ? mInp.value : null;
+            let aVal = aInp ? aInp.value : null;
 
-            const onUp = (ev) => {
-                document.removeEventListener('mouseup', onUp);
-                const dist = Math.sqrt(Math.pow(ev.clientX - startX, 2) + Math.pow(ev.clientY - startY, 2));
-                if(dist < 5) { 
-                    if(isEditMode && type === 'dot') rotateLabel(dataObj);
-                    else if (!isEditMode && type === 'dot') selectDot(dataObj);
-                }
-            };
-            document.addEventListener('mouseup', onUp);
+            if (mVal && aVal) {
+                // Cálculo de décadas
+                let d = parseInt(aVal) % 10;
+                let decades = `Posibles fechas: 200${d} / 201${d} / 202${d}`;
+                
+                if (calcTimeout) clearTimeout(calcTimeout);
+
+                calcTimeout = setTimeout(() => {
+                    showResultModal(`${mVal} - Año ...${aVal}`, decades);
+                }, 1000);
+            }
         }
 
-        function initDrag(e, dataObj, type) {
-            const board = document.getElementById('glassBoard');
-            const rect = board.getBoundingClientRect();
-            const initTop = type === 'logo' ? appState.logo.top : dataObj.top;
-            const initLeft = type === 'logo' ? appState.logo.left : dataObj.left;
-            const guideH = document.getElementById('guideH');
-            const guideV = document.getElementById('guideV');
-
-            function onMouseMove(ev) {
-                const dx = ev.clientX - startX; const dy = ev.clientY - startY;
-                if(Math.abs(dx) > 3 || Math.abs(dy) > 3) {
-                    let newLeft = initLeft + ((dx / rect.width) * 100);
-                    let newTop = initTop + ((dy / rect.height) * 100);
-
-                    // Guías Inteligentes
-                    let snappedX = false, snappedY = false;
-                    const snapTol = 1.0; 
-                    if (type === 'dot') {
-                        appState.positions.forEach(other => {
-                            if (other.id === dataObj.id) return;
-                            if (!snappedY && Math.abs(newTop - other.top) < snapTol) {
-                                newTop = other.top; snappedY = true;
-                                guideH.style.display = 'block'; guideH.style.top = newTop + '%';
-                            }
-                            if (!snappedX && Math.abs(newLeft - other.left) < snapTol) {
-                                newLeft = other.left; snappedX = true;
-                                guideV.style.display = 'block'; guideV.style.left = newLeft + '%';
-                            }
-                        });
-                    }
-                    if(!snappedY) guideH.style.display = 'none';
-                    if(!snappedX) guideV.style.display = 'none';
-
-                    // Límites
-                    newLeft = Math.max(0, Math.min(100, newLeft));
-                    newTop = Math.max(0, Math.min(100, newTop));
-
-                    // Aplicar
-                    const el = type === 'logo' ? document.getElementById('dragLogo') : document.getElementById(dataObj.id);
-                    el.style.top = newTop + '%'; el.style.left = newLeft + '%';
-
-                    if(type === 'logo') { appState.logo.top = newTop; appState.logo.left = newLeft; }
-                    else { dataObj.top = newTop; dataObj.left = newLeft; }
-                }
-            }
-
-            function onMouseUp() {
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-                guideH.style.display = 'none'; guideV.style.display = 'none';
-                saveToCloud();
-            }
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        }
-
-        function rotateLabel(dataObj) {
-            const order = ['pos-top', 'pos-right', 'pos-bottom', 'pos-left'];
-            let current = dataObj.pos || 'pos-top';
-            dataObj.pos = order[(order.indexOf(current) + 1) % 4];
-            saveToCloud(); renderAll();
-        }
-
-        // === 6. PERITAJE ===
-        const months = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-
-        function selectDot(dataObj) {
-            const isMonth = dataObj.id.startsWith('m');
-            document.querySelectorAll('.dot-point').forEach(d => {
-                const pid = d.parentElement.id;
-                if ((isMonth && pid.startsWith('m')) || (!isMonth && pid.startsWith('y'))) d.classList.remove('selected');
-            });
-            document.getElementById(dataObj.id).querySelector('.dot-point').classList.add('selected');
-
-            if(isMonth) selectedMonth = dataObj.val; else selectedYear = dataObj.val;
-            if(selectedMonth !== null && selectedYear !== null) {
-                const modal = document.getElementById('resultModal');
-                modal.style.display = 'block';
-                document.getElementById('resMonth').innerText = months[selectedMonth];
-                const y = selectedYear;
-                document.getElementById('resDecades').innerText = `${2000+y} / ${2010+y} / ${2020+y}`;
-            }
+        function showResultModal(mainText, subText) {
+            document.getElementById('res-modal-main').innerHTML = mainText;
+            document.getElementById('res-modal-sub').innerHTML = subText;
+            document.getElementById('resultModal').style.display = 'flex';
         }
 
         function closeResult() {
-            selectedMonth = null; selectedYear = null; renderAll();
             document.getElementById('resultModal').style.display = 'none';
-        }
-
-        function toggleEdit() {
-            isEditMode = document.getElementById('editSwitch').checked;
-            const board = document.getElementById('glassBoard');
-            if(isEditMode) board.style.borderColor = '#ef4444';
-            else { board.style.borderColor = 'white'; saveToCloud(); }
-        }
-
-        function restoreFactory() {
-            if(confirm("¿Restaurar configuración de fábrica?")) {
-                appState = JSON.parse(JSON.stringify(factoryData));
-                saveToCloud(); renderAll();
-            }
         }
     </script>
 </body>
