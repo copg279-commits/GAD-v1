@@ -29,7 +29,7 @@
             min-height: 100vh;
         }
 
-        /* BARRA SUPERIOR - Alineada con el contenedor (750px) */
+        /* BARRA SUPERIOR */
         .top-bar {
             width: 100%;
             max-width: 750px; 
@@ -63,7 +63,7 @@
             background: var(--panel-bg);
             border: 1px solid #3a3a3a;
             border-radius: 8px;
-            /* Padding vertical aumentado para que quepan puntos arriba y abajo */
+            /* Padding inferior amplio para los logos */
             padding: 60px 2px 90px 2px; 
             display: flex;
             flex-direction: column;
@@ -79,10 +79,10 @@
             overflow: hidden; 
         }
 
-        /* --- ESTRUCTURA COMPRIMIDA (Igual que Temperlite) --- */
+        /* --- ESTRUCTURA COMPRIMIDA --- */
         .row-compact {
             display: flex;
-            align-items: center; /* Centrado vertical para alinear Ene/Dic con las letras */
+            align-items: center;
             justify-content: space-between; 
             width: 100%;
             max-width: 100%;
@@ -116,7 +116,7 @@
             line-height: 1; 
             cursor: default;
             user-select: none;
-            margin: 0; /* Sin margen para centrar mejor con puntos arriba/abajo */
+            margin: 0; 
             text-align: center;
         }
 
@@ -133,27 +133,16 @@
         }
 
         /* PUNTOS FLOTANTES */
-        /* Ajustados para AUTOMOTIVE (Año arriba, Mes abajo) */
-        .dot-float-top { 
-            position: absolute; 
-            top: -38px; /* Más separado para dejar sitio al número */
-            left: 0; 
-            width: 100%; 
-        }
-        .dot-float-bot { 
-            position: absolute; 
-            bottom: -38px; /* Más separado para dejar sitio al mes */
-            left: 0; 
-            width: 100%; 
-        }
+        .dot-float-top { position: absolute; top: -38px; left: 0; width: 100%; }
+        .dot-float-bot { position: absolute; bottom: -38px; left: 0; width: 100%; }
 
         .lbl { 
             font-size: 0.55rem; color: var(--label-text); 
             text-transform: uppercase; font-weight: bold; 
             margin-bottom: 1px; white-space: nowrap; line-height: 1; 
         }
-        .lbl-top-num { /* Estilo específico para los números de año arriba */
-            color: #ffd700; /* Amarillo/Dorado para distinguir año */
+        .lbl-top-num { 
+            color: #ffd700; /* Año en amarillo */
             font-size: 0.8rem;
             margin-bottom: 2px;
         }
@@ -178,7 +167,7 @@
 
         .input-legend { color: #777; font-size: 0.75rem; text-align: center; margin-top: 60px; font-style: italic; padding: 0 10px; }
 
-        /* LOGOS */
+        /* LOGOS - ESTILOS BASE (PC) */
         .corner-logo { 
             position: absolute; bottom: 15px; 
             height: 90px; 
@@ -197,7 +186,7 @@
         .res-modal-sub { color: #ffd700; font-size: 1.1rem; margin-bottom: 20px; display: block; }
         .close-btn { width: 100%; background: #d32f2f; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; }
 
-        /* MEDIA QUERIES (MÓVIL CRÍTICO) */
+        /* --- CORRECCIÓN MÓVIL --- */
         @media (max-width: 600px) {
             :root { 
                 --letter-size: 1.4rem; 
@@ -206,9 +195,15 @@
             .col-dot-only { width: 15px; } 
             .lbl { font-size: 0.45rem; transform: scale(0.9); }
             .lbl-top-num { font-size: 0.65rem; }
-            .corner-logo { height: 60px; bottom: 10px; left: 10px; right: 10px; }
             
-            /* Ajuste de márgenes verticales en puntos flotantes para móvil */
+            /* Ajuste de logos en móvil - POSICIONAMIENTO EXPLÍCITO */
+            .corner-logo { 
+                height: 50px; 
+                bottom: 10px; 
+            }
+            .logo-left { left: 10px; }
+            .logo-right { right: 10px; }
+            
             .dot-float-top { top: -32px; }
             .dot-float-bot { bottom: -32px; }
         }
@@ -242,9 +237,7 @@
                     <span class="lbl lbl-top-num">1</span>
                     <label><input type="radio" name="anio" value="1" onchange="calc()"><div class="dot"></div></label>
                 </div>
-                
                 <div class="letter">A</div>
-                
                 <div class="dot-box dot-float-bot">
                     <label><input type="radio" name="mes" value="Febrero" onchange="calc()"><div class="dot"></div></label>
                     <span class="lbl">Feb</span>
