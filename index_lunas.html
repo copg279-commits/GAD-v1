@@ -14,10 +14,6 @@
         :root {
             --bg-body: #f3f4f6;
             --text-main: #1e293b;
-            --accent-dark: #1e3a8a; /* Azul GAD Oscuro */
-            --accent-light: #3b82f6; /* Azul GAD Claro */
-            --danger: #ef4444;
-            --success: #22c55e;
             --header-blue: #1e40af; /* Azul Cabecera Exacto */
             --top-bar-red: #dc2626; /* Rojo Barra Volver */
         }
@@ -29,106 +25,98 @@
             margin: 0; padding: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            min-height: 100vh; /* Ocupa al menos toda la altura de la pantalla */
         }
 
-        /* --- CABECERA SUPERIOR (FRANJA VOLVER) --- */
-        /* CORRECCIÓN: Ahora es ROJA completa según tu imagen/indicación */
+        /* --- BARRA SUPERIOR ROJA --- */
         .top-bar-strip {
             background-color: var(--top-bar-red); 
             color: white;
             display: flex;
             align-items: center;
             padding: 0 15px;
-            height: 50px;
+            height: 45px; /* Un poco más compacta */
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             z-index: 100;
             flex-shrink: 0;
         }
 
         .top-back-btn {
-            background-color: rgba(0, 0, 0, 0.2); /* Fondo oscuro sutil para el botón */
+            background-color: rgba(0, 0, 0, 0.2);
             border: none;
             margin-right: 15px;
-            font-weight: 800; /* Extra bold */
+            font-weight: 800;
             cursor: pointer;
             padding: 5px 15px;
             border-radius: 4px;
             color: white;
-            height: 32px;
+            height: 30px;
             display: flex; align-items: center;
             text-decoration: none;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             transition: background 0.2s;
         }
         .top-back-btn:hover { background-color: rgba(0, 0, 0, 0.4); }
 
-        /* --- ZONA DEL LOGO (CABECERA) --- */
-        /* CORRECCIÓN: Fondo AZUL Corporativo */
+        /* --- CABECERA AZUL --- */
         header.logo-header {
             background-color: var(--header-blue);
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 1.5rem 0;
+            padding: 1rem 0; /* Reducido para ganar espacio vertical */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             position: relative;
             z-index: 40;
             flex-shrink: 0;
         }
 
-        /* CORRECCIÓN: Logo incrustado sin borde ni caja visible */
         .logo-container {
-            width: 160px;
-            height: 160px;
-            /* Eliminamos bordes, fondo y sombras para integración total */
+            width: 130px; /* Reducido ligeramente para evitar scroll */
+            height: 130px;
             background-color: transparent;
-            box-shadow: none;
-            border-radius: 0; 
             display: flex;
             align-items: center; justify-content: center;
         }
         
-        /* Aseguramos que la imagen se ajuste bien */
         .logo-container img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); /* Sombra solo a la imagen (silueta) */
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
         }
 
         /* --- CONTENEDOR PRINCIPAL --- */
         .main-content-wrapper {
-            flex-grow: 1;
+            flex-grow: 1; /* Esto hace que ocupe todo el espacio disponible empujando el footer */
             width: 100%;
             max-width: 900px;
-            margin: 2rem auto; /* Más margen arriba */
+            margin: 1.5rem auto; /* Márgenes equilibrados */
             padding: 0 15px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 20px;
         }
 
         /* --- BARRA DE CONTROL --- */
         .control-bar {
             background: white;
-            padding: 20px 25px;
-            border-radius: 16px;
-            /* Borde izquierdo azul para mantener identidad GAD */
+            padding: 15px 20px;
+            border-radius: 12px;
             border-left: 6px solid var(--header-blue);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
 
         .control-title {
             font-weight: 800;
             color: #0F2A55;
             text-transform: uppercase;
-            font-size: 1.1rem;
+            font-size: 1rem;
             line-height: 1.2;
         }
 
@@ -149,27 +137,28 @@
             border: 1px solid #1e40af;
         }
 
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         input:checked + .slider { background-color: var(--header-blue); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(18px); }
 
         /* --- GRID SYSTEM --- */
         .grid-system {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 20px;
+            /* Auto-fill con mínimo 135px asegura buen aspecto en móvil y escritorio */
+            grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+            gap: 15px;
             width: 100%;
         }
 
-        /* --- BOTONES MODERNOS (Glassmorphism Azul) --- */
+        /* --- BOTONES MODERNOS --- */
         .btn-card {
             background: linear-gradient(145deg, #1e3a8a, #3b82f6);
             border: none;
-            border-radius: 16px;
-            padding: 20px 10px;
+            border-radius: 12px;
+            padding: 15px 10px;
             text-decoration: none;
             color: white;
             display: flex;
@@ -177,7 +166,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            aspect-ratio: 1 / 0.85;
+            aspect-ratio: 1 / 0.8; /* Rectangular horizontal ligero */
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             overflow: hidden;
@@ -185,7 +174,6 @@
             box-shadow: 0 4px 10px rgba(30, 58, 138, 0.3);
         }
 
-        /* Brillo superior */
         .btn-card::after {
             content: '';
             position: absolute;
@@ -196,22 +184,22 @@
         }
 
         .btn-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 25px rgba(30, 58, 138, 0.4);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 20px rgba(30, 58, 138, 0.4);
             background: linear-gradient(145deg, #2563eb, #1e40af);
         }
         
         .btn-icon {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 900;
             color: white;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             opacity: 0.95;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .btn-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 800;
             line-height: 1.2;
             text-transform: uppercase;
@@ -233,17 +221,17 @@
         
         .card-actions {
             position: absolute;
-            top: 8px; right: 8px;
-            display: none; gap: 6px;
+            top: 6px; right: 6px;
+            display: none; gap: 4px;
             z-index: 10;
         }
         body.editing .card-actions { display: flex; }
 
         .mini-btn {
-            width: 28px; height: 28px;
-            border-radius: 6px;
+            width: 24px; height: 24px;
+            border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.9rem; cursor: pointer; border: none; color: white;
+            font-size: 0.8rem; cursor: pointer; border: none; color: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .edit-mini { background: #3b82f6; }
@@ -257,74 +245,56 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 16px;
+            border-radius: 12px;
             cursor: pointer;
-            aspect-ratio: 1 / 0.85;
-            font-size: 2.5rem;
+            aspect-ratio: 1 / 0.8;
+            font-size: 2rem;
             transition: 0.2s;
         }
         .add-card:hover { border-color: #22c55e; color: #22c55e; background: rgba(34, 197, 94, 0.05); }
         body.editing .add-card { display: flex; }
 
-        /* --- LOGOS --- */
-        .footer-logos-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 30px;
-            padding-bottom: 20px;
-            opacity: 0.9;
-        }
-        .f-logo { 
-            height: 70px; 
-            width: auto; 
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-            transition: transform 0.3s;
-        }
-        .f-logo:hover { transform: scale(1.05); }
-
         /* --- MODAL --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 9999;
             display: none; justify-content: center; align-items: center;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(5px);
         }
         .modal-box {
             background: white; 
-            padding: 30px; width: 90%; max-width: 400px;
-            border-radius: 20px; text-align: center;
+            padding: 25px; width: 90%; max-width: 380px;
+            border-radius: 16px; text-align: center;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            color: #1e293b;
         }
         .modal-title { 
-            margin: 0 0 25px 0; font-size: 1.2rem; font-weight: 800;
-            border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; 
+            margin: 0 0 20px 0; font-size: 1.1rem; font-weight: 800;
+            border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; 
             color: #1e3a8a;
         }
         
-        .inp-group { text-align: left; margin-bottom: 20px; }
-        .inp-label { font-size: 0.8rem; color: #64748b; font-weight: bold; display: block; margin-bottom: 8px; }
+        .inp-group { text-align: left; margin-bottom: 15px; }
+        .inp-label { font-size: 0.75rem; color: #64748b; font-weight: bold; display: block; margin-bottom: 5px; }
         .modal-inp {
-            width: 100%; padding: 14px;
+            width: 100%; padding: 12px;
             background: #f8fafc; border: 2px solid #e2e8f0;
-            color: #334155; border-radius: 10px; outline: none;
-            transition: all 0.2s; font-size: 1rem;
+            color: #334155; border-radius: 8px; outline: none;
+            transition: all 0.2s; font-size: 0.95rem;
         }
         .modal-inp:focus { border-color: #3b82f6; background: white; }
 
-        .modal-btns { display: flex; gap: 15px; margin-top: 30px; }
-        .btn-modal { flex: 1; padding: 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 25px; }
+        .btn-modal { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .bm-save { background: #1e40af; color: white; }
         .bm-save:hover { background: #1e3a8a; }
         .bm-cancel { background: #e2e8f0; color: #64748b; }
-        .bm-cancel:hover { background: #cbd5e1; }
 
         /* --- PIE DE PÁGINA --- */
         footer {
             width: 100%;
             padding: 1.5rem 0;
-            margin-top: auto;
+            /* MAGIA: Esto empuja el pie al fondo si hay poco contenido, 
+               pero deja que baje si hay mucho contenido */
+            margin-top: auto; 
             background-color: #e5e7eb;
             text-align: center;
         }
@@ -362,14 +332,9 @@
             </p>
         </div>
 
-        <div class="footer-logos-container">
-            <img src="logogad2.png" alt="Logo" class="f-logo">
-            <img src="logogad.png" alt="Logo" class="f-logo">
-        </div>
-
     </div>
 
-    <footer class="bg-gray-200 mt-auto py-6 text-center">
+    <footer class="bg-gray-200 py-6 text-center">
         <div class="px-4">
             <hr class="border-t border-gray-400 w-full max-w-md mx-auto mb-4">
             <p class="font-bold text-gray-800 uppercase">Grupo de Análisis Documental</p>
@@ -417,7 +382,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        // NODO PRINCIPAL: lunas
+        // NODO PRINCIPAL
         const dbRef = ref(db, 'lunas'); 
 
         // --- DATA INICIAL (Solo si BD vacía) ---
@@ -438,7 +403,7 @@
         let isEditing = false;
         let currentId = null; 
 
-        // --- HELPER: SANITIZAR NOMBRE PARA CLAVE ---
+        // --- HELPER ---
         function sanitizeId(name) {
             return name.trim().toUpperCase().replace(/[^A-Z0-9]/g, '_');
         }
@@ -446,10 +411,9 @@
         // --- SINCRONIZACIÓN ---
         onValue(dbRef, (snapshot) => {
             const data = snapshot.val();
-            const grid = document.getElementById('gridContainer');
             
             if (!data) {
-                console.log("Iniciando base de datos 'lunas'...");
+                // Carga inicial
                 initialData.forEach(item => {
                     const cleanId = sanitizeId(item.name);
                     set(ref(db, `lunas/${cleanId}`), item);
@@ -462,8 +426,7 @@
             }
         });
 
-        // --- FUNCIONES GLOBALES ---
-
+        // --- FUNCIONES ---
         window.toggleMode = function() {
             isEditing = document.getElementById('editToggle').checked;
             document.body.classList.toggle('editing', isEditing);
