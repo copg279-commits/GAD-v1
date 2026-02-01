@@ -426,20 +426,6 @@
         let isEditing = false;
         let currentId = null; 
 
-        // --- DATA INICIAL (Fallback) ---
-        const initialData = [
-            { name: 'GENÉRICO', file: 'generico.html' },
-            { name: 'HYUNDAI 43R', file: 'hyundai.html' },
-            { name: 'KIA DOT 748', file: 'kia_dot748.html' },
-            { name: 'LAMINEX', file: 'laminex.html' },
-            { name: 'LAMISAFE', file: 'lamisafe.html' },
-            { name: 'NIPPON', file: 'nippon.html' },
-            { name: 'TEMPALEX', file: 'tempalex.html' },
-            { name: 'TEMPERLITE', file: 'temperlite.html' },
-            { name: 'TRIPLEX', file: 'triplex.html' },
-            { name: 'XYG', file: 'xyg.html' }
-        ];
-
         // --- AUTH & DATA LOGIC (CORE) ---
         
         // 1. Escuchar cambios de datos
@@ -450,18 +436,6 @@
         const loadData = () => {
             onValue(dbRef, (snapshot) => {
                 const data = snapshot.val();
-                
-                // Si la BD está vacía y tenemos permiso, cargamos iniciales
-                if (!data && !snapshot.exists()) {
-                    // Solo si tenemos permiso de escritura (usuario auth o reglas true)
-                    console.log("BD vacía o nueva.");
-                    if(buttons.length === 0) {
-                         initialData.forEach(item => {
-                            const cleanId = sanitizeId(item.name);
-                            set(ref(db, `lunas/${cleanId}`), item).catch(e => console.log("Solo lectura"));
-                        });
-                    }
-                } 
                 
                 if (data) {
                     buttons = Object.keys(data).map(key => {
@@ -648,7 +622,7 @@
             }
         }
         
-        // Iniciar intento de carga (si auth es lento, el onAuthStateChanged recogerá el testigo)
+        // Iniciar intento de carga
         loadData();
 
     </script>
