@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>POLICÍA LOCAL ALICANTE - VMP</title>
     <style>
         :root {
@@ -15,186 +15,209 @@
             --bg: #f4f6f9;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
             margin: 0;
+            padding: 0;
+            /* ESTRUCTURA FLEXBOX PARA OCUPAR EL 100% REAL DE LA PANTALLA MÓVIL */
             display: flex;
             flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding-bottom: 60px; /* Espacio footer */
+            height: 100dvh; /* dvh = Dynamic Viewport Height (Clave para móviles) */
+            overflow: hidden;
         }
 
-        /* --- CABECERA --- */
+        /* --- 1. CABECERA (FLEXIBLE) --- */
         header {
             background-color: var(--white);
             color: var(--police-blue);
             width: 100%;
-            padding: 10px 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-bottom: 5px solid var(--police-blue);
-            position: fixed;
-            top: 0;
-            z-index: 1000;
+            padding: 8px 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 4px solid var(--police-blue);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-sizing: border-box;
-            height: 100px;
+            flex-shrink: 0; /* No se encoge */
+            z-index: 10;
+            height: auto;
+            min-height: 70px;
         }
 
-        .header-logo { height: 75px; width: auto; object-fit: contain; }
-        .header-titles { display: flex; flex-direction: column; align-items: center; text-align: center; flex-grow: 1; }
+        .header-logo { height: 55px; width: auto; object-fit: contain; }
+        .header-titles { display: flex; flex-direction: column; align-items: center; text-align: center; flex-grow: 1; padding: 0 10px; }
         
-        /* TÍTULO INSTITUCIONAL */
         header h1 { 
-            margin: 0; 
-            font-size: 1.5rem; 
-            font-weight: 900; 
-            letter-spacing: 2px; 
-            text-transform: uppercase; 
-            line-height: 1.2;
+            margin: 0; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px; 
+            text-transform: uppercase; line-height: 1.1;
             background: linear-gradient(90deg, var(--police-blue), var(--police-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        header h2 { margin: 5px 0 0 0; font-size: 0.85rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 1px;}
+        header h2 { margin: 2px 0 0 0; font-size: 0.7rem; font-weight: 700; color: #555; text-transform: uppercase; }
 
-        /* --- CONTENEDOR --- */
-        .container { margin-top: 120px; width: 92%; max-width: 600px; padding-bottom: 20px; flex-grow: 1; }
-        .card { background: var(--white); border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; min-height: 300px; }
+        /* --- 2. CONTENEDOR CENTRAL (SCROLLABLE) --- */
+        .container { 
+            flex-grow: 1; /* Ocupa todo el espacio sobrante */
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+            overflow-y: auto; /* Scroll aquí si las preguntas son muchas */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centrar verticalmente las preguntas */
+        }
+
+        .card { 
+            background: var(--white); 
+            border-radius: 12px; 
+            padding: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            width: 100%;
+        }
         
-        /* CABECERA DE PREGUNTA CON AYUDA */
         .question-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 3px solid var(--accent);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            border-bottom: 3px solid var(--accent); margin-bottom: 15px; padding-bottom: 8px;
         }
-
-        .question-title { 
-            color: var(--police-blue); 
-            font-size: 1.25rem; 
-            font-weight: 700; 
-            margin: 0;
-            padding-right: 10px;
-        }
-
+        .question-title { color: var(--police-blue); font-size: 1.1rem; font-weight: 700; margin: 0; padding-right: 5px; }
+        
         .help-btn-icon {
-            background: transparent;
-            border: 2px solid var(--police-light);
-            color: var(--police-light);
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .help-btn-icon:hover {
-            background: var(--police-light);
-            color: white;
-            transform: scale(1.1);
+            background: transparent; border: 2px solid var(--police-light); color: var(--police-light); border-radius: 50%;
+            width: 28px; height: 28px; font-weight: bold; font-size: 1rem; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
 
-        .options-grid { display: flex; flex-direction: column; gap: 12px; }
+        .options-grid { display: flex; flex-direction: column; gap: 10px; }
 
-        button.option-btn { background-color: var(--police-light); color: var(--white); border: none; padding: 16px 20px; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: 0.2s; text-align: left; display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
-        button.option-btn:hover { background-color: var(--police-blue); transform: translateX(5px); }
+        button.option-btn { 
+            background-color: var(--police-light); color: var(--white); border: none; padding: 15px; 
+            border-radius: 8px; font-size: 0.95rem; cursor: pointer; transition: 0.2s; text-align: left; 
+            display: flex; justify-content: space-between; align-items: center; font-weight: 500; 
+        }
+        button.option-btn:active { background-color: var(--police-blue); transform: scale(0.98); }
 
-        .controls { margin-top: 25px; display: flex; gap: 10px; }
-        .btn-control { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1; }
+        .controls { margin-top: 20px; display: flex; gap: 10px; }
+        .btn-control { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1; font-size: 0.9rem; }
         .btn-back { background-color: #90a4ae; color: #37474f; }
         .btn-reset { background-color: var(--accent); color: #000; }
 
-        /* --- FOOTER INSTITUCIONAL --- */
+        /* --- 3. FOOTER (FIJO ABAJO) --- */
         footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: var(--police-blue);
-            color: white;
-            text-align: center;
-            padding: 12px 0;
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
-            z-index: 900;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
+            flex-shrink: 0; /* No se encoge */
+            background: var(--police-blue); color: white; text-align: center;
+            padding: 10px 0; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px;
+            display: flex; justify-content: center; gap: 15px; z-index: 10;
+            padding-bottom: max(10px, env(safe-area-inset-bottom)); /* Para iPhone X+ */
         }
-        .footer-item { opacity: 0.8; }
+        .footer-item { opacity: 0.9; }
 
-        /* --- MODALES --- */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(4px); box-sizing: border-box; }
-        .modal-content { background-color: var(--white); border-radius: 15px; width: 100%; max-width: 550px; overflow: hidden; display: flex; flex-direction: column; max-height: 95vh; animation: slideUp 0.3s ease-out; box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* --- 4. MODAL RESULTADOS (AJUSTE CRÍTICO MÓVIL) --- */
+        .modal { 
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; 
+            padding: 10px; backdrop-filter: blur(3px); 
+        }
+        
+        .modal-content { 
+            background-color: var(--white); border-radius: 12px; width: 100%; max-width: 500px; 
+            overflow: hidden; display: flex; flex-direction: column; 
+            max-height: 95dvh; /* Nunca más alto que la pantalla */
+            animation: slideUp 0.2s ease-out; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .modal-header-strip { padding: 15px; text-align: center; color: white; font-weight: bold; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
+        /* Cabecera Modal (Fija) */
+        .modal-header-strip { 
+            padding: 10px; text-align: center; color: white; font-weight: bold; font-size: 1rem; 
+            text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; 
+        }
         .header-success { background-color: var(--success); }
         .header-danger { background-color: var(--danger); }
         .header-warning { background-color: #f57f17; }
-        .header-help { background-color: var(--police-light); } 
+        .header-help { background-color: var(--police-light); }
 
-        .modal-body { padding: 20px; overflow-y: auto; position: relative; }
+        /* Cuerpo Modal (Scrollable solo si es muy necesario) */
+        .modal-body { 
+            padding: 10px 15px; 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            display: flex; flex-direction: column; 
+        }
 
-        .result-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; width: 100%; }
-        .result-logo-img { height: 60px; width: 60px; object-fit: contain; }
-        .result-main-icon { font-size: 4rem; line-height: 1; }
-        .result-main-title { text-align: center; font-size: 1.6rem; margin: 0 0 20px 0; color: #333; font-weight: 800; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        /* Elementos reducidos para móvil */
+        .result-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; width: 100%; }
+        .result-logo-img { height: 45px; width: 45px; object-fit: contain; }
+        .result-main-icon { font-size: 3rem; line-height: 1; }
+        .result-main-title { text-align: center; font-size: 1.2rem; margin: 0 0 10px 0; color: #333; font-weight: 800; border-bottom: 2px solid #eee; padding-bottom: 5px; }
 
-        .legal-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.95rem; border: 1px solid #e0e0e0; }
-        .legal-table th { text-align: left; padding: 12px; background-color: #f5f7fa; width: 40%; border-bottom: 1px solid #ddd; color: var(--police-blue); }
-        .legal-table td { padding: 12px; border-bottom: 1px solid #eee; color: #444; font-weight: 500; }
+        .legal-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; font-size: 0.8rem; border: 1px solid #e0e0e0; }
+        .legal-table th { text-align: left; padding: 6px; background-color: #f5f7fa; width: 35%; border-bottom: 1px solid #ddd; color: var(--police-blue); }
+        .legal-table td { padding: 6px; border-bottom: 1px solid #eee; color: #444; font-weight: 600; }
 
-        .legal-box { padding: 15px; border-radius: 8px; font-size: 0.95rem; line-height: 1.6; text-align: left; margin-top: 15px; }
-        .box-penal { background-color: #ffebee; border-left: 6px solid var(--danger); color: #c62828; }
-        .box-admin { background-color: #e8f5e9; border-left: 6px solid var(--success); color: #2e7d32; }
-        .box-info { background-color: #e3f2fd; border-left: 6px solid var(--police-blue); color: #0d47a1; }
+        .legal-box { 
+            padding: 8px; border-radius: 6px; font-size: 0.8rem; line-height: 1.3; 
+            text-align: left; margin-top: 5px; margin-bottom: 5px;
+        }
+        .box-penal { background-color: #ffebee; border-left: 4px solid var(--danger); color: #c62828; }
+        .box-admin { background-color: #e8f5e9; border-left: 4px solid var(--success); color: #2e7d32; }
+        .box-info { background-color: #e3f2fd; border-left: 4px solid var(--police-blue); color: #0d47a1; }
 
-        .btn-soa { display: none; width: 100%; background-color: #d32f2f; color: white; padding: 12px; margin-top: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; text-align: center; box-shadow: 0 4px 6px rgba(211, 47, 47, 0.3); transition: transform 0.2s; }
-        .btn-soa:hover { transform: scale(1.02); background-color: #b71c1c; }
-        .btn-soa span { margin-right: 8px; font-size: 1.2rem; }
+        /* ZONA FIJA INFERIOR DEL MODAL (Botón Infracción + Botones Nav) */
+        .modal-fixed-bottom {
+            flex-shrink: 0;
+            background: #fff;
+            border-top: 1px solid #eee;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-        .modal-footer { padding: 15px; background: #f8f9fa; display: flex; gap: 10px; border-top: 1px solid #eee; }
-        .btn-modal-back { flex: 1; padding: 14px; background: #fff; border: 1px solid #ccc; border-radius: 8px; font-weight: bold; cursor: pointer; color: #555; }
-        .btn-modal-new { flex: 1; padding: 14px; background: var(--police-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-soa { 
+            display: none; width: 100%; background-color: #d32f2f; color: white; padding: 12px; 
+            border: none; border-radius: 6px; font-weight: bold; font-size: 0.95rem; 
+            cursor: pointer; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .btn-soa span { margin-right: 5px; }
 
-        /* --- ESTILOS ESPECÍFICOS AYUDA --- */
-        .help-list { list-style: none; padding: 0; margin: 0; }
-        .help-list li { margin-bottom: 15px; padding-left: 15px; border-left: 3px solid var(--accent); }
-        .help-list strong { color: var(--police-blue); display: block; margin-bottom: 3px; }
+        .nav-buttons-row { display: flex; gap: 10px; width: 100%; }
+        .btn-modal-back { flex: 1; padding: 12px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 6px; font-weight: bold; cursor: pointer; color: #555; }
+        .btn-modal-new { flex: 1; padding: 12px; background: var(--police-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        /* --- MODAL INFRACCIÓN --- */
-        #infraction-modal { z-index: 2001; background-color: rgba(0,0,0,0.9); } 
-        .infraction-box { background: white; padding: 20px; border-radius: 12px; width: 95%; max-width: 500px; border-top: 8px solid #d32f2f; display: flex; flex-direction: column; max-height: 90vh; overflow-y: auto;}
-        .infraction-title { color: #d32f2f; font-size: 1.3rem; font-weight: 800; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; text-align: center;}
-        .inf-toggle-container { display: flex; gap: 10px; margin-bottom: 15px; background: #eee; p: 5px; border-radius: 8px; }
-        .inf-toggle-btn { flex: 1; padding: 10px; border: none; cursor: pointer; font-weight: bold; font-size: 0.9rem; border-radius: 6px; background: transparent; color: #666; }
-        .inf-toggle-btn.active { background: #d32f2f; color: white; shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .inf-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 1rem; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
-        .inf-label { font-weight: bold; color: #555; }
+        /* --- MODAL INFRACCIÓN (ESTILO MÓVIL) --- */
+        #infraction-modal { z-index: 2001; } 
+        .infraction-box { background: white; padding: 15px; border-radius: 12px; width: 95%; max-width: 500px; border-top: 6px solid #d32f2f; display: flex; flex-direction: column; max-height: 90dvh; }
+        .infraction-title { color: #d32f2f; font-size: 1.1rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
+        .inf-toggle-container { display: flex; gap: 5px; margin-bottom: 10px; background: #eee; padding: 3px; border-radius: 6px; }
+        .inf-toggle-btn { flex: 1; padding: 8px; border: none; font-weight: bold; font-size: 0.8rem; border-radius: 4px; background: transparent; color: #666; }
+        .inf-toggle-btn.active { background: #d32f2f; color: white; }
+        .inf-content-scroll { overflow-y: auto; flex-grow: 1; margin-bottom: 10px; }
+        .inf-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; border-bottom: 1px dashed #eee; padding-bottom: 3px; }
         .inf-val { font-weight: 800; text-align: right; }
-        .inf-text { background: #f9f9f9; padding: 15px; border-radius: 6px; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem; margin: 15px 0; color: #333; line-height: 1.4; }
-        .inf-note { font-size: 0.85rem; color: #666; font-style: italic; background: #fff3e0; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #ff9800; }
-        .btn-close-inf { width: 100%; padding: 15px; background: #444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 10px;}
+        .inf-text { background: #f9f9f9; padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-family: monospace; font-size: 0.85rem; margin: 10px 0; color: #333; }
+        .inf-note { font-size: 0.75rem; color: #666; font-style: italic; background: #fff3e0; padding: 8px; border-radius: 5px; margin-top: 8px; border-left: 3px solid #ff9800; }
+        .btn-close-inf { width: 100%; padding: 12px; background: #444; color: white; border: none; border-radius: 6px; font-weight: bold; margin-top: auto; }
 
+        /* Ajustes para pantallas MUY pequeñas (iPhone SE, etc) */
+        @media (max-height: 600px) {
+            header { height: 60px; padding: 5px; }
+            .header-logo { height: 40px; }
+            header h1 { font-size: 0.9rem; }
+            .container { margin-top: 65px; }
+            .result-main-icon { font-size: 2rem; }
+            .result-main-title { font-size: 1rem; margin-bottom: 5px; }
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <img id="head-logo-left" class="header-logo" alt="Policia Local" />
+    <img id="head-logo-left" class="header-logo" alt="Judicial" />
     <div class="header-titles">
         <h1>POLICÍA LOCAL ALICANTE</h1>
         <h2>CATEGORIZACIÓN VEHÍCULOS LIGEROS</h2>
@@ -223,6 +246,7 @@
 <div id="result-modal" class="modal">
     <div class="modal-content">
         <div id="modal-header-strip" class="modal-header-strip">DICTAMEN TÉCNICO POLICIAL</div>
+        
         <div class="modal-body">
             <div class="result-top-row">
                 <img id="res-logo-left" class="result-logo-img" alt="Judicial" />
@@ -240,15 +264,17 @@
             </table>
             
             <div id="res-legal-box" class="legal-box"></div>
-
+        </div>
+        
+        <div class="modal-fixed-bottom">
             <button id="btn-soa" class="btn-soa" onclick="app.showSoaInfraction()">
                 <span>🚨</span> VER INFRACCIÓN SEGURO (SOA)
             </button>
-        </div>
-        
-        <div class="modal-footer">
-            <button class="btn-modal-back" onclick="app.closeModal()">🔙 Corregir</button>
-            <button class="btn-modal-new" onclick="app.resetApp()">🔄 Nueva Consulta</button>
+
+            <div class="nav-buttons-row">
+                <button class="btn-modal-back" onclick="app.closeModal()">🔙 Corregir</button>
+                <button class="btn-modal-new" onclick="app.resetApp()">🔄 Nueva</button>
+            </div>
         </div>
     </div>
 </div>
@@ -258,25 +284,13 @@
         <div class="modal-header-strip header-help">¿CÓMO FUNCIONA?</div>
         <div class="modal-body">
             <ul class="help-list">
-                <li>
-                    <strong>1. Categorización Técnica</strong>
-                    Responde a las preguntas sobre las características del vehículo (motor, sillín, velocidad...). El sistema determinará si es un VMP, una Bici, o un Vehículo a Motor prohibido en aceras.
-                </li>
-                <li>
-                    <strong>2. Dictamen Legal</strong>
-                    Obtendrás una ficha policial indicando si el vehículo puede circular y qué requisitos necesita (Matrícula, Seguro, Casco...).
-                </li>
-                <li>
-                    <strong>3. Infracciones (SOA)</strong>
-                    Si el vehículo requiere seguro obligatorio y no lo tiene, aparecerá un botón ROJO en el resultado. Púlsalo para ver el artículo codificado, el importe y el texto de la denuncia (Conductor/Titular).
-                </li>
+                <li><strong>1. Categorización:</strong> Responde a las preguntas técnicas sobre el vehículo.</li>
+                <li><strong>2. Dictamen:</strong> Obtén la ficha policial con requisitos y normativa.</li>
+                <li><strong>3. Infracciones:</strong> Usa el botón ROJO para ver datos de denuncia SOA si procede.</li>
             </ul>
-            <p style="font-size:0.9rem; color:#666; margin-top:20px; text-align:center;">
-                Herramienta de soporte policial (Unidad Judicial/GAD).
-            </p>
         </div>
-        <div class="modal-footer">
-            <button class="btn-modal-new" onclick="document.getElementById('help-modal').style.display='none'">ENTENDIDO</button>
+        <div class="modal-fixed-bottom">
+            <button class="btn-modal-new" style="width:100%" onclick="document.getElementById('help-modal').style.display='none'">ENTENDIDO</button>
         </div>
     </div>
 </div>
@@ -286,35 +300,25 @@
         <div class="infraction-title">BOLETÍN DE DENUNCIA (SOA)</div>
         
         <div class="inf-toggle-container" id="inf-tabs">
-            <button class="inf-toggle-btn active" onclick="app.switchInfractionMode('driver')">CIRCULANDO (Conductor)</button>
-            <button class="inf-toggle-btn" onclick="app.switchInfractionMode('owner')">ESTACIONADO (Titular)</button>
+            <button class="inf-toggle-btn active" onclick="app.switchInfractionMode('driver')">CONDUCTOR</button>
+            <button class="inf-toggle-btn" onclick="app.switchInfractionMode('owner')">TITULAR</button>
         </div>
 
-        <div class="inf-row">
-            <span class="inf-label">Normativa:</span>
-            <span class="inf-val">RD Leg 8/2004</span>
-        </div>
-        <div class="inf-row">
-            <span class="inf-label">Opción:</span>
-            <span id="inf-option" class="inf-val"></span>
-        </div>
-        <div class="inf-row">
-            <span class="inf-label">Importe Total:</span>
-            <span id="inf-amount" class="inf-val" style="color: #d32f2f; font-size:1.3rem;"></span>
-        </div>
-        <div class="inf-row">
-            <span class="inf-label">Reducido (50%):</span>
-            <span id="inf-reduced" class="inf-val" style="color: #28a745;"></span>
+        <div class="inf-content-scroll">
+            <div class="inf-row"><span class="inf-label">Normativa:</span><span class="inf-val">RD Leg 8/2004</span></div>
+            <div class="inf-row"><span class="inf-label">Opción:</span><span id="inf-option" class="inf-val"></span></div>
+            <div class="inf-row"><span class="inf-label">Importe:</span><span id="inf-amount" class="inf-val" style="color:#d32f2f;"></span></div>
+            <div class="inf-row"><span class="inf-label">Reducido:</span><span id="inf-reduced" class="inf-val" style="color:#28a745;"></span></div>
+
+            <p style="margin-bottom:5px; font-weight:bold; font-size:0.8rem; margin-top:10px;">Hecho Denunciado:</p>
+            <div class="inf-text" id="inf-text"></div>
+            
+            <div id="inf-note" class="inf-note" style="display:none;">
+                <b>ℹ️ NOTA VMP LIGERO:</b> La denuncia por defecto es para VMP "Pesado" (>25kg y >14km/h). Si es <b>Ligero</b>, usa Opción <b>2.1.5P</b> (350€).
+            </div>
         </div>
 
-        <p style="margin-bottom:5px; font-weight:bold; font-size:0.9rem; margin-top:15px;">Hecho Denunciado (Codificado):</p>
-        <div class="inf-text" id="inf-text"></div>
-        
-        <div id="inf-note" class="inf-note" style="display:none;">
-            <b>ℹ️ NOTA VMP LIGERO:</b> La denuncia por defecto es para VMP "Pesado" (>25kg y >14km/h). Si el vehículo fuese <b>VMP Ligero</b> (Peso ≤25kg y Vel ≤14km/h), la denuncia correcta es la Opción <b>2.1.5P</b> con importe <b>350€</b> (Reducido: 175€).
-        </div>
-
-        <button class="btn-close-inf" onclick="document.getElementById('infraction-modal').style.display='none'">CERRAR VENTANA</button>
+        <button class="btn-close-inf" onclick="document.getElementById('infraction-modal').style.display='none'">CERRAR</button>
     </div>
 </div>
 
@@ -325,7 +329,6 @@
     // -------------------------------
 
     window.onload = function() {
-        // Carga de Logos
         document.getElementById('head-logo-left').src = LOGO_JUDICIAL;
         document.getElementById('head-logo-right').src = LOGO_GAD;
         document.getElementById('res-logo-left').src = LOGO_JUDICIAL;
@@ -443,15 +446,12 @@
             potencia_250: { q: "¿El motor se detiene al superar 25 km/h?", opts: [{ t: "Sí", result: "r_epac" }, { t: "No (Sigue asistiendo)", result: "r_l1e_a" }] },
             potencia_1000: { q: "¿Hasta qué velocidad auxilia el motor?", opts: [{ t: "Entre 25 y 45 km/h", result: "r_l1e_a" }, { t: "Más de 45 km/h", result: "r_l3e" }] },
             
-            // RAMA SIN PEDALES
             pedales_aux_no: { q: "¿Cuál es la velocidad máxima por construcción?", opts: [{ t: "Hasta 6 km/h", result: "r_juguete" }, { t: "De 6 a 25 km/h", next: "vel_6_25" }, { t: "De 25 a 45 km/h", next: "vel_hasta_45" }, { t: "Más de 45 km/h", next: "vel_mas_45" }] },
             
-            // RAMA VMP FLUIDA
             vel_6_25: { q: "Velocidad 6-25 km/h. ¿Tiene sillín?", opts: [{ t: "Sí", next: "con_sillin_6_25" }, { t: "No", next: "check_baterias" }] },
             con_sillin_6_25: { q: "¿Es un vehículo autoequilibrado (ej. Segway)?", opts: [{ t: "Sí", next: "check_baterias" }, { t: "No", next: "check_altura_sillin" }] },
             check_baterias: { q: "¿Qué voltaje indican las características técnicas?", opts: [{ t: "Hasta 100 VCC / 240 VCA", result: "r_vmp_legal" }, { t: "Superior (Alta Tensión)", result: "r_prohibido_voltaje" }] },
             
-            // Resto de ramas
             vel_hasta_45: { q: "Velocidad 25-45 km/h. ¿Tiene sillín?", opts: [{ t: "Sí", next: "check_potencia_45" }, { t: "No", result: "r_prohibido" }] },
             check_potencia_45: { q: "Verificación de Potencia / Cilindrada:", opts: [{ t: "≤ 50cc o ≤ 4000 W", next: "ruedas_4000w" }, { t: "≤ 50cc o 4001 W - 6000 W", next: "ruedas_6000w" }, { t: "> 50cc o > 6000 W", next: "ruedas_heavy" }] },
             ruedas_4000w: { q: "Potencia Baja (≤4kW). ¿Cuántas ruedas tiene?", opts: [{ t: "2 Ruedas", result: "r_l1e_b" }, { t: "3 Ruedas", result: "r_l2e" }, { t: "4 Ruedas", result: "r_l6e" }] },
@@ -471,7 +471,6 @@
             const step = this.steps[key];
             const d = this.dom;
             
-            // INYECTAR HEADER DE PREGUNTA CON BOTÓN DE AYUDA
             let html = `
                 <div class="question-header">
                     <h2 class="question-title">${step.q}</h2>
