@@ -22,9 +22,9 @@
             background-color: var(--bg);
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh; /* Permite scroll natural si hace falta */
+            /* Permite scroll natural en el cuerpo para el menú principal */
+            display: block; 
+            min-height: 100vh;
         }
 
         /* --- CABECERA --- */
@@ -32,100 +32,50 @@
             background-color: var(--white);
             color: var(--police-blue);
             width: 100%;
-            padding: 10px 15px;
+            padding: 8px 15px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border-bottom: 5px solid var(--police-blue);
-            position: sticky; /* Se queda arriba, pero respeta el scroll */
+            position: sticky;
             top: 0;
             z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 95px; /* Altura aumentada */
+            height: 90px;
         }
 
-        .header-logo { 
-            height: 70px; /* Logos más grandes */
-            width: auto; 
-            object-fit: contain; 
-        }
-        
-        .header-titles { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            text-align: center; 
-            flex-grow: 1; 
-            padding: 0 5px;
-        }
+        .header-logo { height: 65px; width: auto; object-fit: contain; }
+        .header-titles { display: flex; flex-direction: column; align-items: center; text-align: center; flex-grow: 1; padding: 0 5px; }
         
         header h1 { 
-            margin: 0; 
-            font-size: 1.2rem; /* Título más grande */
-            font-weight: 900; 
-            letter-spacing: 1px; 
-            text-transform: uppercase; 
-            line-height: 1.1;
+            margin: 0; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px; 
+            text-transform: uppercase; line-height: 1.1;
             background: linear-gradient(90deg, var(--police-blue), var(--police-light));
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        header h2 { 
-            margin: 4px 0 0 0; 
-            font-size: 0.8rem; 
-            font-weight: 700; 
-            color: #555; 
-            text-transform: uppercase; 
-        }
+        header h2 { margin: 4px 0 0 0; font-size: 0.75rem; font-weight: 700; color: #555; text-transform: uppercase; }
 
-        /* --- CONTENEDOR CENTRAL --- */
+        /* --- CONTENEDOR PRINCIPAL --- */
         .container { 
-            flex: 1; /* Ocupa el espacio disponible */
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* Centrar verticalmente */
+            width: 100%; max-width: 600px; margin: 0 auto; padding: 20px;
+            display: flex; flex-direction: column; justify-content: center;
+            min-height: calc(100vh - 100px); /* Centrado vertical aproximado */
         }
 
         .card { 
-            background: var(--white); 
-            border-radius: 15px; 
-            padding: 25px; /* Más padding interno */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
-            width: 100%;
-            margin-bottom: 20px;
+            background: var(--white); border-radius: 15px; padding: 25px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; margin-bottom: 10px;
         }
         
-        /* PREGUNTAS Y BOTONES */
-        .question-header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 3px solid var(--accent); margin-bottom: 20px; padding-bottom: 10px;
-        }
-        .question-title { 
-            color: var(--police-blue); 
-            font-size: 1.4rem; /* Pregunta MUCHO más grande */
-            font-weight: 800; 
-            margin: 0; 
-            padding-right: 10px; 
-            line-height: 1.3;
-        }
-        
-        .help-btn-icon {
-            background: transparent; border: 2px solid var(--police-light); color: var(--police-light); border-radius: 50%;
-            width: 35px; height: 35px; font-weight: bold; font-size: 1.3rem; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
+        .question-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--accent); margin-bottom: 20px; padding-bottom: 10px; }
+        .question-title { color: var(--police-blue); font-size: 1.3rem; font-weight: 800; margin: 0; padding-right: 10px; line-height: 1.3; }
+        .help-btn-icon { background: transparent; border: 2px solid var(--police-light); color: var(--police-light); border-radius: 50%; width: 35px; height: 35px; font-weight: bold; font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
         .options-grid { display: flex; flex-direction: column; gap: 15px; }
 
         button.option-btn { 
-            background-color: var(--police-light); color: var(--white); border: none; 
-            padding: 20px; /* Botones más altos */
-            border-radius: 12px; font-size: 1.2rem; /* Texto botón más grande */
-            cursor: pointer; transition: 0.2s; text-align: left; 
+            background-color: var(--police-light); color: var(--white); border: none; padding: 20px; 
+            border-radius: 12px; font-size: 1.1rem; cursor: pointer; transition: 0.2s; text-align: left; 
             display: flex; justify-content: space-between; align-items: center; font-weight: 600; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
@@ -136,35 +86,33 @@
         .btn-back { background-color: #90a4ae; color: #37474f; }
         .btn-reset { background-color: var(--accent); color: #000; }
 
-        /* --- NUEVO PIE DE PÁGINA (ESTILO LEYENDA, NO BARRA) --- */
-        /* Ya no está fijo abajo, está pegado a la tarjeta */
+        /* PIE DE PÁGINA (ESTILO LEYENDA - VISIBLE EN SCROLL) */
         .inline-footer {
-            text-align: center;
-            padding: 10px;
-            color: var(--police-blue);
-            font-weight: 700;
-            font-size: 0.85rem;
-            opacity: 0.8;
-            margin-top: 5px;
-            margin-bottom: 20px; /* Espacio al final para scroll */
-            letter-spacing: 1px;
+            text-align: center; padding: 15px; color: var(--police-blue); font-weight: 700; 
+            font-size: 0.85rem; opacity: 0.8; letter-spacing: 1px;
         }
 
-        /* --- MODAL RESULTADOS (IGUAL QUE ANTES, FUNCIONABA BIEN) --- */
+        /* --- MODAL RESULTADOS (CORREGIDO PARA MÓVIL) --- */
         .modal { 
-            display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; 
+            display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; 
             background-color: rgba(0,0,0,0.9); align-items: center; justify-content: center; 
             padding: 10px; backdrop-filter: blur(4px); 
         }
         
         .modal-content { 
-            background-color: var(--white); border-radius: 15px; width: 100%; max-width: 550px; 
-            overflow: hidden; display: flex; flex-direction: column; 
-            max-height: 95vh; /* Se adapta a la altura */
+            background-color: var(--white); border-radius: 12px; width: 100%; max-width: 550px; 
+            /* AQUÍ ESTÁ LA CLAVE: FLEXBOX VERTICAL ESTRICTO */
+            display: flex; 
+            flex-direction: column; 
+            /* Altura máxima limitada para asegurar que cabe en pantallas con barras */
+            max-height: 85vh; 
+            overflow: hidden; 
             animation: slideUp 0.2s ease-out;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
+        /* Cabecera Modal - FIJA */
         .modal-header-strip { 
             padding: 12px; text-align: center; color: white; font-weight: bold; font-size: 1.1rem; 
             text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; 
@@ -174,39 +122,44 @@
         .header-warning { background-color: #f57f17; }
         .header-help { background-color: var(--police-light); }
 
+        /* Cuerpo Modal - SCROLLABLE */
         .modal-body { 
             padding: 15px; 
-            overflow-y: auto; /* Scroll interno para el contenido */
-            flex-grow: 1; 
+            overflow-y: auto; /* El scroll ocurre SOLO AQUÍ */
+            flex-grow: 1; /* Ocupa todo el espacio disponible */
+            min-height: 0; /* Importante para Firefox/Flexbox */
         }
 
         .result-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; width: 100%; }
         .result-logo-img { height: 50px; width: 50px; object-fit: contain; }
         .result-main-icon { font-size: 3.5rem; line-height: 1; }
-        .result-main-title { text-align: center; font-size: 1.4rem; margin: 0 0 15px 0; color: #333; font-weight: 800; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+        .result-main-title { text-align: center; font-size: 1.3rem; margin: 0 0 15px 0; color: #333; font-weight: 800; border-bottom: 2px solid #eee; padding-bottom: 8px; }
 
         .legal-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.9rem; border: 1px solid #e0e0e0; }
         .legal-table th { text-align: left; padding: 8px; background-color: #f5f7fa; width: 35%; border-bottom: 1px solid #ddd; color: var(--police-blue); }
         .legal-table td { padding: 8px; border-bottom: 1px solid #eee; color: #444; font-weight: 600; }
 
-        .legal-box { 
-            padding: 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; 
-            text-align: left; margin-top: 10px; 
-        }
+        .legal-box { padding: 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; text-align: left; margin-top: 10px; }
         .box-penal { background-color: #ffebee; border-left: 5px solid var(--danger); color: #c62828; }
         .box-admin { background-color: #e8f5e9; border-left: 5px solid var(--success); color: #2e7d32; }
         .box-info { background-color: #e3f2fd; border-left: 5px solid var(--police-blue); color: #0d47a1; }
 
-        /* ZONA FIJA INFERIOR MODAL */
+        /* Pie Modal - FIJO ABAJO (Siempre visible) */
         .modal-fixed-bottom {
-            flex-shrink: 0; background: #fff; border-top: 1px solid #eee; padding: 10px; 
-            display: flex; flex-direction: column; gap: 10px;
+            flex-shrink: 0; /* No se encoge */
+            background: #fff; 
+            border-top: 1px solid #eee; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px;
+            z-index: 10;
         }
 
         .btn-soa { 
-            display: none; width: 100%; background-color: #d32f2f; color: white; padding: 14px; 
+            display: none; width: 100%; background-color: #d32f2f; color: white; padding: 12px; 
             border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; 
-            cursor: pointer; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            cursor: pointer; text-align: center; box-shadow: 0 3px 6px rgba(0,0,0,0.15);
         }
         .btn-soa span { margin-right: 8px; font-size: 1.2rem; }
 
@@ -215,10 +168,10 @@
         .btn-modal-new { flex: 1; padding: 14px; background: var(--police-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;}
 
         /* MODAL INFRACCIÓN */
-        #infraction-modal { z-index: 2001; } 
-        .infraction-box { background: white; padding: 20px; border-radius: 12px; width: 95%; max-width: 500px; border-top: 8px solid #d32f2f; display: flex; flex-direction: column; max-height: 90vh; }
+        #infraction-modal { z-index: 3001; } 
+        .infraction-box { background: white; padding: 20px; border-radius: 12px; width: 95%; max-width: 500px; border-top: 8px solid #d32f2f; display: flex; flex-direction: column; max-height: 85vh; }
         .infraction-title { color: #d32f2f; font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px;}
-        .inf-toggle-container { display: flex; gap: 5px; margin-bottom: 10px; background: #eee; padding: 4px; border-radius: 8px; }
+        .inf-toggle-container { display: flex; gap: 5px; margin-bottom: 10px; background: #eee; padding: 4px; border-radius: 8px; flex-shrink: 0;}
         .inf-toggle-btn { flex: 1; padding: 10px; border: none; font-weight: bold; font-size: 0.9rem; border-radius: 6px; background: transparent; color: #666; }
         .inf-toggle-btn.active { background: #d32f2f; color: white; }
         .inf-content-scroll { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
@@ -226,10 +179,7 @@
         .inf-val { font-weight: 800; text-align: right; }
         .inf-text { background: #f9f9f9; padding: 12px; border-radius: 6px; border: 1px solid #ddd; font-family: monospace; font-size: 0.9rem; margin: 12px 0; color: #333; line-height: 1.4; }
         .inf-note { font-size: 0.85rem; color: #666; font-style: italic; background: #fff3e0; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #ff9800; }
-        .btn-close-inf { width: 100%; padding: 14px; background: #444; color: white; border: none; border-radius: 8px; font-weight: bold; margin-top: auto; font-size: 1rem;}
-
-        .help-list { padding-left: 20px; line-height: 1.6; }
-        .help-list li { margin-bottom: 10px; }
+        .btn-close-inf { width: 100%; padding: 14px; background: #444; color: white; border: none; border-radius: 8px; font-weight: bold; margin-top: auto; font-size: 1rem; flex-shrink: 0;}
 
     </style>
 </head>
@@ -261,6 +211,7 @@
 <div id="result-modal" class="modal">
     <div class="modal-content">
         <div id="modal-header-strip" class="modal-header-strip">DICTAMEN TÉCNICO POLICIAL</div>
+        
         <div class="modal-body">
             <div class="result-top-row">
                 <img id="res-logo-left" class="result-logo-img" alt="Judicial" />
@@ -276,8 +227,12 @@
             </table>
             <div id="res-legal-box" class="legal-box"></div>
         </div>
+        
         <div class="modal-fixed-bottom">
-            <button id="btn-soa" class="btn-soa" onclick="app.showSoaInfraction()"><span>🚨</span> VER INFRACCIÓN SEGURO (SOA)</button>
+            <button id="btn-soa" class="btn-soa" onclick="app.showSoaInfraction()">
+                <span>🚨</span> VER INFRACCIÓN SEGURO (SOA)
+            </button>
+
             <div class="nav-buttons-row">
                 <button class="btn-modal-back" onclick="app.closeModal()">🔙 Corregir</button>
                 <button class="btn-modal-new" onclick="app.resetApp()">🔄 Nueva</button>
@@ -290,9 +245,9 @@
     <div class="modal-content">
         <div class="modal-header-strip header-help">¿CÓMO FUNCIONA?</div>
         <div class="modal-body">
-            <ul class="help-list">
-                <li><strong>Categorización:</strong> Responde las preguntas.</li>
-                <li><strong>Dictamen:</strong> Ficha policial con requisitos.</li>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+                <li style="margin-bottom:10px"><strong>Categorización:</strong> Responde las preguntas técnicas.</li>
+                <li style="margin-bottom:10px"><strong>Dictamen:</strong> Ficha policial con requisitos.</li>
                 <li><strong>Infracciones:</strong> Botón ROJO para ver denuncia.</li>
             </ul>
         </div>
@@ -314,7 +269,7 @@
             <div class="inf-row"><span class="inf-label">Opción:</span><span id="inf-option" class="inf-val"></span></div>
             <div class="inf-row"><span class="inf-label">Importe:</span><span id="inf-amount" class="inf-val" style="color:#d32f2f;"></span></div>
             <div class="inf-row"><span class="inf-label">Reducido:</span><span id="inf-reduced" class="inf-val" style="color:#28a745;"></span></div>
-            <p style="margin-bottom:5px; font-weight:bold; font-size:0.9rem; margin-top:10px;">Hecho Denunciado:</p>
+            <p style="margin-bottom:5px; font-weight:bold; font-size:0.8rem; margin-top:10px;">Hecho Denunciado:</p>
             <div class="inf-text" id="inf-text"></div>
             <div id="inf-note" class="inf-note" style="display:none;"><b>ℹ️ NOTA VMP LIGERO:</b> La denuncia por defecto es para VMP "Pesado". Si es <b>Ligero</b>, usa Opción <b>2.1.5P</b> (350€).</div>
         </div>
