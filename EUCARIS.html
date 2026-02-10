@@ -22,8 +22,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            /* Usamos dvh para móviles modernos, evita cortes por la barra del navegador */
-            height: 100dvh; 
+            height: 100dvh; /* Altura real móvil */
             overflow: hidden; 
         }
 
@@ -31,7 +30,7 @@
         .top-bar-strip {
             background-color: #FFD700; 
             color: #1e3a8a;
-            display: none; /* Oculto al inicio */
+            display: none; /* Oculto inicio */
             align-items: center;
             padding: 0 10px;
             height: 50px;
@@ -120,37 +119,41 @@
             border: none;
         }
 
-        /* --- MODO HORIZONTAL (LANDSCAPE) --- */
-        /* Al girar el móvil, ocultamos la barra amarilla y hacemos el visor pantalla completa */
-        @media (orientation: landscape) and (max-height: 600px) {
+        /* --- MODO HORIZONTAL AGRESIVO --- */
+        /* Al girar el móvil (landscape), forzamos pantalla completa TOTAL */
+        @media (orientation: landscape) {
+            /* Ocultamos la barra amarilla */
             .top-bar-strip {
-                display: none !important; /* Ocultar barra para ganar espacio */
+                display: none !important; 
             }
+            /* El visor ocupa todo el alto y ancho (0px top) */
             #docViewer {
-                top: 0;
-                height: 100dvh; /* Pantalla completa real */
+                top: 0 !important;
+                height: 100dvh !important;
+                width: 100vw !important;
             }
-            /* Botón flotante para poder salir en modo horizontal */
+            /* Mostramos el botón flotante rojo */
             #floatingBackBtn {
                 display: flex !important;
             }
         }
 
-        /* Botón flotante de emergencia (Solo visible en horizontal) */
+        /* Botón flotante "CERRAR" (Solo visible en horizontal) */
         #floatingBackBtn {
-            display: none;
+            display: none; /* Oculto en vertical */
             position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: rgba(220, 38, 38, 0.8);
+            top: 15px;
+            right: 15px; /* A la derecha para no molestar */
+            background-color: rgba(220, 38, 38, 0.7); /* Rojo semitransparente */
             color: white;
-            padding: 8px 12px;
-            border-radius: 50px;
+            padding: 8px 16px;
+            border-radius: 20px;
             z-index: 300;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: bold;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
         .card-gad {
@@ -220,7 +223,6 @@
             background-color: #fffbeb;
         }
         
-        /* BOTÓN LÁPIZ INDEPENDIENTE */
         .edit-icon-btn {
             position: absolute;
             top: -6px;
@@ -247,7 +249,6 @@
             display: none;
         }
 
-        /* MODAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6);
@@ -266,7 +267,7 @@
 
     <div id="topBar" class="top-bar-strip">
         <button onclick="smartBack()" class="top-back-btn">
-            <i class="fas fa-arrow-left mr-2"></i> <span>VOLVER MENÚ</span>
+            <i class="fas fa-arrow-left mr-2"></i> <span>VOLVER MENÚ EUCARIS</span>
         </button>
         <span class="font-bold text-xs uppercase tracking-widest ml-auto text-blue-900">VISOR GAD</span>
     </div>
@@ -280,7 +281,6 @@
     </div>
 
     <div id="mainInterface" class="scroll-container">
-        
         <header class="logo-header">
             <div class="logo-container">
                 <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color:white; font-weight:bold; font-size:30px;\'>GAD</span>'">
@@ -288,7 +288,6 @@
         </header>
 
         <div class="main-content-wrapper">
-            
             <div class="card-gad">
                 <div class="flex flex-col gap-2">
                     <div class="flex justify-between items-center border-b pb-2 mb-2">
@@ -323,20 +322,15 @@
             <div id="connectionStatus" class="text-center text-[10px] text-gray-400 mt-4 mb-8">
                 Iniciando...
             </div>
-
         </div>
     </div>
 
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
             <h3 class="text-lg font-bold text-blue-900 mb-2">Editar Enlace</h3>
-            <p id="authWarning" class="hidden text-xs text-red-600 mb-2 font-bold bg-red-100 p-2 rounded">
-                <i class="fas fa-exclamation-triangle"></i> ERROR: Sin sesión. No se guardará.
-            </p>
             <p class="text-xs text-gray-500 mb-4 bg-blue-50 p-2 rounded border border-blue-200">
-                <i class="fas fa-magic"></i> <b>MODO VISOR:</b> Pega el enlace de Google Drive.
+                <i class="fas fa-magic"></i> Pega enlace de Drive o OneDrive.
             </p>
-            
             <input type="hidden" id="editIndex">
             
             <label class="block text-xs font-bold text-gray-700 mb-1">PAÍS</label>
@@ -349,8 +343,8 @@
                 <option value="complete">COMPLETO (Verde)</option>
             </select>
 
-            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE DRIVE</label>
-            <textarea id="editUrl" rows="4" class="w-full border p-2 rounded mb-4 text-xs font-mono text-gray-600" placeholder="https://docs.google.com/..."></textarea>
+            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE DOCUMENTO</label>
+            <textarea id="editUrl" rows="4" class="w-full border p-2 rounded mb-4 text-xs font-mono text-gray-600" placeholder="https://..."></textarea>
 
             <div class="flex gap-2">
                 <button onclick="closeModal()" class="flex-1 bg-gray-300 py-2 rounded font-bold text-sm text-gray-700">Cancelar</button>
@@ -412,7 +406,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             initFirebase();
             renderCountries();
-            
             document.getElementById('searchInput').addEventListener('input', (e) => renderCountries(e.target.value));
             document.getElementById('editModeToggle').addEventListener('change', toggleEditMode);
         });
@@ -431,7 +424,7 @@
                         listenToCloudData();
                     } else {
                         currentUser = null;
-                        document.getElementById('connectionStatus').innerHTML = '<span class="text-gray-400">Modo Local (Lectura)</span>';
+                        document.getElementById('connectionStatus').innerHTML = '<span class="text-gray-400">Modo Local</span>';
                     }
                 });
             } catch (e) { console.error(e); }
@@ -497,7 +490,6 @@
                 }
 
                 btn.onclick = () => handleCountryClick(url);
-                
                 btn.insertAdjacentHTML('afterbegin', html);
                 container.appendChild(btn);
             });
@@ -505,7 +497,6 @@
 
         function handleCountryClick(url) {
             if (isEditMode) return; 
-
             if (url && url !== '#' && url.trim() !== '') {
                 openViewer(url);
             } else {
@@ -533,11 +524,8 @@
             }
         }
 
-        // --- EDICIÓN Y GUARDADO ---
         function openEditModal(country, key, url, status) {
-            const warning = document.getElementById('authWarning');
-            warning.classList.toggle('hidden', !!currentUser);
-            
+            if(!currentUser) alert("Aviso: No estás logueado. No se guardará en la nube.");
             document.getElementById('editIndex').value = key; 
             document.getElementById('editName').value = country.name;
             document.getElementById('editStatus').value = status;
@@ -553,7 +541,7 @@
             let rawUrl = document.getElementById('editUrl').value.trim();
             let finalUrl = rawUrl;
 
-            // --- LÓGICA DE IFRAME ---
+            // --- LÓGICA DE IFRAME GOOGLE ---
             if (rawUrl.includes("docs.google.com") && rawUrl.includes("/presentation/d/")) {
                 try {
                     let presIdMatch = rawUrl.match(/\/d\/([a-zA-Z0-9\-_]+)/);
@@ -565,6 +553,16 @@
                         }
                     }
                 } catch (e) { console.error(e); }
+            }
+
+            // --- LÓGICA DE ONEDRIVE (CORRECCIÓN 404) ---
+            // Intenta convertir enlaces de vista (view.aspx) a embed
+            if (rawUrl.includes("onedrive.live.com") || rawUrl.includes("1drv.ms")) {
+                if (rawUrl.includes("view.aspx")) {
+                    finalUrl = rawUrl.replace("view.aspx", "embed");
+                }
+                // Si ya es embed, se deja tal cual. 
+                // NOTA: Si sigue fallando, es porque el archivo no es PÚBLICO.
             }
 
             if (isFirebaseActive && currentUser) {
