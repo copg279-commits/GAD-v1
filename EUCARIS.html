@@ -21,36 +21,39 @@
             overflow: hidden; 
         }
 
-        /* --- CAMBIO SOLICITADO: BARRA AMARILLA --- */
+        /* --- BARRA SUPERIOR (OCULTA POR DEFECTO) --- */
         .top-bar-strip {
-            background-color: #f59e0b; /* Amarillo Policía */
-            color: #1e3a8a; /* Texto Azul Oscuro para contraste */
-            display: flex;
+            background-color: #FFD700; /* AMARILLO POLICÍA PURO */
+            color: #1e3a8a;
+            display: none; /* IMPORTANTE: Invisible al inicio */
             align-items: center;
             padding: 0 10px;
             height: 50px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             z-index: 100;
             flex-shrink: 0;
-            font-weight: 800; /* Letra más gruesa */
+            font-weight: 800;
+            width: 100%;
         }
 
-        /* Botón Volver (Estilo adaptado al fondo amarillo) */
+        /* Botón Volver (Dentro de la barra amarilla) */
         .top-back-btn {
-            background-color: #1e3a8a; /* Azul botón */
-            color: white; /* Texto blanco */
+            background-color: #1e3a8a; /* Botón Azul */
+            color: white;
             border: none;
             margin-right: 10px;
             font-weight: bold;
             cursor: pointer;
             padding: 0 15px;
             border-radius: 4px;
-            height: 32px;
+            height: 34px;
             display: flex; align-items: center;
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        
+        .top-back-btn:hover { background-color: #1e40af; }
 
         /* LOGO */
         header.logo-header {
@@ -96,10 +99,10 @@
             flex-grow: 1;
         }
 
-        /* VISOR DE DOCUMENTOS (ZOOM MEJORADO) */
+        /* VISOR DE DOCUMENTOS */
         #docViewer {
             position: fixed;
-            top: 50px; /* Debajo de la barra amarilla */
+            top: 50px; /* Debajo de la barra amarilla cuando aparece */
             left: 0;
             width: 100%;
             height: calc(100vh - 50px);
@@ -107,7 +110,7 @@
             z-index: 200;
             display: none; 
             flex-direction: column;
-            overflow: auto; /* Permite scroll si se hace zoom */
+            overflow: auto; 
             -webkit-overflow-scrolling: touch;
         }
 
@@ -115,7 +118,6 @@
             width: 100%;
             height: 100%;
             border: none;
-            /* Truco para mejorar el comportamiento táctil */
             touch-action: pan-x pan-y pinch-zoom;
         }
 
@@ -203,12 +205,11 @@
 </head>
 <body>
 
-    <div class="top-bar-strip">
+    <div id="topBar" class="top-bar-strip">
         <button onclick="smartBack()" class="top-back-btn">
-            <i class="fas fa-arrow-left mr-2"></i> <span id="backBtnText">VOLVER</span>
+            <i class="fas fa-arrow-left mr-2"></i> <span>VOLVER MENÚ EUCARIS</span>
         </button>
-        
-        <span class="font-bold text-xs uppercase tracking-widest ml-auto text-blue-900">GAD ALICANTE</span>
+        <span class="font-bold text-xs uppercase tracking-widest ml-auto text-blue-900">VISOR DOCUMENTAL</span>
     </div>
 
     <div id="docViewer">
@@ -267,7 +268,7 @@
         <div class="modal-box">
             <h3 class="text-lg font-bold text-blue-900 mb-2">Editar Enlace</h3>
             <p class="text-xs text-gray-500 mb-4 bg-green-50 p-2 rounded border border-green-200">
-                <i class="fas fa-check-circle"></i> <b>CONFIGURACIÓN LOCAL:</b> Estos cambios se guardan solo en este dispositivo. Para cambios globales, edita el archivo en GitHub.
+                <i class="fas fa-check-circle"></i> <b>RECONSTRUCCIÓN TOTAL:</b> Pega el enlace tal cual. El sistema lo adaptará para el visor.
             </p>
             <input type="hidden" id="editIndex">
             
@@ -292,7 +293,7 @@
     </div>
 
     <script>
-        // DATOS MAESTROS - AQUÍ ES DONDE DEBES PEGAR LOS ENLACES PARA QUE SEAN PERMANENTES EN GITHUB
+        // DATOS MAESTROS
         const defaultCountries = [
             { name: "ALEMANIA (D)", iso: "de", status: "nodata", url: "#" },
             { name: "AUSTRIA (A)", iso: "at", status: "basic", url: "#" },
@@ -336,7 +337,7 @@
         });
 
         function loadCountries() {
-            const stored = localStorage.getItem('gad_eucaris_clean_v1');
+            const stored = localStorage.getItem('gad_eucaris_clean_v2');
             countries = stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(defaultCountries));
         }
 
@@ -404,40 +405,42 @@
             }
         }
 
+        // --- FUNCIONES DEL VISOR Y LA BARRA SUPERIOR ---
         function openViewer(url) {
+            // 1. Mostrar barra amarilla
+            document.getElementById('topBar').style.display = 'flex';
+            
+            // 2. Ocultar menú y mostrar visor
             document.getElementById('mainInterface').style.display = 'none';
             document.getElementById('docViewer').style.display = 'flex';
+            
+            // 3. Cargar URL
             document.getElementById('docFrame').src = url;
             isViewingDoc = true;
-            updateBackBtn();
         }
 
         function closeViewer() {
+            // 1. Ocultar barra amarilla
+            document.getElementById('topBar').style.display = 'none';
+
+            // 2. Limpiar iframe y mostrar menú
             document.getElementById('docFrame').src = ''; 
             document.getElementById('docViewer').style.display = 'none';
             document.getElementById('mainInterface').style.display = 'flex';
             isViewingDoc = false;
-            updateBackBtn();
         }
 
         function smartBack() {
-            if (isViewingDoc) closeViewer();
-            else window.location.href = 'index.html';
-        }
-
-        function updateBackBtn() {
-            const txt = document.getElementById('backBtnText');
-            const btn = document.querySelector('.top-back-btn');
-            // La barra es siempre amarilla, cambiamos el color del botón
             if (isViewingDoc) {
-                txt.innerText = "CERRAR MANUAL";
-                btn.style.backgroundColor = "#d97706"; // Ambar oscuro
+                closeViewer(); // Cierra el manual y vuelve a la lista de países
             } else {
-                txt.innerText = "VOLVER";
-                btn.style.backgroundColor = "#1e3a8a"; // Azul oscuro
+                // Si por algún error la barra fuera visible en el menú principal, esto actuaría de seguridad
+                // Pero como la barra está oculta (display:none), este caso es improbable.
+                window.location.href = 'index.html'; 
             }
         }
 
+        // --- EDICIÓN ---
         function toggleEditMode(e) {
             isEditMode = e.target.checked;
             document.body.classList.toggle('edit-mode', isEditMode);
@@ -463,7 +466,7 @@
             let rawUrl = document.getElementById('editUrl').value.trim();
             let finalUrl = rawUrl;
 
-            // Lógica Quirúrgica: Reconstrucción total para evitar errores de Google
+            // Reconstrucción del enlace para modo Preview
             if (rawUrl.includes("docs.google.com") && rawUrl.includes("/presentation/d/")) {
                 try {
                     let presIdMatch = rawUrl.match(/\/d\/([a-zA-Z0-9\-_]+)/);
@@ -479,17 +482,14 @@
 
             countries[index].status = newStatus;
             countries[index].url = finalUrl || '#';
-            
-            // Guardamos en LocalStorage (Solo el usuario actual verá los cambios)
-            localStorage.setItem('gad_eucaris_clean_v1', JSON.stringify(countries));
-            
+            localStorage.setItem('gad_eucaris_clean_v2', JSON.stringify(countries));
             closeModal();
             renderCountries(document.getElementById('searchInput').value);
         }
 
         function resetDefaults() {
             if(confirm("¿Restaurar configuración original?")) {
-                localStorage.removeItem('gad_eucaris_clean_v1');
+                localStorage.removeItem('gad_eucaris_clean_v2');
                 loadCountries();
                 renderCountries();
             }
