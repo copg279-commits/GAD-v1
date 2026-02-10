@@ -25,11 +25,11 @@
             overflow: hidden; 
         }
 
-        /* BARRA SUPERIOR (Solo visible en VISOR) - AMARILLO POLICÍA */
+        /* BARRA SUPERIOR AMARILLA (VISOR) */
         .top-bar-strip {
             background-color: #FFD700; 
             color: #1e3a8a;
-            display: none; /* Oculto al inicio */
+            display: none;
             align-items: center;
             padding: 0 10px;
             height: 50px;
@@ -40,7 +40,6 @@
             width: 100%;
         }
 
-        /* Botón Volver */
         .top-back-btn {
             background-color: #1e3a8a;
             color: white;
@@ -56,9 +55,22 @@
             font-size: 0.75rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .top-back-btn:hover { background-color: #1e40af; }
 
-        /* LOGO */
+        /* BOTÓN ZOOM EXTRA */
+        .zoom-btn {
+            background-color: white;
+            color: #1e3a8a;
+            border: 1px solid #1e3a8a;
+            margin-left: auto;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 10px;
+            border-radius: 4px;
+            height: 34px;
+            display: flex; align-items: center;
+            font-size: 0.7rem;
+        }
+
         header.logo-header {
             background-color: #1e40af;
             width: 100%;
@@ -83,7 +95,6 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
 
-        /* CONTENEDOR PRINCIPAL */
         .scroll-container {
             flex-grow: 1;
             overflow-y: auto; 
@@ -102,7 +113,6 @@
             flex-grow: 1;
         }
 
-        /* VISOR DE DOCUMENTOS */
         #docViewer {
             position: fixed;
             top: 50px;
@@ -113,7 +123,7 @@
             z-index: 200;
             display: none; 
             flex-direction: column;
-            overflow: auto; 
+            overflow: auto; /* Permite scroll nativo */
             -webkit-overflow-scrolling: touch;
         }
 
@@ -121,6 +131,7 @@
             width: 100%;
             height: 100%;
             border: none;
+            /* Intentar forzar comportamiento táctil */
             touch-action: pan-x pan-y pinch-zoom;
         }
 
@@ -133,7 +144,6 @@
             margin-bottom: 15px;
         }
 
-        /* GRID RESPONSIVE */
         .country-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -180,26 +190,24 @@
             width: 90%;
             text-align: center;
             display: none; 
+            margin-top: 4px;
         }
-        .status-complete { color: #065f46; background-color: #d1fae5; border: 1px solid #34d399; }
-        .status-basic { color: #92400e; background-color: #fef3c7; border: 1px solid #fcd34d; }
-        .status-nodata { color: #991b1b; background-color: #fee2e2; border: 1px solid #f87171; }
+        /* Colores ajustados a la imagen */
+        .status-complete { color: #065f46; background-color: #d1fae5; border: 1px solid #34d399; } /* VERDE */
+        .status-basic { color: #92400e; background-color: #fef3c7; border: 1px solid #fcd34d; } /* AMBAR/NARANJA */
+        .status-nodata { color: #991b1b; background-color: #fee2e2; border: 1px solid #f87171; } /* ROJO */
 
-        /* MODO EDICIÓN */
         body.edit-mode .country-btn {
             border: 2px dashed #f59e0b;
             background-color: #fffbeb;
         }
         
-        /* Icono Cloud (Indicador visual discreto) */
         .cloud-indicator {
             position: absolute; top: 2px; left: 2px;
-            font-size: 0.6rem; color: #10b981; /* Verde */
+            font-size: 0.6rem; color: #10b981; 
             display: none;
         }
-        body.is-connected .cloud-indicator { display: block; }
 
-        /* MODAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6);
@@ -218,9 +226,12 @@
 
     <div id="topBar" class="top-bar-strip">
         <button onclick="smartBack()" class="top-back-btn">
-            <i class="fas fa-arrow-left mr-2"></i> <span>VOLVER MENÚ EUCARIS</span>
+            <i class="fas fa-arrow-left mr-2"></i> <span>VOLVER MENÚ</span>
         </button>
-        <span class="font-bold text-xs uppercase tracking-widest ml-auto text-blue-900">VISOR DOCUMENTAL</span>
+        
+        <a id="extLinkBtn" href="#" target="_blank" class="zoom-btn">
+            <i class="fas fa-external-link-alt mr-2"></i> ZOOM
+        </a>
     </div>
 
     <div id="docViewer">
@@ -269,7 +280,7 @@
             <div id="countryContainer" class="country-grid pb-12"></div>
             
             <div id="connectionStatus" class="text-center text-[10px] text-gray-400 mt-4 mb-8">
-                <i class="fas fa-circle text-gray-300 mr-1"></i> Modo Local
+                Iniciando...
             </div>
 
         </div>
@@ -278,8 +289,8 @@
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
             <h3 class="text-lg font-bold text-blue-900 mb-2">Editar Enlace</h3>
-            <p id="saveMsg" class="text-xs text-gray-500 mb-4 bg-blue-50 p-2 rounded border border-blue-200">
-                <i class="fas fa-info-circle"></i> Pega el enlace de Drive tal cual.
+            <p class="text-xs text-gray-500 mb-4 bg-blue-50 p-2 rounded border border-blue-200">
+                <i class="fas fa-cloud-upload-alt"></i> Se guardará en Firebase: <b id="nodeNameDisplay"></b>
             </p>
             <input type="hidden" id="editIndex">
             
@@ -304,7 +315,7 @@
     </div>
 
     <script>
-        // --- 1. PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE ---
+        // --- !!! PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE !!! ---
         const firebaseConfig = {
   apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
   authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -314,40 +325,54 @@
   messagingSenderId: "119727545224",
   appId: "1:119727545224:web:36880c50d196c456cdb83d"
 };
-        // --------------------------------------------------
+        // ------------------------------------------------------------------
 
         // Variables Globales
         let app, db, auth;
         let isFirebaseActive = false;
         let currentUser = null;
 
-        // Lista Base (Esqueleto)
+        // --- LISTA MAESTRA FIJA (DATOS SOA DE LA IMAGEN) ---
+        // He pre-cargado los estados de SOA según tu imagen para que no tengas que editarlos uno a uno.
         const defaultCountries = [
-            { name: "ALEMANIA (D)", iso: "de" }, { name: "AUSTRIA (A)", iso: "at" },
-            { name: "BÉLGICA (B)", iso: "be" }, { name: "BULGARIA (BG)", iso: "bg" },
-            { name: "CHIPRE (CY)", iso: "cy" }, { name: "CROACIA (HR)", iso: "hr" },
-            { name: "DINAMARCA (DK)", iso: "dk" }, { name: "ESLOVAQUIA (SK)", iso: "sk" },
-            { name: "ESLOVENIA (SLO)", iso: "si" }, { name: "ESPAÑA (E)", iso: "es" },
-            { name: "ESTONIA (EST)", iso: "ee" }, { name: "FINLANDIA (FIN)", iso: "fi" },
-            { name: "FRANCIA (F)", iso: "fr" }, { name: "GRECIA (GR)", iso: "gr" },
-            { name: "HOLANDA (NL)", iso: "nl" }, { name: "HUNGRÍA (H)", iso: "hu" },
-            { name: "IRLANDA (IRL)", iso: "ie" }, { name: "ITALIA (I)", iso: "it" },
-            { name: "LETONIA (LV)", iso: "lv" }, { name: "LITUANIA (LT)", iso: "lt" },
-            { name: "LUXEMBURGO (L)", iso: "lu" }, { name: "MALTA (MT)", iso: "mt" },
-            { name: "POLONIA (PL)", iso: "pl" }, { name: "PORTUGAL (P)", iso: "pt" },
-            { name: "REP. CHECA (CZ)", iso: "cz" }, { name: "RUMANÍA (RO)", iso: "ro" },
-            { name: "SUECIA (S)", iso: "se" }
+            { name: "ALEMANIA (D)", iso: "de", defStatus: "nodata" }, 
+            { name: "AUSTRIA (A)", iso: "at", defStatus: "basic" },
+            { name: "BÉLGICA (B)", iso: "be", defStatus: "basic" }, 
+            { name: "BULGARIA (BG)", iso: "bg", defStatus: "nodata" },
+            { name: "CHIPRE (CY)", iso: "cy", defStatus: "complete" }, 
+            { name: "CROACIA (HR)", iso: "hr", defStatus: "complete" },
+            { name: "DINAMARCA (DK)", iso: "dk", defStatus: "basic" }, 
+            { name: "ESLOVAQUIA (SK)", iso: "sk", defStatus: "nodata" },
+            { name: "ESLOVENIA (SLO)", iso: "si", defStatus: "nodata" }, 
+            { name: "ESPAÑA (E)", iso: "es", defStatus: "basic" },
+            { name: "ESTONIA (EST)", iso: "ee", defStatus: "nodata" }, 
+            { name: "FINLANDIA (FIN)", iso: "fi", defStatus: "basic" },
+            { name: "FRANCIA (F)", iso: "fr", defStatus: "nodata" }, 
+            { name: "GRECIA (GR)", iso: "gr", defStatus: "nodata" },
+            { name: "HOLANDA (NL)", iso: "nl", defStatus: "basic" }, 
+            { name: "HUNGRÍA (H)", iso: "hu", defStatus: "nodata" },
+            { name: "IRLANDA (IRL)", iso: "ie", defStatus: "nodata" }, 
+            { name: "ITALIA (I)", iso: "it", defStatus: "basic" },
+            { name: "LETONIA (LV)", iso: "lv", defStatus: "complete" }, 
+            { name: "LITUANIA (LT)", iso: "lt", defStatus: "complete" },
+            { name: "LUXEMBURGO (L)", iso: "lu", defStatus: "nodata" }, 
+            { name: "MALTA (MT)", iso: "mt", defStatus: "complete" },
+            { name: "POLONIA (PL)", iso: "pl", defStatus: "complete" }, 
+            { name: "PORTUGAL (P)", iso: "pt", defStatus: "nodata" },
+            { name: "REP. CHECA (CZ)", iso: "cz", defStatus: "nodata" }, 
+            { name: "RUMANÍA (RO)", iso: "ro", defStatus: "nodata" },
+            { name: "SUECIA (S)", iso: "se", defStatus: "basic" }
         ];
 
         let countriesData = {}; 
         let isEditMode = false;
         let isViewingDoc = false;
         let showSoa = false;
+        let currentDocUrl = "";
 
         document.addEventListener('DOMContentLoaded', () => {
             initFirebase();
-            loadLocalData(); // Carga rápida inicial
-            renderCountries();
+            renderCountries(); // Renderizado inicial con datos por defecto
             
             document.getElementById('searchInput').addEventListener('input', (e) => renderCountries(e.target.value));
             document.getElementById('editModeToggle').addEventListener('change', toggleEditMode);
@@ -355,7 +380,7 @@
 
         function initFirebase() {
             if (firebaseConfig.apiKey.includes("PEGAR_AQUI")) {
-                console.warn("Firebase no configurado. Funcionando en modo Local.");
+                document.getElementById('connectionStatus').innerHTML = '<span class="text-red-500 font-bold">Error: Falta Configuración Firebase</span>';
                 return;
             }
             try {
@@ -364,13 +389,14 @@
                 auth = firebase.auth();
                 isFirebaseActive = true;
                 
-                // AUTENTICACIÓN PASIVA: 
-                // Detecta automáticamente si vienes logueado del dashboard
                 auth.onAuthStateChanged(user => {
-                    currentUser = user;
-                    updateConnectionStatus(user);
-                    if(user) {
-                        listenToCloudData(); // Si estás logueado, sincroniza
+                    if (user) {
+                        currentUser = user;
+                        document.getElementById('connectionStatus').innerHTML = `<span class="text-green-600 font-bold"><i class="fas fa-wifi"></i> Conectado</span>`;
+                        listenToCloudData();
+                    } else {
+                        currentUser = null;
+                        document.getElementById('connectionStatus').innerHTML = '<span class="text-gray-400">Lectura (Sin Sesión)</span>';
                     }
                 });
 
@@ -379,36 +405,19 @@
             }
         }
 
-        function updateConnectionStatus(user) {
-            const statusDiv = document.getElementById('connectionStatus');
-            if(user) {
-                document.body.classList.add('is-connected');
-                statusDiv.innerHTML = '<span class="text-green-600"><i class="fas fa-circle text-[8px] mr-1"></i> Conectado (Nube GAD)</span>';
-            } else {
-                document.body.classList.remove('is-connected');
-                statusDiv.innerHTML = '<span class="text-gray-400"><i class="far fa-circle text-[8px] mr-1"></i> Modo Local (Sin sesión)</span>';
-            }
-        }
-
         function listenToCloudData() {
             if(!isFirebaseActive) return;
-            const ref = db.ref('eucaris_links');
+            // NODO PRINCIPAL: Eucaris
+            const ref = db.ref('Eucaris');
             ref.on('value', (snapshot) => {
                 const val = snapshot.val();
                 if (val) {
                     countriesData = val; 
-                    localStorage.setItem('gad_eucaris_cache', JSON.stringify(countriesData)); 
                     renderCountries(document.getElementById('searchInput').value);
                 }
             });
         }
 
-        function loadLocalData() {
-            const cached = localStorage.getItem('gad_eucaris_cache');
-            if(cached) countriesData = JSON.parse(cached);
-        }
-
-        // --- RENDERIZADO ---
         function renderCountries(filterText = '') {
             const container = document.getElementById('countryContainer');
             container.innerHTML = '';
@@ -416,45 +425,53 @@
             defaultCountries.forEach((country) => {
                 if (filterText && !country.name.toLowerCase().includes(filterText.toLowerCase())) return;
                 
-                const dynamicData = countriesData[country.iso] || { url: '#', status: 'nodata' };
+                // Usamos el NOMBRE DEL PAÍS como clave (igual que en Firebase)
+                const firebaseKey = country.name;
+                
+                // Si existe en Firebase, usamos esos datos. Si no, usamos los defaults hardcodeados.
+                const cloudEntry = countriesData[firebaseKey] || {};
+                
+                // Prioridad: Firebase > Default Hardcoded
+                const status = cloudEntry.status || country.defStatus;
+                const url = cloudEntry.url || '#';
                 
                 const btn = document.createElement('div');
                 btn.className = 'country-btn';
                 
                 let statusClass = 'status-nodata';
                 let statusText = 'SIN DATOS';
-                if (dynamicData.status === 'basic') { statusClass = 'status-basic'; statusText = 'BÁSICO'; }
-                if (dynamicData.status === 'complete') { statusClass = 'status-complete'; statusText = 'COMPLETO'; }
+                if (status === 'basic') { statusClass = 'status-basic'; statusText = 'BÁSICO'; }
+                if (status === 'complete') { statusClass = 'status-complete'; statusText = 'COMPLETO'; }
 
                 let html = `
-                    <i class="fas fa-cloud cloud-indicator"></i>
                     <span class="text-xs font-bold uppercase text-gray-800 leading-tight">${country.name}</span>
                     <img src="https://flagcdn.com/w80/${country.iso}.png" class="flag-img" alt="Flag">
                 `;
+
+                if(url && url !== '#') {
+                    html += `<i class="fas fa-cloud cloud-indicator" style="display:block"></i>`;
+                }
 
                 if (showSoa) {
                     html += `<span class="status-badge ${statusClass}" style="display:block">${statusText}</span>`;
                 }
 
                 if (isEditMode) {
-                    const hasLink = dynamicData.url && dynamicData.url !== '#';
+                    const hasLink = url && url !== '#';
                     html += `<span class="text-[9px] mt-1 ${hasLink ? 'text-green-600 font-bold' : 'text-red-400'}">${hasLink ? 'ENLAZADO' : 'SIN ENLACE'}</span>`;
                     html += `<i class="fas fa-pen absolute top-1 right-1 text-yellow-600 text-xs"></i>`;
                 }
 
                 btn.innerHTML = html;
-                btn.onclick = () => handleCountryClick(country);
+                btn.onclick = () => handleCountryClick(country, firebaseKey, url, status);
                 container.appendChild(btn);
             });
         }
 
-        function handleCountryClick(country) {
+        function handleCountryClick(country, key, url, status) {
             if (isEditMode) {
-                openEditModal(country);
+                openEditModal(country, key, url, status);
             } else {
-                const data = countriesData[country.iso];
-                const url = data ? data.url : '#';
-                
                 if (url && url !== '#' && url.trim() !== '') {
                     openViewer(url);
                 } else {
@@ -463,25 +480,27 @@
             }
         }
 
-        // --- EDICIÓN Y GUARDADO ---
-        function openEditModal(country) {
-            const data = countriesData[country.iso] || { url: '', status: 'nodata' };
-            document.getElementById('editIndex').value = country.iso; 
+        // --- EDICIÓN ---
+        function openEditModal(country, key, url, status) {
+            if (!currentUser) alert("Aviso: No estás logueado. No se guardará en la nube.");
+            
+            document.getElementById('nodeNameDisplay').innerText = `Eucaris/${key}`;
+            document.getElementById('editIndex').value = key; // La clave es el NOMBRE DEL PAÍS
             document.getElementById('editName').value = country.name;
-            document.getElementById('editStatus').value = data.status;
-            document.getElementById('editUrl').value = data.url === '#' ? '' : data.url;
+            document.getElementById('editStatus').value = status;
+            document.getElementById('editUrl').value = url === '#' ? '' : url;
             document.getElementById('editModal').classList.add('active');
         }
 
         function closeModal() { document.getElementById('editModal').classList.remove('active'); }
 
         function saveEdit() {
-            const iso = document.getElementById('editIndex').value;
+            const key = document.getElementById('editIndex').value;
             const newStatus = document.getElementById('editStatus').value;
             let rawUrl = document.getElementById('editUrl').value.trim();
             let finalUrl = rawUrl;
 
-            // Reconstrucción de Enlace
+            // Reconstrucción del enlace
             if (rawUrl.includes("docs.google.com") && rawUrl.includes("/presentation/d/")) {
                 try {
                     let presIdMatch = rawUrl.match(/\/d\/([a-zA-Z0-9\-_]+)/);
@@ -495,30 +514,22 @@
                 } catch (e) { console.error(e); }
             }
 
-            // GUARDAR
-            // Si hay usuario logueado -> Firebase
+            // GUARDAR EN FIREBASE -> NODO "Eucaris" -> [NOMBRE DEL PAIS]
             if (isFirebaseActive && currentUser) {
-                db.ref('eucaris_links/' + iso).set({
+                db.ref('Eucaris/' + key).set({
                     url: finalUrl || '#',
                     status: newStatus
                 }).then(() => {
                     closeModal();
                 }).catch(e => {
-                    // Si falla por reglas estrictas pero el usuario cree que está logueado
-                    alert("Error al guardar en Nube: " + e.message + "\n(Comprueba tus permisos en el Dashboard)");
+                    alert("Error Firebase: " + e.message);
                 });
             } else {
-                // Si no hay usuario -> LocalStorage (Fallback)
-                if(!countriesData) countriesData = {};
-                countriesData[iso] = { url: finalUrl || '#', status: newStatus };
-                localStorage.setItem('gad_eucaris_cache', JSON.stringify(countriesData));
-                renderCountries(document.getElementById('searchInput').value);
-                closeModal();
-                alert("Guardado en LOCAL (No conectado a Nube).");
+                alert("ERROR: No hay sesión activa. No se puede guardar en la nube.");
             }
         }
 
-        // --- UI UTILS ---
+        // --- UI ---
         function toggleSoa() {
             showSoa = !showSoa;
             const btn = document.getElementById('soaToggleBtn');
@@ -541,10 +552,15 @@
         }
 
         function openViewer(url) {
+            currentDocUrl = url;
             document.getElementById('topBar').style.display = 'flex';
             document.getElementById('mainInterface').style.display = 'none';
             document.getElementById('docViewer').style.display = 'flex';
             document.getElementById('docFrame').src = url;
+            
+            // Configurar botón externo
+            document.getElementById('extLinkBtn').href = url;
+            
             isViewingDoc = true;
         }
 
