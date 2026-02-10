@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <style>
         /* ESTILOS GLOBALES */
         body {
@@ -21,11 +25,11 @@
             overflow: hidden; 
         }
 
-        /* --- BARRA SUPERIOR (OCULTA POR DEFECTO) --- */
+        /* BARRA SUPERIOR (Solo visible en VISOR) - AMARILLO POLICÍA */
         .top-bar-strip {
-            background-color: #FFD700; /* AMARILLO POLICÍA PURO */
+            background-color: #FFD700; 
             color: #1e3a8a;
-            display: none; /* IMPORTANTE: Invisible al inicio */
+            display: none; /* Oculto al inicio */
             align-items: center;
             padding: 0 10px;
             height: 50px;
@@ -36,9 +40,9 @@
             width: 100%;
         }
 
-        /* Botón Volver (Dentro de la barra amarilla) */
+        /* Botón Volver */
         .top-back-btn {
-            background-color: #1e3a8a; /* Botón Azul */
+            background-color: #1e3a8a;
             color: white;
             border: none;
             margin-right: 10px;
@@ -102,7 +106,7 @@
         /* VISOR DE DOCUMENTOS */
         #docViewer {
             position: fixed;
-            top: 50px; /* Debajo de la barra amarilla cuando aparece */
+            top: 50px;
             left: 0;
             width: 100%;
             height: calc(100vh - 50px);
@@ -187,6 +191,13 @@
             border: 2px dashed #f59e0b;
             background-color: #fffbeb;
         }
+        
+        /* Icono Cloud */
+        .cloud-icon {
+            position: absolute; top: 2px; left: 2px;
+            font-size: 0.6rem; color: #10b981;
+            display: none;
+        }
 
         /* MODAL */
         .modal-overlay {
@@ -245,11 +256,16 @@
                                 class="w-full pl-9 pr-2 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm uppercase font-bold">
                         </div>
 
-                        <div class="flex items-center bg-gray-100 p-1.5 rounded border border-gray-300 shrink-0">
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="editModeToggle" class="sr-only peer">
-                                <div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-yellow-500"></div>
-                            </label>
+                        <div class="flex items-center gap-2">
+                            <button id="loginBtn" onclick="handleLogin()" class="text-gray-400 hover:text-blue-600">
+                                <i class="fas fa-user-circle text-xl"></i>
+                            </button>
+                            <div class="flex items-center bg-gray-100 p-1.5 rounded border border-gray-300 shrink-0">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="editModeToggle" class="sr-only peer">
+                                    <div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-yellow-500"></div>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -257,8 +273,8 @@
 
             <div id="countryContainer" class="country-grid pb-12"></div>
             
-            <div id="resetZone" class="hidden text-center mt-8 mb-8">
-                <button onclick="resetDefaults()" class="text-xs text-red-600 underline">Restaurar todo</button>
+            <div id="dbStatus" class="text-center text-[10px] text-gray-400 mt-4 mb-8">
+                Modo desconectado (Local)
             </div>
 
         </div>
@@ -267,8 +283,8 @@
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
             <h3 class="text-lg font-bold text-blue-900 mb-2">Editar Enlace</h3>
-            <p class="text-xs text-gray-500 mb-4 bg-green-50 p-2 rounded border border-green-200">
-                <i class="fas fa-check-circle"></i> <b>RECONSTRUCCIÓN TOTAL:</b> Pega el enlace tal cual. El sistema lo adaptará para el visor.
+            <p id="saveMsg" class="text-xs text-gray-500 mb-4 bg-blue-50 p-2 rounded border border-blue-200">
+                <i class="fas fa-info-circle"></i> Pega el enlace de Drive tal cual.
             </p>
             <input type="hidden" id="editIndex">
             
@@ -282,7 +298,7 @@
                 <option value="complete">COMPLETO (Verde)</option>
             </select>
 
-            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE DRIVE (Pega el enlace completo)</label>
+            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE DRIVE</label>
             <textarea id="editUrl" rows="3" class="w-full border p-2 rounded mb-4 text-xs font-mono"></textarea>
 
             <div class="flex gap-2">
@@ -293,180 +309,207 @@
     </div>
 
     <script>
-        // DATOS MAESTROS
+        // --- 1. PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE ---
+        // (Sustituye todo el bloque dentro de las llaves con lo que te da Firebase)
+        const firebaseConfig = {
+            apiKey: "PEGAR_AQUI_API_KEY",
+            authDomain: "PEGAR_AQUI_AUTH_DOMAIN",
+            databaseURL: "PEGAR_AQUI_DATABASE_URL",
+            projectId: "PEGAR_AQUI_PROJECT_ID",
+            storageBucket: "PEGAR_AQUI_STORAGE_BUCKET",
+            messagingSenderId: "PEGAR_AQUI_SENDER_ID",
+            appId: "PEGAR_AQUI_APP_ID"
+        };
+        // --------------------------------------------------
+
+        // Variables Globales
+        let app, db, auth;
+        let isFirebaseActive = false;
+        let currentUser = null;
+
+        // Lista Base (Esqueleto)
         const defaultCountries = [
-            { name: "ALEMANIA (D)", iso: "de", status: "nodata", url: "#" },
-            { name: "AUSTRIA (A)", iso: "at", status: "basic", url: "#" },
-            { name: "BÉLGICA (B)", iso: "be", status: "basic", url: "#" },
-            { name: "BULGARIA (BG)", iso: "bg", status: "nodata", url: "#" },
-            { name: "CHIPRE (CY)", iso: "cy", status: "complete", url: "#" },
-            { name: "CROACIA (HR)", iso: "hr", status: "complete", url: "#" },
-            { name: "DINAMARCA (DK)", iso: "dk", status: "basic", url: "#" },
-            { name: "ESLOVAQUIA (SK)", iso: "sk", status: "nodata", url: "#" },
-            { name: "ESLOVENIA (SLO)", iso: "si", status: "nodata", url: "#" },
-            { name: "ESPAÑA (E)", iso: "es", status: "basic", url: "#" },
-            { name: "ESTONIA (EST)", iso: "ee", status: "nodata", url: "#" },
-            { name: "FINLANDIA (FIN)", iso: "fi", status: "basic", url: "#" },
-            { name: "FRANCIA (F)", iso: "fr", status: "nodata", url: "#" },
-            { name: "GRECIA (GR)", iso: "gr", status: "nodata", url: "#" },
-            { name: "HOLANDA (NL)", iso: "nl", status: "basic", url: "#" },
-            { name: "HUNGRÍA (H)", iso: "hu", status: "nodata", url: "#" },
-            { name: "IRLANDA (IRL)", iso: "ie", status: "nodata", url: "#" },
-            { name: "ITALIA (I)", iso: "it", status: "basic", url: "#" },
-            { name: "LETONIA (LV)", iso: "lv", status: "complete", url: "#" },
-            { name: "LITUANIA (LT)", iso: "lt", status: "complete", url: "#" },
-            { name: "LUXEMBURGO (L)", iso: "lu", status: "nodata", url: "#" },
-            { name: "MALTA (MT)", iso: "mt", status: "complete", url: "#" },
-            { name: "POLONIA (PL)", iso: "pl", status: "complete", url: "#" },
-            { name: "PORTUGAL (P)", iso: "pt", status: "nodata", url: "#" },
-            { name: "REP. CHECA (CZ)", iso: "cz", status: "nodata", url: "#" },
-            { name: "RUMANÍA (RO)", iso: "ro", status: "nodata", url: "#" },
-            { name: "SUECIA (S)", iso: "se", status: "basic", url: "#" }
+            { name: "ALEMANIA (D)", iso: "de" }, { name: "AUSTRIA (A)", iso: "at" },
+            { name: "BÉLGICA (B)", iso: "be" }, { name: "BULGARIA (BG)", iso: "bg" },
+            { name: "CHIPRE (CY)", iso: "cy" }, { name: "CROACIA (HR)", iso: "hr" },
+            { name: "DINAMARCA (DK)", iso: "dk" }, { name: "ESLOVAQUIA (SK)", iso: "sk" },
+            { name: "ESLOVENIA (SLO)", iso: "si" }, { name: "ESPAÑA (E)", iso: "es" },
+            { name: "ESTONIA (EST)", iso: "ee" }, { name: "FINLANDIA (FIN)", iso: "fi" },
+            { name: "FRANCIA (F)", iso: "fr" }, { name: "GRECIA (GR)", iso: "gr" },
+            { name: "HOLANDA (NL)", iso: "nl" }, { name: "HUNGRÍA (H)", iso: "hu" },
+            { name: "IRLANDA (IRL)", iso: "ie" }, { name: "ITALIA (I)", iso: "it" },
+            { name: "LETONIA (LV)", iso: "lv" }, { name: "LITUANIA (LT)", iso: "lt" },
+            { name: "LUXEMBURGO (L)", iso: "lu" }, { name: "MALTA (MT)", iso: "mt" },
+            { name: "POLONIA (PL)", iso: "pl" }, { name: "PORTUGAL (P)", iso: "pt" },
+            { name: "REP. CHECA (CZ)", iso: "cz" }, { name: "RUMANÍA (RO)", iso: "ro" },
+            { name: "SUECIA (S)", iso: "se" }
         ];
 
-        let countries = [];
+        // Estado inicial de datos (mezcla local + nube)
+        let countriesData = {}; // Objeto para guardar { 'de': {url:..., status:...} }
         let isEditMode = false;
         let isViewingDoc = false;
         let showSoa = false;
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadCountries();
+            initFirebase();
+            loadLocalData(); // Carga rápida inicial
             renderCountries();
+            
             document.getElementById('searchInput').addEventListener('input', (e) => renderCountries(e.target.value));
             document.getElementById('editModeToggle').addEventListener('change', toggleEditMode);
         });
 
-        function loadCountries() {
-            const stored = localStorage.getItem('gad_eucaris_clean_v2');
-            countries = stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(defaultCountries));
+        function initFirebase() {
+            if (firebaseConfig.apiKey.includes("PEGAR_AQUI")) {
+                console.warn("Firebase no configurado.");
+                return;
+            }
+            try {
+                app = firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                auth = firebase.auth();
+                isFirebaseActive = true;
+                
+                // Escuchar Cambios de Autenticación
+                auth.onAuthStateChanged(user => {
+                    currentUser = user;
+                    updateLoginUI();
+                    if(user) listenToCloudData(); // Si estamos logueados, escuchamos cambios en tiempo real
+                });
+
+                // Escucha de datos solo lectura pública (si las reglas lo permiten)
+                listenToCloudData(); 
+
+            } catch (e) {
+                console.error("Error Firebase:", e);
+            }
         }
 
+        function listenToCloudData() {
+            if(!isFirebaseActive) return;
+            const ref = db.ref('eucaris_links');
+            ref.on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    countriesData = val; // Sobrescribe datos con la nube
+                    localStorage.setItem('gad_eucaris_cache', JSON.stringify(countriesData)); // Guarda backup local
+                    renderCountries(document.getElementById('searchInput').value);
+                    document.getElementById('dbStatus').innerHTML = '<span class="text-green-600">● Sincronizado con Nube</span>';
+                }
+            });
+        }
+
+        function loadLocalData() {
+            const cached = localStorage.getItem('gad_eucaris_cache');
+            if(cached) countriesData = JSON.parse(cached);
+        }
+
+        // --- RENDERIZADO ---
         function renderCountries(filterText = '') {
             const container = document.getElementById('countryContainer');
             container.innerHTML = '';
             
-            countries.forEach((country, index) => {
+            defaultCountries.forEach((country) => {
                 if (filterText && !country.name.toLowerCase().includes(filterText.toLowerCase())) return;
+                
+                // Recuperar datos dinámicos (URL y Status) usando el ISO como clave
+                const dynamicData = countriesData[country.iso] || { url: '#', status: 'nodata' };
                 
                 const btn = document.createElement('div');
                 btn.className = 'country-btn';
                 
                 let statusClass = 'status-nodata';
                 let statusText = 'SIN DATOS';
-                if (country.status === 'basic') { statusClass = 'status-basic'; statusText = 'BÁSICO'; }
-                if (country.status === 'complete') { statusClass = 'status-complete'; statusText = 'COMPLETO'; }
+                if (dynamicData.status === 'basic') { statusClass = 'status-basic'; statusText = 'BÁSICO'; }
+                if (dynamicData.status === 'complete') { statusClass = 'status-complete'; statusText = 'COMPLETO'; }
 
                 let html = `
                     <span class="text-xs font-bold uppercase text-gray-800 leading-tight">${country.name}</span>
                     <img src="https://flagcdn.com/w80/${country.iso}.png" class="flag-img" alt="Flag">
                 `;
 
+                // Icono nube si hay datos
+                if(dynamicData.url && dynamicData.url !== '#') {
+                    html += `<i class="fas fa-cloud cloud-icon" style="display:block"></i>`;
+                }
+
                 if (showSoa) {
                     html += `<span class="status-badge ${statusClass}" style="display:block">${statusText}</span>`;
                 }
 
                 if (isEditMode) {
-                    const hasLink = country.url && country.url !== '#';
+                    const hasLink = dynamicData.url && dynamicData.url !== '#';
                     html += `<span class="text-[9px] mt-1 ${hasLink ? 'text-green-600 font-bold' : 'text-red-400'}">${hasLink ? 'ENLAZADO' : 'SIN ENLACE'}</span>`;
                     html += `<i class="fas fa-pen absolute top-1 right-1 text-yellow-600 text-xs"></i>`;
                 }
 
                 btn.innerHTML = html;
-                btn.onclick = () => handleCountryClick(index);
+                btn.onclick = () => handleCountryClick(country);
                 container.appendChild(btn);
             });
         }
 
-        function toggleSoa() {
-            showSoa = !showSoa;
-            const btn = document.getElementById('soaToggleBtn');
-            if (showSoa) {
-                btn.classList.remove('bg-gray-200', 'text-gray-600');
-                btn.classList.add('bg-yellow-400', 'text-blue-900', 'border-yellow-500');
-                btn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i> OCULTAR SOA';
-            } else {
-                btn.classList.add('bg-gray-200', 'text-gray-600');
-                btn.classList.remove('bg-yellow-400', 'text-blue-900', 'border-yellow-500');
-                btn.innerHTML = '<i class="fas fa-eye mr-2"></i> VERIFICAR SOA';
-            }
-            renderCountries(document.getElementById('searchInput').value);
-        }
-
-        function handleCountryClick(index) {
+        function handleCountryClick(country) {
             if (isEditMode) {
-                openEditModal(index);
+                if(!currentUser) {
+                    alert("Debes iniciar sesión (botón usuario) para editar en la nube.");
+                    return;
+                }
+                openEditModal(country);
             } else {
-                const url = countries[index].url;
+                const data = countriesData[country.iso];
+                const url = data ? data.url : '#';
+                
                 if (url && url !== '#' && url.trim() !== '') {
                     openViewer(url);
                 } else {
-                    alert('Manual no disponible. Active el modo edición para enlazarlo.');
+                    alert('Manual no disponible. Inicia sesión y edítalo.');
                 }
             }
         }
 
-        // --- FUNCIONES DEL VISOR Y LA BARRA SUPERIOR ---
-        function openViewer(url) {
-            // 1. Mostrar barra amarilla
-            document.getElementById('topBar').style.display = 'flex';
-            
-            // 2. Ocultar menú y mostrar visor
-            document.getElementById('mainInterface').style.display = 'none';
-            document.getElementById('docViewer').style.display = 'flex';
-            
-            // 3. Cargar URL
-            document.getElementById('docFrame').src = url;
-            isViewingDoc = true;
-        }
-
-        function closeViewer() {
-            // 1. Ocultar barra amarilla
-            document.getElementById('topBar').style.display = 'none';
-
-            // 2. Limpiar iframe y mostrar menú
-            document.getElementById('docFrame').src = ''; 
-            document.getElementById('docViewer').style.display = 'none';
-            document.getElementById('mainInterface').style.display = 'flex';
-            isViewingDoc = false;
-        }
-
-        function smartBack() {
-            if (isViewingDoc) {
-                closeViewer(); // Cierra el manual y vuelve a la lista de países
+        // --- AUTH ---
+        function handleLogin() {
+            if(!isFirebaseActive) return alert("Configura Firebase en el código primero.");
+            if(currentUser) {
+                if(confirm("¿Cerrar sesión?")) auth.signOut();
             } else {
-                // Si por algún error la barra fuera visible en el menú principal, esto actuaría de seguridad
-                // Pero como la barra está oculta (display:none), este caso es improbable.
-                window.location.href = 'index.html'; 
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider).catch(e => alert(e.message));
             }
         }
 
-        // --- EDICIÓN ---
-        function toggleEditMode(e) {
-            isEditMode = e.target.checked;
-            document.body.classList.toggle('edit-mode', isEditMode);
-            const resetZone = document.getElementById('resetZone');
-            resetZone.classList.toggle('hidden', !isEditMode);
-            renderCountries(document.getElementById('searchInput').value);
+        function updateLoginUI() {
+            const btn = document.getElementById('loginBtn');
+            if(currentUser) {
+                btn.classList.add('text-green-600');
+                btn.classList.remove('text-gray-400');
+            } else {
+                btn.classList.remove('text-green-600');
+                btn.classList.add('text-gray-400');
+            }
         }
 
-        function openEditModal(index) {
-            const c = countries[index];
-            document.getElementById('editIndex').value = index;
-            document.getElementById('editName').value = c.name;
-            document.getElementById('editStatus').value = c.status;
-            document.getElementById('editUrl').value = c.url === '#' ? '' : c.url;
+        // --- EDICIÓN Y GUARDADO EN FIREBASE ---
+        function openEditModal(country) {
+            const data = countriesData[country.iso] || { url: '', status: 'nodata' };
+            document.getElementById('editIndex').value = country.iso; // Usamos ISO como ID
+            document.getElementById('editName').value = country.name;
+            document.getElementById('editStatus').value = data.status;
+            document.getElementById('editUrl').value = data.url === '#' ? '' : data.url;
             document.getElementById('editModal').classList.add('active');
         }
 
         function closeModal() { document.getElementById('editModal').classList.remove('active'); }
 
         function saveEdit() {
-            const index = document.getElementById('editIndex').value;
+            const iso = document.getElementById('editIndex').value;
             const newStatus = document.getElementById('editStatus').value;
             let rawUrl = document.getElementById('editUrl').value.trim();
             let finalUrl = rawUrl;
 
-            // Reconstrucción del enlace para modo Preview
+            // Reconstrucción de Enlace
             if (rawUrl.includes("docs.google.com") && rawUrl.includes("/presentation/d/")) {
                 try {
                     let presIdMatch = rawUrl.match(/\/d\/([a-zA-Z0-9\-_]+)/);
@@ -480,18 +523,58 @@
                 } catch (e) { console.error(e); }
             }
 
-            countries[index].status = newStatus;
-            countries[index].url = finalUrl || '#';
-            localStorage.setItem('gad_eucaris_clean_v2', JSON.stringify(countries));
-            closeModal();
+            // GUARDAR EN FIREBASE
+            if (isFirebaseActive && currentUser) {
+                db.ref('eucaris_links/' + iso).set({
+                    url: finalUrl || '#',
+                    status: newStatus
+                }).then(() => {
+                    closeModal();
+                }).catch(e => alert("Error al guardar: " + e.message));
+            } else {
+                alert("Error: No estás conectado a la base de datos.");
+            }
+        }
+
+        // --- UI UTILS ---
+        function toggleSoa() {
+            showSoa = !showSoa;
+            const btn = document.getElementById('soaToggleBtn');
+            if (showSoa) {
+                btn.classList.remove('bg-gray-200', 'text-gray-600');
+                btn.classList.add('bg-yellow-400', 'text-blue-900');
+                btn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i> OCULTAR SOA';
+            } else {
+                btn.classList.add('bg-gray-200', 'text-gray-600');
+                btn.classList.remove('bg-yellow-400', 'text-blue-900');
+                btn.innerHTML = '<i class="fas fa-eye mr-2"></i> VERIFICAR SOA';
+            }
             renderCountries(document.getElementById('searchInput').value);
         }
 
-        function resetDefaults() {
-            if(confirm("¿Restaurar configuración original?")) {
-                localStorage.removeItem('gad_eucaris_clean_v2');
-                loadCountries();
-                renderCountries();
+        function toggleEditMode(e) {
+            isEditMode = e.target.checked;
+            document.body.classList.toggle('edit-mode', isEditMode);
+            renderCountries(document.getElementById('searchInput').value);
+        }
+
+        function openViewer(url) {
+            document.getElementById('topBar').style.display = 'flex';
+            document.getElementById('mainInterface').style.display = 'none';
+            document.getElementById('docViewer').style.display = 'flex';
+            document.getElementById('docFrame').src = url;
+            isViewingDoc = true;
+        }
+
+        function smartBack() {
+            if (isViewingDoc) {
+                document.getElementById('topBar').style.display = 'none';
+                document.getElementById('docFrame').src = ''; 
+                document.getElementById('docViewer').style.display = 'none';
+                document.getElementById('mainInterface').style.display = 'flex';
+                isViewingDoc = false;
+            } else {
+                window.location.href = 'index.html'; 
             }
         }
     </script>
