@@ -56,7 +56,6 @@
             font-size: 0.75rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        
         .top-back-btn:hover { background-color: #1e40af; }
 
         /* LOGO */
@@ -192,12 +191,13 @@
             background-color: #fffbeb;
         }
         
-        /* Icono Cloud */
-        .cloud-icon {
+        /* Icono Cloud (Indicador visual discreto) */
+        .cloud-indicator {
             position: absolute; top: 2px; left: 2px;
-            font-size: 0.6rem; color: #10b981;
+            font-size: 0.6rem; color: #10b981; /* Verde */
             display: none;
         }
+        body.is-connected .cloud-indicator { display: block; }
 
         /* MODAL */
         .modal-overlay {
@@ -256,16 +256,11 @@
                                 class="w-full pl-9 pr-2 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm uppercase font-bold">
                         </div>
 
-                        <div class="flex items-center gap-2">
-                            <button id="loginBtn" onclick="handleLogin()" class="text-gray-400 hover:text-blue-600">
-                                <i class="fas fa-user-circle text-xl"></i>
-                            </button>
-                            <div class="flex items-center bg-gray-100 p-1.5 rounded border border-gray-300 shrink-0">
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="editModeToggle" class="sr-only peer">
-                                    <div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-yellow-500"></div>
-                                </label>
-                            </div>
+                        <div class="flex items-center bg-gray-100 p-1.5 rounded border border-gray-300 shrink-0">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="editModeToggle" class="sr-only peer">
+                                <div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-yellow-500"></div>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -273,8 +268,8 @@
 
             <div id="countryContainer" class="country-grid pb-12"></div>
             
-            <div id="dbStatus" class="text-center text-[10px] text-gray-400 mt-4 mb-8">
-                Modo desconectado (Local)
+            <div id="connectionStatus" class="text-center text-[10px] text-gray-400 mt-4 mb-8">
+                <i class="fas fa-circle text-gray-300 mr-1"></i> Modo Local
             </div>
 
         </div>
@@ -310,7 +305,6 @@
 
     <script>
         // --- 1. PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE ---
-        // (Sustituye todo el bloque dentro de las llaves con lo que te da Firebase)
         const firebaseConfig = {
   apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
   authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -345,8 +339,7 @@
             { name: "SUECIA (S)", iso: "se" }
         ];
 
-        // Estado inicial de datos (mezcla local + nube)
-        let countriesData = {}; // Objeto para guardar { 'de': {url:..., status:...} }
+        let countriesData = {}; 
         let isEditMode = false;
         let isViewingDoc = false;
         let showSoa = false;
@@ -362,7 +355,7 @@
 
         function initFirebase() {
             if (firebaseConfig.apiKey.includes("PEGAR_AQUI")) {
-                console.warn("Firebase no configurado.");
+                console.warn("Firebase no configurado. Funcionando en modo Local.");
                 return;
             }
             try {
@@ -371,18 +364,29 @@
                 auth = firebase.auth();
                 isFirebaseActive = true;
                 
-                // Escuchar Cambios de Autenticación
+                // AUTENTICACIÓN PASIVA: 
+                // Detecta automáticamente si vienes logueado del dashboard
                 auth.onAuthStateChanged(user => {
                     currentUser = user;
-                    updateLoginUI();
-                    if(user) listenToCloudData(); // Si estamos logueados, escuchamos cambios en tiempo real
+                    updateConnectionStatus(user);
+                    if(user) {
+                        listenToCloudData(); // Si estás logueado, sincroniza
+                    }
                 });
-
-                // Escucha de datos solo lectura pública (si las reglas lo permiten)
-                listenToCloudData(); 
 
             } catch (e) {
                 console.error("Error Firebase:", e);
+            }
+        }
+
+        function updateConnectionStatus(user) {
+            const statusDiv = document.getElementById('connectionStatus');
+            if(user) {
+                document.body.classList.add('is-connected');
+                statusDiv.innerHTML = '<span class="text-green-600"><i class="fas fa-circle text-[8px] mr-1"></i> Conectado (Nube GAD)</span>';
+            } else {
+                document.body.classList.remove('is-connected');
+                statusDiv.innerHTML = '<span class="text-gray-400"><i class="far fa-circle text-[8px] mr-1"></i> Modo Local (Sin sesión)</span>';
             }
         }
 
@@ -392,10 +396,9 @@
             ref.on('value', (snapshot) => {
                 const val = snapshot.val();
                 if (val) {
-                    countriesData = val; // Sobrescribe datos con la nube
-                    localStorage.setItem('gad_eucaris_cache', JSON.stringify(countriesData)); // Guarda backup local
+                    countriesData = val; 
+                    localStorage.setItem('gad_eucaris_cache', JSON.stringify(countriesData)); 
                     renderCountries(document.getElementById('searchInput').value);
-                    document.getElementById('dbStatus').innerHTML = '<span class="text-green-600">● Sincronizado con Nube</span>';
                 }
             });
         }
@@ -413,7 +416,6 @@
             defaultCountries.forEach((country) => {
                 if (filterText && !country.name.toLowerCase().includes(filterText.toLowerCase())) return;
                 
-                // Recuperar datos dinámicos (URL y Status) usando el ISO como clave
                 const dynamicData = countriesData[country.iso] || { url: '#', status: 'nodata' };
                 
                 const btn = document.createElement('div');
@@ -425,14 +427,10 @@
                 if (dynamicData.status === 'complete') { statusClass = 'status-complete'; statusText = 'COMPLETO'; }
 
                 let html = `
+                    <i class="fas fa-cloud cloud-indicator"></i>
                     <span class="text-xs font-bold uppercase text-gray-800 leading-tight">${country.name}</span>
                     <img src="https://flagcdn.com/w80/${country.iso}.png" class="flag-img" alt="Flag">
                 `;
-
-                // Icono nube si hay datos
-                if(dynamicData.url && dynamicData.url !== '#') {
-                    html += `<i class="fas fa-cloud cloud-icon" style="display:block"></i>`;
-                }
 
                 if (showSoa) {
                     html += `<span class="status-badge ${statusClass}" style="display:block">${statusText}</span>`;
@@ -452,10 +450,6 @@
 
         function handleCountryClick(country) {
             if (isEditMode) {
-                if(!currentUser) {
-                    alert("Debes iniciar sesión (botón usuario) para editar en la nube.");
-                    return;
-                }
                 openEditModal(country);
             } else {
                 const data = countriesData[country.iso];
@@ -464,37 +458,15 @@
                 if (url && url !== '#' && url.trim() !== '') {
                     openViewer(url);
                 } else {
-                    alert('Manual no disponible. Inicia sesión y edítalo.');
+                    alert('Manual no disponible. Edítalo para añadir el enlace.');
                 }
             }
         }
 
-        // --- AUTH ---
-        function handleLogin() {
-            if(!isFirebaseActive) return alert("Configura Firebase en el código primero.");
-            if(currentUser) {
-                if(confirm("¿Cerrar sesión?")) auth.signOut();
-            } else {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                auth.signInWithPopup(provider).catch(e => alert(e.message));
-            }
-        }
-
-        function updateLoginUI() {
-            const btn = document.getElementById('loginBtn');
-            if(currentUser) {
-                btn.classList.add('text-green-600');
-                btn.classList.remove('text-gray-400');
-            } else {
-                btn.classList.remove('text-green-600');
-                btn.classList.add('text-gray-400');
-            }
-        }
-
-        // --- EDICIÓN Y GUARDADO EN FIREBASE ---
+        // --- EDICIÓN Y GUARDADO ---
         function openEditModal(country) {
             const data = countriesData[country.iso] || { url: '', status: 'nodata' };
-            document.getElementById('editIndex').value = country.iso; // Usamos ISO como ID
+            document.getElementById('editIndex').value = country.iso; 
             document.getElementById('editName').value = country.name;
             document.getElementById('editStatus').value = data.status;
             document.getElementById('editUrl').value = data.url === '#' ? '' : data.url;
@@ -523,16 +495,26 @@
                 } catch (e) { console.error(e); }
             }
 
-            // GUARDAR EN FIREBASE
+            // GUARDAR
+            // Si hay usuario logueado -> Firebase
             if (isFirebaseActive && currentUser) {
                 db.ref('eucaris_links/' + iso).set({
                     url: finalUrl || '#',
                     status: newStatus
                 }).then(() => {
                     closeModal();
-                }).catch(e => alert("Error al guardar: " + e.message));
+                }).catch(e => {
+                    // Si falla por reglas estrictas pero el usuario cree que está logueado
+                    alert("Error al guardar en Nube: " + e.message + "\n(Comprueba tus permisos en el Dashboard)");
+                });
             } else {
-                alert("Error: No estás conectado a la base de datos.");
+                // Si no hay usuario -> LocalStorage (Fallback)
+                if(!countriesData) countriesData = {};
+                countriesData[iso] = { url: finalUrl || '#', status: newStatus };
+                localStorage.setItem('gad_eucaris_cache', JSON.stringify(countriesData));
+                renderCountries(document.getElementById('searchInput').value);
+                closeModal();
+                alert("Guardado en LOCAL (No conectado a Nube).");
             }
         }
 
