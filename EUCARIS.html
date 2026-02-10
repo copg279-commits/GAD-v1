@@ -2,17 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=10.0, user-scalable=yes">
     <title>GAD - Manual EUCARIS</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
     <style>
         /* ESTILOS GLOBALES */
         body {
@@ -25,10 +21,10 @@
             overflow: hidden; 
         }
 
-        /* CABECERA AZUL */
+        /* --- CAMBIO SOLICITADO: BARRA AMARILLA --- */
         .top-bar-strip {
-            background-color: #1e3a8a;
-            color: white;
+            background-color: #f59e0b; /* Amarillo Policía */
+            color: #1e3a8a; /* Texto Azul Oscuro para contraste */
             display: flex;
             align-items: center;
             padding: 0 10px;
@@ -36,42 +32,24 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             z-index: 100;
             flex-shrink: 0;
+            font-weight: 800; /* Letra más gruesa */
         }
 
+        /* Botón Volver (Estilo adaptado al fondo amarillo) */
         .top-back-btn {
-            background-color: #dc2626;
+            background-color: #1e3a8a; /* Azul botón */
+            color: white; /* Texto blanco */
             border: none;
             margin-right: 10px;
             font-weight: bold;
             cursor: pointer;
             padding: 0 15px;
             border-radius: 4px;
-            color: white;
-            height: 30px;
+            height: 32px;
             display: flex; align-items: center;
             text-decoration: none;
             font-size: 0.8rem;
-        }
-
-        /* BOTÓN LOGIN */
-        .auth-btn {
-            background-color: #f59e0b; /* Amarillo Policía */
-            color: #1e3a8a;
-            font-weight: 800;
-            border: none;
-            padding: 0 12px;
-            border-radius: 4px;
-            height: 30px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            margin-left: auto; /* Empujar a la derecha */
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .auth-btn.logged-in {
-            background-color: #10b981; /* Verde conectado */
-            color: white;
         }
 
         /* LOGO */
@@ -89,8 +67,8 @@
         }
 
         .logo-container {
-            width: 120px;
-            height: 120px;
+            width: 110px;
+            height: 110px;
             border-radius: 50%;
             overflow: hidden;
             background-color: #1e40af;
@@ -118,10 +96,10 @@
             flex-grow: 1;
         }
 
-        /* VISOR DE DOCUMENTOS */
+        /* VISOR DE DOCUMENTOS (ZOOM MEJORADO) */
         #docViewer {
             position: fixed;
-            top: 50px;
+            top: 50px; /* Debajo de la barra amarilla */
             left: 0;
             width: 100%;
             height: calc(100vh - 50px);
@@ -129,12 +107,16 @@
             z-index: 200;
             display: none; 
             flex-direction: column;
+            overflow: auto; /* Permite scroll si se hace zoom */
+            -webkit-overflow-scrolling: touch;
         }
 
         #docViewer iframe {
             width: 100%;
             height: 100%;
             border: none;
+            /* Truco para mejorar el comportamiento táctil */
+            touch-action: pan-x pan-y pinch-zoom;
         }
 
         .card-gad {
@@ -155,9 +137,6 @@
         }
         @media (min-width: 640px) {
             .country-grid { grid-template-columns: repeat(3, 1fr); }
-        }
-        @media (min-width: 768px) {
-            .country-grid { grid-template-columns: repeat(4, 1fr); }
         }
 
         .country-btn {
@@ -180,7 +159,6 @@
 
         .country-btn:active { transform: scale(0.98); background-color: #eff6ff; }
 
-        /* Estilos Banderas */
         .flag-img {
             width: 32px;
             height: auto;
@@ -189,7 +167,6 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
-        /* Estilos Estado SOA */
         .status-badge {
             font-size: 0.65rem;
             padding: 2px 6px;
@@ -197,7 +174,7 @@
             font-weight: bold;
             width: 90%;
             text-align: center;
-            display: none; /* Oculto por defecto */
+            display: none; 
         }
         .status-complete { color: #065f46; background-color: #d1fae5; border: 1px solid #34d399; }
         .status-basic { color: #92400e; background-color: #fef3c7; border: 1px solid #fcd34d; }
@@ -208,15 +185,6 @@
             border: 2px dashed #f59e0b;
             background-color: #fffbeb;
         }
-        /* Indicador Cloud */
-        .cloud-sync-icon {
-            position: absolute;
-            top: 2px; left: 2px;
-            font-size: 10px;
-            color: #10b981;
-            display: none;
-        }
-        body.logged-in .cloud-sync-icon { display: block; }
 
         /* MODAL */
         .modal-overlay {
@@ -240,11 +208,7 @@
             <i class="fas fa-arrow-left mr-2"></i> <span id="backBtnText">VOLVER</span>
         </button>
         
-        <span class="font-bold text-xs uppercase tracking-widest hidden sm:block">GAD ALICANTE</span>
-
-        <button id="authBtn" onclick="toggleAuth()" class="auth-btn">
-            <i class="fab fa-google mr-2"></i> <span>ACCESO GAD</span>
-        </button>
+        <span class="font-bold text-xs uppercase tracking-widest ml-auto text-blue-900">GAD ALICANTE</span>
     </div>
 
     <div id="docViewer">
@@ -293,7 +257,7 @@
             <div id="countryContainer" class="country-grid pb-12"></div>
             
             <div id="resetZone" class="hidden text-center mt-8 mb-8">
-                <button onclick="resetDefaults()" class="text-xs text-red-600 underline">Restaurar local</button>
+                <button onclick="resetDefaults()" class="text-xs text-red-600 underline">Restaurar todo</button>
             </div>
 
         </div>
@@ -302,8 +266,8 @@
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
             <h3 class="text-lg font-bold text-blue-900 mb-2">Editar Enlace</h3>
-            <p id="saveStatusMsg" class="text-xs text-gray-500 mb-4 bg-blue-50 p-2 rounded border border-blue-200">
-                <i class="fas fa-sync"></i> Se guardará en <b>LOCAL</b> (conéctate para nube).
+            <p class="text-xs text-gray-500 mb-4 bg-green-50 p-2 rounded border border-green-200">
+                <i class="fas fa-check-circle"></i> <b>CONFIGURACIÓN LOCAL:</b> Estos cambios se guardan solo en este dispositivo. Para cambios globales, edita el archivo en GitHub.
             </p>
             <input type="hidden" id="editIndex">
             
@@ -317,7 +281,7 @@
                 <option value="complete">COMPLETO (Verde)</option>
             </select>
 
-            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE DRIVE (Pega tal cual)</label>
+            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE DRIVE (Pega el enlace completo)</label>
             <textarea id="editUrl" rows="3" class="w-full border p-2 rounded mb-4 text-xs font-mono"></textarea>
 
             <div class="flex gap-2">
@@ -328,37 +292,7 @@
     </div>
 
     <script>
-        // --- CONFIGURACIÓN FIREBASE (RELLENAR AQUÍ) ---
-        const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
-
-        // --- INICIALIZACIÓN FIREBASE SEGURA ---
-        let app, auth, db;
-        let isFirebaseReady = false;
-        let currentUser = null;
-
-        try {
-            if (firebaseConfig.apiKey !== "PON_AQUI_TU_API_KEY") {
-                app = firebase.initializeApp(firebaseConfig);
-                auth = firebase.auth();
-                db = firebase.database();
-                isFirebaseReady = true;
-                console.log("Firebase inicializado correctamente.");
-            } else {
-                console.log("Firebase no configurado. Modo Local.");
-            }
-        } catch (e) {
-            console.error("Error iniciando Firebase:", e);
-        }
-
-        // --- DATOS MAESTROS ---
+        // DATOS MAESTROS - AQUÍ ES DONDE DEBES PEGAR LOS ENLACES PARA QUE SEAN PERMANENTES EN GITHUB
         const defaultCountries = [
             { name: "ALEMANIA (D)", iso: "de", status: "nodata", url: "#" },
             { name: "AUSTRIA (A)", iso: "at", status: "basic", url: "#" },
@@ -395,91 +329,17 @@
         let showSoa = false;
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadCountriesLocal(); // Carga inmediata local
+            loadCountries();
             renderCountries();
-            
             document.getElementById('searchInput').addEventListener('input', (e) => renderCountries(e.target.value));
             document.getElementById('editModeToggle').addEventListener('change', toggleEditMode);
-
-            // Listener de Auth si Firebase está activo
-            if (isFirebaseReady) {
-                auth.onAuthStateChanged((user) => {
-                    currentUser = user;
-                    updateAuthUI();
-                    if (user) {
-                        syncFromFirebase(); // Descargar datos nube
-                    } else {
-                        loadCountriesLocal(); // Volver a local si sale
-                    }
-                });
-            }
         });
 
-        // --- GESTIÓN DE DATOS (HÍBRIDO) ---
-
-        function loadCountriesLocal() {
-            const stored = localStorage.getItem('gad_eucaris_hybrid_v1');
+        function loadCountries() {
+            const stored = localStorage.getItem('gad_eucaris_clean_v1');
             countries = stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(defaultCountries));
-            renderCountries();
         }
 
-        function syncFromFirebase() {
-            // Escuchar nodo 'Eucaris'
-            db.ref('Eucaris').on('value', (snapshot) => {
-                const cloudData = snapshot.val();
-                if (cloudData) {
-                    // Mezclar datos nube con la estructura local (para mantener orden de array)
-                    countries = defaultCountries.map(defaultC => {
-                        // Buscamos si existe carpeta con el nombre del país
-                        // IMPORTANTE: Firebase keys no pueden tener ciertos caracteres.
-                        // Usaremos el nombre tal cual si es válido, si no, hay que tener cuidado.
-                        // "ALEMANIA (D)" es una key válida.
-                        const cloudC = cloudData[defaultC.name]; 
-                        if (cloudC) {
-                            return { ...defaultC, ...cloudC }; // Sobrescribir status/url
-                        }
-                        return defaultC;
-                    });
-                    // Guardar copia local por si se va internet
-                    localStorage.setItem('gad_eucaris_hybrid_v1', JSON.stringify(countries));
-                    renderCountries();
-                    console.log("Datos sincronizados desde Nube.");
-                }
-            });
-        }
-
-        // --- AUTH ---
-        function toggleAuth() {
-            if (!isFirebaseReady) return alert("Firebase no configurado en el código.");
-            
-            if (currentUser) {
-                auth.signOut();
-            } else {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                auth.signInWithPopup(provider).catch(e => alert("Error login: " + e.message));
-            }
-        }
-
-        function updateAuthUI() {
-            const btn = document.getElementById('authBtn');
-            const saveMsg = document.getElementById('saveStatusMsg');
-            
-            if (currentUser) {
-                btn.classList.add('logged-in');
-                btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> CONECTADO';
-                document.body.classList.add('logged-in');
-                saveMsg.innerHTML = '<i class="fas fa-cloud-upload-alt text-green-600"></i> Guardando en <b>NUBE (Firebase)</b>';
-                saveMsg.className = "text-xs text-green-700 mb-4 bg-green-50 p-2 rounded border border-green-200";
-            } else {
-                btn.classList.remove('logged-in');
-                btn.innerHTML = '<i class="fab fa-google mr-2"></i> ACCESO GAD';
-                document.body.classList.remove('logged-in');
-                saveMsg.innerHTML = '<i class="fas fa-save text-blue-600"></i> Guardando en <b>LOCAL</b> (conéctate para nube)';
-                saveMsg.className = "text-xs text-blue-700 mb-4 bg-blue-50 p-2 rounded border border-blue-200";
-            }
-        }
-
-        // --- RENDERIZADO ---
         function renderCountries(filterText = '') {
             const container = document.getElementById('countryContainer');
             container.innerHTML = '';
@@ -496,7 +356,6 @@
                 if (country.status === 'complete') { statusClass = 'status-complete'; statusText = 'COMPLETO'; }
 
                 let html = `
-                    <i class="fas fa-cloud cloud-sync-icon"></i>
                     <span class="text-xs font-bold uppercase text-gray-800 leading-tight">${country.name}</span>
                     <img src="https://flagcdn.com/w80/${country.iso}.png" class="flag-img" alt="Flag">
                 `;
@@ -569,12 +428,13 @@
         function updateBackBtn() {
             const txt = document.getElementById('backBtnText');
             const btn = document.querySelector('.top-back-btn');
+            // La barra es siempre amarilla, cambiamos el color del botón
             if (isViewingDoc) {
                 txt.innerText = "CERRAR MANUAL";
-                btn.style.backgroundColor = "#d97706";
+                btn.style.backgroundColor = "#d97706"; // Ambar oscuro
             } else {
                 txt.innerText = "VOLVER";
-                btn.style.backgroundColor = "#dc2626";
+                btn.style.backgroundColor = "#1e3a8a"; // Azul oscuro
             }
         }
 
@@ -597,15 +457,13 @@
 
         function closeModal() { document.getElementById('editModal').classList.remove('active'); }
 
-        // --- GUARDADO HÍBRIDO (LOCAL + CLOUD) ---
         function saveEdit() {
             const index = document.getElementById('editIndex').value;
-            const name = countries[index].name; // Nombre como Key
             const newStatus = document.getElementById('editStatus').value;
             let rawUrl = document.getElementById('editUrl').value.trim();
             let finalUrl = rawUrl;
 
-            // Lógica Quirúrgica: Reconstrucción total
+            // Lógica Quirúrgica: Reconstrucción total para evitar errores de Google
             if (rawUrl.includes("docs.google.com") && rawUrl.includes("/presentation/d/")) {
                 try {
                     let presIdMatch = rawUrl.match(/\/d\/([a-zA-Z0-9\-_]+)/);
@@ -619,33 +477,20 @@
                 } catch (e) { console.error(e); }
             }
 
-            // 1. Actualizar array en Memoria
             countries[index].status = newStatus;
             countries[index].url = finalUrl || '#';
-
-            // 2. Guardar en LocalStorage (Siempre)
-            localStorage.setItem('gad_eucaris_hybrid_v1', JSON.stringify(countries));
-
-            // 3. Guardar en Firebase (Si está conectado)
-            if (isFirebaseReady && currentUser) {
-                // Estructura: Eucaris / [NombrePais] / { url: ..., status: ... }
-                db.ref('Eucaris/' + name).set({
-                    url: finalUrl || '#',
-                    status: newStatus,
-                    iso: countries[index].iso
-                }).then(() => {
-                    console.log("Guardado en nube: " + name);
-                }).catch(e => alert("Error subiendo a nube: " + e.message));
-            }
-
+            
+            // Guardamos en LocalStorage (Solo el usuario actual verá los cambios)
+            localStorage.setItem('gad_eucaris_clean_v1', JSON.stringify(countries));
+            
             closeModal();
             renderCountries(document.getElementById('searchInput').value);
         }
 
         function resetDefaults() {
-            if(confirm("¿Restaurar local a valores originales? (No borra la nube)")) {
-                localStorage.removeItem('gad_eucaris_hybrid_v1');
-                loadCountriesLocal();
+            if(confirm("¿Restaurar configuración original?")) {
+                localStorage.removeItem('gad_eucaris_clean_v1');
+                loadCountries();
                 renderCountries();
             }
         }
