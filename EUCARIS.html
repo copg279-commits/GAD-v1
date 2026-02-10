@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=10.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>GAD - Manual EUCARIS</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -72,8 +72,8 @@
         .country-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 10px;
+            gap: 12px;
+            margin-top: 15px;
         }
         @media (min-width: 640px) {
             .country-grid { grid-template-columns: repeat(3, 1fr); }
@@ -93,16 +93,15 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            min-height: 100px;
+            min-height: 110px; /* Un poco más alto para que quepa todo */
             position: relative;
-            text-decoration: none; /* Para enlace */
         }
 
         .country-btn:active { transform: scale(0.98); background-color: #eff6ff; }
         .country-btn:hover { border-color: #1e40af; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 
         .flag-img {
-            width: 36px;
+            width: 40px;
             height: auto;
             border-radius: 4px;
             margin: 8px 0;
@@ -111,13 +110,14 @@
 
         .status-badge {
             font-size: 0.65rem;
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-weight: bold;
+            font-weight: 800;
             width: 90%;
             text-align: center;
-            display: none; 
-            margin-top: 4px;
+            display: none; /* Oculto por defecto hasta pulsar botón */
+            margin-top: 5px;
+            letter-spacing: 0.5px;
         }
         
         .status-complete { color: #065f46; background-color: #d1fae5; border: 1px solid #34d399; } 
@@ -129,8 +129,9 @@
             background-color: #fffbeb;
         }
         
+        /* Icono Cloud discreto */
         .cloud-indicator {
-            position: absolute; top: 3px; left: 3px;
+            position: absolute; top: 4px; left: 4px;
             font-size: 0.7rem; color: #10b981; 
             display: none;
         }
@@ -192,24 +193,27 @@
         <div id="countryContainer" class="country-grid pb-12"></div>
         
         <div id="connectionStatus" class="text-center text-[10px] text-gray-400 mt-4 mb-8">
-            Iniciando sistema...
+            Verificando sesión...
         </div>
 
     </div>
 
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 class="text-lg font-bold text-blue-900 mb-2">Editar Enlace</h3>
+            <h3 class="text-lg font-bold text-blue-900 mb-2">Configurar País</h3>
+            
             <p id="authWarning" class="hidden text-xs text-red-600 mb-2 font-bold bg-red-100 p-2 rounded">
-                <i class="fas fa-exclamation-triangle"></i> ERROR: No se detecta sesión.
+                <i class="fas fa-exclamation-triangle"></i> ERROR: No hay sesión activa.
             </p>
+            
             <p class="text-xs text-gray-500 mb-4 bg-blue-50 p-2 rounded border border-blue-200">
-                <i class="fas fa-database"></i> Nodo Firebase: <b id="nodeNameDisplay"></b>
+                <i class="fas fa-database"></i> <b>CONSEJO:</b> Sube el PDF o JPG a Firebase Storage y pega aquí el enlace que te den ("Download URL").
             </p>
+            
             <input type="hidden" id="editIndex">
             
-            <label class="block text-xs font-bold text-gray-700 mb-1">PAÍS</label>
-            <input type="text" id="editName" class="w-full border p-2 rounded mb-3 bg-gray-100 text-sm" readonly>
+            <label class="block text-xs font-bold text-gray-700 mb-1">PAÍS (Clave de guardado)</label>
+            <input type="text" id="editName" class="w-full border p-2 rounded mb-3 bg-gray-100 text-sm font-bold text-blue-900" readonly>
             
             <label class="block text-xs font-bold text-gray-700 mb-1">ESTADO SEGURO (SOA)</label>
             <select id="editStatus" class="w-full border p-2 rounded mb-3 text-sm bg-white">
@@ -218,12 +222,12 @@
                 <option value="complete">COMPLETO (Verde)</option>
             </select>
 
-            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE DRIVE</label>
-            <textarea id="editUrl" rows="3" class="w-full border p-2 rounded mb-4 text-xs font-mono"></textarea>
+            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE AL DOCUMENTO</label>
+            <textarea id="editUrl" rows="4" class="w-full border p-2 rounded mb-4 text-xs font-mono text-gray-600" placeholder="https://firebasestorage.googleapis.com/..."></textarea>
 
             <div class="flex gap-2">
-                <button onclick="closeModal()" class="flex-1 bg-gray-300 py-2 rounded font-bold text-sm">Cancelar</button>
-                <button onclick="saveEdit()" class="flex-1 bg-blue-800 text-white py-2 rounded font-bold text-sm">Guardar</button>
+                <button onclick="closeModal()" class="flex-1 bg-gray-300 py-2 rounded font-bold text-sm text-gray-700">Cancelar</button>
+                <button onclick="saveEdit()" class="flex-1 bg-blue-800 text-white py-2 rounded font-bold text-sm hover:bg-blue-900">Guardar</button>
             </div>
         </div>
     </div>
@@ -245,7 +249,7 @@
         let isFirebaseActive = false;
         let currentUser = null;
 
-        // LISTA MAESTRA (DATOS SOA PRECARGADOS)
+        // LISTA MAESTRA (Con tus datos SOA precargados)
         const defaultCountries = [
             { name: "ALEMANIA (D)", iso: "de", defStatus: "nodata" }, 
             { name: "AUSTRIA (A)", iso: "at", defStatus: "basic" },
@@ -302,11 +306,11 @@
                 auth.onAuthStateChanged(user => {
                     if (user) {
                         currentUser = user;
-                        document.getElementById('connectionStatus').innerHTML = `<span class="text-green-600 font-bold"><i class="fas fa-wifi"></i> Conectado</span>`;
+                        document.getElementById('connectionStatus').innerHTML = `<span class="text-green-600 font-bold"><i class="fas fa-wifi"></i> Conectado (Nube GAD)</span>`;
                         listenToCloudData();
                     } else {
                         currentUser = null;
-                        document.getElementById('connectionStatus').innerHTML = '<span class="text-gray-400">Lectura Local</span>';
+                        document.getElementById('connectionStatus').innerHTML = '<span class="text-gray-400">Modo Local (Lectura)</span>';
                     }
                 });
             } catch (e) { console.error(e); }
@@ -314,7 +318,7 @@
 
         function listenToCloudData() {
             if(!isFirebaseActive) return;
-            // NODO PRINCIPAL: Eucaris
+            // ESCUCHA DEL NODO "Eucaris"
             db.ref('Eucaris').on('value', (snapshot) => {
                 const val = snapshot.val();
                 if (val) {
@@ -331,12 +335,14 @@
             defaultCountries.forEach((country) => {
                 if (filterText && !country.name.toLowerCase().includes(filterText.toLowerCase())) return;
                 
+                // Clave: NOMBRE DEL PAIS
                 const firebaseKey = country.name;
                 const cloudEntry = countriesData[firebaseKey] || {};
+                
+                // Preferencia: Nube > Default
                 const status = cloudEntry.status || country.defStatus;
                 const url = cloudEntry.url || '#';
                 
-                // Creamos un DIV, pero manejaremos el click para abrir nueva pestaña
                 const btn = document.createElement('div');
                 btn.className = 'country-btn';
                 
@@ -375,20 +381,22 @@
                 openEditModal(country, key, url, status);
             } else {
                 if (url && url !== '#' && url.trim() !== '') {
-                    // AQUÍ ESTÁ LA MAGIA DEL ZOOM: ABRIR EN NUEVA PESTAÑA
+                    // AQUÍ ESTÁ LA CLAVE: ABRIR EN PESTAÑA NUEVA (_blank)
+                    // Esto permite zoom nativo y evita problemas de carga.
                     window.open(url, '_blank');
                 } else {
-                    alert('Manual no disponible. Edítalo para añadir el enlace.');
+                    alert('Documento no disponible. Añade el enlace en modo edición.');
                 }
             }
         }
 
-        // --- EDICIÓN ---
+        // --- EDICIÓN Y GUARDADO ---
         function openEditModal(country, key, url, status) {
-            if (!currentUser) alert("Aviso: No estás logueado. No se guardará en la nube.");
+            const warning = document.getElementById('authWarning');
+            warning.classList.toggle('hidden', !!currentUser);
             
             document.getElementById('nodeNameDisplay').innerText = `Eucaris/${key}`;
-            document.getElementById('editIndex').value = key; 
+            document.getElementById('editIndex').value = key;
             document.getElementById('editName').value = country.name;
             document.getElementById('editStatus').value = status;
             document.getElementById('editUrl').value = url === '#' ? '' : url;
@@ -400,22 +408,10 @@
         function saveEdit() {
             const key = document.getElementById('editIndex').value;
             const newStatus = document.getElementById('editStatus').value;
-            let rawUrl = document.getElementById('editUrl').value.trim();
-            let finalUrl = rawUrl;
+            let finalUrl = document.getElementById('editUrl').value.trim();
 
-            // Reconstrucción del enlace
-            if (rawUrl.includes("docs.google.com") && rawUrl.includes("/presentation/d/")) {
-                try {
-                    let presIdMatch = rawUrl.match(/\/d\/([a-zA-Z0-9\-_]+)/);
-                    let slideIdMatch = rawUrl.match(/(id\.[a-zA-Z0-9\.\-_]+)/);
-                    if (presIdMatch && presIdMatch[1]) {
-                        finalUrl = `https://docs.google.com/presentation/d/${presIdMatch[1]}/preview`;
-                        if (slideIdMatch && slideIdMatch[1]) {
-                            finalUrl += `?slide=${slideIdMatch[1]}`;
-                        }
-                    }
-                } catch (e) { console.error(e); }
-            }
+            // No hacemos magia con el enlace. Lo que pegues, se guarda.
+            // Recomendamos enlaces directos a archivos (Storage) o PDFs públicos.
 
             if (isFirebaseActive && currentUser) {
                 db.ref('Eucaris/' + key).set({
@@ -424,7 +420,7 @@
                 }).then(() => {
                     closeModal();
                 }).catch(e => {
-                    alert("Error Firebase: " + e.message);
+                    alert("Error guardando en Firebase: " + e.message);
                 });
             } else {
                 alert("ERROR: No hay sesión activa. No se puede guardar en la nube.");
@@ -437,11 +433,11 @@
             const btn = document.getElementById('soaToggleBtn');
             if (showSoa) {
                 btn.classList.remove('bg-gray-200', 'text-gray-600');
-                btn.classList.add('bg-yellow-400', 'text-blue-900');
+                btn.classList.add('bg-yellow-400', 'text-blue-900', 'border-yellow-500');
                 btn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i> OCULTAR SOA';
             } else {
                 btn.classList.add('bg-gray-200', 'text-gray-600');
-                btn.classList.remove('bg-yellow-400', 'text-blue-900');
+                btn.classList.remove('bg-yellow-400', 'text-blue-900', 'border-yellow-500');
                 btn.innerHTML = '<i class="fas fa-eye mr-2"></i> VERIFICAR SOA';
             }
             renderCountries(document.getElementById('searchInput').value);
