@@ -79,6 +79,7 @@
             .country-grid { grid-template-columns: repeat(3, 1fr); }
         }
 
+        /* ESTILO DEL BOTÓN PAÍS */
         .country-btn {
             background-color: white;
             border: 1px solid #d1d5db;
@@ -93,8 +94,8 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            min-height: 110px; /* Un poco más alto para que quepa todo */
-            position: relative;
+            min-height: 110px;
+            position: relative; /* Clave para posicionar el lápiz */
         }
 
         .country-btn:active { transform: scale(0.98); background-color: #eff6ff; }
@@ -106,6 +107,7 @@
             border-radius: 4px;
             margin: 8px 0;
             box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            pointer-events: none; /* Evita que la imagen interfiera en el clic */
         }
 
         .status-badge {
@@ -115,21 +117,48 @@
             font-weight: 800;
             width: 90%;
             text-align: center;
-            display: none; /* Oculto por defecto hasta pulsar botón */
+            display: none; 
             margin-top: 5px;
             letter-spacing: 0.5px;
+            pointer-events: none;
         }
         
         .status-complete { color: #065f46; background-color: #d1fae5; border: 1px solid #34d399; } 
         .status-basic { color: #92400e; background-color: #fef3c7; border: 1px solid #fcd34d; } 
         .status-nodata { color: #991b1b; background-color: #fee2e2; border: 1px solid #f87171; } 
 
+        /* MODO EDICIÓN */
         body.edit-mode .country-btn {
             border: 2px dashed #f59e0b;
             background-color: #fffbeb;
         }
         
-        /* Icono Cloud discreto */
+        /* BOTÓN LÁPIZ REPARADO */
+        .edit-icon-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #f59e0b;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: none; /* Oculto por defecto */
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 50; /* Por encima de todo */
+            border: 2px solid white;
+            cursor: pointer;
+        }
+        
+        /* Solo se muestra si body tiene clase edit-mode */
+        body.edit-mode .edit-icon-btn {
+            display: flex;
+        }
+
+        /* Icono Cloud */
         .cloud-indicator {
             position: absolute; top: 4px; left: 4px;
             font-size: 0.7rem; color: #10b981; 
@@ -193,21 +222,21 @@
         <div id="countryContainer" class="country-grid pb-12"></div>
         
         <div id="connectionStatus" class="text-center text-[10px] text-gray-400 mt-4 mb-8">
-            Verificando sesión...
+            Iniciando sistema...
         </div>
 
     </div>
 
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 class="text-lg font-bold text-blue-900 mb-2">Configurar País</h3>
+            <h3 class="text-lg font-bold text-blue-900 mb-2">Configurar PDF/Enlace</h3>
             
             <p id="authWarning" class="hidden text-xs text-red-600 mb-2 font-bold bg-red-100 p-2 rounded">
                 <i class="fas fa-exclamation-triangle"></i> ERROR: No hay sesión activa.
             </p>
             
             <p class="text-xs text-gray-500 mb-4 bg-blue-50 p-2 rounded border border-blue-200">
-                <i class="fas fa-database"></i> <b>CONSEJO:</b> Sube el PDF o JPG a Firebase Storage y pega aquí el enlace que te den ("Download URL").
+                <i class="fas fa-database"></i> <b>INSTRUCCIÓN:</b> Pega aquí el enlace de descarga de tu PDF (desde Firebase Storage o Drive).
             </p>
             
             <input type="hidden" id="editIndex">
@@ -222,8 +251,8 @@
                 <option value="complete">COMPLETO (Verde)</option>
             </select>
 
-            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE AL DOCUMENTO</label>
-            <textarea id="editUrl" rows="4" class="w-full border p-2 rounded mb-4 text-xs font-mono text-gray-600" placeholder="https://firebasestorage.googleapis.com/..."></textarea>
+            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE AL PDF/DOCUMENTO</label>
+            <textarea id="editUrl" rows="4" class="w-full border p-2 rounded mb-4 text-xs font-mono text-gray-600" placeholder="https://..."></textarea>
 
             <div class="flex gap-2">
                 <button onclick="closeModal()" class="flex-1 bg-gray-300 py-2 rounded font-bold text-sm text-gray-700">Cancelar</button>
@@ -249,7 +278,7 @@
         let isFirebaseActive = false;
         let currentUser = null;
 
-        // LISTA MAESTRA (Con tus datos SOA precargados)
+        // LISTA MAESTRA
         const defaultCountries = [
             { name: "ALEMANIA (D)", iso: "de", defStatus: "nodata" }, 
             { name: "AUSTRIA (A)", iso: "at", defStatus: "basic" },
@@ -335,11 +364,8 @@
             defaultCountries.forEach((country) => {
                 if (filterText && !country.name.toLowerCase().includes(filterText.toLowerCase())) return;
                 
-                // Clave: NOMBRE DEL PAIS
                 const firebaseKey = country.name;
                 const cloudEntry = countriesData[firebaseKey] || {};
-                
-                // Preferencia: Nube > Default
                 const status = cloudEntry.status || country.defStatus;
                 const url = cloudEntry.url || '#';
                 
@@ -364,38 +390,50 @@
                     html += `<span class="status-badge ${statusClass}" style="display:block">${statusText}</span>`;
                 }
 
+                // URL pequeña en modo edición (visual)
                 if (isEditMode) {
                     const hasLink = url && url !== '#';
                     html += `<span class="text-[9px] mt-1 ${hasLink ? 'text-green-600 font-bold' : 'text-red-400'}">${hasLink ? 'ENLAZADO' : 'SIN ENLACE'}</span>`;
-                    html += `<i class="fas fa-pen absolute top-1 right-1 text-yellow-600 text-xs"></i>`;
+                    
+                    // BOTÓN LÁPIZ (SEPARADO Y SUPERPUESTO)
+                    // Este div es el que captura el clic de edición
+                    const editIcon = document.createElement('div');
+                    editIcon.className = 'edit-icon-btn';
+                    editIcon.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+                    
+                    // IMPORTANTE: stopPropagation evita que al hacer clic en el lápiz se abra el PDF
+                    editIcon.onclick = (e) => {
+                        e.stopPropagation();
+                        openEditModal(country, firebaseKey, url, status);
+                    };
+                    btn.appendChild(editIcon);
                 }
 
-                btn.innerHTML = html;
-                btn.onclick = () => handleCountryClick(country, firebaseKey, url, status);
+                // El clic principal del botón abre el PDF
+                btn.onclick = () => handleCountryClick(url);
+                
+                // Insertamos el HTML base
+                btn.insertAdjacentHTML('afterbegin', html);
                 container.appendChild(btn);
             });
         }
 
-        function handleCountryClick(country, key, url, status) {
-            if (isEditMode) {
-                openEditModal(country, key, url, status);
+        function handleCountryClick(url) {
+            // Si estamos en modo edición, el clic en el cuerpo del botón no debe hacer nada (usamos el lápiz)
+            if (isEditMode) return; 
+
+            if (url && url !== '#' && url.trim() !== '') {
+                // ABRIR EN PESTAÑA NUEVA PARA ZOOM
+                window.open(url, '_blank');
             } else {
-                if (url && url !== '#' && url.trim() !== '') {
-                    // AQUÍ ESTÁ LA CLAVE: ABRIR EN PESTAÑA NUEVA (_blank)
-                    // Esto permite zoom nativo y evita problemas de carga.
-                    window.open(url, '_blank');
-                } else {
-                    alert('Documento no disponible. Añade el enlace en modo edición.');
-                }
+                alert('Documento no disponible. Añade el enlace en modo edición.');
             }
         }
 
         // --- EDICIÓN Y GUARDADO ---
         function openEditModal(country, key, url, status) {
-            const warning = document.getElementById('authWarning');
-            warning.classList.toggle('hidden', !!currentUser);
+            if (!currentUser) alert("Aviso: No estás logueado. No se guardará en la nube.");
             
-            document.getElementById('nodeNameDisplay').innerText = `Eucaris/${key}`;
             document.getElementById('editIndex').value = key;
             document.getElementById('editName').value = country.name;
             document.getElementById('editStatus').value = status;
@@ -409,9 +447,6 @@
             const key = document.getElementById('editIndex').value;
             const newStatus = document.getElementById('editStatus').value;
             let finalUrl = document.getElementById('editUrl').value.trim();
-
-            // No hacemos magia con el enlace. Lo que pegues, se guarda.
-            // Recomendamos enlaces directos a archivos (Storage) o PDFs públicos.
 
             if (isFirebaseActive && currentUser) {
                 db.ref('Eucaris/' + key).set({
@@ -433,11 +468,11 @@
             const btn = document.getElementById('soaToggleBtn');
             if (showSoa) {
                 btn.classList.remove('bg-gray-200', 'text-gray-600');
-                btn.classList.add('bg-yellow-400', 'text-blue-900', 'border-yellow-500');
+                btn.classList.add('bg-yellow-400', 'text-blue-900');
                 btn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i> OCULTAR SOA';
             } else {
                 btn.classList.add('bg-gray-200', 'text-gray-600');
-                btn.classList.remove('bg-yellow-400', 'text-blue-900', 'border-yellow-500');
+                btn.classList.remove('bg-yellow-400', 'text-blue-900');
                 btn.innerHTML = '<i class="fas fa-eye mr-2"></i> VERIFICAR SOA';
             }
             renderCountries(document.getElementById('searchInput').value);
