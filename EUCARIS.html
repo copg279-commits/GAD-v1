@@ -21,8 +21,41 @@
             margin: 0; padding: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100vh; /* Altura fija para el visor */
+            overflow: hidden; 
         }
+
+        /* BARRA SUPERIOR (VISIBLE SOLO EN VISOR) */
+        .top-bar-strip {
+            background-color: #FFD700; 
+            color: #1e3a8a;
+            display: none; /* Oculto inicio */
+            align-items: center;
+            padding: 0 10px;
+            height: 50px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 100;
+            flex-shrink: 0;
+            font-weight: 800;
+            width: 100%;
+        }
+
+        .top-back-btn {
+            background-color: #1e3a8a;
+            color: white;
+            border: none;
+            margin-right: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 15px;
+            border-radius: 4px;
+            height: 34px;
+            display: flex; align-items: center;
+            text-decoration: none;
+            font-size: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .top-back-btn:hover { background-color: #1e40af; }
 
         /* LOGO */
         header.logo-header {
@@ -31,7 +64,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 1.5rem 0;
+            padding: 1rem 0;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             position: relative;
             z-index: 40;
@@ -39,8 +72,8 @@
         }
 
         .logo-container {
-            width: 120px;
-            height: 120px;
+            width: 110px;
+            height: 110px;
             border-radius: 50%;
             overflow: hidden;
             background-color: #1e40af;
@@ -49,14 +82,42 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
 
-        /* CONTENEDOR PRINCIPAL */
+        /* CONTENEDOR PRINCIPAL SCROLLABLE */
+        .scroll-container {
+            flex-grow: 1;
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
         .main-content-wrapper {
             width: 100%;
             max-width: 900px;
-            margin: 1rem auto;
-            padding: 0 15px;
+            margin: 0.5rem auto;
+            padding: 0 10px;
             box-sizing: border-box;
             flex-grow: 1;
+        }
+
+        /* VISOR DE DOCUMENTOS (IFRAME) */
+        #docViewer {
+            position: fixed;
+            top: 50px; /* Debajo de la barra amarilla */
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 50px);
+            background: white;
+            z-index: 200;
+            display: none; 
+            flex-direction: column;
+        }
+
+        #docViewer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
 
         .card-gad {
@@ -68,12 +129,11 @@
             margin-bottom: 15px;
         }
 
-        /* GRID RESPONSIVE */
         .country-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 15px;
+            gap: 10px;
+            margin-top: 10px;
         }
         @media (min-width: 640px) {
             .country-grid { grid-template-columns: repeat(3, 1fr); }
@@ -84,7 +144,7 @@
             background-color: white;
             border: 1px solid #d1d5db;
             color: #1f2937;
-            padding: 15px 5px;
+            padding: 10px 5px;
             border-radius: 8px;
             text-align: center;
             cursor: pointer;
@@ -94,35 +154,31 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            min-height: 110px;
+            min-height: 90px;
             position: relative;
         }
 
         .country-btn:active { transform: scale(0.98); background-color: #eff6ff; }
-        .country-btn:hover { border-color: #1e40af; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 
         .flag-img {
-            width: 40px;
+            width: 32px;
             height: auto;
             border-radius: 4px;
-            margin: 8px 0;
+            margin: 6px 0;
             box-shadow: 0 1px 2px rgba(0,0,0,0.2);
             pointer-events: none;
         }
 
         .status-badge {
             font-size: 0.65rem;
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-weight: 800;
+            font-weight: bold;
             width: 90%;
             text-align: center;
             display: none; 
-            margin-top: 5px;
-            letter-spacing: 0.5px;
-            pointer-events: none;
+            margin-top: 4px;
         }
-        
         .status-complete { color: #065f46; background-color: #d1fae5; border: 1px solid #34d399; } 
         .status-basic { color: #92400e; background-color: #fef3c7; border: 1px solid #fcd34d; } 
         .status-nodata { color: #991b1b; background-color: #fee2e2; border: 1px solid #f87171; } 
@@ -132,21 +188,21 @@
             background-color: #fffbeb;
         }
         
-        /* BOTÓN LÁPIZ (Independiente) */
+        /* BOTÓN LÁPIZ INDEPENDIENTE */
         .edit-icon-btn {
             position: absolute;
-            top: -8px;
-            right: -8px;
+            top: -6px;
+            right: -6px;
             background-color: #f59e0b;
             color: white;
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             display: none; 
             align-items: center;
             justify-content: center;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            font-size: 0.8rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             z-index: 50; 
             border: 2px solid white;
             cursor: pointer;
@@ -154,8 +210,8 @@
         body.edit-mode .edit-icon-btn { display: flex; }
 
         .cloud-indicator {
-            position: absolute; top: 4px; left: 4px;
-            font-size: 0.7rem; color: #10b981; 
+            position: absolute; top: 2px; left: 2px;
+            font-size: 0.6rem; color: #10b981; 
             display: none;
         }
 
@@ -176,61 +232,73 @@
 </head>
 <body>
 
-    <header class="logo-header">
-        <div class="logo-container">
-            <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color:white; font-weight:bold; font-size:30px;\'>GAD</span>'">
-        </div>
-    </header>
+    <div id="topBar" class="top-bar-strip">
+        <button onclick="smartBack()" class="top-back-btn">
+            <i class="fas fa-arrow-left mr-2"></i> <span>VOLVER MENÚ EUCARIS</span>
+        </button>
+        <span class="font-bold text-xs uppercase tracking-widest ml-auto text-blue-900">VISOR GAD</span>
+    </div>
 
-    <div class="main-content-wrapper">
+    <div id="docViewer">
+        <iframe id="docFrame" src=""></iframe>
+    </div>
+
+    <div id="mainInterface" class="scroll-container">
         
-        <div class="card-gad">
-            <div class="flex flex-col gap-2">
-                <div class="flex justify-between items-center border-b pb-2 mb-2">
-                    <h2 class="text-lg font-bold text-blue-900 uppercase leading-none">
-                        <i class="fas fa-passport mr-1"></i> Manual Eucaris
-                    </h2>
-                    
-                    <button id="soaToggleBtn" onclick="toggleSoa()" class="bg-gray-200 text-gray-600 text-xs font-bold py-2 px-3 rounded shadow hover:bg-gray-300 transition-colors flex items-center">
-                        <i class="fas fa-eye mr-2"></i> VERIFICAR SOA
-                    </button>
-                </div>
+        <header class="logo-header">
+            <div class="logo-container">
+                <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color:white; font-weight:bold; font-size:30px;\'>GAD</span>'">
+            </div>
+        </header>
 
-                <div class="flex gap-2 items-center">
-                    <div class="relative w-full">
-                        <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i>
-                        <input type="text" id="searchInput" placeholder="Buscar país..." 
-                            class="w-full pl-9 pr-2 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm uppercase font-bold">
+        <div class="main-content-wrapper">
+            
+            <div class="card-gad">
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center border-b pb-2 mb-2">
+                        <h2 class="text-lg font-bold text-blue-900 uppercase leading-none">
+                            <i class="fas fa-passport mr-1"></i> Manual Eucaris
+                        </h2>
+                        
+                        <button id="soaToggleBtn" onclick="toggleSoa()" class="bg-gray-200 text-gray-600 text-xs font-bold py-2 px-3 rounded shadow hover:bg-gray-300 transition-colors flex items-center">
+                            <i class="fas fa-eye mr-2"></i> VERIFICAR SOA
+                        </button>
                     </div>
 
-                    <div class="flex items-center bg-gray-100 p-1.5 rounded border border-gray-300 shrink-0">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="editModeToggle" class="sr-only peer">
-                            <div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-yellow-500"></div>
-                        </label>
+                    <div class="flex gap-2 items-center">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i>
+                            <input type="text" id="searchInput" placeholder="Buscar país..." 
+                                class="w-full pl-9 pr-2 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm uppercase font-bold">
+                        </div>
+
+                        <div class="flex items-center bg-gray-100 p-1.5 rounded border border-gray-300 shrink-0">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="editModeToggle" class="sr-only peer">
+                                <div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-yellow-500"></div>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div id="countryContainer" class="country-grid pb-12"></div>
-        
-        <div id="connectionStatus" class="text-center text-[10px] text-gray-400 mt-4 mb-8">
-            Verificando sesión...
-        </div>
+            <div id="countryContainer" class="country-grid pb-12"></div>
+            
+            <div id="connectionStatus" class="text-center text-[10px] text-gray-400 mt-4 mb-8">
+                Iniciando...
+            </div>
 
+        </div>
     </div>
 
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
             <h3 class="text-lg font-bold text-blue-900 mb-2">Editar Enlace</h3>
-            
             <p id="authWarning" class="hidden text-xs text-red-600 mb-2 font-bold bg-red-100 p-2 rounded">
-                <i class="fas fa-exclamation-triangle"></i> ERROR: No hay sesión activa.
+                <i class="fas fa-exclamation-triangle"></i> ERROR: Sin sesión. No se guardará.
             </p>
-            
             <p class="text-xs text-gray-500 mb-4 bg-blue-50 p-2 rounded border border-blue-200">
-                <i class="fas fa-magic"></i> <b>MODO DIRECTO:</b> Pega el enlace de Google Drive. El sistema lo convertirá a formato "Directo" para permitir ZOOM.
+                <i class="fas fa-magic"></i> <b>AUTO-AJUSTE:</b> Pega el enlace de Google Drive. El sistema lo convertirá a "Vista Previa" para que se vea aquí dentro.
             </p>
             
             <input type="hidden" id="editIndex">
@@ -238,14 +306,14 @@
             <label class="block text-xs font-bold text-gray-700 mb-1">PAÍS</label>
             <input type="text" id="editName" class="w-full border p-2 rounded mb-3 bg-gray-100 text-sm font-bold text-blue-900" readonly>
             
-            <label class="block text-xs font-bold text-gray-700 mb-1">ESTADO SEGURO (SOA)</label>
+            <label class="block text-xs font-bold text-gray-700 mb-1">ESTADO SOA</label>
             <select id="editStatus" class="w-full border p-2 rounded mb-3 text-sm bg-white">
                 <option value="nodata">SIN DATOS (Rojo)</option>
                 <option value="basic">BÁSICO (Ambar)</option>
                 <option value="complete">COMPLETO (Verde)</option>
             </select>
 
-            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE DRIVE (PDF o Imagen)</label>
+            <label class="block text-xs font-bold text-gray-700 mb-1">ENLACE DRIVE</label>
             <textarea id="editUrl" rows="4" class="w-full border p-2 rounded mb-4 text-xs font-mono text-gray-600" placeholder="https://docs.google.com/..."></textarea>
 
             <div class="flex gap-2">
@@ -265,12 +333,12 @@
   storageBucket: "gad-alicante-v4.firebasestorage.app",
   messagingSenderId: "119727545224",
   appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
-        // ------------------------------------------------------------------
+};-------------------------------------------------------------
 
         let app, db, auth;
         let isFirebaseActive = false;
         let currentUser = null;
+        let isViewingDoc = false;
 
         const defaultCountries = [
             { name: "ALEMANIA (D)", iso: "de", defStatus: "nodata" }, 
@@ -332,7 +400,7 @@
                         listenToCloudData();
                     } else {
                         currentUser = null;
-                        document.getElementById('connectionStatus').innerHTML = '<span class="text-gray-400">Lectura Local</span>';
+                        document.getElementById('connectionStatus').innerHTML = '<span class="text-gray-400">Modo Local (Lectura)</span>';
                     }
                 });
             } catch (e) { console.error(e); }
@@ -361,7 +429,6 @@
                 const status = cloudEntry.status || country.defStatus;
                 const url = cloudEntry.url || '#';
                 
-                // Botón principal
                 const btn = document.createElement('div');
                 btn.className = 'country-btn';
                 
@@ -383,25 +450,23 @@
                     html += `<span class="status-badge ${statusClass}" style="display:block">${statusText}</span>`;
                 }
 
-                // SI ESTAMOS EN MODO EDICIÓN, AÑADIMOS EL LÁPIZ FLOTANTE
                 if (isEditMode) {
                     const hasLink = url && url !== '#';
                     html += `<span class="text-[9px] mt-1 ${hasLink ? 'text-green-600 font-bold' : 'text-red-400'}">${hasLink ? 'ENLAZADO' : 'SIN ENLACE'}</span>`;
                     
-                    // Elemento lápiz independiente
+                    // BOTÓN LÁPIZ (Superpuesto y funcional)
                     const editIcon = document.createElement('div');
                     editIcon.className = 'edit-icon-btn';
                     editIcon.innerHTML = '<i class="fas fa-pencil-alt"></i>';
-                    // Evento solo para el lápiz (stopPropagation es vital aquí)
                     editIcon.onclick = (e) => {
-                        e.stopPropagation(); 
+                        e.stopPropagation(); // Evita abrir el visor
                         e.preventDefault();
                         openEditModal(country, firebaseKey, url, status);
                     };
                     btn.appendChild(editIcon);
                 }
 
-                // El clic en el cuerpo del botón abre el PDF
+                // Clic en el cuerpo: Abre visor integrado
                 btn.onclick = () => handleCountryClick(url);
                 
                 btn.insertAdjacentHTML('afterbegin', html);
@@ -410,18 +475,39 @@
         }
 
         function handleCountryClick(url) {
-            // En modo edición, el clic al cuerpo no hace nada para no molestar
-            if (isEditMode) return;
+            if (isEditMode) return; // En edición no abrimos documento
 
             if (url && url !== '#' && url.trim() !== '') {
-                window.open(url, '_blank');
+                openViewer(url);
             } else {
                 alert('Documento no disponible. Añade el enlace en modo edición.');
             }
         }
 
+        function openViewer(url) {
+            document.getElementById('topBar').style.display = 'flex';
+            document.getElementById('mainInterface').style.display = 'none';
+            document.getElementById('docViewer').style.display = 'flex';
+            document.getElementById('docFrame').src = url;
+            isViewingDoc = true;
+        }
+
+        function smartBack() {
+            if (isViewingDoc) {
+                document.getElementById('topBar').style.display = 'none';
+                document.getElementById('docFrame').src = ''; 
+                document.getElementById('docViewer').style.display = 'none';
+                document.getElementById('mainInterface').style.display = 'flex';
+                isViewingDoc = false;
+            } else {
+                window.location.href = 'index.html'; 
+            }
+        }
+
+        // --- EDICIÓN Y GUARDADO ---
         function openEditModal(country, key, url, status) {
-            if (!currentUser) alert("Aviso: No estás logueado. No se guardará en la nube.");
+            const warning = document.getElementById('authWarning');
+            warning.classList.toggle('hidden', !!currentUser);
             
             document.getElementById('editIndex').value = key; 
             document.getElementById('editName').value = country.name;
@@ -438,20 +524,20 @@
             let rawUrl = document.getElementById('editUrl').value.trim();
             let finalUrl = rawUrl;
 
-            // --- TRUCO MAGISTRAL PARA GOOGLE DRIVE ---
-            // Convertimos enlaces de vista previa (/file/d/.../view) en enlaces de descarga/visualización directa (/uc?export=view&id=...)
-            // Esto permite que el navegador use su visor nativo y funcione el ZOOM.
-            if (rawUrl.includes("drive.google.com") || rawUrl.includes("docs.google.com")) {
+            // --- LÓGICA DE IFRAME ---
+            // Convertimos enlaces de Google a modo /preview o /embed para que funcionen dentro de la caja
+            if (rawUrl.includes("docs.google.com") && rawUrl.includes("/presentation/d/")) {
                 try {
-                    // Buscar ID del archivo (funciona con /file/d/ID/view o /open?id=ID)
-                    let idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9\-_]+)/) || rawUrl.match(/id=([a-zA-Z0-9\-_]+)/);
-                    
-                    if (idMatch && idMatch[1]) {
-                        // Creamos el enlace "Directo"
-                        finalUrl = `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
-                        console.log("Enlace convertido a Directo:", finalUrl);
+                    let presIdMatch = rawUrl.match(/\/d\/([a-zA-Z0-9\-_]+)/);
+                    let slideIdMatch = rawUrl.match(/(id\.[a-zA-Z0-9\.\-_]+)/);
+                    if (presIdMatch && presIdMatch[1]) {
+                        // Forzamos formato PREVIEW
+                        finalUrl = `https://docs.google.com/presentation/d/${presIdMatch[1]}/preview`;
+                        if (slideIdMatch && slideIdMatch[1]) {
+                            finalUrl += `?slide=${slideIdMatch[1]}`;
+                        }
                     }
-                } catch (e) { console.error("Error convirtiendo enlace:", e); }
+                } catch (e) { console.error(e); }
             }
 
             if (isFirebaseActive && currentUser) {
