@@ -22,6 +22,8 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            /* Usamos dvh para móviles modernos, evita cortes por la barra del navegador */
+            height: 100dvh; 
             overflow: hidden; 
         }
 
@@ -29,23 +31,22 @@
         .top-bar-strip {
             background-color: #FFD700; 
             color: #1e3a8a;
-            display: none; /* Oculto inicio */
+            display: none; /* Oculto al inicio */
             align-items: center;
             padding: 0 10px;
-            height: 50px; /* Altura normal en vertical */
+            height: 50px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             z-index: 100;
             flex-shrink: 0;
             font-weight: 800;
             width: 100%;
-            transition: height 0.3s ease;
+            justify-content: space-between;
         }
 
         .top-back-btn {
             background-color: #1e3a8a;
             color: white;
             border: none;
-            margin-right: 10px;
             font-weight: bold;
             cursor: pointer;
             padding: 0 15px;
@@ -82,7 +83,6 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
 
-        /* CONTENEDOR PRINCIPAL SCROLLABLE */
         .scroll-container {
             flex-grow: 1;
             overflow-y: auto; 
@@ -107,7 +107,7 @@
             top: 50px; 
             left: 0;
             width: 100%;
-            height: calc(100vh - 50px);
+            height: calc(100dvh - 50px);
             background: white;
             z-index: 200;
             display: none; 
@@ -120,21 +120,37 @@
             border: none;
         }
 
-        /* --- OPTIMIZACIÓN HORIZONTAL (LANDSCAPE) --- */
-        /* Cuando el móvil se gira, reducimos la barra para ganar espacio al documento */
+        /* --- MODO HORIZONTAL (LANDSCAPE) --- */
+        /* Al girar el móvil, ocultamos la barra amarilla y hacemos el visor pantalla completa */
         @media (orientation: landscape) and (max-height: 600px) {
             .top-bar-strip {
-                height: 35px; /* Barra más fina */
-            }
-            .top-back-btn {
-                height: 26px; /* Botón más pequeño */
-                font-size: 0.65rem;
-                padding: 0 10px;
+                display: none !important; /* Ocultar barra para ganar espacio */
             }
             #docViewer {
-                top: 35px; /* Ajustamos el visor */
-                height: calc(100vh - 35px);
+                top: 0;
+                height: 100dvh; /* Pantalla completa real */
             }
+            /* Botón flotante para poder salir en modo horizontal */
+            #floatingBackBtn {
+                display: flex !important;
+            }
+        }
+
+        /* Botón flotante de emergencia (Solo visible en horizontal) */
+        #floatingBackBtn {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(220, 38, 38, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 50px;
+            z-index: 300;
+            font-size: 0.7rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
         }
 
         .card-gad {
@@ -156,7 +172,6 @@
             .country-grid { grid-template-columns: repeat(3, 1fr); }
         }
 
-        /* BOTÓN PAÍS */
         .country-btn {
             background-color: white;
             border: 1px solid #d1d5db;
@@ -251,10 +266,14 @@
 
     <div id="topBar" class="top-bar-strip">
         <button onclick="smartBack()" class="top-back-btn">
-            <i class="fas fa-arrow-left mr-2"></i> <span>VOLVER MENÚ EUCARIS</span>
+            <i class="fas fa-arrow-left mr-2"></i> <span>VOLVER MENÚ</span>
         </button>
         <span class="font-bold text-xs uppercase tracking-widest ml-auto text-blue-900">VISOR GAD</span>
     </div>
+
+    <button id="floatingBackBtn" onclick="smartBack()">
+        <i class="fas fa-times mr-1"></i> CERRAR
+    </button>
 
     <div id="docViewer">
         <iframe id="docFrame" src=""></iframe>
@@ -315,7 +334,7 @@
                 <i class="fas fa-exclamation-triangle"></i> ERROR: Sin sesión. No se guardará.
             </p>
             <p class="text-xs text-gray-500 mb-4 bg-blue-50 p-2 rounded border border-blue-200">
-                <i class="fas fa-magic"></i> <b>MODO VISOR:</b> Pega el enlace de Google Drive. El sistema lo ajustará para verlo aquí dentro.
+                <i class="fas fa-magic"></i> <b>MODO VISOR:</b> Pega el enlace de Google Drive.
             </p>
             
             <input type="hidden" id="editIndex">
@@ -341,7 +360,6 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE FIREBASE (YA INCLUIDA)
         const firebaseConfig = {
           apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
           authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -478,7 +496,6 @@
                     btn.appendChild(editIcon);
                 }
 
-                // Clic en el cuerpo: Abre visor integrado
                 btn.onclick = () => handleCountryClick(url);
                 
                 btn.insertAdjacentHTML('afterbegin', html);
@@ -516,7 +533,7 @@
             }
         }
 
-        // --- EDICIÓN ---
+        // --- EDICIÓN Y GUARDADO ---
         function openEditModal(country, key, url, status) {
             const warning = document.getElementById('authWarning');
             warning.classList.toggle('hidden', !!currentUser);
@@ -536,13 +553,12 @@
             let rawUrl = document.getElementById('editUrl').value.trim();
             let finalUrl = rawUrl;
 
-            // --- LÓGICA DE IFRAME (RESTAURADA) ---
+            // --- LÓGICA DE IFRAME ---
             if (rawUrl.includes("docs.google.com") && rawUrl.includes("/presentation/d/")) {
                 try {
                     let presIdMatch = rawUrl.match(/\/d\/([a-zA-Z0-9\-_]+)/);
                     let slideIdMatch = rawUrl.match(/(id\.[a-zA-Z0-9\.\-_]+)/);
                     if (presIdMatch && presIdMatch[1]) {
-                        // Forzamos formato PREVIEW para Iframe
                         finalUrl = `https://docs.google.com/presentation/d/${presIdMatch[1]}/preview`;
                         if (slideIdMatch && slideIdMatch[1]) {
                             finalUrl += `?slide=${slideIdMatch[1]}`;
