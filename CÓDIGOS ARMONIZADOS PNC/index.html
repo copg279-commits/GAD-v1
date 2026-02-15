@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador Códigos Armonizados y Nacionales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 h-screen w-screen flex flex-col overflow-hidden">
+
+    <header class="w-11/12 max-w-3xl mx-auto mt-4 shadow-lg rounded-t-lg overflow-hidden">
+        <img src="cabecera app VigIA.jpg" alt="Proyecto VigIA" class="w-full h-auto block">
+    </header>
+
+    <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
+        Buscador Códigos Armonizados y Nacionales
+    </h1>
+    <p class="text-center mt-2 px-4">
+        Introduce un código o palabras clave para buscar su significado.
+    </p>
+
+    <div class="w-11/12 max-w-3xl mx-auto mt-4">
+        <p class="text-center mb-2">
+            Introduce el código para buscar su significado:
+        </p>
+        <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Ej: 01.06 o 106" 
+            class="search-input w-full p-3 text-base border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <button 
+            id="btnBuscarCodigo"
+            class="block mx-auto mt-4 w-full bg-blue-600 text-white font-bold py-3 rounded-md hover:bg-blue-700 transition"
+        >
+            Buscar por Código
+        </button>
+    </div>
+
+    <div class="w-11/12 max-w-3xl mx-auto mt-6">
+        <p class="text-center mb-2">
+            O introduce palabras clave para buscar códigos:
+        </p>
+        <input 
+            type="text" 
+            id="inverseSearchInput" 
+            placeholder="Ej: gafas de contacto" 
+            class="w-full p-3 text-base border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <button 
+            id="btnBuscarInverso"
+            class="block mx-auto mt-4 w-full bg-gray-500 text-white font-bold py-3 rounded-md hover:bg-gray-600 transition"
+        >
+            Buscar por Palabras Clave
+        </button>
+    </div>
+
+    <div id="resultado" class="mt-6 w-11/12 max-w-3xl mx-auto text-left">
+        <div class="result-box-container">
+            <p class="text-gray-500">
+                El significado del código o los códigos coincidentes aparecerán aquí.
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-8 flex justify-center w-11/12 max-w-3xl mx-auto">
+        <button onclick="window.location.href='index.html'"
+                class="w-full p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
+            MENÚ PRINCIPAL
+        </button>
+    </div>
+
+    </main>
+<footer class="text-center py-4 bg-gray-200 w-full shrink-0 shadow-inner">
+    <div class="w-11/12 max-w-3xl mx-auto">
+        <hr class="border-t border-gray-400 mb-2">
+        <p class="font-bold text-sm">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+        <p class="font-bold text-sm">POLICÍA LOCAL DE ALICANTE</p>
+        <p class="text-xs">&copy; GAD - Todos los derechos reservados</p>
+    </div>
+</footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
