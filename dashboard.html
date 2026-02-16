@@ -3,310 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Menú GAD V4</title>
+    <title>Menú GAD V4 - Elite Cyber</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        /* --- ESTILOS CABECERA (CORREGIDO) --- */
+        /* FONDO Y ESTRUCTURA DE SCROLL */
+        body { 
+            font-family: 'Orbitron', sans-serif; 
+            background: #000; 
+            color: #fff;
+            margin: 0; padding: 0; 
+            height: 100vh; display: flex; flex-direction: column; 
+            overflow: hidden; 
+            visibility: hidden; 
+        }
+        body.loaded { visibility: visible; }
+
+        #main-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 60px; /* Espacio para que el menú de admin no se corte */
+        }
+
+        /* CABECERA VIGIA */
         #header-vigia-container {
             width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
             cursor: pointer;
-            background-color: #fff;
+            border-bottom: 3px solid #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+        }
+        #header-vigia-img { width: 100%; height: auto; display: block; }
+
+        @media (max-width: 640px) {
+            #header-vigia-container { height: 160px; overflow: hidden; }
+            #header-vigia-img { height: 100%; object-fit: cover; }
+        }
+
+        .main-content-wrapper { width: 100%; max-width: 600px; margin: 0 auto; padding: 10px; }
+        .title-container h1 { font-size: 1.8rem; text-align: center; margin: 15px 0; text-shadow: 0 0 10px #00f0ff; }
+
+        /* --- BOTONES ESTILO PLACA TECNOLÓGICA (IGUAL A LA IMAGEN) --- */
+        #main-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .menu-button-container.col-span-2 { grid-column: span 2; }
+
+        .cyber-button {
             position: relative;
-            z-index: 50;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            overflow: hidden; 
-            
-            /* MÓVIL: Altura fija obligatoria para que no desaparezca */
-            height: 160px; 
+            width: 100%;
+            min-height: 90px;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        #header-vigia-img {
-            width: 100%;
-            height: 100%;
-            /* MÓVIL: Recorta los lados (zoom) para llenar la altura */
-            object-fit: cover; 
-            object-position: center;
-            display: block;
-        }
-
-/* --- ESTILOS CABECERA: ESCRITORIO (BASE) --- */
-        #header-vigia-container {
-            width: 100%;
-            max-width: 900px; /* Ancho máximo igual al menú */
-            margin: 0 auto 1rem auto; /* Centrado */
-            background-color: transparent;
-            padding: 0;
-            line-height: 0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-radius: 0.75rem;
-            
-            /* En escritorio dejamos que la altura sea automática (sin recortes) */
-            height: auto; 
-            overflow: hidden; /* Necesario para que el recorte en móvil sea limpio */
-            display: block;
-        }
-
-        #header-vigia-img {
-            width: 100%;
-            height: auto; /* Mantiene proporción en escritorio */
-            display: block;
-            border-radius: 0.75rem;
-            object-fit: contain; /* En escritorio se ve ENTERA */
-        }
-
-        /* --- ESTILOS CABECERA: MÓVIL (ZOOM CENTRAL) --- */
-        @media (max-width: 640px) {
-            #header-vigia-container {
-                /* Forzamos una altura fija generosa para que se vea grande */
-                height: 140px; 
-                
-                margin-bottom: 0;
-                border-radius: 0; /* Quitamos bordes redondeados en móvil */
-                width: 100%;
-                max-width: 100%;
-            }
-
-            #header-vigia-img {
-                width: 100%;
-                height: 100%; /* Obliga a la imagen a llenar los 180px de alto */
-                
-                /* LA CLAVE DEL ZOOM: */
-                object-fit: cover; /* Hace zoom para llenar el alto, recortando lados */
-                object-position: center; /* Asegura que el centro (casco/título) se vea */
-                
-                border-radius: 0;
-            }
-            
-            /* Ajuste opcional: pegamos el menú justo debajo */
-            .main-content-wrapper {
-                margin-top: 0 !important; 
-            }
-        }
-
-        #main-scroll-area { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; width: 100%; transition: opacity 0.3s; }
-        #iframe-viewer-area { flex-grow: 1; display: none; width: 100%; height: calc(100vh - 50px); background: white; position: relative; }
-        #content-iframe { width: 100%; height: 100%; border: none; display: block; }
-        
-        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: transparent; display: none; z-index: 9998; }
-        #sidebar-menu { position: fixed; top: 0; left: 0; height: 100%; width: 300px; background: #0f172a; color: white; z-index: 9999; transform: translateX(-100%); transition: transform 0.3s ease; box-shadow: 4px 0 15px rgba(0,0,0,0.3); border-right: 1px solid #334155; display: flex; flex-direction: column; }
-        .sidebar-item { display: flex; flex-direction: column; width: 100%; } .sidebar-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #1e293b; color: #cbd5e1; cursor: pointer; transition: background 0.2s; } .sidebar-row:hover { background-color: #1e293b; color: #fff; } .sidebar-row-content { display: flex; align-items: center; flex-grow: 1; overflow: hidden; } .sidebar-row-content i { width: 20px; margin-right: 8px; text-align: center; color: #60a5fa; }
-        .toggle-icon { padding: 5px 10px; cursor: pointer; color: #94a3b8; font-size: 0.8rem; border-left: 1px solid #334155; margin-left: 5px; } .toggle-icon:hover { color: #fbbf24; background: rgba(255,255,255,0.05); } .toggle-icon.expanded i { transform: rotate(90deg); transition: transform 0.2s; }
-        .sidebar-children { display: none; flex-direction: column; background-color: #0b1120; box-shadow: inset 0 4px 6px -1px rgba(0,0,0,0.3); } .sidebar-children.show { display: flex; } .sidebar-children .sidebar-row { padding-left: 35px; border-bottom: 1px solid #172033; } .sidebar-children .sidebar-children .sidebar-row { padding-left: 55px; }
-        .sidebar-footer-btn { margin-top: auto; padding: 15px; background: #1e293b; border-top: 1px solid #334155; }
-        
-        .main-content-wrapper { display: flex; flex-direction: column; align-items: center; flex-grow: 1; width: 100%; padding: 0 10px; box-sizing: border-box; margin-top: 1rem; }
-        .menu-card { background-color: white; padding: 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); width: 100%; max-width: 900px; display: flex; flex-direction: column; margin-top: 1rem; }
-        #main-menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr; gap: 0.75rem; width: 100%; }
-        .menu-button-container { height: 100%; width: 100%; display: flex; flex-direction: column; position: relative; }
-        
-        .title-container { width: 100%; margin-bottom: 1rem; text-align: center; }
-        h1 { margin: 0; font-size: 1.5rem; padding: 0.5rem 0; display: inline-flex; align-items: center; justify-content: center; } 
-        @media (min-width: 640px) { h1 { font-size: 2.5rem; } .main-content-wrapper { padding: 0 2rem; } }
-
-        .construccion-logo { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); height: 60%; opacity: 0.9; }
-        .counters-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; width: 100%; } .counter-card { background-color: #4b5563; color: white; border-radius: 8px; padding: 10px 5px; width: 110px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; } .counter-card.total { background-color: #2563eb; width: 120px; } .counter-header { font-size: 0.85rem; font-weight: 700; text-align: center; margin-bottom: 5px; line-height: 1.1; word-break: break-word; } .counter-number { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; } .counter-date { font-size: 0.65rem; color: #d1d5db; margin-bottom: 8px; text-align: center; } .counter-btn { background-color: #6366f1; color: white; font-size: 0.7rem; font-weight: 600; padding: 4px 0; width: 90%; border-radius: 4px; border: none; cursor: pointer; transition: background 0.2s; } .counter-footer-text { font-size: 0.7rem; margin-top: auto; opacity: 0.9; }
-        
-        /* CONTENEDOR DE CONTROLES (Ahora oculto inicialmente) */
-        .controls-container { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-top: 15px; display: flex; flex-direction: column; gap: 15px; display: none; /* Oculto por defecto, se activa con JS */ } 
-        
-        .admin-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; } .btn-modern { display: flex; align-items: center; justify-content: center; padding: 8px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 8px; color: white; border: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); } .btn-edit { background-color: #f59e0b; } .btn-edit:hover { background-color: #d97706; } .btn-edit.active { background-color: #16a34a; } .btn-users { background-color: #3b82f6; } .btn-users:hover { background-color: #2563eb; } .btn-log { background-color: #10b981; } .btn-log:hover { background-color: #059669; } .btn-backup { background-color: #8b5cf6; } .btn-backup:hover { background-color: #7c3aed; } .btn-prompts { background-color: #6366f1; } .btn-prompts:hover { background-color: #4f46e5; } .btn-logout-modern { background-color: #ef4444; width: 100%; margin-top: 5px; } .btn-logout-modern:hover { background-color: #dc2626; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(5px); } .modal { background: linear-gradient(145deg, #1e293b, #0f172a); padding: 30px; border-radius: 16px; text-align: center; color: #f8fafc; width: 90%; max-width: 380px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); } .modal-header-logo { height: 110px; width: 110px; margin: 0 auto 20px; background: transparent; display: flex; justify-content: center; align-items: center; filter: drop-shadow(0 10px 8px rgba(0,0,0,0.3)); } .modal-header-logo img { width: 100%; height: 100%; object-fit: contain; } .modal h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff; } .modal p { font-size: 0.95rem; color: #94a3b8; margin-bottom: 1.5rem; } .modal input, .modal select { padding: 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background-color: rgba(255, 255, 255, 0.05); color: #fff; width: 100%; margin-bottom: 15px; box-sizing: border-box; outline: none; transition: all 0.3s ease; font-size: 1rem; } .modal input:focus, .modal select:focus { border-color: #6366f1; background-color: rgba(255, 255, 255, 0.1); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); } .google-btn { padding: 14px; border-radius: 10px; border: none; background: white; color: #374151; width: 100%; cursor: pointer; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px; transition: transform 0.2s, opacity 0.2s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); display: flex; align-items: center; justify-content: center; gap: 10px; } .google-btn:active { transform: scale(0.98); } .google-btn:hover { background-color: #f3f4f6; } .modal button.standard-btn { padding: 14px; border-radius: 10px; border: none; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; width: 100%; font-weight: 700; cursor: pointer; } .modal-close { position: absolute; top: 15px; right: 15px; font-size: 1.5em; cursor: pointer; color: #64748b; transition: color 0.3s; } .modal-body hr { border-color: #334155; margin: 15px 0; } #user-list-container { margin-top: 15px; max-height: 200px; overflow-y: auto; width: 100%; } #user-list-to-delete li { display: flex; flex-direction: column; padding: 12px; border-bottom: 1px solid #334155; color: #e2e8f0; gap: 5px; } .user-row-header { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: bold; font-size: 0.9rem;} .user-row-actions { display: flex; gap: 8px; justify-content: flex-end; width: 100%; } #user-list-to-delete button { width: auto; padding: 4px 10px; font-size: 0.75rem; background: #ef4444; box-shadow: none; border-radius: 4px; color: white; border: none; cursor: pointer; } #user-list-to-delete .reset-btn { background: #3b82f6; } #full-log-modal .modal table { width:100%; text-align:left; border-collapse: collapse; font-size: 0.85rem; } #full-log-modal .modal th { background: #0f172a; padding: 10px; border: 1px solid #334155; color: #94a3b8; text-transform: uppercase; font-size: 0.75rem; } #full-log-modal .modal td { padding: 10px; border: 1px solid #334155; color: #cbd5e1; } #full-log-modal .modal tbody tr:nth-child(even) { background-color: rgba(255,255,255,0.03); } .btn-admin-modal { background-color: #dc3545; color: white; padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; border: none; margin-bottom: 8px; font-weight: 600; } .edit-icon, .delete-icon, .back-icon { position: absolute; width: 28px; height: 28px; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); } .edit-icon { top: -8px; right: -8px; background-color: #2563eb; } .delete-icon { top: -8px; left: -8px; background-color: #dc2626; } .back-icon { bottom: -8px; right: -8px; background-color: #ca8a04; } .menu-button-container.dragging { opacity: 0.5; border: 2px dashed #667eea; } .drag-over-container { border: 2px dashed #667eea; background-color: rgba(102, 126, 234, 0.05); } .navigation-buttons-row { display: flex; justify-content: center; gap: 0.75rem; width: 100%; margin-top: 1rem; } footer { width: 100%; padding: 1.5rem 0; margin-top: auto; } .color-circle { width: 35px; height: 35px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; } .color-circle.active { border-color: #fff; box-shadow: 0 0 0 2px #667eea; } .color-circle-container { display: flex; justify-content: space-around; margin-top: 15px; } .drop-area, .edit-drop-area { border: 2px dashed #667eea; border-radius: 8px; padding: 10px; text-align: center; color: #667eea; background: rgba(102,126,234,0.05); cursor: pointer; margin-top: 10px; } .drop-area.hover, .edit-drop-area.hover { background: rgba(102,126,234,0.2); } .editable-title { position: relative; display: inline-flex; align-items: center; } .editable-title-icon { margin-left: 10px; cursor: pointer; color: #4b5563; font-size: 1.2rem; } #user-info-display { font-size: 0.85rem; color: #4b5563; margin-bottom: 10px; text-align: center; font-weight: 600; }
-
-        /* Estilo Botón Menú Admin Toggle */
-        #admin-toggle-btn {
-            background-color: #374151; /* Gris oscuro */
-            color: white;
-            font-weight: bold;
-            padding: 10px;
-            width: 100%;
-            border-radius: 8px;
-            margin-top: 20px;
-            cursor: pointer;
             text-align: center;
-            border: none;
-            display: none; /* Se activa con JS solo para admin */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            
+            /* FORMA Y BORDES */
+            background: rgba(10, 10, 15, 0.95);
+            border: 2px solid #00f0ff;
+            clip-path: polygon(15% 0, 85% 0, 100% 25%, 100% 75%, 85% 100%, 15% 100%, 0 75%, 0 25%);
+            
+            /* TEXTURA DE CIRCUITOS */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%2300f0ff' fill-opacity='0.1'%3E%3Cpath d='M0 0h1v1H0zm2 0h1v1H2zm2 0h1v1H4zm1 1h1v1H5zm1 1h1v1H6z'/%3E%3C/g%3E%3C/svg%3E");
+            box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.3);
         }
-        #admin-toggle-btn:hover { background-color: #1f2937; }
+
+        /* EL RAYO AZUL BRILLANTE CENTRAL */
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 10%; width: 80%; height: 2px;
+            background: #fff;
+            box-shadow: 0 0 15px 3px #00f0ff, 0 0 5px 1px #fff;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        /* VARIANTES DE COLOR */
+        .cyber-button.success { border-color: #00ff9d; box-shadow: inset 0 0 15px rgba(0, 255, 157, 0.3); }
+        .cyber-button.success::before { box-shadow: 0 0 15px 3px #00ff9d, 0 0 5px 1px #fff; }
+
+        .cyber-button.alert { border-color: #ff3366; box-shadow: inset 0 0 15px rgba(255, 51, 102, 0.3); }
+        .cyber-button.alert::before { box-shadow: 0 0 15px 3px #ff3366, 0 0 5px 1px #fff; }
+
+        .cyber-button.warning { border-color: #ffcc00; box-shadow: inset 0 0 15px rgba(255, 204, 0, 0.3); }
+        .cyber-button.warning::before { box-shadow: 0 0 15px 3px #ffcc00, 0 0 5px 1px #fff; }
+
+        .cyber-button:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+            background-color: rgba(0, 240, 255, 0.1);
+        }
+
+        /* MENÚ ADMINISTRADOR */
+        #admin-toggle-btn { 
+            background: #111; color: #888; border: 1px solid #333; 
+            padding: 12px; width: 100%; margin-top: 30px; cursor: pointer; 
+            font-family: 'Orbitron'; font-size: 0.8rem;
+        }
+        .controls-container { 
+            background: #080808; border: 1px solid #333; padding: 15px; 
+            margin-top: 10px; display: none; flex-direction: column; gap: 10px; 
+        }
+
+        /* SIDEBAR (MENÚ HAMBURGUESA RECUPERADO) */
+        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 9998; }
+        #sidebar-menu { 
+            position: fixed; top: 0; left: 0; height: 100%; width: 280px; 
+            background: #050505; border-right: 2px solid #00f0ff; 
+            z-index: 9999; transform: translateX(-100%); transition: 0.3s; 
+            display: flex; flex-direction: column; 
+        }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #333; color: #00f0ff; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar-footer-btn { margin-top: auto; padding: 20px; background: #000; border-top: 1px solid #333; }
+        #sidebar-back-btn { width: 100%; padding: 12px; background: rgba(220, 38, 38, 0.2); border: 1px solid #ff3366; color: #ff3366; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; }
     </style>
 </head>
-<body class="bg-gray-100">
-
-<div id="loading-screen">
-    <i class="fas fa-spinner fa-spin fa-3x mb-4"></i>
-    <h2>Verificando Credenciales Policiales...</h2>
-</div>
-
-<div id="top-bar-menu" class="top-bar-strip" style="display: none;">
-    <button id="hamburger-btn" class="text-white text-xl mr-4 focus:outline-none hover:text-yellow-300 transition-colors">
-        <i class="fas fa-bars"></i>
-    </button>
-    <div id="top-horizontal-menu" class="flex overflow-x-auto gap-1 items-center hide-scrollbar w-full"></div>
-</div>
+<body>
 
 <div id="main-scroll-area">
     <div id="header-vigia-container">
-        <img src="logovigia.jpg" 
-             alt="Cabecera VigIA" 
-             id="header-vigia-img" 
-             onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'padding:20px; color:red;\'>Error imagen</p>';">
+        <img src="logovigia.jpg" alt="Cabecera VigIA" id="header-vigia-img">
     </div>
 
-    <div class="main-content-wrapper px-4 sm:px-8 lg:px-12">
-        <div class="menu-card">
-            <div class="title-container">
-                <h1 id="main-title" class="text-2xl sm:text-4xl font-extrabold text-gray-800">
-                    <span id="main-title-text">Cargando...</span>
-                    <span id="edit-title-icon" style="display: none; margin-left: 10px; cursor: pointer; font-size: 1.2rem; color: #4b5563;">
-                        <i class="fas fa-edit"></i>
-                    </span>
-                </h1>
-            </div>
-            
-            <div id="user-info-display"></div>
+    <div class="main-content-wrapper">
+        <div class="title-container">
+            <h1 id="main-title-text">SISTEMA GAD</h1>
+        </div>
+        
+        <div id="user-info-display" style="text-align:center; font-size:0.7rem; color:#666; margin-bottom:10px;"></div>
 
-            <div id="drag-drop-zone-main-menu" class="p-1 rounded-lg transition-colors">
-                <div id="main-menu-grid"></div>
-            </div>
-            
-            <div id="navigation-buttons-container" style="display: none;" class="navigation-buttons-row"></div>
-            <div id="secondary-menu-container" class="mt-4 grid grid-cols-2 gap-3 w-full"></div>
+        <div id="main-menu-grid"></div>
 
-            <div id="add-button-container" style="display: none;" class="mt-4">
-                <button id="add-new-button" class="w-full p-4 text-white font-bold rounded-lg shadow-md bg-purple-600 hover:bg-purple-700 border-2 border-dashed border-white transition-all">
-                    <i class="fas fa-plus mr-2"></i> AÑADIR NUEVO BOTÓN
-                </button>
+        <button id="admin-toggle-btn"><i class="fas fa-terminal"></i> CONSOLA DE ADMINISTRADOR</button>
+        <div class="controls-container" id="admin-panel">
+            <div id="counters-row"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button id="show-edit-menu-modal" class="cyber-button warning" style="min-height:50px;">EDITAR</button>
+                <button id="backup-button" class="cyber-button success" style="min-height:50px;" onclick="window.open('COPIA SEGURIDAD FIREBASE.html')">BACKUP</button>
             </div>
-
-            <button id="admin-toggle-btn"><i class="fas fa-cogs"></i> MENÚ ADMINISTRADOR</button>
-            
-            <div class="controls-container" id="admin-panel">
-                <div id="counters-row"></div>
-                <hr class="border-gray-300 w-full">
-                <div class="admin-controls">
-                    <button id="show-edit-menu-modal" class="btn-modern btn-edit"><i class="fas fa-pencil-alt"></i> Editar Menú</button>
-                    <button id="show-manage-users-modal" class="btn-modern btn-users"><i class="fas fa-users-cog"></i> Usuarios</button>
-                    <button id="show-full-log-modal" class="btn-modern btn-log"><i class="fas fa-list-alt"></i> Registro Global</button>
-                    <button id="btn-prompts-v1" class="btn-modern btn-prompts" onclick="window.location.href='PROMTS.html'"><i class="fas fa-robot"></i> Prompts</button>
-                    <button id="backup-button" class="btn-modern btn-backup" onclick="window.open('COPIA SEGURIDAD FIREBASE.html', '_blank')"><i class="fas fa-cloud-download-alt"></i> Backup</button>
-                </div>
-                <button id="btn-logout" class="btn-modern btn-logout-modern"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
-            </div>
-            
-            <div id="user-controls" style="display: none; margin-top: 20px;">
-                <button id="btn-logout-user" class="btn-modern btn-logout-modern">Cerrar Sesión</button>
-            </div>
+            <button id="btn-logout" class="cyber-button alert" style="min-height:50px; margin-top:10px;">DESCONECTAR</button>
         </div>
     </div>
-
-    <footer class="bg-gray-200 mt-auto py-6 text-center">
-        <div class="px-4">
-            <hr class="border-t border-gray-400 w-full max-w-md mx-auto mb-4">
-            <p class="font-bold text-gray-800">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-            <p class="font-bold text-gray-800">POLICÍA LOCAL DE ALICANTE</p>
-            <p class="text-sm text-gray-600 mt-2">&copy; GAD - Todos los derechos reservados</p>
-        </div>
-    </footer>
 </div>
 
-<div id="iframe-viewer-area">
-    <iframe id="content-iframe"></iframe>
+<div id="iframe-viewer-area" style="display:none; width:100%; height:100vh;">
+    <iframe id="content-iframe" style="width:100%; height:100%; border:none;"></iframe>
 </div>
 
 <div id="sidebar-overlay"></div>
 <div id="sidebar-menu">
-     <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-slate-900 shrink-0">
-         <h2 class="font-bold text-lg text-blue-400">Navegación GAD</h2>
-         <button id="close-sidebar" class="text-gray-400 hover:text-white text-lg"><i class="fas fa-times"></i></button>
+     <div class="sidebar-header">
+         <h2>NAVEGACIÓN</h2>
+         <button id="close-sidebar" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;"><i class="fas fa-times"></i></button>
      </div>
-     <div id="sidebar-tree-container" class="flex-grow overflow-y-auto"></div>
+     <div id="sidebar-tree-container" style="flex-grow:1; overflow-y:auto;"></div>
      <div class="sidebar-footer-btn">
-         <button id="sidebar-back-btn" class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded shadow transition-colors" style="display:none;">
-             <i class="fas fa-arrow-left mr-2"></i> VOLVER ATRÁS
-         </button>
+         <button id="sidebar-back-btn" style="display:none;">VOLVER ATRÁS</button>
      </div>
-</div>
-
-<div id="manage-users-modal" class="modal-overlay" style="display: none;"></div>
-<div id="full-log-modal" class="modal-overlay" style="display: none;"></div>
-
-<div id="edit-button-modal" class="modal-overlay" style="display: none;">
-    <div class="modal">
-        <span class="modal-close" id="close-edit-button-modal">&times;</span>
-        <h2>Editar Botón</h2>
-        <div class="modal-body">
-            <input type="hidden" id="edit-button-id">
-            <input type="text" id="edit-button-text" placeholder="Texto del botón" />
-            <div id="edit-link-fields">
-                <input type="text" id="edit-button-href" placeholder="URL opcional" />
-                <div class="edit-drop-area" id="edit-drop-area">
-                    <p>Arrastra archivo HTML</p>
-                    <input type="file" id="edit-html-file-input" accept=".html" style="display: none;">
-                    <textarea id="edit-button-html-code" rows="5" placeholder="Código HTML"></textarea>
-                </div>
-            </div>
-            <div class="flex flex-col gap-2 mt-2 text-left">
-                <p class="text-sm text-gray-400">Tamaño:</p>
-                <div class="flex gap-4">
-                    <label class="flex items-center"><input type="radio" name="edit-button-size" value="normal" checked class="mr-2"> Normal</label>
-                    <label class="flex items-center"><input type="radio" name="edit-button-size" value="full-width" class="mr-2"> Largo</label>
-                </div>
-            </div>
-            <div class="color-circle-container">
-                <div class="color-circle active" style="background:#1e40af;" data-color="#1e40af"></div>
-                <div class="color-circle" style="background:#16a34a;" data-color="#16a34a"></div>
-                <div class="color-circle" style="background:#f59e0b;" data-color="#f59e0b"></div>
-                <div class="color-circle" style="background:#dc3545;" data-color="#dc3545"></div>
-                <div class="color-circle" style="background:#667eea;" data-color="#667eea"></div>
-            </div>
-        </div>
-        <button id="save-button-changes" class="standard-btn">Guardar Cambios</button>
-    </div>
-</div>
-
-<div id="add-button-modal" class="modal-overlay" style="display: none;">
-    <div class="modal">
-        <span class="modal-close" id="close-add-button-modal">&times;</span>
-        <h2>Nuevo Botón</h2>
-        <div class="modal-body">
-            <input type="text" id="new-button-text" placeholder="Texto" />
-            <div class="flex gap-4 justify-center">
-                <label><input type="radio" name="button-type" value="link" checked class="mr-2"> Enlace</label>
-                <label><input type="radio" name="button-type" value="menu" class="mr-2"> Submenú</label>
-            </div>
-            <div class="flex gap-4 justify-center mt-2">
-                <label><input type="radio" name="button-size" value="normal" checked class="mr-2"> Normal</label>
-                <label><input type="radio" name="button-size" value="full-width" class="mr-2"> Largo</label>
-            </div>
-            <div id="new-link-fields" class="mt-4">
-                <textarea id="new-button-html-code" rows="5" class="drop-area" placeholder="Pega HTML o arrastra archivo"></textarea>
-            </div>
-        </div>
-        <button id="save-new-button" class="standard-btn">Crear</button>
-    </div>
-</div>
-
-<div id="edit-title-modal" class="modal-overlay" style="display: none;">
-    <div class="modal">
-        <span class="modal-close" id="close-edit-title-modal">&times;</span>
-        <h2>Editar Título</h2>
-        <input type="text" id="edit-title-input" />
-        <button id="save-title-changes" class="standard-btn">Guardar</button>
-    </div>
 </div>
 
 <script>
-  // --- CONFIGURACIÓN V4 (CORRECTA) ---
   const firebaseConfig = {
       apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
       authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -317,439 +186,90 @@
       appId: "1:119727545224:web:36880c50d196c456cdb83d"
   };
   
-  // --- LISTA COMPLETA DE USUARIOS AUTORIZADOS ---
-  const AUTHORIZED_EMAILS = [
-      'gadalicante@gmail.com', 
-      'copg279@gmail.com',
-      'adamus03248@gmail.com',
-      'davidmesi83@gmail.com', 
-      'pamiseseg@gmail.com',
-      'policia.g496@gmail.com',
-      'verdeguer279@gmail.com',
-      'cambiar_nombre6@gmail.com'
-  ];
-  
-  // SOLO ESTE ES ADMIN
-  const ADMIN_EMAIL = 'copg279@gmail.com';
-
-  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+  firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   const auth = firebase.auth();
-  
-  const BUTTONS_NODE = 'menuButtons';
-  const TITLE_NODE = 'pageTitle';
-  const USERS_NODE = 'usuarios_google'; 
 
-  // --- VARIABLES Y REFERENCIAS ---
-  const mainScrollArea = document.getElementById('main-scroll-area');
-  const iframeViewerArea = document.getElementById('iframe-viewer-area');
-  const contentIframe = document.getElementById('content-iframe');
-  const mainMenuGrid = document.getElementById('main-menu-grid');
-  const secondaryMenuContainer = document.getElementById('secondary-menu-container');
-  const navBtns = document.getElementById('navigation-buttons-container');
-  const dragZone = document.getElementById('drag-drop-zone-main-menu');
-  const adminPanel = document.getElementById('admin-panel');
-  const userControls = document.getElementById('user-controls');
-  const countersRow = document.getElementById('counters-row');
-  const loadingScreen = document.getElementById('loading-screen');
-  const adminToggleBtn = document.getElementById('admin-toggle-btn'); // NUEVO BOTÓN
-
-  const modalEditBtn = document.getElementById('edit-button-modal');
-  const modalAddBtn = document.getElementById('add-button-modal');
-  const modalManageUsers = document.getElementById('manage-users-modal');
-  const modalFullLog = document.getElementById('full-log-modal');
-  
-  const hamburgerBtn = document.getElementById('hamburger-btn');
-  const sidebarMenu = document.getElementById('sidebar-menu');
-  const sidebarOverlay = document.getElementById('sidebar-overlay');
-  const closeSidebarBtn = document.getElementById('close-sidebar');
-  const sidebarTreeContainer = document.getElementById('sidebar-tree-container');
-  const sidebarBackBtn = document.getElementById('sidebar-back-btn');
-  const topHorizontalMenu = document.getElementById('top-horizontal-menu');
-
-  // HEADER CLICABLE
-  const headerVigiaContainer = document.getElementById('header-vigia-container');
-  const topBarMenu = document.getElementById('top-bar-menu');
-
-  headerVigiaContainer.addEventListener('click', () => {
-      if (topBarMenu.style.display === 'none') {
-          topBarMenu.style.display = 'flex';
-      } else {
-          topBarMenu.style.display = 'none';
-      }
-  });
-
-  // TOGGLE MENU ADMIN
-  adminToggleBtn.addEventListener('click', () => {
-      if(adminPanel.style.display === 'none' || adminPanel.style.display === '') {
-          adminPanel.style.display = 'flex';
-          adminToggleBtn.innerHTML = '<i class="fas fa-times"></i> OCULTAR MENÚ ADMINISTRADOR';
-      } else {
-          adminPanel.style.display = 'none';
-          adminToggleBtn.innerHTML = '<i class="fas fa-cogs"></i> MENÚ ADMINISTRADOR';
-      }
-  });
-
-  let isEditMode = false;
-  let menuButtonsData = {};
-  let draggedItem = null;
   let currentMenuPath = [];
-  let currentUserEmail = null;
-  let isViewingContent = false;
+  let menuButtonsData = {};
 
-  const openSidebar = () => { sidebarMenu.style.transform = "translateX(0)"; sidebarOverlay.style.display = "block"; }
-  const closeSidebar = () => { sidebarMenu.style.transform = "translateX(-100%)"; sidebarOverlay.style.display = "none"; }
-  hamburgerBtn.onclick = openSidebar;
-  closeSidebarBtn.onclick = closeSidebar;
-  sidebarOverlay.onclick = closeSidebar;
+  // LÓGICA DE APERTURA DEL MENÚ HAMBURGUESA
+  const openSidebar = () => { 
+      document.getElementById('sidebar-menu').style.transform = "translateX(0)"; 
+      document.getElementById('sidebar-overlay').style.display = "block"; 
+  }
+  const closeSidebar = () => { 
+      document.getElementById('sidebar-menu').style.transform = "translateX(-100%)"; 
+      document.getElementById('sidebar-overlay').style.display = "none"; 
+  }
+  
+  document.getElementById('header-vigia-container').onclick = openSidebar;
+  document.getElementById('close-sidebar').onclick = closeSidebar;
+  document.getElementById('sidebar-overlay').onclick = closeSidebar;
 
-  function showMenuArea() {
-      isViewingContent = false;
-      mainScrollArea.style.display = 'flex';
-      iframeViewerArea.style.display = 'none';
-      contentIframe.src = 'about:blank';
+  db.ref('menuButtons').on('value', s => { 
+      menuButtonsData = s.val() || {}; 
       renderMenuButtons(); 
-  }
-
-  function showIframeArea(data) {
-      isViewingContent = true;
-      mainScrollArea.style.display = 'none';
-      iframeViewerArea.style.display = 'block';
-
-      if (data.htmlCode) {
-          const doc = contentIframe.contentWindow.document;
-          doc.open();
-          let content = data.htmlCode;
-          const viewportTag = '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">';
-          const scriptConfig = `
-                <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"><\/script>
-                <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"><\/script>
-                <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"><\/script>
-                <script>
-                   var gadConfigV4 = { apiKey: "${firebaseConfig.apiKey}", authDomain: "${firebaseConfig.authDomain}", databaseURL: "${firebaseConfig.databaseURL}", projectId: "${firebaseConfig.projectId}", storageBucket: "${firebaseConfig.storageBucket}", messagingSenderId: "${firebaseConfig.messagingSenderId}", appId: "${firebaseConfig.appId}" };
-                   if (!firebase.apps.length) firebase.initializeApp(gadConfigV4);
-                <\/script>
-            `;
-          if (!content.includes('<meta name="viewport"')) {
-              if(content.includes('<head>')) { content = content.replace('<head>', '<head>' + viewportTag + scriptConfig); } 
-              else { content = viewportTag + scriptConfig + content; }
-          } else if (content.includes('<head>')) { content = content.replace('<head>', '<head>' + scriptConfig); }
-          doc.write(content); doc.close();
-      } else if (data.href) { contentIframe.src = data.href; }
-      renderMenuButtons();
-  }
-
-  function goBack() {
-      if (isViewingContent) {
-          showMenuArea();
-          const currentMenuId = currentMenuPath.length > 0 ? currentMenuPath[currentMenuPath.length - 1] : '';
-          history.replaceState(null, '', currentMenuId ? '#folder=' + currentMenuId : '#');
-          return;
-      }
-      if (currentMenuPath.length > 0) { window.history.back(); return; }
-  }
-
-  window.onpopstate = function(event) {
-      if (isViewingContent) { showMenuArea(); } 
-      else if (currentMenuPath.length > 0) { currentMenuPath.pop(); renderMenuButtons(); }
-  };
-  sidebarBackBtn.onclick = () => { goBack(); closeSidebar(); };
-  document.querySelector('.top-bar-strip').addEventListener('click', (e) => { if (e.target.classList.contains('top-back-btn')) { goBack(); } });
-  async function getClientIP() { try { const r = await fetch('https://api64.ipify.org?format=json'); const d = await r.json(); return d.ip || 'N/A'; } catch { return 'N/A'; } }
-  function sanitizeEmail(email) { return email.replace(/\./g, ','); }
-
-  function setupFileDrop(area, input, textArea) {
-      if(!area) return;
-      area.ondragover = e => { e.preventDefault(); area.classList.add('hover'); };
-      area.ondragleave = () => area.classList.remove('hover');
-      area.ondrop = e => { e.preventDefault(); area.classList.remove('hover'); const f = e.dataTransfer.files[0]; if(f?.name.endsWith('.html')) readFile(f, textArea); };
-      area.onclick = () => input?.click();
-      if(input) input.onchange = e => { if(e.target.files[0]) readFile(e.target.files[0], textArea); };
-  }
-  function readFile(f, ta) { const r = new FileReader(); r.onload = e => ta.value = e.target.result; r.readAsText(f); }
-  setupFileDrop(document.getElementById('new-link-fields').querySelector('textarea'), null, document.getElementById('new-button-html-code'));
-  setupFileDrop(document.getElementById('edit-drop-area'), document.getElementById('edit-html-file-input'), document.getElementById('edit-button-html-code'));
-
-  function handleGenericButtonClick(key, data) {
-      if (data.type === 'parent') { 
-          currentMenuPath.push(key); history.pushState({folder: key}, '', '#folder=' + key); renderMenuButtons();
-      } else if (data.htmlCode || data.href) {
-          history.pushState({content: true}, '', '#view'); showIframeArea(data);
-      }
-  }
-
-  function renderTopBar(visibleButtons) {
-      topHorizontalMenu.innerHTML = '';
-      if(currentMenuPath.length > 0 || isViewingContent) {
-          const backBtn = document.createElement('button');
-          backBtn.className = 'top-nav-link top-back-btn';
-          backBtn.innerHTML = `<i class="fas fa-arrow-left text-white"></i> ATRÁS`;
-          backBtn.onclick = goBack;
-          topHorizontalMenu.appendChild(backBtn);
-      }
-      if (!isViewingContent && visibleButtons) {
-          visibleButtons.forEach(([key, data]) => {
-              const topBtn = document.createElement('a'); topBtn.className = 'top-nav-link';
-              let typeClass = data.type === 'parent' ? 'type-parent' : 'type-main'; topBtn.classList.add(typeClass);
-              if (data.color && (data.color !== '#1e40af' || data.type !== 'parent') && (data.color !== '#16a34a' || data.type !== 'main')) { topBtn.style.backgroundColor = data.color; topBtn.style.color = 'white'; }
-              topBtn.innerHTML = `${data.text}`; topBtn.onclick = () => handleGenericButtonClick(key, data); topHorizontalMenu.appendChild(topBtn);
-          });
-      }
-  }
-
-  function renderSidebarTree(parentId, container) {
-      const items = Object.entries(menuButtonsData).filter(([k, v]) => parentId === null ? !v.parent : v.parent === parentId).sort((a, b) => a[1].order - b[1].order);
-      if (items.length === 0) return;
-      items.forEach(([key, data]) => {
-          const itemDiv = document.createElement('div'); itemDiv.className = 'sidebar-item';
-          const row = document.createElement('div'); row.className = 'sidebar-row';
-          const contentDiv = document.createElement('div'); contentDiv.className = 'sidebar-row-content';
-          let iconClass = data.type === 'parent' ? 'fa-folder' : 'fa-link';
-          contentDiv.innerHTML = `<i class="fas ${iconClass}"></i> <span>${data.text}</span>`; 
-          contentDiv.onclick = () => { handleGenericButtonClick(key, data); closeSidebar(); };
-          row.appendChild(contentDiv);
-          if (data.type === 'parent') {
-              const toggleIcon = document.createElement('div'); toggleIcon.className = 'toggle-icon'; toggleIcon.innerHTML = `<i class="fas fa-plus"></i>`; 
-              const childContainer = document.createElement('div'); childContainer.className = 'sidebar-children';
-              toggleIcon.onclick = (e) => { e.stopPropagation(); const isExpanded = childContainer.classList.toggle('show'); toggleIcon.classList.toggle('expanded', isExpanded); toggleIcon.innerHTML = isExpanded ? `<i class="fas fa-minus"></i>` : `<i class="fas fa-plus"></i>`; };
-              row.appendChild(toggleIcon); itemDiv.appendChild(row); itemDiv.appendChild(childContainer); 
-              renderSidebarTree(key, childContainer);
-          } else { itemDiv.appendChild(row); }
-          container.appendChild(itemDiv);
-      });
-  }
+      document.body.classList.add('loaded');
+  });
 
   function renderMenuButtons() {
-      mainMenuGrid.innerHTML = ''; secondaryMenuContainer.innerHTML = ''; navBtns.innerHTML = ''; navBtns.style.display = 'none';
-      const currentMenuId = currentMenuPath.length > 0 ? currentMenuPath[currentMenuPath.length - 1] : null;
-      const currentButtons = Object.entries(menuButtonsData).filter(([k, v]) => currentMenuId === null ? !v.parent : v.parent === currentMenuId).sort((a, b) => a[1].order - b[1].order);
-      renderTopBar(currentButtons);
-      sidebarTreeContainer.innerHTML = ''; renderSidebarTree(null, sidebarTreeContainer);
-      sidebarBackBtn.style.display = (currentMenuPath.length > 0 || isViewingContent) ? 'block' : 'none';
-      if (isViewingContent) return;
-      renderTitle();
-      currentButtons.forEach(([k, v]) => {
-          const el = createButton(k, v);
-          if (v.type === 'secondary' && !currentMenuId) secondaryMenuContainer.appendChild(el); else mainMenuGrid.appendChild(el);
-      });
-      if (currentMenuPath.length > 0) {
-          navBtns.style.display = 'flex';
-          const btnMain = document.createElement('button'); btnMain.innerText = 'MENÚ PRINCIPAL'; btnMain.className = 'py-3 px-6 bg-yellow-400 font-bold rounded-lg shadow uppercase text-sm w-40'; btnMain.onclick = () => { currentMenuPath = []; renderMenuButtons(); };
-          const btnBack = document.createElement('button'); btnBack.innerText = 'ATRÁS'; btnBack.className = 'py-3 px-6 bg-yellow-400 font-bold rounded-lg shadow uppercase text-sm w-40'; btnBack.onclick = goBack;
-          navBtns.append(btnMain, btnBack);
-      }
-  }
-  
-  function createButton(key, data) {
-      const div = document.createElement('div'); div.className = 'menu-button-container relative'; div.dataset.id = key;
-      if (data.size === 'full-width') div.classList.add('col-span-2');
-      const a = document.createElement('a'); a.className = 'flex items-center justify-center p-4 lg:p-6 text-white font-bold rounded-lg shadow-md transition-all active:scale-95 text-center leading-tight w-full h-full';
-      a.style.fontSize = window.innerWidth > 640 ? '1.15rem' : '1rem'; a.style.backgroundColor = data.color;
-      a.innerHTML = `<span>${data.text}</span>`;
-      if (data.logo) a.innerHTML += `<img src="${data.logo}" class="construccion-logo">`;
-      a.href = 'javascript:void(0)';
-      a.onclick = () => { if (isEditMode) return; handleGenericButtonClick(key, data); };
-      div.appendChild(a);
-      if (isEditMode) {
-          div.draggable = true; addDragHandlers(div);
-          div.innerHTML += `<div class="edit-icon" onclick="openEdit('${key}')"><i class="fas fa-pencil-alt"></i></div><div class="delete-icon" onclick="delBtn('${key}','${data.text}','${data.parent}')"><i class="fas fa-trash-alt"></i></div>`;
-          if (data.parent) div.innerHTML += `<div class="back-icon" onclick="moveToRoot('${key}')"><i class="fas fa-reply"></i></div>`;
-      }
-      return div;
-  }
+      const grid = document.getElementById('main-menu-grid');
+      grid.innerHTML = '';
+      const parentId = currentMenuPath.length > 0 ? currentMenuPath[currentMenuPath.length - 1] : null;
+      
+      const buttons = Object.entries(menuButtonsData)
+          .filter(([k, v]) => v.parent == parentId)
+          .sort((a,b) => a[1].order - b[1].order);
 
-  function renderTitle() {
-      const currentMenuId = currentMenuPath[currentMenuPath.length - 1];
-      let ref = db.ref(TITLE_NODE); let def = 'Menú Herramientas GAD';
-      if (currentMenuId) { ref = db.ref(BUTTONS_NODE + '/' + currentMenuId + '/menuTitle'); def = menuButtonsData[currentMenuId]?.text || 'Submenú'; }
-      ref.once('value', s => {
-          document.getElementById('main-title-text').textContent = s.val() || def;
-          document.getElementById('edit-title-icon').onclick = () => {
-              document.getElementById('edit-title-input').value = s.val() || def;
-              document.getElementById('edit-title-modal').style.display = 'flex';
-              document.getElementById('save-title-changes').onclick = () => ref.set(document.getElementById('edit-title-input').value).then(() => { renderTitle(); document.getElementById('edit-title-modal').style.display = 'none'; });
-          }
-      });
-  }
+      buttons.forEach(([k, v]) => {
+          const btn = document.createElement('div');
+          btn.className = `cyber-button ${v.size === 'full-width' ? 'col-span-2' : ''}`;
+          
+          if (v.color === '#dc2626') btn.classList.add('alert');
+          if (v.color === '#16a34a') btn.classList.add('success');
+          if (v.color === '#f59e0b') btn.classList.add('warning');
 
-  // --- ESCUCHA DE DATOS ---
-  function iniciarEscuchaDeDatos() {
-      // SOLO SE LLAMA CUANDO YA TENEMOS PERMISO
-      console.log("Iniciando descarga segura de datos...");
-      db.ref().on('value', s => { 
-          menuButtonsData = s.val()?.menuButtons || {}; 
-          renderMenuButtons(); 
-          // Ocultar pantalla de carga
-          loadingScreen.style.opacity = '0';
-          setTimeout(() => loadingScreen.style.display = 'none', 500);
-      });
-  }
-
-  window.openEdit = (key) => {
-      const d = menuButtonsData[key]; document.getElementById('edit-button-id').value = key; document.getElementById('edit-button-text').value = d.text; document.getElementById('edit-button-href').value = d.href || ''; document.getElementById('edit-button-html-code').value = d.htmlCode || ''; document.getElementById('edit-link-fields').style.display = (d.type === 'link' || d.type === 'main') ? 'block' : 'none';
-      document.querySelectorAll('input[name="edit-button-size"]').forEach(r => r.checked = r.value === d.size); document.querySelectorAll('.color-circle').forEach(c => c.classList.toggle('active', c.dataset.color === d.color));
-      modalEditBtn.style.display = 'flex';
-  };
-  window.delBtn = (k, t, p) => { if(confirm(`¿Borrar "${t}"?`)) { const u={}; u[`/${BUTTONS_NODE}/${k}`]=null; if(p && Object.values(menuButtonsData).filter(b=>b.parent===p).length===1) u[`/${BUTTONS_NODE}/${p}/children`]=null; db.ref().update(u); }};
-  window.moveToRoot = async (k) => { const s = await db.ref(BUTTONS_NODE).once('value'); const order = Object.values(s.val()||{}).filter(b=>!b.parent).length + 1; db.ref(`${BUTTONS_NODE}/${k}`).update({parent:null, order}); };
-
-  function addDragHandlers(el) {
-      el.ondragstart = e => { draggedItem = el; setTimeout(() => el.classList.add('dragging'),0); };
-      el.ondragend = () => { draggedItem.classList.remove('dragging'); draggedItem=null; document.querySelectorAll('.drag-over-container').forEach(c=>c.classList.remove('drag-over-container')); };
-      el.ondrop = async e => { e.preventDefault(); e.stopPropagation(); if(draggedItem && draggedItem !== el) { const target = menuButtonsData[el.dataset.id]; if(target.type==='parent' && confirm("¿Mover dentro?")) db.ref(`${BUTTONS_NODE}/${draggedItem.dataset.id}`).update({parent:el.dataset.id}); else { el.parentNode.insertBefore(draggedItem, el); updateOrder(); } } };
-      el.ondragover = e => e.preventDefault();
-  }
-  dragZone.ondragover = e => { e.preventDefault(); dragZone.classList.add('drag-over-container'); };
-  dragZone.ondragleave = () => dragZone.classList.remove('drag-over-container');
-  dragZone.ondrop = e => { e.preventDefault(); dragZone.classList.remove('drag-over-container'); if(draggedItem) { mainMenuGrid.appendChild(draggedItem); updateOrder(); } };
-  function updateOrder() { const u={}; document.querySelectorAll('#main-menu-grid .menu-button-container').forEach((b,i) => u[`/${BUTTONS_NODE}/${b.dataset.id}/order`]=i+1); db.ref().update(u); }
-
-  // --- LÓGICA PRINCIPAL DE SEGURIDAD ---
-  function initAppLogic() {
-      firebase.auth().onAuthStateChanged(async (user) => {
-          if (user) {
-              // 1. USUARIO AUTORIZADO DETECTADO EN AUTH
-              if (AUTHORIZED_EMAILS.includes(user.email)) {
-                  document.body.classList.add('loaded'); // Mostrar body
-                  
-                  // 2. AHORA SÍ: PEDIMOS LOS DATOS
-                  iniciarEscuchaDeDatos();
-
-                  const emailKey = sanitizeEmail(user.email);
-                  // ADMIN EXPLICITO
-                  const isAdmin = (user.email === ADMIN_EMAIL);
-                  
-                  // Intentamos escribir el acceso.
-                  try {
-                      if (isAdmin) { 
-                          await grantAccess(user, true); 
-                      } else {
-                          // Verificar si existe en DB (doble check)
-                          const snap = await db.ref(USERS_NODE + '/' + emailKey).once('value');
-                          if (snap.exists()) {
-                              await grantAccess(user, false);
-                          } else {
-                              alert('ACCESO DENEGADO por Base de Datos. Contacte con el administrador.');
-                              firebase.auth().signOut().then(() => window.location.href = 'index.html');
-                          }
-                      }
-                  } catch (e) {
-                      console.error("Error de permisos:", e);
-                  }
-
+          btn.innerHTML = `<span>${v.text}</span>`;
+          btn.onclick = () => {
+              if (v.type === 'parent') {
+                  currentMenuPath.push(k);
+                  renderMenuButtons();
               } else {
-                 alert("Usuario no autorizado en lista local.");
-                 window.location.href = 'index.html';
+                  showIframe(v);
               }
-          } else {
-              // NO LOGUEADO -> FUERA
-              console.warn("Usuario no autorizado. Redirigiendo al Login...");
-              window.location.href = 'index.html';
-          }
+          };
+          grid.appendChild(btn);
       });
+      document.getElementById('sidebar-back-btn').style.display = (currentMenuPath.length > 0) ? 'block' : 'none';
   }
 
-  async function grantAccess(user, isAdmin) {
-      currentUserEmail = user.email;
-      const emailKey = sanitizeEmail(user.email);
-      const now = Date.now();
-      const ip = await getClientIP();
-      
-      const updateData = {};
-      if(isAdmin) {
-          db.ref(USERS_NODE + '/' + emailKey).update({email: user.email, nombre: 'Admin', ultimoAcceso: now});
-      } else {
-          db.ref(USERS_NODE + '/' + emailKey).transaction(currentData => {
-              if (currentData) {
-                  return { ...currentData, email: user.email, accesos: (currentData.accesos||0)+1, ultimoAcceso: now };
-              }
-              return currentData; 
-          });
-      }
-
-      db.ref('visitLog').push().set({ userId: emailKey, userName: user.displayName||user.email, email: user.email, timestamp: now, ip: ip });
-      
-      document.getElementById('user-info-display').innerHTML = `<i class="fas fa-user-circle"></i> ${user.email}`;
-      
-      // LOGICA MOSTRAR ADMIN (MODIFICADO)
-      if (isAdmin) { 
-          // Ya no mostramos adminPanel directamente, sino el botón para abrirlo
-          adminToggleBtn.style.display = 'block'; 
-          document.getElementById('edit-title-icon').style.display = isEditMode ? 'inline-block' : 'none'; 
-      } else { 
-          userControls.style.display = 'block'; 
-      }
+  function showIframe(data) {
+      document.getElementById('main-scroll-area').style.display = 'none';
+      document.getElementById('iframe-viewer-area').style.display = 'block';
+      const ifr = document.getElementById('content-iframe');
+      if (data.htmlCode) {
+          const doc = ifr.contentWindow.document;
+          doc.open(); doc.write(data.htmlCode); doc.close();
+      } else { ifr.src = data.href; }
   }
 
-  const logout = () => { if(isEditMode) toggleEditModeUI(); firebase.auth().signOut().then(() => { window.location.href = 'index.html'; }); };
-  document.getElementById('btn-logout').onclick = logout;
-  document.getElementById('btn-logout-user').onclick = logout;
-
-  function renderAdminCounters(users) {
-      if(!users) return;
-      let sorted = Object.entries(users).map(([k, v]) => ({ key: k, ...v })).sort((a, b) => (a.nombre || a.email).localeCompare(b.nombre || b.email));
-      let total = 0, html = '';
-      sorted.forEach(u => {
-          total += (u.accesos || 0); let d = u.ultimoAcceso ? new Date(u.ultimoAcceso).toLocaleDateString() : "Sin acceso";
-          html += `<div class="counter-card"><div class="counter-header" title="${u.email}">${(u.nombre||u.email).substring(0,12)}</div><div class="counter-number">${u.accesos||0}</div><div class="counter-date">${d}</div><button class="counter-btn" onclick="openUserVisitHistory('${u.key}', '${u.email}')">Ver</button></div>`;
-      });
-      document.getElementById('counters-row').innerHTML = `<div class="counters-container"><div class="counter-card total"><div class="counter-header">TOTAL</div><div class="counter-number" style="font-size:1.8rem;">${total}</div></div>${html}</div>`;
-  }
-
-  function toggleEditModeUI() {
-      isEditMode = !isEditMode;
-      const btn = document.getElementById('show-edit-menu-modal');
-      btn.classList.toggle('active', isEditMode);
-      btn.innerHTML = isEditMode ? '<i class="fas fa-check"></i> Finalizar' : '<i class="fas fa-pencil-alt"></i> Editar Menú';
-      document.getElementById('add-button-container').style.display = isEditMode ? 'block' : 'none';
-      document.getElementById('edit-title-icon').style.display = isEditMode ? 'inline-block' : 'none';
+  document.getElementById('sidebar-back-btn').onclick = () => {
+      currentMenuPath.pop();
       renderMenuButtons();
-  }
-  document.getElementById('show-edit-menu-modal').onclick = toggleEditModeUI;
-  
-  window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('manage-users-modal').innerHTML = `<div class="modal"><span class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">&times;</span><h2>Gestionar Acceso</h2><div class="modal-body"><input type="email" id="new-user-email" placeholder="Email"/><input type="text" id="new-user-alias" placeholder="Nombre"/><button id="add-user-button" class="standard-btn">Autorizar</button><hr><ul id="user-list-to-delete"></ul></div></div>`;
-      document.getElementById('full-log-modal').innerHTML = `<div class="modal" style="max-width:800px;height:90vh;"><span class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">&times;</span><h2>Registro Global</h2><button id="clear-global-log" class="btn-admin-modal">Borrar Log</button><div id="full-log-container" style="overflow-y:auto;height:80%;"></div></div>`;
-      document.getElementById('show-manage-users-modal').onclick = () => modalManageUsers.style.display = 'flex';
-      document.getElementById('show-full-log-modal').onclick = () => { renderFullGlobalLog(); modalFullLog.style.display = 'flex'; };
-      
-      db.ref(USERS_NODE).on('value', s => {
-          if(s.val()) {
-              const ul = document.getElementById('user-list-to-delete'); if(ul) ul.innerHTML = '';
-              Object.entries(s.val()).forEach(([k,v]) => { if(ul) ul.innerHTML += `<li><div class="user-row-header"><span>${v.email}</span></div><div class="user-row-actions"><button onclick="delUser('${k}')">X</button></div></li>`; });
-              // SOLO ADMIN (copg279) ve contadores
-              if (auth.currentUser?.email === ADMIN_EMAIL) renderAdminCounters(s.val());
-          }
-      }, (error) => {
-          console.log("No tienes permisos para ver usuarios (normal si no eres admin)");
-      });
+      closeSidebar();
+  };
 
-      document.getElementById('add-user-button').onclick = () => { const e = document.getElementById('new-user-email').value.trim().toLowerCase(); if(e) db.ref(USERS_NODE + '/' + sanitizeEmail(e)).update({ email: e, nombre: document.getElementById('new-user-alias').value, accesos: 0 }).then(()=>alert('Añadido')); };
-      document.getElementById('clear-global-log').onclick = () => { if(confirm("¿Borrar?")) db.ref('visitLog').remove(); };
-      
-      initAppLogic();
-      
-      document.getElementById('add-new-button').onclick = () => { document.getElementById('new-button-text').value=''; modalAddBtn.style.display='flex'; };
-      document.getElementById('save-new-button').onclick = async () => {
-          const t = document.getElementById('new-button-text').value; if(!t) return;
-          const type = document.querySelector('input[name="button-type"]:checked').value;
-          const size = document.querySelector('input[name="button-size"]:checked').value;
-          const parent = currentMenuPath.length ? currentMenuPath[currentMenuPath.length-1] : null;
-          const s = await db.ref(BUTTONS_NODE).orderByChild('parent').equalTo(parent).once('value');
-          const d = { text:t, size, parent, order: (s.val()?Object.keys(s.val()).length:0)+1, type: type==='link'?'main':'parent', color: type==='link'?'#16a34a':'#1e40af' };
-          if(type==='link') d.htmlCode = document.getElementById('new-button-html-code').value;
-          db.ref(BUTTONS_NODE).push(d).then(()=>modalAddBtn.style.display='none');
-      };
-      document.getElementById('save-button-changes').onclick = () => {
-          const id = document.getElementById('edit-button-id').value;
-          db.ref(`${BUTTONS_NODE}/${id}`).update({ text: document.getElementById('edit-button-text').value, color: document.querySelector('.color-circle.active')?.dataset.color, size: document.querySelector('input[name="edit-button-size"]:checked').value, href: document.getElementById('edit-button-href').value, htmlCode: document.getElementById('edit-button-html-code').value }).then(() => modalEditBtn.style.display = 'none');
-      };
-      document.querySelectorAll('.color-circle').forEach(c => c.onclick = e => { document.querySelectorAll('.color-circle').forEach(x=>x.classList.remove('active')); e.target.classList.add('active'); });
-      document.querySelectorAll('.modal-close').forEach(c => c.onclick = () => c.closest('.modal-overlay').style.display = 'none');
+  document.getElementById('admin-toggle-btn').onclick = () => {
+      const p = document.getElementById('admin-panel');
+      p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+  };
+
+  auth.onAuthStateChanged(user => {
+      if (user) {
+          document.getElementById('user-info-display').innerText = `OPERADOR: ${user.email}`;
+      } else { window.location.href = 'index.html'; }
   });
-  window.delUser = (k) => db.ref(USERS_NODE+'/'+k).remove();
-  window.openUserVisitHistory = async (key, email) => { const s = await db.ref('visitLog').orderByChild('userId').equalTo(key).once('value'); let h = `<h2>${email}</h2><table>`; if(s.val()) Object.values(s.val()).forEach(e => h+=`<tr><td>${new Date(e.timestamp).toLocaleDateString()}</td></tr>`); const w = window.open('','_blank'); w.document.write(h); };
-  async function renderFullGlobalLog() { const c = document.getElementById('full-log-container'); c.innerHTML = '...'; const s = await db.ref('visitLog').limitToLast(50).once('value'); c.innerHTML = s.val() ? Object.values(s.val()).map(e=>`<div>${e.email} - ${new Date(e.timestamp).toLocaleString()}</div>`).join('') : 'Vacío'; };
 </script>
 </body>
 </html>
