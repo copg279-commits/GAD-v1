@@ -13,34 +13,77 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        /* ESTILOS GENERALES */
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; visibility: hidden; }
-        body.loaded { visibility: visible; }
-        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 99999; display: flex; justify-content: center; align-items: center; color: white; flex-direction: column; transition: opacity 0.5s; }
-        
-        /* BARRA SUPERIOR (Ahora oculta por defecto) */
-        .top-bar-strip { background-color: #1e3a8a; color: white; display: flex; align-items: center; padding: 0 10px; height: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 100; position: relative; flex-shrink: 0; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .top-nav-link { display: inline-flex; align-items: center; padding: 0 10px; height: 30px; font-size: 0.8rem; font-weight: 500; color: white; white-space: nowrap; cursor: pointer; text-decoration: none; border-right: 1px solid rgba(255,255,255,0.15); transition: all 0.2s; background: transparent; border-radius: 4px; margin: 0 2px; }
-        .top-nav-link:hover { opacity: 0.9; } .top-nav-link.type-parent { background-color: #1e40af; border: 1px solid rgba(255,255,255,0.2); } .top-nav-link.type-main { background-color: #16a34a; border: 1px solid rgba(255,255,255,0.2); }
-        .top-back-btn { background-color: #dc2626; border: none; margin-right: 10px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor: pointer; padding: 0 15px; border-radius: 4px; color: white; height: 30px; display: flex; align-items: center; } .top-back-btn:hover { background-color: #b91c1c; }
-        
-        /* NUEVA CABECERA IMAGEN VIGIA */
+        /* --- ESTILOS CABECERA (CORREGIDO) --- */
         #header-vigia-container {
             width: 100%;
-            cursor: pointer; /* Indica que es clicable */
+            cursor: pointer;
             background-color: #fff;
             position: relative;
             z-index: 50;
-            line-height: 0;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden; 
+            
+            /* MÓVIL: Altura fija obligatoria para que no desaparezca */
+            height: 160px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
         #header-vigia-img {
             width: 100%;
-            height: auto;
-            max-height: 300px; /* Limite de altura para pantallas muy grandes */
-            object-fit: contain; /* Ajusta sin cortar */
+            height: 100%;
+            /* MÓVIL: Recorta los lados (zoom) para llenar la altura */
+            object-fit: cover; 
+            object-position: center;
             display: block;
+        }
+
+/* --- CABECERA LIMPIA (SIN ALTURAS FIJAS NI RECORTES) --- */
+        #header-vigia-container {
+            /* Anchura: Ocupa todo el ancho, pero se frena en 900px igual que el menú */
+            width: 100%;
+            max-width: 900px; 
+            
+            /* Centrado horizontal */
+            margin: 0 auto; 
+            
+            /* ALTURA AUTOMÁTICA: Esto es lo vital. El contenedor se adapta a la imagen */
+            height: auto; 
+            min-height: 0; /* Aseguramos que no haya mínimos forzados */
+            
+            /* Estética */
+            background-color: transparent; 
+            padding: 0;
+            display: block; /* Bloque simple, sin flexbox que pueda estirar cosas */
+            line-height: 0; /* Quita espacio fantasma inferior */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        #header-vigia-img {
+            /* La imagen manda: 100% de ancho, la altura que necesite */
+            width: 100%;
+            height: auto; 
+            
+            /* Reseteamos cualquier comportamiento de recorte anterior */
+            object-fit: fill; 
+            max-height: none; 
+            
+            display: block;
+            border-radius: 0.75rem;
+        }
+
+        /* En móvil solo quitamos los bordes redondeados para que pegue a los lados */
+        @media (max-width: 640px) {
+            #header-vigia-container {
+                border-radius: 0;
+                margin-bottom: 0;
+            }
+            #header-vigia-img {
+                border-radius: 0;
+            }
         }
 
         #main-scroll-area { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; width: 100%; transition: opacity 0.3s; }
@@ -59,39 +102,35 @@
         #main-menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr; gap: 0.75rem; width: 100%; }
         .menu-button-container { height: 100%; width: 100%; display: flex; flex-direction: column; position: relative; }
         
-        /* ESTILOS TÍTULO FLANQUEADO POR LOGOS */
-        .title-container { 
-            margin-bottom: 1rem; 
-            width: 100%;
-        }
-        .title-row-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: space-between; /* Logos a los extremos del titulo */
-            gap: 10px;
-            width: 100%;
-        }
-        .flank-logo {
-            height: 60px; /* Tamaño base escritorio */
-            width: auto;
-            object-fit: contain;
-        }
-        h1 { margin: 0; font-size: 1.5rem; padding: 0.5rem 0; text-align: center; flex-grow: 1; } 
-        
-        @media (min-width: 640px) { 
-            h1 { font-size: 2.5rem; } 
-            .main-content-wrapper { padding: 0 2rem; } 
-            .flank-logo { height: 80px; } /* Más grandes en escritorio */
-        }
-        @media (max-width: 480px) {
-            .flank-logo { height: 40px; } /* Ajuste móvil pequeño */
-            h1 { font-size: 1.2rem; }
-        }
+        .title-container { width: 100%; margin-bottom: 1rem; text-align: center; }
+        h1 { margin: 0; font-size: 1.5rem; padding: 0.5rem 0; display: inline-flex; align-items: center; justify-content: center; } 
+        @media (min-width: 640px) { h1 { font-size: 2.5rem; } .main-content-wrapper { padding: 0 2rem; } }
 
         .construccion-logo { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); height: 60%; opacity: 0.9; }
         .counters-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; width: 100%; } .counter-card { background-color: #4b5563; color: white; border-radius: 8px; padding: 10px 5px; width: 110px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; } .counter-card.total { background-color: #2563eb; width: 120px; } .counter-header { font-size: 0.85rem; font-weight: 700; text-align: center; margin-bottom: 5px; line-height: 1.1; word-break: break-word; } .counter-number { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; } .counter-date { font-size: 0.65rem; color: #d1d5db; margin-bottom: 8px; text-align: center; } .counter-btn { background-color: #6366f1; color: white; font-size: 0.7rem; font-weight: 600; padding: 4px 0; width: 90%; border-radius: 4px; border: none; cursor: pointer; transition: background 0.2s; } .counter-footer-text { font-size: 0.7rem; margin-top: auto; opacity: 0.9; }
-        .controls-container { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-top: 25px; display: flex; flex-direction: column; gap: 15px; } .admin-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; } .btn-modern { display: flex; align-items: center; justify-content: center; padding: 8px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 8px; color: white; border: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); } .btn-edit { background-color: #f59e0b; } .btn-edit:hover { background-color: #d97706; } .btn-edit.active { background-color: #16a34a; } .btn-users { background-color: #3b82f6; } .btn-users:hover { background-color: #2563eb; } .btn-log { background-color: #10b981; } .btn-log:hover { background-color: #059669; } .btn-backup { background-color: #8b5cf6; } .btn-backup:hover { background-color: #7c3aed; } .btn-prompts { background-color: #6366f1; } .btn-prompts:hover { background-color: #4f46e5; } .btn-logout-modern { background-color: #ef4444; width: 100%; margin-top: 5px; } .btn-logout-modern:hover { background-color: #dc2626; }
+        
+        /* CONTENEDOR DE CONTROLES (Ahora oculto inicialmente) */
+        .controls-container { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-top: 15px; display: flex; flex-direction: column; gap: 15px; display: none; /* Oculto por defecto, se activa con JS */ } 
+        
+        .admin-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; } .btn-modern { display: flex; align-items: center; justify-content: center; padding: 8px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 8px; color: white; border: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); } .btn-edit { background-color: #f59e0b; } .btn-edit:hover { background-color: #d97706; } .btn-edit.active { background-color: #16a34a; } .btn-users { background-color: #3b82f6; } .btn-users:hover { background-color: #2563eb; } .btn-log { background-color: #10b981; } .btn-log:hover { background-color: #059669; } .btn-backup { background-color: #8b5cf6; } .btn-backup:hover { background-color: #7c3aed; } .btn-prompts { background-color: #6366f1; } .btn-prompts:hover { background-color: #4f46e5; } .btn-logout-modern { background-color: #ef4444; width: 100%; margin-top: 5px; } .btn-logout-modern:hover { background-color: #dc2626; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(5px); } .modal { background: linear-gradient(145deg, #1e293b, #0f172a); padding: 30px; border-radius: 16px; text-align: center; color: #f8fafc; width: 90%; max-width: 380px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); } .modal-header-logo { height: 110px; width: 110px; margin: 0 auto 20px; background: transparent; display: flex; justify-content: center; align-items: center; filter: drop-shadow(0 10px 8px rgba(0,0,0,0.3)); } .modal-header-logo img { width: 100%; height: 100%; object-fit: contain; } .modal h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff; } .modal p { font-size: 0.95rem; color: #94a3b8; margin-bottom: 1.5rem; } .modal input, .modal select { padding: 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1); background-color: rgba(255, 255, 255, 0.05); color: #fff; width: 100%; margin-bottom: 15px; box-sizing: border-box; outline: none; transition: all 0.3s ease; font-size: 1rem; } .modal input:focus, .modal select:focus { border-color: #6366f1; background-color: rgba(255, 255, 255, 0.1); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); } .google-btn { padding: 14px; border-radius: 10px; border: none; background: white; color: #374151; width: 100%; cursor: pointer; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px; transition: transform 0.2s, opacity 0.2s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); display: flex; align-items: center; justify-content: center; gap: 10px; } .google-btn:active { transform: scale(0.98); } .google-btn:hover { background-color: #f3f4f6; } .modal button.standard-btn { padding: 14px; border-radius: 10px; border: none; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; width: 100%; font-weight: 700; cursor: pointer; } .modal-close { position: absolute; top: 15px; right: 15px; font-size: 1.5em; cursor: pointer; color: #64748b; transition: color 0.3s; } .modal-body hr { border-color: #334155; margin: 15px 0; } #user-list-container { margin-top: 15px; max-height: 200px; overflow-y: auto; width: 100%; } #user-list-to-delete li { display: flex; flex-direction: column; padding: 12px; border-bottom: 1px solid #334155; color: #e2e8f0; gap: 5px; } .user-row-header { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: bold; font-size: 0.9rem;} .user-row-actions { display: flex; gap: 8px; justify-content: flex-end; width: 100%; } #user-list-to-delete button { width: auto; padding: 4px 10px; font-size: 0.75rem; background: #ef4444; box-shadow: none; border-radius: 4px; color: white; border: none; cursor: pointer; } #user-list-to-delete .reset-btn { background: #3b82f6; } #full-log-modal .modal table { width:100%; text-align:left; border-collapse: collapse; font-size: 0.85rem; } #full-log-modal .modal th { background: #0f172a; padding: 10px; border: 1px solid #334155; color: #94a3b8; text-transform: uppercase; font-size: 0.75rem; } #full-log-modal .modal td { padding: 10px; border: 1px solid #334155; color: #cbd5e1; } #full-log-modal .modal tbody tr:nth-child(even) { background-color: rgba(255,255,255,0.03); } .btn-admin-modal { background-color: #dc3545; color: white; padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; border: none; margin-bottom: 8px; font-weight: 600; } .edit-icon, .delete-icon, .back-icon { position: absolute; width: 28px; height: 28px; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); } .edit-icon { top: -8px; right: -8px; background-color: #2563eb; } .delete-icon { top: -8px; left: -8px; background-color: #dc2626; } .back-icon { bottom: -8px; right: -8px; background-color: #ca8a04; } .menu-button-container.dragging { opacity: 0.5; border: 2px dashed #667eea; } .drag-over-container { border: 2px dashed #667eea; background-color: rgba(102, 126, 234, 0.05); } .navigation-buttons-row { display: flex; justify-content: center; gap: 0.75rem; width: 100%; margin-top: 1rem; } footer { width: 100%; padding: 1.5rem 0; margin-top: auto; } .color-circle { width: 35px; height: 35px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; } .color-circle.active { border-color: #fff; box-shadow: 0 0 0 2px #667eea; } .color-circle-container { display: flex; justify-content: space-around; margin-top: 15px; } .drop-area, .edit-drop-area { border: 2px dashed #667eea; border-radius: 8px; padding: 10px; text-align: center; color: #667eea; background: rgba(102,126,234,0.05); cursor: pointer; margin-top: 10px; } .drop-area.hover, .edit-drop-area.hover { background: rgba(102,126,234,0.2); } .editable-title { position: relative; display: inline-flex; align-items: center; } .editable-title-icon { margin-left: 10px; cursor: pointer; color: #4b5563; font-size: 1.2rem; } #user-info-display { font-size: 0.85rem; color: #4b5563; margin-bottom: 10px; text-align: center; font-weight: 600; }
+
+        /* Estilo Botón Menú Admin Toggle */
+        #admin-toggle-btn {
+            background-color: #374151; /* Gris oscuro */
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 20px;
+            cursor: pointer;
+            text-align: center;
+            border: none;
+            display: none; /* Se activa con JS solo para admin */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        #admin-toggle-btn:hover { background-color: #1f2937; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -110,24 +149,21 @@
 
 <div id="main-scroll-area">
     <div id="header-vigia-container">
-        <img src="logovigia.jpg" alt="Cabecera VigIA" id="header-vigia-img">
+        <img src="logovigia.jpg" 
+             alt="Cabecera VigIA" 
+             id="header-vigia-img" 
+             onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'padding:20px; color:red;\'>Error imagen</p>';">
     </div>
 
     <div class="main-content-wrapper px-4 sm:px-8 lg:px-12">
         <div class="menu-card">
-            <div class="title-container text-center mb-4">
-                <div class="title-row-wrapper">
-                    <img src="logogad.png" alt="GAD Logo" class="flank-logo">
-                    
-                    <h1 id="main-title" class="text-2xl sm:text-4xl font-extrabold text-gray-800 inline-flex items-center justify-center">
-                        <span id="main-title-text">Cargando...</span>
-                        <span id="edit-title-icon" style="display: none; margin-left: 10px; cursor: pointer; font-size: 1.2rem; color: #4b5563;">
-                            <i class="fas fa-edit"></i>
-                        </span>
-                    </h1>
-                    
-                    <img src="judicial.png" alt="Judicial Logo" class="flank-logo">
-                </div>
+            <div class="title-container">
+                <h1 id="main-title" class="text-2xl sm:text-4xl font-extrabold text-gray-800">
+                    <span id="main-title-text">Cargando...</span>
+                    <span id="edit-title-icon" style="display: none; margin-left: 10px; cursor: pointer; font-size: 1.2rem; color: #4b5563;">
+                        <i class="fas fa-edit"></i>
+                    </span>
+                </h1>
             </div>
             
             <div id="user-info-display"></div>
@@ -145,7 +181,9 @@
                 </button>
             </div>
 
-            <div class="controls-container" id="admin-panel" style="display: none;">
+            <button id="admin-toggle-btn"><i class="fas fa-cogs"></i> MENÚ ADMINISTRADOR</button>
+            
+            <div class="controls-container" id="admin-panel">
                 <div id="counters-row"></div>
                 <hr class="border-gray-300 w-full">
                 <div class="admin-controls">
@@ -307,6 +345,7 @@
   const userControls = document.getElementById('user-controls');
   const countersRow = document.getElementById('counters-row');
   const loadingScreen = document.getElementById('loading-screen');
+  const adminToggleBtn = document.getElementById('admin-toggle-btn'); // NUEVO BOTÓN
 
   const modalEditBtn = document.getElementById('edit-button-modal');
   const modalAddBtn = document.getElementById('add-button-modal');
@@ -321,16 +360,26 @@
   const sidebarBackBtn = document.getElementById('sidebar-back-btn');
   const topHorizontalMenu = document.getElementById('top-horizontal-menu');
 
-  // REFERENCIAS NUEVAS PARA HEADER CLICABLE
+  // HEADER CLICABLE
   const headerVigiaContainer = document.getElementById('header-vigia-container');
   const topBarMenu = document.getElementById('top-bar-menu');
 
-  // LOGICA TOGGLE MENU AL CLICAR CABECERA
   headerVigiaContainer.addEventListener('click', () => {
       if (topBarMenu.style.display === 'none') {
           topBarMenu.style.display = 'flex';
       } else {
           topBarMenu.style.display = 'none';
+      }
+  });
+
+  // TOGGLE MENU ADMIN
+  adminToggleBtn.addEventListener('click', () => {
+      if(adminPanel.style.display === 'none' || adminPanel.style.display === '') {
+          adminPanel.style.display = 'flex';
+          adminToggleBtn.innerHTML = '<i class="fas fa-times"></i> OCULTAR MENÚ ADMINISTRADOR';
+      } else {
+          adminPanel.style.display = 'none';
+          adminToggleBtn.innerHTML = '<i class="fas fa-cogs"></i> MENÚ ADMINISTRADOR';
       }
   });
 
@@ -359,9 +408,6 @@
       isViewingContent = true;
       mainScrollArea.style.display = 'none';
       iframeViewerArea.style.display = 'block';
-      // AL VER IFRAME, PODEMOS QUERER MOSTRAR LA BARRA AUTOMATICAMENTE PARA QUE PUEDAN VOLVER, O NO.
-      // DE MOMENTO LA DEJAMOS COMO ESTÉ (OCULTA O VISIBLE SEGUN USUARIO).
-      // topBarMenu.style.display = 'flex'; 
 
       if (data.htmlCode) {
           const doc = contentIframe.contentWindow.document;
@@ -618,11 +664,14 @@
       
       document.getElementById('user-info-display').innerHTML = `<i class="fas fa-user-circle"></i> ${user.email}`;
       
-      // MOSTRAR PANEL SI ES ADMIN
+      // LOGICA MOSTRAR ADMIN (MODIFICADO)
       if (isAdmin) { 
-          adminPanel.style.display = 'flex'; 
+          // Ya no mostramos adminPanel directamente, sino el botón para abrirlo
+          adminToggleBtn.style.display = 'block'; 
           document.getElementById('edit-title-icon').style.display = isEditMode ? 'inline-block' : 'none'; 
-      } else { userControls.style.display = 'block'; }
+      } else { 
+          userControls.style.display = 'block'; 
+      }
   }
 
   const logout = () => { if(isEditMode) toggleEditModeUI(); firebase.auth().signOut().then(() => { window.location.href = 'index.html'; }); };
