@@ -39,50 +39,57 @@
             display: block;
         }
 
-/* --- CABECERA LIMPIA (SIN ALTURAS FIJAS NI RECORTES) --- */
+/* --- ESTILOS CABECERA: ESCRITORIO (BASE) --- */
         #header-vigia-container {
-            /* Anchura: Ocupa todo el ancho, pero se frena en 900px igual que el menú */
             width: 100%;
-            max-width: 900px; 
-            
-            /* Centrado horizontal */
-            margin: 0 auto; 
-            
-            /* ALTURA AUTOMÁTICA: Esto es lo vital. El contenedor se adapta a la imagen */
-            height: auto; 
-            min-height: 0; /* Aseguramos que no haya mínimos forzados */
-            
-            /* Estética */
-            background-color: transparent; 
+            max-width: 900px; /* Ancho máximo igual al menú */
+            margin: 0 auto 1rem auto; /* Centrado */
+            background-color: transparent;
             padding: 0;
-            display: block; /* Bloque simple, sin flexbox que pueda estirar cosas */
-            line-height: 0; /* Quita espacio fantasma inferior */
+            line-height: 0;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             border-radius: 0.75rem;
-            margin-bottom: 1rem;
+            
+            /* En escritorio dejamos que la altura sea automática (sin recortes) */
+            height: auto; 
+            overflow: hidden; /* Necesario para que el recorte en móvil sea limpio */
+            display: block;
         }
 
         #header-vigia-img {
-            /* La imagen manda: 100% de ancho, la altura que necesite */
             width: 100%;
-            height: auto; 
-            
-            /* Reseteamos cualquier comportamiento de recorte anterior */
-            object-fit: fill; 
-            max-height: none; 
-            
+            height: auto; /* Mantiene proporción en escritorio */
             display: block;
             border-radius: 0.75rem;
+            object-fit: contain; /* En escritorio se ve ENTERA */
         }
 
-        /* En móvil solo quitamos los bordes redondeados para que pegue a los lados */
+        /* --- ESTILOS CABECERA: MÓVIL (ZOOM CENTRAL) --- */
         @media (max-width: 640px) {
             #header-vigia-container {
-                border-radius: 0;
+                /* Forzamos una altura fija generosa para que se vea grande */
+                height: 140px; 
+                
                 margin-bottom: 0;
+                border-radius: 0; /* Quitamos bordes redondeados en móvil */
+                width: 100%;
+                max-width: 100%;
             }
+
             #header-vigia-img {
+                width: 100%;
+                height: 100%; /* Obliga a la imagen a llenar los 180px de alto */
+                
+                /* LA CLAVE DEL ZOOM: */
+                object-fit: cover; /* Hace zoom para llenar el alto, recortando lados */
+                object-position: center; /* Asegura que el centro (casco/título) se vea */
+                
                 border-radius: 0;
+            }
+            
+            /* Ajuste opcional: pegamos el menú justo debajo */
+            .main-content-wrapper {
+                margin-top: 0 !important; 
             }
         }
 
