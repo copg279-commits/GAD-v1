@@ -13,32 +13,81 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        /* ESTILOS ORIGINALES (MANTENIDOS) */
+        /* ESTILOS GENERALES */
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; visibility: hidden; }
         body.loaded { visibility: visible; }
         #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 99999; display: flex; justify-content: center; align-items: center; color: white; flex-direction: column; transition: opacity 0.5s; }
         
+        /* BARRA SUPERIOR (Ahora oculta por defecto) */
         .top-bar-strip { background-color: #1e3a8a; color: white; display: flex; align-items: center; padding: 0 10px; height: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 100; position: relative; flex-shrink: 0; }
         .hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .top-nav-link { display: inline-flex; align-items: center; padding: 0 10px; height: 30px; font-size: 0.8rem; font-weight: 500; color: white; white-space: nowrap; cursor: pointer; text-decoration: none; border-right: 1px solid rgba(255,255,255,0.15); transition: all 0.2s; background: transparent; border-radius: 4px; margin: 0 2px; }
         .top-nav-link:hover { opacity: 0.9; } .top-nav-link.type-parent { background-color: #1e40af; border: 1px solid rgba(255,255,255,0.2); } .top-nav-link.type-main { background-color: #16a34a; border: 1px solid rgba(255,255,255,0.2); }
         .top-back-btn { background-color: #dc2626; border: none; margin-right: 10px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor: pointer; padding: 0 15px; border-radius: 4px; color: white; height: 30px; display: flex; align-items: center; } .top-back-btn:hover { background-color: #b91c1c; }
+        
+        /* NUEVA CABECERA IMAGEN VIGIA */
+        #header-vigia-container {
+            width: 100%;
+            cursor: pointer; /* Indica que es clicable */
+            background-color: #fff;
+            position: relative;
+            z-index: 50;
+            line-height: 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        #header-vigia-img {
+            width: 100%;
+            height: auto;
+            max-height: 300px; /* Limite de altura para pantallas muy grandes */
+            object-fit: contain; /* Ajusta sin cortar */
+            display: block;
+        }
+
         #main-scroll-area { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; width: 100%; transition: opacity 0.3s; }
         #iframe-viewer-area { flex-grow: 1; display: none; width: 100%; height: calc(100vh - 50px); background: white; position: relative; }
         #content-iframe { width: 100%; height: 100%; border: none; display: block; }
-        header.logo-header { background-color: #1e40af; width: 100%; display: flex; justify-content: center; align-items: center; padding: 1.5rem 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative; z-index: 40; flex-shrink: 0; }
-        .logo-container { width: 160px; height: 160px; border-radius: 50%; overflow: hidden; background-color: #1e40af; display: flex; items-center: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
+        
         #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: transparent; display: none; z-index: 9998; }
         #sidebar-menu { position: fixed; top: 0; left: 0; height: 100%; width: 300px; background: #0f172a; color: white; z-index: 9999; transform: translateX(-100%); transition: transform 0.3s ease; box-shadow: 4px 0 15px rgba(0,0,0,0.3); border-right: 1px solid #334155; display: flex; flex-direction: column; }
         .sidebar-item { display: flex; flex-direction: column; width: 100%; } .sidebar-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #1e293b; color: #cbd5e1; cursor: pointer; transition: background 0.2s; } .sidebar-row:hover { background-color: #1e293b; color: #fff; } .sidebar-row-content { display: flex; align-items: center; flex-grow: 1; overflow: hidden; } .sidebar-row-content i { width: 20px; margin-right: 8px; text-align: center; color: #60a5fa; }
         .toggle-icon { padding: 5px 10px; cursor: pointer; color: #94a3b8; font-size: 0.8rem; border-left: 1px solid #334155; margin-left: 5px; } .toggle-icon:hover { color: #fbbf24; background: rgba(255,255,255,0.05); } .toggle-icon.expanded i { transform: rotate(90deg); transition: transform 0.2s; }
         .sidebar-children { display: none; flex-direction: column; background-color: #0b1120; box-shadow: inset 0 4px 6px -1px rgba(0,0,0,0.3); } .sidebar-children.show { display: flex; } .sidebar-children .sidebar-row { padding-left: 35px; border-bottom: 1px solid #172033; } .sidebar-children .sidebar-children .sidebar-row { padding-left: 55px; }
         .sidebar-footer-btn { margin-top: auto; padding: 15px; background: #1e293b; border-top: 1px solid #334155; }
+        
         .main-content-wrapper { display: flex; flex-direction: column; align-items: center; flex-grow: 1; width: 100%; padding: 0 10px; box-sizing: border-box; margin-top: 1rem; }
         .menu-card { background-color: white; padding: 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); width: 100%; max-width: 900px; display: flex; flex-direction: column; margin-top: 1rem; }
         #main-menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr; gap: 0.75rem; width: 100%; }
         .menu-button-container { height: 100%; width: 100%; display: flex; flex-direction: column; position: relative; }
-        .title-container { text-align: center; margin-bottom: 1rem; } h1 { margin: 0; font-size: 1.5rem; padding: 0.5rem 0; } @media (min-width: 640px) { h1 { font-size: 2.5rem; } .main-content-wrapper { padding: 0 2rem; } }
+        
+        /* ESTILOS TÍTULO FLANQUEADO POR LOGOS */
+        .title-container { 
+            margin-bottom: 1rem; 
+            width: 100%;
+        }
+        .title-row-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Logos a los extremos del titulo */
+            gap: 10px;
+            width: 100%;
+        }
+        .flank-logo {
+            height: 60px; /* Tamaño base escritorio */
+            width: auto;
+            object-fit: contain;
+        }
+        h1 { margin: 0; font-size: 1.5rem; padding: 0.5rem 0; text-align: center; flex-grow: 1; } 
+        
+        @media (min-width: 640px) { 
+            h1 { font-size: 2.5rem; } 
+            .main-content-wrapper { padding: 0 2rem; } 
+            .flank-logo { height: 80px; } /* Más grandes en escritorio */
+        }
+        @media (max-width: 480px) {
+            .flank-logo { height: 40px; } /* Ajuste móvil pequeño */
+            h1 { font-size: 1.2rem; }
+        }
+
         .construccion-logo { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); height: 60%; opacity: 0.9; }
         .counters-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; width: 100%; } .counter-card { background-color: #4b5563; color: white; border-radius: 8px; padding: 10px 5px; width: 110px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; } .counter-card.total { background-color: #2563eb; width: 120px; } .counter-header { font-size: 0.85rem; font-weight: 700; text-align: center; margin-bottom: 5px; line-height: 1.1; word-break: break-word; } .counter-number { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; } .counter-date { font-size: 0.65rem; color: #d1d5db; margin-bottom: 8px; text-align: center; } .counter-btn { background-color: #6366f1; color: white; font-size: 0.7rem; font-weight: 600; padding: 4px 0; width: 90%; border-radius: 4px; border: none; cursor: pointer; transition: background 0.2s; } .counter-footer-text { font-size: 0.7rem; margin-top: auto; opacity: 0.9; }
         .controls-container { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-top: 25px; display: flex; flex-direction: column; gap: 15px; } .admin-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; } .btn-modern { display: flex; align-items: center; justify-content: center; padding: 8px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 8px; color: white; border: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); } .btn-edit { background-color: #f59e0b; } .btn-edit:hover { background-color: #d97706; } .btn-edit.active { background-color: #16a34a; } .btn-users { background-color: #3b82f6; } .btn-users:hover { background-color: #2563eb; } .btn-log { background-color: #10b981; } .btn-log:hover { background-color: #059669; } .btn-backup { background-color: #8b5cf6; } .btn-backup:hover { background-color: #7c3aed; } .btn-prompts { background-color: #6366f1; } .btn-prompts:hover { background-color: #4f46e5; } .btn-logout-modern { background-color: #ef4444; width: 100%; margin-top: 5px; } .btn-logout-modern:hover { background-color: #dc2626; }
@@ -52,7 +101,7 @@
     <h2>Verificando Credenciales Policiales...</h2>
 </div>
 
-<div class="top-bar-strip">
+<div id="top-bar-menu" class="top-bar-strip" style="display: none;">
     <button id="hamburger-btn" class="text-white text-xl mr-4 focus:outline-none hover:text-yellow-300 transition-colors">
         <i class="fas fa-bars"></i>
     </button>
@@ -60,21 +109,25 @@
 </div>
 
 <div id="main-scroll-area">
-    <header class="logo-header">
-        <div class="logo-container">
-            <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
-        </div>
-    </header>
+    <div id="header-vigia-container">
+        <img src="logoVigIA.png" alt="Cabecera VigIA" id="header-vigia-img">
+    </div>
 
     <div class="main-content-wrapper px-4 sm:px-8 lg:px-12">
         <div class="menu-card">
             <div class="title-container text-center mb-4">
-                <h1 id="main-title" class="text-2xl sm:text-4xl font-extrabold text-gray-800 inline-flex items-center">
-                    <span id="main-title-text">Cargando...</span>
-                    <span id="edit-title-icon" style="display: none; margin-left: 10px; cursor: pointer; font-size: 1.2rem; color: #4b5563;">
-                        <i class="fas fa-edit"></i>
-                    </span>
-                </h1>
+                <div class="title-row-wrapper">
+                    <img src="logogad.png" alt="GAD Logo" class="flank-logo">
+                    
+                    <h1 id="main-title" class="text-2xl sm:text-4xl font-extrabold text-gray-800 inline-flex items-center justify-center">
+                        <span id="main-title-text">Cargando...</span>
+                        <span id="edit-title-icon" style="display: none; margin-left: 10px; cursor: pointer; font-size: 1.2rem; color: #4b5563;">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                    </h1>
+                    
+                    <img src="judicial.png" alt="Judicial Logo" class="flank-logo">
+                </div>
             </div>
             
             <div id="user-info-display"></div>
@@ -224,7 +277,7 @@
       'gadalicante@gmail.com', 
       'copg279@gmail.com',
       'adamus03248@gmail.com',
-      'davidmesi83@gmail.com', // CORREGIDO
+      'davidmesi83@gmail.com', 
       'pamiseseg@gmail.com',
       'policia.g496@gmail.com',
       'verdeguer279@gmail.com',
@@ -268,6 +321,19 @@
   const sidebarBackBtn = document.getElementById('sidebar-back-btn');
   const topHorizontalMenu = document.getElementById('top-horizontal-menu');
 
+  // REFERENCIAS NUEVAS PARA HEADER CLICABLE
+  const headerVigiaContainer = document.getElementById('header-vigia-container');
+  const topBarMenu = document.getElementById('top-bar-menu');
+
+  // LOGICA TOGGLE MENU AL CLICAR CABECERA
+  headerVigiaContainer.addEventListener('click', () => {
+      if (topBarMenu.style.display === 'none') {
+          topBarMenu.style.display = 'flex';
+      } else {
+          topBarMenu.style.display = 'none';
+      }
+  });
+
   let isEditMode = false;
   let menuButtonsData = {};
   let draggedItem = null;
@@ -293,13 +359,15 @@
       isViewingContent = true;
       mainScrollArea.style.display = 'none';
       iframeViewerArea.style.display = 'block';
+      // AL VER IFRAME, PODEMOS QUERER MOSTRAR LA BARRA AUTOMATICAMENTE PARA QUE PUEDAN VOLVER, O NO.
+      // DE MOMENTO LA DEJAMOS COMO ESTÉ (OCULTA O VISIBLE SEGUN USUARIO).
+      // topBarMenu.style.display = 'flex'; 
 
       if (data.htmlCode) {
           const doc = contentIframe.contentWindow.document;
           doc.open();
           let content = data.htmlCode;
           const viewportTag = '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">';
-          // INYECCION V4 "ANTI-CONFLICTO"
           const scriptConfig = `
                 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"><\/script>
                 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"><\/script>
