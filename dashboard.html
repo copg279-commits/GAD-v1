@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Menú GAD V4 - Elite Cyber</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -12,26 +12,49 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        /* FONDO Y ESTRUCTURA DE SCROLL */
+        :root {
+            --grey-metal: #262626;
+            --cyan: #00f0ff;
+            --green: #00ff9d;
+        }
+
+        /* FONDO Y ESTRUCTURA GLOBAL (Estilo Prueba.html adaptado a Dashboard) */
         body { 
-            font-family: 'Orbitron', sans-serif; 
-            background: #000; 
+            font-family: 'Roboto', 'Orbitron', sans-serif; 
+            background-color: #050505;
             color: #fff;
             margin: 0; padding: 0; 
             height: 100vh; display: flex; flex-direction: column; 
             overflow: hidden; 
             visibility: hidden; 
+            /* Fondo tecnológico de prueba.html */
+            background-image: 
+                linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 40%, rgba(0,0,0,0.6) 100%),
+                repeating-linear-gradient(90deg, transparent 0, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
         }
         body.loaded { visibility: visible; }
+
+        /* Capa de circuitos de fondo */
+        .circuit-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: -1;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0v10h20v20h-10 M50 0v30h30v-10 M90 0v50h-20v20 M0 50h30v30h-10 M60 60h20v40 M10 90h40v10' stroke='white' stroke-width='1' fill='none'/%3E%3Ccircle cx='30' cy='30' r='2' fill='white'/%3E%3Ccircle cx='60' cy='60' r='2' fill='white'/%3E%3Ccircle cx='80' cy='20' r='2' fill='white'/%3E%3C/svg%3E");
+            background-size: 150px 150px;
+        }
 
         #main-scroll-area {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding-bottom: 60px; /* Espacio para que el menú de admin no se corte */
+            padding-bottom: 60px;
+            position: relative;
+            z-index: 1;
         }
 
-        /* CABECERA VIGIA */
+        /* --- CABECERA VIGIA (INTACTA) --- */
         #header-vigia-container {
             width: 100%;
             max-width: 900px;
@@ -39,6 +62,7 @@
             cursor: pointer;
             border-bottom: 3px solid #00f0ff;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            background: #000;
         }
         #header-vigia-img { width: 100%; height: auto; display: block; }
 
@@ -47,67 +71,129 @@
             #header-vigia-img { height: 100%; object-fit: cover; }
         }
 
-        .main-content-wrapper { width: 100%; max-width: 600px; margin: 0 auto; padding: 10px; }
-        .title-container h1 { font-size: 1.8rem; text-align: center; margin: 15px 0; text-shadow: 0 0 10px #00f0ff; }
-
-        /* --- BOTONES ESTILO PLACA TECNOLÓGICA (IGUAL A LA IMAGEN) --- */
-        #main-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .menu-button-container.col-span-2 { grid-column: span 2; }
-
-        .cyber-button {
-            position: relative;
-            width: 100%;
-            min-height: 90px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            font-weight: 900;
-            text-transform: uppercase;
+        .main-content-wrapper { 
+            width: 100%; 
+            max-width: 500px; /* Ajustado para que los botones SVG se vean bien */
+            margin: 0 auto; 
+            padding: 15px; 
+            box-sizing: border-box;
+        }
+        
+        .title-container h1 { 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem; 
+            text-align: center; 
+            margin: 15px 0; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
             color: #fff;
+        }
+
+        /* --- NUEVO GRID DE BOTONES (Estilo Prueba.html) --- */
+        #main-menu-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            position: relative;
+            padding-bottom: 20px;
+        }
+        
+        /* Clase para ocupar dos columnas */
+        .full-width { grid-column: span 2; }
+
+        /* ESTILO DEL BOTÓN TECH (SVG) */
+        .tech-btn {
+            position: relative;
+            height: 90px; /* Altura fija para mantener proporción del SVG */
+            background: rgba(255, 255, 255, 0.02);
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            
-            /* FORMA Y BORDES */
-            background: rgba(10, 10, 15, 0.95);
-            border: 2px solid #00f0ff;
-            clip-path: polygon(15% 0, 85% 0, 100% 25%, 100% 75%, 85% 100%, 15% 100%, 0 75%, 0 25%);
-            
-            /* TEXTURA DE CIRCUITOS */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%2300f0ff' fill-opacity='0.1'%3E%3Cpath d='M0 0h1v1H0zm2 0h1v1H2zm2 0h1v1H4zm1 1h1v1H5zm1 1h1v1H6z'/%3E%3C/g%3E%3C/svg%3E");
-            box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            padding: 0;
+            transition: 0.3s;
+            backdrop-filter: blur(1px);
+            /* Importante para móvil: evita overflow */
+            width: 100%; 
         }
 
-        /* EL RAYO AZUL BRILLANTE CENTRAL */
-        .cyber-button::before {
-            content: '';
+        .tech-btn svg {
             position: absolute;
-            top: 50%; left: 10%; width: 80%; height: 2px;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            overflow: visible;
+        }
+
+        /* Trazos SVG */
+        .path-outer {
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 3px rgba(0, 240, 255, 0.5));
+            stroke: url(#blue-green-gradient);
+            transition: stroke-width 0.3s, filter 0.3s;
+        }
+
+        .path-inner {
+            fill: none;
+            stroke-width: 1;
+            opacity: 0.6;
+            stroke: url(#blue-green-gradient);
+        }
+
+        /* Soporte para colores de alerta/warning del dashboard original */
+        .tech-btn.alert .path-outer, .tech-btn.alert .path-inner { stroke: #ff3366; filter: drop-shadow(0 0 5px #ff3366); }
+        .tech-btn.warning .path-outer, .tech-btn.warning .path-inner { stroke: #ffcc00; filter: drop-shadow(0 0 5px #ffcc00); }
+        .tech-btn.success .path-outer, .tech-btn.success .path-inner { stroke: #00ff9d; filter: drop-shadow(0 0 5px #00ff9d); }
+
+        /* Texto del botón */
+        .label {
+            position: relative;
+            z-index: 10;
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            text-shadow: 0 2px 4px #000;
+            padding: 0 10px;
+            pointer-events: none; /* Click pasa al botón */
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.2;
+        }
+
+        /* Animación Hover */
+        .tech-btn:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .tech-btn:hover .path-outer {
+            stroke-width: 3;
+            filter: drop-shadow(0 0 8px #00ff9d);
+        }
+
+        /* RAYO ELÉCTRICO (Para botón ancho o destacados) */
+        .energy-beam {
+            position: absolute;
+            width: 90%; height: 2px;
             background: #fff;
-            box-shadow: 0 0 15px 3px #00f0ff, 0 0 5px 1px #fff;
-            opacity: 0.8;
-            pointer-events: none;
+            top: 50%;
+            box-shadow: 0 0 15px 2px #00f0ff;
+            opacity: 0.9;
+            z-index: 5;
+            clip-path: polygon(0 45%, 10% 55%, 20% 45%, 30% 60%, 40% 40%, 50% 55%, 60% 45%, 70% 50%, 80% 40%, 90% 55%, 100% 50%, 100% 60%, 0 60%);
+            animation: beam-flicker 3s infinite;
         }
 
-        /* VARIANTES DE COLOR */
-        .cyber-button.success { border-color: #00ff9d; box-shadow: inset 0 0 15px rgba(0, 255, 157, 0.3); }
-        .cyber-button.success::before { box-shadow: 0 0 15px 3px #00ff9d, 0 0 5px 1px #fff; }
-
-        .cyber-button.alert { border-color: #ff3366; box-shadow: inset 0 0 15px rgba(255, 51, 102, 0.3); }
-        .cyber-button.alert::before { box-shadow: 0 0 15px 3px #ff3366, 0 0 5px 1px #fff; }
-
-        .cyber-button.warning { border-color: #ffcc00; box-shadow: inset 0 0 15px rgba(255, 204, 0, 0.3); }
-        .cyber-button.warning::before { box-shadow: 0 0 15px 3px #ffcc00, 0 0 5px 1px #fff; }
-
-        .cyber-button:hover {
-            transform: scale(1.04);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
-            background-color: rgba(0, 240, 255, 0.1);
+        @keyframes beam-flicker {
+            0%, 90% { opacity: 0.9; }
+            92% { opacity: 0.2; }
+            94% { opacity: 0.9; }
+            96% { opacity: 0.2; }
+            100% { opacity: 0.9; }
         }
 
-        /* MENÚ ADMINISTRADOR */
+        /* --- MENÚ ADMINISTRADOR --- */
         #admin-toggle-btn { 
             background: #111; color: #888; border: 1px solid #333; 
             padding: 12px; width: 100%; margin-top: 30px; cursor: pointer; 
@@ -117,8 +203,13 @@
             background: #080808; border: 1px solid #333; padding: 15px; 
             margin-top: 10px; display: none; flex-direction: column; gap: 10px; 
         }
+        /* Reutilizamos estilo simple para botones admin */
+        .admin-btn {
+            background: #222; border: 1px solid #444; color: #fff; padding: 10px;
+            font-family: 'Orbitron'; cursor: pointer; text-transform: uppercase;
+        }
 
-        /* SIDEBAR (MENÚ HAMBURGUESA RECUPERADO) */
+        /* --- SIDEBAR --- */
         #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 9998; }
         #sidebar-menu { 
             position: fixed; top: 0; left: 0; height: 100%; width: 280px; 
@@ -133,6 +224,17 @@
 </head>
 <body>
 
+<svg style="position: absolute; width: 0; height: 0;">
+    <defs>
+        <linearGradient id="blue-green-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00f0ff" />   
+            <stop offset="100%" stop-color="#00ff9d" /> 
+        </linearGradient>
+    </defs>
+</svg>
+
+<div class="circuit-overlay"></div>
+
 <div id="main-scroll-area">
     <div id="header-vigia-container">
         <img src="logovigia.jpg" alt="Cabecera VigIA" id="header-vigia-img">
@@ -140,36 +242,37 @@
 
     <div class="main-content-wrapper">
         <div class="title-container">
-            <h1 id="main-title-text">SISTEMA GAD</h1>
+            <h1 id="main-title-text">MENÚ HERRAMIENTAS GAD</h1>
         </div>
         
-        <div id="user-info-display" style="text-align:center; font-size:0.7rem; color:#666; margin-bottom:10px;"></div>
+        <div id="user-info-display" style="text-align:center; font-size:0.7rem; color:#888; margin-bottom:15px; font-family: 'Roboto';"></div>
 
-        <div id="main-menu-grid"></div>
+        <div id="main-menu-grid">
+            </div>
 
         <button id="admin-toggle-btn"><i class="fas fa-terminal"></i> CONSOLA DE ADMINISTRADOR</button>
         <div class="controls-container" id="admin-panel">
-            <div id="counters-row"></div>
+            <div id="counters-row" style="color:#aaa; font-size:0.8rem;"></div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button id="show-edit-menu-modal" class="cyber-button warning" style="min-height:50px;">EDITAR</button>
-                <button id="backup-button" class="cyber-button success" style="min-height:50px;" onclick="window.open('COPIA SEGURIDAD FIREBASE.html')">BACKUP</button>
+                <button id="show-edit-menu-modal" class="admin-btn" style="border-color:#ffcc00; color:#ffcc00;">EDITAR</button>
+                <button id="backup-button" class="admin-btn" style="border-color:#00ff9d; color:#00ff9d;" onclick="window.open('COPIA SEGURIDAD FIREBASE.html')">BACKUP</button>
             </div>
-            <button id="btn-logout" class="cyber-button alert" style="min-height:50px; margin-top:10px;">DESCONECTAR</button>
+            <button id="btn-logout" class="admin-btn" style="border-color:#ff3366; color:#ff3366; margin-top:10px;">DESCONECTAR</button>
         </div>
     </div>
 </div>
 
-<div id="iframe-viewer-area" style="display:none; width:100%; height:100vh;">
+<div id="iframe-viewer-area" style="display:none; width:100%; height:100vh; background:#000;">
     <iframe id="content-iframe" style="width:100%; height:100%; border:none;"></iframe>
 </div>
 
 <div id="sidebar-overlay"></div>
 <div id="sidebar-menu">
      <div class="sidebar-header">
-         <h2>NAVEGACIÓN</h2>
+         <h2 style="font-family:'Orbitron'">NAVEGACIÓN</h2>
          <button id="close-sidebar" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;"><i class="fas fa-times"></i></button>
      </div>
-     <div id="sidebar-tree-container" style="flex-grow:1; overflow-y:auto;"></div>
+     <div id="sidebar-tree-container" style="flex-grow:1; overflow-y:auto; padding:10px; color:#ddd;"></div>
      <div class="sidebar-footer-btn">
          <button id="sidebar-back-btn" style="display:none;">VOLVER ATRÁS</button>
      </div>
@@ -193,7 +296,22 @@
   let currentMenuPath = [];
   let menuButtonsData = {};
 
-  // LÓGICA DE APERTURA DEL MENÚ HAMBURGUESA
+  // COORDENADAS SVG DEL DISEÑO NUEVO
+  const SVG_PATHS = {
+      // Botón pequeño (mitad de ancho)
+      small: {
+          viewBox: "0 0 160 90",
+          outer: "M10,10 L35,10 L45,15 L115,15 L125,10 L150,10 Q160,10 160,20 L160,70 Q160,80 150,80 L125,80 L115,75 L45,75 L35,80 L10,80 Q0,80 0,70 L0,20 Q0,10 10,10 Z",
+          inner: "M10,22 L36,22 L46,27 L114,27 L124,22 L150,22 M150,68 L124,68 L114,63 L46,63 L36,68 L10,68"
+      },
+      // Botón grande (ancho completo)
+      full: {
+          viewBox: "0 0 340 90",
+          outer: "M10,10 L80,10 L90,15 L250,15 L260,10 L330,10 Q340,10 340,20 L340,70 Q340,80 330,80 L260,80 L250,75 L90,75 L80,80 L10,80 Q0,80 0,70 L0,20 Q0,10 10,10 Z",
+          inner: "M15,20 L82,20 L92,25 L248,25 L258,20 L325,20 M325,70 L258,70 L248,65 L92,65 L82,70 L15,70"
+      }
+  };
+
   const openSidebar = () => { 
       document.getElementById('sidebar-menu').style.transform = "translateX(0)"; 
       document.getElementById('sidebar-overlay').style.display = "block"; 
@@ -223,14 +341,32 @@
           .sort((a,b) => a[1].order - b[1].order);
 
       buttons.forEach(([k, v]) => {
-          const btn = document.createElement('div');
-          btn.className = `cyber-button ${v.size === 'full-width' ? 'col-span-2' : ''}`;
+          // Determinar si es full width
+          const isFull = v.size === 'full-width';
+          const paths = isFull ? SVG_PATHS.full : SVG_PATHS.small;
           
+          const btn = document.createElement('div');
+          // Añadir clases base
+          btn.className = `tech-btn ${isFull ? 'full-width' : ''}`;
+          
+          // Soporte para colores de estado (manteniendo lógica del dashboard original)
           if (v.color === '#dc2626') btn.classList.add('alert');
           if (v.color === '#16a34a') btn.classList.add('success');
           if (v.color === '#f59e0b') btn.classList.add('warning');
 
-          btn.innerHTML = `<span>${v.text}</span>`;
+          // Si es full width, añadimos el rayo de energía como efecto especial
+          const energyBeam = isFull ? '<div class="energy-beam"></div>' : '';
+
+          // Construcción del HTML interno (SVG + Texto)
+          btn.innerHTML = `
+              <svg viewBox="${paths.viewBox}" preserveAspectRatio="none">
+                  <path class="path-outer" d="${paths.outer}" />
+                  <path class="path-inner" d="${paths.inner}" />
+              </svg>
+              ${energyBeam}
+              <span class="label">${v.text}</span>
+          `;
+
           btn.onclick = () => {
               if (v.type === 'parent') {
                   currentMenuPath.push(k);
@@ -263,6 +399,11 @@
   document.getElementById('admin-toggle-btn').onclick = () => {
       const p = document.getElementById('admin-panel');
       p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+  };
+
+  // Logout manual
+  document.getElementById('btn-logout').onclick = () => {
+      auth.signOut();
   };
 
   auth.onAuthStateChanged(user => {
