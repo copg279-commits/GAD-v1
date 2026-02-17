@@ -15,7 +15,6 @@
         :root {
             --cyan: #00f0ff;
             --green: #00ff9d;
-            /* Nuevo color de fondo: Azul Oscuro Profundo (Tipo Policial/Cyber) */
             --dark-blue-bg: #060b19; 
             --panel-bg: rgba(6, 11, 25, 0.95);
         }
@@ -23,28 +22,21 @@
         /* --- ESTILOS GLOBALES --- */
         body { 
             font-family: 'Roboto', 'Orbitron', sans-serif; 
-            /* Fondo base azulado en lugar de gris/negro */
             background-color: var(--dark-blue-bg);
             color: #fff;
             margin: 0; padding: 0; 
             height: 100vh; display: flex; flex-direction: column; 
             overflow: hidden; 
             visibility: hidden;
-            
-            /* Gradiente ajustado para mantener el tono azulado con la textura */
             background-image: 
                 linear-gradient(180deg, rgba(6, 11, 25, 0.4) 0%, transparent 40%, rgba(6, 11, 25, 0.8) 100%),
                 repeating-linear-gradient(90deg, transparent 0, transparent 2px, rgba(0, 240, 255, 0.03) 2px, rgba(0, 240, 255, 0.03) 4px);
         }
         body.loaded { visibility: visible; }
 
-        /* Capa de circuitos de fondo */
         .circuit-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.15; /* Un poco más visible sobre el azul */
-            pointer-events: none;
-            z-index: -1;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.15; pointer-events: none; z-index: -1;
             background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0v10h20v20h-10 M50 0v30h30v-10 M90 0v50h-20v20 M0 50h30v30h-10 M60 60h20v40 M10 90h40v10' stroke='white' stroke-width='1' fill='none'/%3E%3Ccircle cx='30' cy='30' r='2' fill='white'/%3E%3Ccircle cx='60' cy='60' r='2' fill='white'/%3E%3Ccircle cx='80' cy='20' r='2' fill='white'/%3E%3C/svg%3E");
             background-size: 150px 150px;
         }
@@ -57,18 +49,14 @@
         }
 
         #main-scroll-area {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-bottom: 80px;
-            position: relative;
-            z-index: 1;
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            padding-bottom: 80px; position: relative; z-index: 1;
         }
 
-        /* --- CABECERA VIGIA --- */
+        /* --- CABECERA VIGIA (AJUSTADA MÓVIL) --- */
         #header-vigia-container {
             width: 100%;
-            max-width: 900px; /* Ancho máximo fijo */
+            max-width: 900px;
             margin: 0 auto;
             cursor: pointer;
             border-bottom: 3px solid var(--cyan);
@@ -76,114 +64,63 @@
             background: #000;
             position: relative;
             z-index: 50;
-            /* Permitir que la altura sea automática para no cortar imagen */
-            height: auto; 
-            min-height: 80px;
+            overflow: hidden;
         }
         
         #header-vigia-img { 
             width: 100%; 
-            height: auto; /* Mantiene proporción siempre */
+            height: auto; 
             display: block; 
-            object-fit: contain; /* Asegura que se vea todo */
         }
 
-        /* En móvil, aseguramos que no se fuerce altura ni recorte */
+        /* AJUSTE MÓVIL: MÁS ALTURA Y ZOOM AL CENTRO */
         @media (max-width: 640px) {
             #header-vigia-container { 
-                height: auto; /* Crucial para no cortar */
+                height: 180px; /* Altura forzada más grande */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            #header-vigia-img {
+                height: 100%;
+                width: 100%;
+                object-fit: cover; /* Rellena el hueco haciendo zoom */
+                object-position: center; /* Centra para no cortar letras principales */
             }
         }
 
-        /* --- CONTENEDOR PRINCIPAL --- */
         .main-content-wrapper { 
-            width: 100%; 
-            /* CAMBIO: Igualado al ancho de la cabecera (900px) */
-            max-width: 900px; 
-            margin: 0 auto; 
-            padding: 15px; 
-            box-sizing: border-box;
+            width: 100%; max-width: 900px; margin: 0 auto; padding: 15px; box-sizing: border-box;
         }
         
         .title-container h1 { 
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem; 
-            text-align: center; 
-            margin: 15px 0; 
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
-            color: #fff;
+            font-family: 'Orbitron', sans-serif; font-size: 1.5rem; text-align: center; 
+            margin: 15px 0; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); color: #fff;
         }
 
         /* --- GRID DE BOTONES --- */
-        #main-menu-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 12px; 
-            position: relative;
-            padding-bottom: 20px;
-        }
-        
+        #main-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; position: relative; padding-bottom: 20px; }
         .full-width { grid-column: span 2; }
 
-        /* ESTILO DEL BOTÓN SVG */
         .tech-btn {
-            position: relative;
-            height: 90px;
-            background: rgba(255, 255, 255, 0.02);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: none;
-            padding: 0;
-            transition: 0.3s;
-            backdrop-filter: blur(2px);
-            width: 100%; 
-            overflow: hidden;
+            position: relative; height: 90px; background: rgba(255, 255, 255, 0.02);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            border: none; padding: 0; transition: 0.3s; backdrop-filter: blur(2px);
+            width: 100%; overflow: hidden;
         }
+        .tech-btn svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible; }
+        .path-outer { fill: none; stroke-width: 2; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(0, 240, 255, 0.5)); stroke: url(#blue-green-gradient); transition: all 0.3s; }
+        .path-inner { fill: none; stroke-width: 1; opacity: 0.6; stroke: url(#blue-green-gradient); }
 
-        .tech-btn svg {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            overflow: visible;
-        }
-
-        .path-outer {
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            filter: drop-shadow(0 0 3px rgba(0, 240, 255, 0.5));
-            stroke: url(#blue-green-gradient);
-            transition: all 0.3s;
-        }
-        .path-inner {
-            fill: none;
-            stroke-width: 1;
-            opacity: 0.6;
-            stroke: url(#blue-green-gradient);
-        }
-
-        /* Colores condicionales */
         .tech-btn.color-alert .path-outer, .tech-btn.color-alert .path-inner { stroke: #ef4444; filter: drop-shadow(0 0 5px #ef4444); }
         .tech-btn.color-warning .path-outer, .tech-btn.color-warning .path-inner { stroke: #f59e0b; filter: drop-shadow(0 0 5px #f59e0b); }
         .tech-btn.color-success .path-outer, .tech-btn.color-success .path-inner { stroke: #10b981; filter: drop-shadow(0 0 5px #10b981); }
 
         .label {
-            position: relative;
-            z-index: 10;
-            color: #fff;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            text-align: center;
-            text-shadow: 0 2px 4px #000;
-            padding: 0 10px;
-            pointer-events: none;
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.1;
+            position: relative; z-index: 10; color: #fff; font-size: 0.85rem; font-weight: 700;
+            text-transform: uppercase; text-align: center; text-shadow: 0 2px 4px #000;
+            padding: 0 10px; pointer-events: none; font-family: 'Roboto', sans-serif; line-height: 1.1;
         }
-
         .tech-btn:hover { transform: scale(1.02); background: rgba(255, 255, 255, 0.05); }
         .tech-btn:hover .path-outer { stroke-width: 3; filter: drop-shadow(0 0 8px var(--green)); }
 
@@ -196,25 +133,31 @@
         .tech-btn.full-width .energy-beam { opacity: 0.8; }
         @keyframes beam-flicker { 0%, 90% { opacity: 0.8; } 92% { opacity: 0.1; } 94% { opacity: 0.9; } 96% { opacity: 0.1; } 100% { opacity: 0.8; } }
 
-        /* --- CONSOLA ADMIN --- */
+        /* --- CONSOLA ADMIN (VISIBILIDAD MEJORADA) --- */
         #admin-toggle-btn { 
-            background: rgba(0,0,0,0.3); color: #666; border: 1px solid #333; 
-            padding: 10px; width: 100%; margin-top: 40px; cursor: pointer; 
-            font-family: 'Orbitron'; font-size: 0.7rem; text-transform: uppercase;
-            transition: color 0.3s;
+            background: #000; /* Fondo negro sólido */
+            color: #fff; /* Texto blanco brillante */
+            border: 1px solid var(--cyan); /* Borde neón */
+            padding: 12px; width: 100%; margin-top: 40px; cursor: pointer; 
+            font-family: 'Orbitron'; font-size: 0.85rem; text-transform: uppercase;
+            font-weight: bold; letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            transition: all 0.3s;
         }
-        #admin-toggle-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+        #admin-toggle-btn:hover { 
+            background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan);
+        }
 
         .controls-container { 
             background: var(--panel-bg); 
             border: 1px solid #333; border-left: 2px solid var(--cyan);
             padding: 15px; margin-top: 10px; 
-            display: none; flex-direction: column; gap: 15px; 
+            display: none; /* SIEMPRE OCULTO POR DEFECTO */
+            flex-direction: column; gap: 15px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .admin-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        
         .admin-btn {
             background: #1a1a1a; border: 1px solid #444; color: #ccc; 
             padding: 8px 15px; font-family: 'Orbitron'; font-size: 0.75rem;
@@ -260,8 +203,28 @@
         #content-iframe { width:100%; height:100%; border:none; }
         #iframe-back-float { position: fixed; bottom: 20px; right: 20px; background: #ff3366; color: white; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 201; display: none; }
 
-        #user-info-display { text-align: center; color: #666; font-size: 0.75rem; margin-bottom: 10px; font-family: 'Orbitron'; letter-spacing: 1px; }
-        footer { margin-top: 30px; text-align: center; font-size: 0.7rem; color: #444; font-family: 'Orbitron'; }
+        /* --- VISIBILIDAD DE TEXTOS (MEJORADA) --- */
+        #user-info-display { 
+            text-align: center; 
+            color: var(--cyan); /* Color neón */
+            font-size: 0.9rem; /* Un poco más grande */
+            margin-bottom: 10px; 
+            font-family: 'Orbitron'; 
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.5); 
+            font-weight: bold;
+        }
+        
+        footer { 
+            margin-top: 40px; 
+            text-align: center; 
+            font-size: 0.75rem; 
+            color: #ffffff; /* Blanco intenso */
+            font-family: 'Orbitron'; 
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8); /* Sombra para resaltar */
+            font-weight: 500;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -289,7 +252,7 @@
 
     <div class="main-content-wrapper">
         <div class="title-container">
-            <h1 id="main-title-text">MENÚ PRINCIPAL</h1>
+            <h1 id="main-title-text">MENÚ HERRAMIENTAS GAD</h1>
             <div id="user-info-display">Autenticando...</div>
         </div>
 
@@ -323,7 +286,7 @@
 
 <div id="iframe-viewer-area">
     <iframe id="content-iframe"></iframe>
-    <div id="iframe-back-float" onclick="goBack()"><i class="fas fa-arrow-left"></i> VOLVER</div>
+    <div id="iframe-back-float" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> VOLVER</div>
 </div>
 
 <div id="sidebar-overlay"></div>
@@ -334,7 +297,7 @@
      </div>
      <div id="sidebar-tree-container" style="flex-grow:1; overflow-y:auto; padding:10px;"></div>
      <div class="sidebar-footer">
-         <button class="sidebar-back-btn" onclick="goBack(); closeSidebar();">VOLVER ATRÁS</button>
+         <button class="sidebar-back-btn" onclick="window.history.back(); closeSidebar();">VOLVER ATRÁS</button>
      </div>
 </div>
 
@@ -437,11 +400,29 @@
   document.getElementById('close-sidebar').onclick = closeSidebar;
   document.getElementById('sidebar-overlay').onclick = closeSidebar;
 
-  function goBack() {
+  window.addEventListener('popstate', (event) => {
+      if (document.getElementById('iframe-viewer-area').style.display === 'block') {
+          closeContent();
+      } else if (currentMenuPath.length > 0) {
+          currentMenuPath.pop();
+          renderMenuButtons();
+      }
+  });
+
+  history.replaceState({ page: 'root' }, '', '');
+
+  function navigateToFolder(key) {
+      currentMenuPath.push(key);
+      history.pushState({ page: 'folder', id: key }, '', '');
+      renderMenuButtons();
+  }
+
+  function closeContent() {
       const iframeArea = document.getElementById('iframe-viewer-area');
-      if (iframeArea.style.display === 'block') {
-          iframeArea.style.display = 'none'; document.getElementById('main-scroll-area').style.display = 'block'; document.getElementById('content-iframe').src = "about:blank"; document.getElementById('iframe-back-float').style.display = 'none';
-      } else if (currentMenuPath.length > 0) { currentMenuPath.pop(); renderMenuButtons(); }
+      iframeArea.style.display = 'none'; 
+      document.getElementById('main-scroll-area').style.display = 'block'; 
+      document.getElementById('content-iframe').src = "about:blank"; 
+      document.getElementById('iframe-back-float').style.display = 'none';
   }
 
   function renderMenuButtons() {
@@ -459,7 +440,18 @@
           if (v.color === '#ef4444' || v.color === '#dc2626') btn.classList.add('color-alert'); else if (v.color === '#f59e0b') btn.classList.add('color-warning'); else if (v.color === '#10b981' || v.color === '#16a34a') btn.classList.add('color-success');
           const energyBeam = isFull ? '<div class="energy-beam"></div>' : ''; const editIcon = isEditMode ? `<div style="position:absolute; top:5px; right:5px; z-index:20; background:black; padding:2px 5px; border-radius:3px; font-size:10px; color:yellow;">EDIT</div>` : '';
           btn.innerHTML = `<svg viewBox="${paths.viewBox}" preserveAspectRatio="none"><path class="path-outer" d="${paths.outer}" /><path class="path-inner" d="${paths.inner}" /></svg>${energyBeam}<span class="label">${v.text} ${v.type==='parent'?' <i class="fas fa-folder"></i>':''}</span>${editIcon}`;
-          btn.onclick = (e) => { if (isEditMode) { openEditModal(key, v); } else { if (v.type === 'parent') { currentMenuPath.push(key); renderMenuButtons(); } else { showContent(v); } } };
+          
+          btn.onclick = (e) => { 
+              if (isEditMode) { 
+                  openEditModal(key, v); 
+              } else { 
+                  if (v.type === 'parent') { 
+                      navigateToFolder(key); 
+                  } else { 
+                      showContent(v); 
+                  } 
+              } 
+          };
           grid.appendChild(btn);
       });
       updateTitle(parentId);
@@ -467,8 +459,11 @@
 
   function updateTitle(parentId) {
       const titleEl = document.getElementById('main-title-text');
-      if (!parentId) { db.ref(TITLE_NODE).once('value', s => titleEl.innerText = s.val() || 'MENÚ PRINCIPAL'); } 
-      else { titleEl.innerText = menuButtonsData[parentId]?.text || 'SUBMENÚ'; }
+      if (!parentId) { 
+          titleEl.innerText = 'MENÚ HERRAMIENTAS GAD'; 
+      } else { 
+          titleEl.innerText = menuButtonsData[parentId]?.text || 'SUBMENÚ'; 
+      }
   }
 
   function renderSidebarTree(parentId, container) {
@@ -492,6 +487,7 @@
   }
 
   function showContent(data) {
+      history.pushState({ page: 'content' }, '', '');
       const viewer = document.getElementById('iframe-viewer-area'); const iframe = document.getElementById('content-iframe');
       document.getElementById('main-scroll-area').style.display = 'none'; viewer.style.display = 'block'; document.getElementById('iframe-back-float').style.display = 'block';
       if (data.htmlCode) {
@@ -538,8 +534,18 @@
           const emailKey = sanitizeEmail(user.email); const isAdmin = (user.email === ADMIN_EMAIL); const ip = await getClientIP();
           db.ref(USERS_NODE + '/' + emailKey).transaction(d => d ? { ...d, email: user.email, ultimoAcceso: Date.now(), accesos: (d.accesos||0)+1 } : d);
           db.ref('visitLog').push().set({ email: user.email, timestamp: Date.now(), ip: ip });
+          
           document.getElementById('user-info-display').innerText = `OPERADOR: ${user.email.toUpperCase()}`;
-          if(isAdmin) { document.getElementById('admin-panel').style.display = 'flex'; initAdminFeatures(); } else { document.getElementById('user-controls').style.display = 'block'; }
+          
+          // IMPORTANTE: EL PANEL ADMIN YA NO SE ABRE AUTOMÁTICAMENTE
+          if(isAdmin) { 
+              // Solo mostramos el botón de toggle, pero el panel empieza cerrado (display:none en CSS)
+              initAdminFeatures(); 
+          } else { 
+              // Ocultamos botón de admin para normales
+              document.getElementById('admin-toggle-btn').style.display = 'none';
+              document.getElementById('user-controls').style.display = 'block'; 
+          }
       } else { window.location.href = 'index.html'; }
   });
 
