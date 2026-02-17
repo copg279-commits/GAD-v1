@@ -6,9 +6,11 @@
     <title>Menú GAD V4 - Elite Cyber</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
@@ -16,18 +18,20 @@
             --grey-metal: #262626;
             --cyan: #00f0ff;
             --green: #00ff9d;
+            --dark-bg: #050505;
         }
 
-        /* FONDO Y ESTRUCTURA GLOBAL (Estilo Prueba.html adaptado a Dashboard) */
+        /* --- ESTILOS GLOBALES CYBERPUNK --- */
         body { 
             font-family: 'Roboto', 'Orbitron', sans-serif; 
-            background-color: #050505;
+            background-color: var(--dark-bg);
             color: #fff;
             margin: 0; padding: 0; 
             height: 100vh; display: flex; flex-direction: column; 
             overflow: hidden; 
-            visibility: hidden; 
-            /* Fondo tecnológico de prueba.html */
+            visibility: hidden; /* Se muestra al cargar */
+            
+            /* Fondo tecnológico */
             background-image: 
                 linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 40%, rgba(0,0,0,0.6) 100%),
                 repeating-linear-gradient(90deg, transparent 0, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
@@ -45,24 +49,34 @@
             background-size: 150px 150px;
         }
 
+        #loading-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 99999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            color: var(--cyan); 
+            transition: opacity 0.5s; 
+        }
+
         #main-scroll-area {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding-bottom: 60px;
+            padding-bottom: 80px; /* Espacio para footer */
             position: relative;
             z-index: 1;
         }
 
-        /* --- CABECERA VIGIA (INTACTA) --- */
+        /* --- CABECERA VIGIA (Clickable para menú) --- */
         #header-vigia-container {
             width: 100%;
             max-width: 900px;
             margin: 0 auto;
             cursor: pointer;
-            border-bottom: 3px solid #00f0ff;
+            border-bottom: 3px solid var(--cyan);
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
             background: #000;
+            position: relative;
+            z-index: 50;
         }
         #header-vigia-img { width: 100%; height: auto; display: block; }
 
@@ -73,7 +87,7 @@
 
         .main-content-wrapper { 
             width: 100%; 
-            max-width: 500px; /* Ajustado para que los botones SVG se vean bien */
+            max-width: 600px; 
             margin: 0 auto; 
             padding: 15px; 
             box-sizing: border-box;
@@ -84,11 +98,11 @@
             font-size: 1.5rem; 
             text-align: center; 
             margin: 15px 0; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
             color: #fff;
         }
 
-        /* --- NUEVO GRID DE BOTONES (Estilo Prueba.html) --- */
+        /* --- GRID DE BOTONES SVG --- */
         #main-menu-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
@@ -97,13 +111,12 @@
             padding-bottom: 20px;
         }
         
-        /* Clase para ocupar dos columnas */
         .full-width { grid-column: span 2; }
 
         /* ESTILO DEL BOTÓN TECH (SVG) */
         .tech-btn {
             position: relative;
-            height: 90px; /* Altura fija para mantener proporción del SVG */
+            height: 90px;
             background: rgba(255, 255, 255, 0.02);
             cursor: pointer;
             display: flex;
@@ -112,9 +125,9 @@
             border: none;
             padding: 0;
             transition: 0.3s;
-            backdrop-filter: blur(1px);
-            /* Importante para móvil: evita overflow */
+            backdrop-filter: blur(2px);
             width: 100%; 
+            overflow: hidden; /* Contener el rayo */
         }
 
         .tech-btn svg {
@@ -130,10 +143,9 @@
             stroke-width: 2;
             stroke-linecap: round;
             filter: drop-shadow(0 0 3px rgba(0, 240, 255, 0.5));
-            stroke: url(#blue-green-gradient);
-            transition: stroke-width 0.3s, filter 0.3s;
+            stroke: url(#blue-green-gradient); /* Gradiente por defecto */
+            transition: all 0.3s;
         }
-
         .path-inner {
             fill: none;
             stroke-width: 1;
@@ -141,85 +153,121 @@
             stroke: url(#blue-green-gradient);
         }
 
-        /* Soporte para colores de alerta/warning del dashboard original */
-        .tech-btn.alert .path-outer, .tech-btn.alert .path-inner { stroke: #ff3366; filter: drop-shadow(0 0 5px #ff3366); }
-        .tech-btn.warning .path-outer, .tech-btn.warning .path-inner { stroke: #ffcc00; filter: drop-shadow(0 0 5px #ffcc00); }
-        .tech-btn.success .path-outer, .tech-btn.success .path-inner { stroke: #00ff9d; filter: drop-shadow(0 0 5px #00ff9d); }
+        /* Variaciones de Color para SVG según configuración */
+        .tech-btn.color-alert .path-outer, .tech-btn.color-alert .path-inner { stroke: #ef4444; filter: drop-shadow(0 0 5px #ef4444); }
+        .tech-btn.color-warning .path-outer, .tech-btn.color-warning .path-inner { stroke: #f59e0b; filter: drop-shadow(0 0 5px #f59e0b); }
+        .tech-btn.color-success .path-outer, .tech-btn.color-success .path-inner { stroke: #10b981; filter: drop-shadow(0 0 5px #10b981); }
 
-        /* Texto del botón */
         .label {
             position: relative;
             z-index: 10;
             color: #fff;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
             text-transform: uppercase;
             text-align: center;
             text-shadow: 0 2px 4px #000;
             padding: 0 10px;
-            pointer-events: none; /* Click pasa al botón */
+            pointer-events: none;
             font-family: 'Roboto', sans-serif;
-            line-height: 1.2;
+            line-height: 1.1;
         }
 
-        /* Animación Hover */
-        .tech-btn:hover {
-            transform: scale(1.02);
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .tech-btn:hover .path-outer {
-            stroke-width: 3;
-            filter: drop-shadow(0 0 8px #00ff9d);
-        }
+        .tech-btn:hover { transform: scale(1.02); background: rgba(255, 255, 255, 0.05); }
+        .tech-btn:hover .path-outer { stroke-width: 3; filter: drop-shadow(0 0 8px var(--green)); }
 
-        /* RAYO ELÉCTRICO (Para botón ancho o destacados) */
+        /* RAYO ELÉCTRICO (Solo visibles en full-width) */
         .energy-beam {
-            position: absolute;
-            width: 90%; height: 2px;
-            background: #fff;
-            top: 50%;
-            box-shadow: 0 0 15px 2px #00f0ff;
-            opacity: 0.9;
-            z-index: 5;
+            position: absolute; width: 90%; height: 2px; background: #fff; top: 50%;
+            box-shadow: 0 0 15px 2px var(--cyan); opacity: 0; z-index: 5;
             clip-path: polygon(0 45%, 10% 55%, 20% 45%, 30% 60%, 40% 40%, 50% 55%, 60% 45%, 70% 50%, 80% 40%, 90% 55%, 100% 50%, 100% 60%, 0 60%);
             animation: beam-flicker 3s infinite;
         }
+        .tech-btn.full-width .energy-beam { opacity: 0.8; }
+        @keyframes beam-flicker { 0%, 90% { opacity: 0.8; } 92% { opacity: 0.1; } 94% { opacity: 0.9; } 96% { opacity: 0.1; } 100% { opacity: 0.8; } }
 
-        @keyframes beam-flicker {
-            0%, 90% { opacity: 0.9; }
-            92% { opacity: 0.2; }
-            94% { opacity: 0.9; }
-            96% { opacity: 0.2; }
-            100% { opacity: 0.9; }
-        }
-
-        /* --- MENÚ ADMINISTRADOR --- */
+        /* --- MENÚ ADMINISTRADOR / CONSOLA --- */
         #admin-toggle-btn { 
-            background: #111; color: #888; border: 1px solid #333; 
-            padding: 12px; width: 100%; margin-top: 30px; cursor: pointer; 
-            font-family: 'Orbitron'; font-size: 0.8rem;
+            background: #111; color: #666; border: 1px solid #333; 
+            padding: 10px; width: 100%; margin-top: 40px; cursor: pointer; 
+            font-family: 'Orbitron'; font-size: 0.7rem; text-transform: uppercase;
+            transition: color 0.3s;
         }
+        #admin-toggle-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+
         .controls-container { 
-            background: #080808; border: 1px solid #333; padding: 15px; 
-            margin-top: 10px; display: none; flex-direction: column; gap: 10px; 
-        }
-        /* Reutilizamos estilo simple para botones admin */
-        .admin-btn {
-            background: #222; border: 1px solid #444; color: #fff; padding: 10px;
-            font-family: 'Orbitron'; cursor: pointer; text-transform: uppercase;
+            background: rgba(10, 10, 10, 0.95); 
+            border: 1px solid #333; border-left: 2px solid var(--cyan);
+            padding: 15px; margin-top: 10px; 
+            display: none; flex-direction: column; gap: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
-        /* --- SIDEBAR --- */
-        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 9998; }
+        .admin-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        
+        /* Botones Admin estilo Cyber */
+        .admin-btn {
+            background: #1a1a1a; border: 1px solid #444; color: #ccc; 
+            padding: 8px 15px; font-family: 'Orbitron'; font-size: 0.75rem;
+            cursor: pointer; text-transform: uppercase; flex: 1; min-width: 100px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.2s;
+        }
+        .admin-btn:hover { background: #333; color: #fff; border-color: #fff; }
+        .admin-btn.btn-logout { border-color: #ff3366; color: #ff3366; }
+        .admin-btn.btn-logout:hover { background: #ff3366; color: #000; }
+
+        /* --- CONTADORES ESTILO TECH --- */
+        .counters-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; }
+        .counter-card { 
+            background: #111; border: 1px solid #333; color: var(--cyan);
+            padding: 8px; width: 100px; text-align: center;
+        }
+        .counter-card.total { border-color: var(--green); color: var(--green); width: 100%; font-size: 1.2rem; margin-bottom: 5px; }
+        .counter-number { font-size: 1.2rem; font-weight: bold; font-family: 'Orbitron'; }
+        .counter-header { font-size: 0.65rem; color: #888; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .counter-date { font-size: 0.55rem; color: #555; }
+
+        /* --- SIDEBAR (Menú Hamburguesa) --- */
+        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 9998; backdrop-filter: blur(3px); }
         #sidebar-menu { 
             position: fixed; top: 0; left: 0; height: 100%; width: 280px; 
-            background: #050505; border-right: 2px solid #00f0ff; 
+            background: #080808; border-right: 2px solid var(--cyan); 
             z-index: 9999; transform: translateX(-100%); transition: 0.3s; 
             display: flex; flex-direction: column; 
+            box-shadow: 10px 0 30px rgba(0, 240, 255, 0.1);
         }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #333; color: #00f0ff; display: flex; justify-content: space-between; align-items: center; }
-        .sidebar-footer-btn { margin-top: auto; padding: 20px; background: #000; border-top: 1px solid #333; }
-        #sidebar-back-btn { width: 100%; padding: 12px; background: rgba(220, 38, 38, 0.2); border: 1px solid #ff3366; color: #ff3366; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; }
+        .sidebar-header { 
+            padding: 20px; border-bottom: 1px solid #333; 
+            color: var(--cyan); font-family: 'Orbitron'; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .sidebar-item { padding: 15px 20px; border-bottom: 1px solid #222; color: #aaa; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px;}
+        .sidebar-item:hover { color: #fff; background: rgba(0, 240, 255, 0.05); padding-left: 25px; }
+        .sidebar-item i { width: 20px; text-align: center; color: var(--cyan); }
+        .sidebar-footer { margin-top: auto; padding: 20px; border-top: 1px solid #333; }
+        .sidebar-back-btn { width: 100%; padding: 12px; background: #222; border: 1px solid #ff3366; color: #ff3366; font-family: 'Orbitron'; cursor: pointer; text-transform: uppercase; }
+
+        /* --- MODALES DE ADMINISTRACIÓN (Simplificados para encajar en el estilo) --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(5px); }
+        .modal { background: #111; border: 1px solid var(--cyan); padding: 20px; width: 90%; max-width: 400px; box-shadow: 0 0 30px rgba(0,0,0,0.8); position: relative; }
+        .modal h2 { color: var(--cyan); font-family: 'Orbitron'; margin-top: 0; }
+        .modal input, .modal select, .modal textarea { 
+            width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; margin-bottom: 10px; font-family: 'Roboto'; 
+        }
+        .modal button.standard-btn { background: var(--cyan); color: #000; border: none; font-weight: bold; padding: 10px; width: 100%; cursor: pointer; font-family: 'Orbitron'; margin-top: 10px; }
+        .modal-close { position: absolute; top: 10px; right: 15px; color: #fff; cursor: pointer; font-size: 1.5rem; }
+
+        /* IFRAME VIEWER */
+        #iframe-viewer-area { display:none; width:100%; height:100vh; background:#fff; position: absolute; top: 0; z-index: 200; }
+        #content-iframe { width:100%; height:100%; border:none; }
+        #iframe-back-float { position: fixed; bottom: 20px; right: 20px; background: #ff3366; color: white; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 201; display: none; }
+
+        /* User Info */
+        #user-info-display { text-align: center; color: #666; font-size: 0.75rem; margin-bottom: 10px; font-family: 'Orbitron'; letter-spacing: 1px; }
+        
+        /* Footer */
+        footer { margin-top: 30px; text-align: center; font-size: 0.7rem; color: #444; font-family: 'Orbitron'; }
     </style>
 </head>
 <body>
@@ -227,58 +275,146 @@
 <svg style="position: absolute; width: 0; height: 0;">
     <defs>
         <linearGradient id="blue-green-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#00f0ff" />   
-            <stop offset="100%" stop-color="#00ff9d" /> 
+            <stop offset="0%" stop-color="#00f0ff" />   <stop offset="100%" stop-color="#00ff9d" /> 
         </linearGradient>
     </defs>
 </svg>
 
 <div class="circuit-overlay"></div>
 
+<div id="loading-screen">
+    <i class="fas fa-microchip fa-spin fa-3x mb-4"></i>
+    <h2 style="font-family: 'Orbitron'">INICIANDO SISTEMA GAD...</h2>
+</div>
+
 <div id="main-scroll-area">
-    <div id="header-vigia-container">
-        <img src="logovigia.jpg" alt="Cabecera VigIA" id="header-vigia-img">
+    
+    <div id="header-vigia-container" onclick="openSidebar()">
+        <img src="logovigia.jpg" alt="VigIA Interface" id="header-vigia-img" onerror="this.src='https://via.placeholder.com/900x200/000000/00f0ff?text=CABECERA+VIGIA';">
     </div>
 
     <div class="main-content-wrapper">
         <div class="title-container">
-            <h1 id="main-title-text">MENÚ HERRAMIENTAS GAD</h1>
+            <h1 id="main-title-text">MENÚ HERRAMIENTAS</h1>
+            <div id="user-info-display">Conectando...</div>
         </div>
-        
-        <div id="user-info-display" style="text-align:center; font-size:0.7rem; color:#888; margin-bottom:15px; font-family: 'Roboto';"></div>
 
         <div id="main-menu-grid">
             </div>
 
-        <button id="admin-toggle-btn"><i class="fas fa-terminal"></i> CONSOLA DE ADMINISTRADOR</button>
+        <button id="admin-toggle-btn"><i class="fas fa-terminal"></i> CONSOLA ADMINISTRADOR</button>
+        
         <div class="controls-container" id="admin-panel">
             <div id="counters-row" style="color:#aaa; font-size:0.8rem;"></div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button id="show-edit-menu-modal" class="admin-btn" style="border-color:#ffcc00; color:#ffcc00;">EDITAR</button>
-                <button id="backup-button" class="admin-btn" style="border-color:#00ff9d; color:#00ff9d;" onclick="window.open('COPIA SEGURIDAD FIREBASE.html')">BACKUP</button>
+            
+            <div class="admin-row">
+                <button id="show-edit-menu-modal" class="admin-btn"><i class="fas fa-edit"></i> EDITAR MENÚ</button>
+                <button id="show-manage-users-modal" class="admin-btn"><i class="fas fa-users"></i> USUARIOS</button>
             </div>
-            <button id="btn-logout" class="admin-btn" style="border-color:#ff3366; color:#ff3366; margin-top:10px;">DESCONECTAR</button>
+            <div class="admin-row">
+                <button id="show-full-log-modal" class="admin-btn"><i class="fas fa-list"></i> LOG GLOBAL</button>
+                <button onclick="window.location.href='PROMTS.html'" class="admin-btn"><i class="fas fa-robot"></i> PROMPTS</button>
+                <button onclick="window.open('COPIA SEGURIDAD FIREBASE.html')" class="admin-btn"><i class="fas fa-save"></i> BACKUP</button>
+            </div>
+
+            <button id="btn-logout" class="admin-btn btn-logout"><i class="fas fa-power-off"></i> DESCONECTAR SISTEMA</button>
         </div>
+        
+        <div id="user-controls" style="display:none; margin-top:20px;">
+             <button id="btn-logout-user" class="admin-btn btn-logout" style="width:100%"><i class="fas fa-sign-out-alt"></i> CERRAR SESIÓN</button>
+        </div>
+
+        <footer>
+            GRUPO DE ANÁLISIS DOCUMENTAL<br>POLICÍA LOCAL DE ALICANTE<br>V4.0 - SYSTEM SECURE
+        </footer>
     </div>
 </div>
 
-<div id="iframe-viewer-area" style="display:none; width:100%; height:100vh; background:#000;">
-    <iframe id="content-iframe" style="width:100%; height:100%; border:none;"></iframe>
+<div id="iframe-viewer-area">
+    <iframe id="content-iframe"></iframe>
+    <div id="iframe-back-float" onclick="goBack()"><i class="fas fa-arrow-left"></i> VOLVER</div>
 </div>
 
 <div id="sidebar-overlay"></div>
 <div id="sidebar-menu">
      <div class="sidebar-header">
-         <h2 style="font-family:'Orbitron'">NAVEGACIÓN</h2>
-         <button id="close-sidebar" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+         <h2>NAVEGACIÓN</h2>
+         <i class="fas fa-times" id="close-sidebar" style="cursor:pointer; font-size:1.5rem;"></i>
      </div>
-     <div id="sidebar-tree-container" style="flex-grow:1; overflow-y:auto; padding:10px; color:#ddd;"></div>
-     <div class="sidebar-footer-btn">
-         <button id="sidebar-back-btn" style="display:none;">VOLVER ATRÁS</button>
+     <div id="sidebar-tree-container" style="flex-grow:1; overflow-y:auto; padding:10px;"></div>
+     <div class="sidebar-footer">
+         <button class="sidebar-back-btn" onclick="goBack(); closeSidebar();">VOLVER ATRÁS</button>
      </div>
 </div>
 
+<div id="edit-button-modal" class="modal-overlay">
+    <div class="modal">
+        <span class="modal-close" onclick="document.getElementById('edit-button-modal').style.display='none'">&times;</span>
+        <h2>EDITAR NODO</h2>
+        <input type="hidden" id="edit-button-id">
+        <input type="text" id="edit-button-text" placeholder="TEXTO DEL BOTÓN">
+        <input type="text" id="edit-button-href" placeholder="URL DESTINO (Opcional)">
+        <textarea id="edit-button-html-code" rows="5" placeholder="CÓDIGO HTML EMBEBIDO"></textarea>
+        
+        <label style="color:#aaa; display:block; margin:5px 0;">TAMAÑO:</label>
+        <select id="edit-button-size">
+            <option value="normal">NORMAL (Mitad)</option>
+            <option value="full-width">FULL WIDTH (Largo + Rayo)</option>
+        </select>
+
+        <label style="color:#aaa; display:block; margin:5px 0;">COLOR:</label>
+        <select id="edit-button-color-select">
+            <option value="#00f0ff">CYAN (Defecto)</option>
+            <option value="#ef4444">ROJO (Alerta)</option>
+            <option value="#f59e0b">AMBAR (Warning)</option>
+            <option value="#10b981">VERDE (Éxito)</option>
+        </select>
+        
+        <button id="save-button-changes" class="standard-btn">GUARDAR CAMBIOS</button>
+        <button onclick="delBtn(document.getElementById('edit-button-id').value)" class="standard-btn" style="background:#ef4444; margin-top:5px;">ELIMINAR BOTÓN</button>
+    </div>
+</div>
+
+<div id="add-button-modal" class="modal-overlay">
+    <div class="modal">
+        <span class="modal-close" onclick="document.getElementById('add-button-modal').style.display='none'">&times;</span>
+        <h2>NUEVO NODO</h2>
+        <input type="text" id="new-button-text" placeholder="TEXTO DEL BOTÓN">
+        <select id="new-button-type">
+            <option value="link">ENLACE / DOCUMENTO</option>
+            <option value="parent">SUBMENÚ (CARPETA)</option>
+        </select>
+        <select id="new-button-size">
+            <option value="normal">NORMAL</option>
+            <option value="full-width">ANCHO COMPLETO</option>
+        </select>
+        <textarea id="new-button-html-code" rows="4" placeholder="HTML CODE (Para documentos)"></textarea>
+        <button id="save-new-button" class="standard-btn">CREAR</button>
+    </div>
+</div>
+
+<div id="manage-users-modal" class="modal-overlay">
+    <div class="modal">
+        <span class="modal-close" onclick="document.getElementById('manage-users-modal').style.display='none'">&times;</span>
+        <h2>ACCESO USUARIOS</h2>
+        <input type="email" id="new-user-email" placeholder="GMAIL USUARIO">
+        <input type="text" id="new-user-alias" placeholder="NOMBRE / PLACA">
+        <button id="add-user-button" class="standard-btn">AUTORIZAR</button>
+        <div id="user-list-container" style="max-height:200px; overflow-y:auto; margin-top:10px; border-top:1px solid #333;"></div>
+    </div>
+</div>
+
+<div id="full-log-modal" class="modal-overlay">
+    <div class="modal" style="max-width:600px; height:80vh;">
+        <span class="modal-close" onclick="document.getElementById('full-log-modal').style.display='none'">&times;</span>
+        <h2>REGISTRO DE ACCESOS</h2>
+        <div id="full-log-container" style="height:90%; overflow-y:auto; color:#aaa; font-size:0.8rem; font-family:'Roboto Mono';"></div>
+    </div>
+</div>
+
+
 <script>
+  // --- CONFIGURACIÓN FIREBASE ---
   const firebaseConfig = {
       apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
       authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -289,22 +425,41 @@
       appId: "1:119727545224:web:36880c50d196c456cdb83d"
   };
   
-  firebase.initializeApp(firebaseConfig);
+  // --- EMAILS AUTORIZADOS ---
+  const AUTHORIZED_EMAILS = [
+      'gadalicante@gmail.com', 
+      'copg279@gmail.com',
+      'adamus03248@gmail.com',
+      'davidmesi83@gmail.com', 
+      'pamiseseg@gmail.com',
+      'policia.g496@gmail.com',
+      'verdeguer279@gmail.com',
+      'cambiar_nombre6@gmail.com'
+  ];
+  const ADMIN_EMAIL = 'copg279@gmail.com';
+
+  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
   const db = firebase.database();
   const auth = firebase.auth();
+  
+  // CONSTANTES DB
+  const BUTTONS_NODE = 'menuButtons';
+  const TITLE_NODE = 'pageTitle';
+  const USERS_NODE = 'usuarios_google'; 
 
-  let currentMenuPath = [];
+  // ESTADO GLOBAL
   let menuButtonsData = {};
+  let currentMenuPath = [];
+  let isEditMode = false;
+  let currentUserEmail = "";
 
-  // COORDENADAS SVG DEL DISEÑO NUEVO
+  // --- SVG PATHS (Del archivo prueba.html) ---
   const SVG_PATHS = {
-      // Botón pequeño (mitad de ancho)
       small: {
           viewBox: "0 0 160 90",
           outer: "M10,10 L35,10 L45,15 L115,15 L125,10 L150,10 Q160,10 160,20 L160,70 Q160,80 150,80 L125,80 L115,75 L45,75 L35,80 L10,80 Q0,80 0,70 L0,20 Q0,10 10,10 Z",
           inner: "M10,22 L36,22 L46,27 L114,27 L124,22 L150,22 M150,68 L124,68 L114,63 L46,63 L36,68 L10,68"
       },
-      // Botón grande (ancho completo)
       full: {
           viewBox: "0 0 340 90",
           outer: "M10,10 L80,10 L90,15 L250,15 L260,10 L330,10 Q340,10 340,20 L340,70 Q340,80 330,80 L260,80 L250,75 L90,75 L80,80 L10,80 Q0,80 0,70 L0,20 Q0,10 10,10 Z",
@@ -312,7 +467,10 @@
       }
   };
 
+  // --- FUNCIONES DE NAVEGACIÓN Y SIDEBAR ---
   const openSidebar = () => { 
+      // Rellenar árbol al abrir
+      renderSidebarTree(null, document.getElementById('sidebar-tree-container'));
       document.getElementById('sidebar-menu').style.transform = "translateX(0)"; 
       document.getElementById('sidebar-overlay').style.display = "block"; 
   }
@@ -320,97 +478,339 @@
       document.getElementById('sidebar-menu').style.transform = "translateX(-100%)"; 
       document.getElementById('sidebar-overlay').style.display = "none"; 
   }
-  
-  document.getElementById('header-vigia-container').onclick = openSidebar;
   document.getElementById('close-sidebar').onclick = closeSidebar;
   document.getElementById('sidebar-overlay').onclick = closeSidebar;
 
-  db.ref('menuButtons').on('value', s => { 
-      menuButtonsData = s.val() || {}; 
-      renderMenuButtons(); 
-      document.body.classList.add('loaded');
-  });
+  function goBack() {
+      const iframeArea = document.getElementById('iframe-viewer-area');
+      if (iframeArea.style.display === 'block') {
+          // Si estamos viendo contenido, volvemos al menú
+          iframeArea.style.display = 'none';
+          document.getElementById('main-scroll-area').style.display = 'block';
+          document.getElementById('content-iframe').src = "about:blank";
+          document.getElementById('iframe-back-float').style.display = 'none';
+      } else if (currentMenuPath.length > 0) {
+          // Si estamos en submenú, subimos nivel
+          currentMenuPath.pop();
+          renderMenuButtons();
+      }
+  }
 
+  // --- RENDERIZADO DE BOTONES (Estilo Tech SVG) ---
   function renderMenuButtons() {
       const grid = document.getElementById('main-menu-grid');
       grid.innerHTML = '';
+      
       const parentId = currentMenuPath.length > 0 ? currentMenuPath[currentMenuPath.length - 1] : null;
       
+      // Filtrar botones del nivel actual
       const buttons = Object.entries(menuButtonsData)
-          .filter(([k, v]) => v.parent == parentId)
+          .filter(([k, v]) => v.parent == parentId) // null == undefined check
           .sort((a,b) => a[1].order - b[1].order);
 
-      buttons.forEach(([k, v]) => {
-          // Determinar si es full width
+      // Si hay modo edición y estamos en root o submenú, mostramos botón añadir
+      if(isEditMode) {
+          const addBtn = document.createElement('div');
+          addBtn.className = 'tech-btn full-width';
+          addBtn.style.border = '1px dashed #444';
+          addBtn.innerHTML = '<span class="label" style="color:#666"><i class="fas fa-plus"></i> AÑADIR NODO AQUÍ</span>';
+          addBtn.onclick = () => { document.getElementById('add-button-modal').style.display='flex'; };
+          grid.appendChild(addBtn);
+      }
+
+      buttons.forEach(([key, v]) => {
           const isFull = v.size === 'full-width';
           const paths = isFull ? SVG_PATHS.full : SVG_PATHS.small;
           
           const btn = document.createElement('div');
-          // Añadir clases base
           btn.className = `tech-btn ${isFull ? 'full-width' : ''}`;
           
-          // Soporte para colores de estado (manteniendo lógica del dashboard original)
-          if (v.color === '#dc2626') btn.classList.add('alert');
-          if (v.color === '#16a34a') btn.classList.add('success');
-          if (v.color === '#f59e0b') btn.classList.add('warning');
-
-          // Si es full width, añadimos el rayo de energía como efecto especial
+          // Mapeo de colores a clases CSS para SVG
+          if (v.color === '#ef4444' || v.color === '#dc2626') btn.classList.add('color-alert');
+          else if (v.color === '#f59e0b') btn.classList.add('color-warning');
+          else if (v.color === '#10b981' || v.color === '#16a34a') btn.classList.add('color-success');
+          
           const energyBeam = isFull ? '<div class="energy-beam"></div>' : '';
+          const editIcon = isEditMode ? `<div style="position:absolute; top:5px; right:5px; z-index:20; background:black; padding:2px 5px; border-radius:3px; font-size:10px; color:yellow;">EDITAR</div>` : '';
 
-          // Construcción del HTML interno (SVG + Texto)
           btn.innerHTML = `
               <svg viewBox="${paths.viewBox}" preserveAspectRatio="none">
                   <path class="path-outer" d="${paths.outer}" />
                   <path class="path-inner" d="${paths.inner}" />
               </svg>
               ${energyBeam}
-              <span class="label">${v.text}</span>
+              <span class="label">${v.text} ${v.type==='parent'?' <i class="fas fa-folder"></i>':''}</span>
+              ${editIcon}
           `;
 
-          btn.onclick = () => {
-              if (v.type === 'parent') {
-                  currentMenuPath.push(k);
-                  renderMenuButtons();
+          btn.onclick = (e) => {
+              if (isEditMode) {
+                  openEditModal(key, v);
               } else {
-                  showIframe(v);
+                  if (v.type === 'parent') {
+                      currentMenuPath.push(key);
+                      renderMenuButtons();
+                  } else {
+                      showContent(v);
+                  }
               }
           };
           grid.appendChild(btn);
       });
-      document.getElementById('sidebar-back-btn').style.display = (currentMenuPath.length > 0) ? 'block' : 'none';
+
+      // Título dinámico
+      updateTitle(parentId);
   }
 
-  function showIframe(data) {
+  function updateTitle(parentId) {
+      const titleEl = document.getElementById('main-title-text');
+      if (!parentId) {
+          db.ref(TITLE_NODE).once('value', s => titleEl.innerText = s.val() || 'MENÚ HERRAMIENTAS GAD');
+      } else {
+          titleEl.innerText = menuButtonsData[parentId]?.text || 'SUBMENÚ';
+      }
+  }
+
+  // --- RENDERIZADO DEL SIDEBAR TREE ---
+  function renderSidebarTree(parentId, container) {
+      container.innerHTML = ''; // Limpiar siempre para redibujar
+      const items = Object.entries(menuButtonsData)
+          .filter(([k, v]) => v.parent == parentId)
+          .sort((a,b) => a[1].order - b[1].order);
+
+      if (items.length === 0 && parentId === null) {
+          container.innerHTML = '<div style="padding:15px; text-align:center;">Cargando menú...</div>';
+          return;
+      }
+
+      items.forEach(([key, data]) => {
+          const div = document.createElement('div');
+          
+          const row = document.createElement('div');
+          row.className = 'sidebar-item';
+          const icon = data.type === 'parent' ? 'fa-folder' : 'fa-link';
+          row.innerHTML = `<i class="fas ${icon}"></i> ${data.text}`;
+          
+          row.onclick = (e) => {
+              e.stopPropagation();
+              if (data.type === 'parent') {
+                  // Expandir
+                  let childrenDiv = div.querySelector('.children-container');
+                  if (!childrenDiv) {
+                      childrenDiv = document.createElement('div');
+                      childrenDiv.className = 'children-container';
+                      childrenDiv.style.paddingLeft = '15px';
+                      childrenDiv.style.borderLeft = '1px solid #333';
+                      div.appendChild(childrenDiv);
+                      renderSidebarTree(key, childrenDiv);
+                  } else {
+                      childrenDiv.remove(); // Colapsar
+                  }
+              } else {
+                  showContent(data);
+                  closeSidebar();
+              }
+          };
+          
+          div.appendChild(row);
+          container.appendChild(div);
+      });
+  }
+
+  function showContent(data) {
+      const viewer = document.getElementById('iframe-viewer-area');
+      const iframe = document.getElementById('content-iframe');
+      
       document.getElementById('main-scroll-area').style.display = 'none';
-      document.getElementById('iframe-viewer-area').style.display = 'block';
-      const ifr = document.getElementById('content-iframe');
+      viewer.style.display = 'block';
+      document.getElementById('iframe-back-float').style.display = 'block'; // Botón flotante volver
+
       if (data.htmlCode) {
-          const doc = ifr.contentWindow.document;
-          doc.open(); doc.write(data.htmlCode); doc.close();
-      } else { ifr.src = data.href; }
+          const doc = iframe.contentWindow.document;
+          doc.open();
+          // Inyectar compatibilidad Firebase V8 si es necesario
+          let content = data.htmlCode;
+          if(!content.includes('gadConfigV4')) {
+               const scriptConfig = `
+                <script>
+                   var gadConfigV4 = { apiKey: "${firebaseConfig.apiKey}", authDomain: "${firebaseConfig.authDomain}", databaseURL: "${firebaseConfig.databaseURL}", projectId: "${firebaseConfig.projectId}" };
+                   if (!firebase.apps.length) firebase.initializeApp(gadConfigV4);
+                <\/script>`;
+                content = scriptConfig + content;
+          }
+          doc.write(content);
+          doc.close();
+      } else if (data.href) {
+          iframe.src = data.href;
+      }
   }
 
-  document.getElementById('sidebar-back-btn').onclick = () => {
-      currentMenuPath.pop();
-      renderMenuButtons();
-      closeSidebar();
+  // --- ADMINISTRACIÓN Y EDICIÓN ---
+  function openEditModal(key, data) {
+      document.getElementById('edit-button-modal').style.display = 'flex';
+      document.getElementById('edit-button-id').value = key;
+      document.getElementById('edit-button-text').value = data.text;
+      document.getElementById('edit-button-href').value = data.href || '';
+      document.getElementById('edit-button-html-code').value = data.htmlCode || '';
+      document.getElementById('edit-button-size').value = data.size || 'normal';
+      
+      // Mapeo inverso de color a select
+      let colorVal = '#00f0ff';
+      if(data.color === '#ef4444') colorVal = '#ef4444';
+      if(data.color === '#f59e0b') colorVal = '#f59e0b';
+      if(data.color === '#10b981') colorVal = '#10b981';
+      document.getElementById('edit-button-color-select').value = colorVal;
+  }
+
+  document.getElementById('save-button-changes').onclick = () => {
+      const id = document.getElementById('edit-button-id').value;
+      const updates = {
+          text: document.getElementById('edit-button-text').value,
+          href: document.getElementById('edit-button-href').value,
+          htmlCode: document.getElementById('edit-button-html-code').value,
+          size: document.getElementById('edit-button-size').value,
+          color: document.getElementById('edit-button-color-select').value
+      };
+      db.ref(`${BUTTONS_NODE}/${id}`).update(updates);
+      document.getElementById('edit-button-modal').style.display = 'none';
+  };
+
+  document.getElementById('save-new-button').onclick = async () => {
+      const text = document.getElementById('new-button-text').value;
+      if(!text) return;
+      const parent = currentMenuPath.length ? currentMenuPath[currentMenuPath.length-1] : null;
+      
+      // Calcular orden
+      const snap = await db.ref(BUTTONS_NODE).orderByChild('parent').equalTo(parent).once('value');
+      const order = (snap.val() ? Object.keys(snap.val()).length : 0) + 1;
+      
+      const newBtn = {
+          text: text,
+          type: document.getElementById('new-button-type').value,
+          size: document.getElementById('new-button-size').value,
+          htmlCode: document.getElementById('new-button-html-code').value || '',
+          parent: parent,
+          order: order,
+          color: '#00f0ff' // Default cyan
+      };
+      
+      db.ref(BUTTONS_NODE).push(newBtn);
+      document.getElementById('add-button-modal').style.display='none';
+  };
+
+  window.delBtn = (key) => {
+      if(confirm('¿Eliminar este botón y su contenido?')) {
+          db.ref(`${BUTTONS_NODE}/${key}`).remove();
+          document.getElementById('edit-button-modal').style.display='none';
+      }
   };
 
   document.getElementById('admin-toggle-btn').onclick = () => {
       const p = document.getElementById('admin-panel');
-      p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+      p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
+  };
+  
+  document.getElementById('show-edit-menu-modal').onclick = () => {
+      isEditMode = !isEditMode;
+      document.getElementById('show-edit-menu-modal').innerHTML = isEditMode ? '<i class="fas fa-check"></i> FINALIZAR EDICIÓN' : '<i class="fas fa-edit"></i> EDITAR MENÚ';
+      renderMenuButtons();
   };
 
-  // Logout manual
-  document.getElementById('btn-logout').onclick = () => {
-      auth.signOut();
-  };
+  // --- LÓGICA DE USUARIOS Y LOGS ---
+  function sanitizeEmail(email) { return email.replace(/\./g, ','); }
+  async function getClientIP() { try { const r = await fetch('https://api64.ipify.org?format=json'); const d = await r.json(); return d.ip || 'N/A'; } catch { return 'N/A'; } }
 
-  auth.onAuthStateChanged(user => {
+  // Inicialización Auth
+  auth.onAuthStateChanged(async (user) => {
+      const loading = document.getElementById('loading-screen');
       if (user) {
-          document.getElementById('user-info-display').innerText = `OPERADOR: ${user.email}`;
-      } else { window.location.href = 'index.html'; }
+          if (AUTHORIZED_EMAILS.includes(user.email)) {
+              currentUserEmail = user.email;
+              document.body.classList.add('loaded');
+              
+              // Cargar datos
+              db.ref(BUTTONS_NODE).on('value', s => { 
+                  menuButtonsData = s.val() || {}; 
+                  renderMenuButtons(); 
+                  loading.style.opacity = '0';
+                  setTimeout(()=>loading.style.display='none', 500);
+              });
+
+              // Registrar acceso
+              const emailKey = sanitizeEmail(user.email);
+              const isAdmin = (user.email === ADMIN_EMAIL);
+              const ip = await getClientIP();
+              
+              // Update user stats
+              db.ref(USERS_NODE + '/' + emailKey).transaction(d => {
+                  return d ? { ...d, email: user.email, ultimoAcceso: Date.now(), accesos: (d.accesos||0)+1 } : d;
+              });
+              // Log
+              db.ref('visitLog').push().set({ 
+                  email: user.email, timestamp: Date.now(), ip: ip 
+              });
+
+              document.getElementById('user-info-display').innerText = `OPERADOR: ${user.email.toUpperCase()}`;
+              
+              if(isAdmin) {
+                  document.getElementById('admin-panel').style.display = 'flex'; // Auto abrir si admin
+                  initAdminFeatures();
+              } else {
+                  document.getElementById('user-controls').style.display = 'block';
+              }
+
+          } else {
+              alert("Usuario no autorizado.");
+              window.location.href = 'index.html';
+          }
+      } else {
+          window.location.href = 'index.html';
+      }
   });
+
+  function initAdminFeatures() {
+      // Monitor usuarios
+      db.ref(USERS_NODE).on('value', s => {
+          const users = s.val() || {};
+          let total = 0;
+          let html = '';
+          const listContainer = document.getElementById('user-list-container');
+          listContainer.innerHTML = '';
+
+          Object.entries(users).forEach(([k, u]) => {
+              total += (u.accesos || 0);
+              // Contador
+              html += `<div class="counter-card"><div class="counter-header">${(u.nombre||u.email).substring(0,10)}</div><div class="counter-number">${u.accesos}</div></div>`;
+              // Lista gestión
+              listContainer.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #333; color:#ccc; font-size:0.8rem;"><span>${u.email}</span> <span style="color:red; cursor:pointer;" onclick="db.ref('${USERS_NODE}/${k}').remove()">X</span></div>`;
+          });
+          document.getElementById('counters-row').innerHTML = `<div class="counters-container"><div class="counter-card total"><div class="counter-header">VISITAS TOTALES</div><div class="counter-number">${total}</div></div>${html}</div>`;
+      });
+  }
+
+  // Botones Admin Modales
+  document.getElementById('show-manage-users-modal').onclick = () => document.getElementById('manage-users-modal').style.display = 'flex';
+  document.getElementById('add-user-button').onclick = () => {
+      const email = document.getElementById('new-user-email').value.trim().toLowerCase();
+      const name = document.getElementById('new-user-alias').value;
+      if(email) {
+          db.ref(USERS_NODE + '/' + sanitizeEmail(email)).set({ email: email, nombre: name, accesos: 0, ultimoAcceso: Date.now() });
+          alert('Usuario Autorizado');
+      }
+  };
+
+  document.getElementById('show-full-log-modal').onclick = async () => {
+      document.getElementById('full-log-modal').style.display = 'flex';
+      const c = document.getElementById('full-log-container');
+      c.innerHTML = 'Cargando registros...';
+      const s = await db.ref('visitLog').limitToLast(100).once('value');
+      const logs = s.val() ? Object.values(s.val()).reverse() : [];
+      c.innerHTML = logs.map(l => `<div style="border-bottom:1px solid #222; padding:5px;">[${new Date(l.timestamp).toLocaleString()}] <span style="color:#fff">${l.email}</span> - IP: ${l.ip}</div>`).join('');
+  };
+
+  // Logout
+  document.querySelectorAll('.btn-logout').forEach(b => b.onclick = () => auth.signOut());
+
 </script>
 </body>
 </html>
