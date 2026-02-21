@@ -24,13 +24,12 @@ window.addEventListener('load', function () {
     let cropper = null;
     let currentZoom = 1;
 
-    // Configuración para forzar la máxima sensibilidad
+    // Configuración de la librería ZXing (Para cámara y navegadores antiguos)
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
     hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
     const codeReader = new ZXing.BrowserMultiFormatReader(hints);
 
-    // FUNCIÓN DEL SONIDO (BEEP)
     function playBeep() {
         try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -39,13 +38,13 @@ window.addEventListener('load', function () {
             const gain = ctx.createGain();
             osc.connect(gain);
             gain.connect(ctx.destination);
-            osc.type = 'sine'; // Tono suave
-            osc.frequency.setValueAtTime(880, ctx.currentTime); // Frecuencia del Beep
-            gain.gain.setValueAtTime(0.5, ctx.currentTime); // Volumen
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.5, ctx.currentTime);
             osc.start();
-            osc.stop(ctx.currentTime + 0.15); // Duración corta
+            osc.stop(ctx.currentTime + 0.15);
         } catch (e) {
-            console.warn("El navegador no soporta el sonido automático.");
+            console.warn("Sonido no soportado.");
         }
     }
 
@@ -70,7 +69,6 @@ window.addEventListener('load', function () {
 
     function populateVirtualCard(decodedText) {
         const parts = decodedText.split('|');
-        
         document.getElementById('field5').textContent = parts[0] || '';
         document.getElementById('field4a').textContent = formatDate(parts[1]);
         document.getElementById('field4b').textContent = formatDate(parts[2]);
@@ -87,89 +85,147 @@ window.addEventListener('load', function () {
         document.getElementById('field8').textContent = ''; 
     }
 
-    // Se ejecuta cuando el código se lee correctamente
-    function handleResult(result) {
-        if (result) {
-            playBeep(); // Suena el escáner
-            
-            const rawText = result.text;
-            rawOutput.textContent = rawText;
-            const decodedText = decodeBase64ToText(rawText);
-            decodedOutput.textContent = decodedText;
-            populateVirtualCard(decodedText);
-            
-            resultBox.style.display = 'block';
-            cropperContainer.style.display = 'none';
-            statusMsg.textContent = "¡Código decodificado con éxito!";
-            stopCamera();
-            
-            resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }
-
-function decodeCanvasWithRotationFallback(sourceCanvas) {
-        const margin = 50; 
-        const paddedCanvas = document.createElement('canvas');
-        paddedCanvas.width = sourceCanvas.width + (margin * 2);
-        paddedCanvas.height = sourceCanvas.height + (margin * 2);
-        const ctx = paddedCanvas.getContext('2d');
+    // Procesar lectura exitosa
+    function processSuccess(rawText) {
+        playBeep();
+        rawOutput.textContent = rawText;
+        const decodedText = decodeBase64ToText(rawText);
+        decodedOutput.textContent = decodedText;
+        populateVirtualCard(decodedText);
         
-        // 1. Fondo súper blanco
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
-        ctx.drawImage(sourceCanvas, margin, margin);
-
-        // 2. FILTRO EXTREMO DE BLANCO Y NEGRO (Binarización)
-        // Esto elimina sombras y reflejos del plástico que ciegan al lector
-        const imageData = ctx.getImageData(0, 0, paddedCanvas.width, paddedCanvas.height);
-        const data = imageData.data;
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            // Fórmula de luminancia para escala de grises
-            const gray = (r * 0.299) + (g * 0.587) + (b * 0.114);
-            // Si el píxel es oscurito, lo forzamos a negro puro. Si es claro, a blanco puro.
-            const color = gray < 130 ? 0 : 255; 
-            data[i] = color;     // R
-            data[i+1] = color;   // G
-            data[i+2] = color;   // B
-        }
-        ctx.putImageData(imageData, 0, 0);
-
-        // 3. Ahora sí, intentamos leer la imagen purificada
-        const img = new Image();
-        img.onload = () => {
-            codeReader.decodeFromImageElement(img)
-                .then(handleResult)
-                .catch(() => {
-                    // Si falla, rotamos la imagen purificada 90 grados
-                    const rotatedCanvas = document.createElement('canvas');
-                    rotatedCanvas.width = paddedCanvas.height;
-                    rotatedCanvas.height = paddedCanvas.width;
-                    const ctxRot = rotatedCanvas.getContext('2d');
-                    
-                    ctxRot.fillStyle = '#FFFFFF';
-                    ctxRot.fillRect(0, 0, rotatedCanvas.width, rotatedCanvas.height);
-                    ctxRot.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-                    ctxRot.rotate(90 * Math.PI / 180);
-                    ctxRot.drawImage(paddedCanvas, -paddedCanvas.width / 2, -paddedCanvas.height / 2);
-
-                    const rotatedImg = new Image();
-                    rotatedImg.onload = () => {
-                        codeReader.decodeFromImageElement(rotatedImg)
-                            .then(handleResult)
-                            .catch(() => {
-                                statusMsg.textContent = "Sigue sin detectarlo. La foto original necesita estar 100% nítida y sin brillos.";
-                            });
-                    };
-                    rotatedImg.src = rotatedCanvas.toDataURL("image/png");
-                });
-        };
-        img.src = paddedCanvas.toDataURL("image/png");
+        resultBox.style.display = 'block';
+        cropperContainer.style.display = 'none';
+        statusMsg.textContent = "¡Código detectado con éxito!";
+        stopCamera();
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // Controles de la Guía y Zoom
+    function handleResult(result) {
+        if (result && result.text) {
+            processSuccess(result.text);
+        }
+    }
+
+    // ==========================================
+    // NUEVA LÓGICA DE AUTO-DETECCIÓN CON INTELIGENCIA NATIVA
+    // ==========================================
+    fileInput.addEventListener('change', async (e) => {
+        if (e.target.files && e.target.files.length) {
+            stopCamera();
+            resultBox.style.display = 'none';
+            cameraControls.style.display = 'none';
+            cropperContainer.style.display = 'none'; 
+            statusMsg.textContent = "Buscando código automáticamente en la imagen...";
+
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = async () => {
+                    let detected = false;
+
+                    // 1. INTENTO: NATIVE BARCODE DETECTOR (Busca en toda la foto usando la IA del móvil)
+                    if ('BarcodeDetector' in window) {
+                        try {
+                            const detector = new BarcodeDetector({ formats: ['pdf417'] });
+                            const barcodes = await detector.detect(img);
+                            if (barcodes.length > 0) {
+                                processSuccess(barcodes[0].rawValue);
+                                detected = true;
+                                return;
+                            }
+                        } catch (err) {
+                            console.warn("API Nativa falló, intentando librería clásica...");
+                        }
+                    }
+
+                    // 2. INTENTO: LIBRERÍA ZXING EN LA IMAGEN COMPLETA
+                    if (!detected) {
+                        try {
+                            const result = await codeReader.decodeFromImageElement(img);
+                            processSuccess(result.text);
+                            detected = true;
+                        } catch (err) {
+                            // Falla en automático
+                        }
+                    }
+
+                    // 3. SI TODO FALLA, ABRIMOS EL RECORTADOR MANUAL COMO PLAN B
+                    if (!detected) {
+                        statusMsg.textContent = "La foto tiene demasiados detalles. Por favor, recorta el código a mano.";
+                        imageToCrop.src = event.target.result;
+                        cropperContainer.style.display = 'block';
+
+                        if (cropper) cropper.destroy();
+                        cropper = new Cropper(imageToCrop, {
+                            viewMode: 1,
+                            dragMode: 'move', // Arrastre libre de la imagen
+                            autoCropArea: 0.8,
+                            restore: false,
+                            guides: true,
+                            zoomable: true,
+                            movable: true,
+                            background: true
+                        });
+                    }
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // LÓGICA DEL RECORTADOR MANUAL (Plan B)
+    cropAndReadBtn.addEventListener('click', () => {
+        if (cropper) {
+            statusMsg.textContent = "Analizando recorte...";
+            const canvas = cropper.getCroppedCanvas();
+            
+            // Le damos margen blanco al recorte manual
+            const margin = 50; 
+            const paddedCanvas = document.createElement('canvas');
+            paddedCanvas.width = canvas.width + (margin * 2);
+            paddedCanvas.height = canvas.height + (margin * 2);
+            const ctx = paddedCanvas.getContext('2d');
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
+            ctx.drawImage(canvas, margin, margin);
+
+            const img = new Image();
+            img.onload = () => {
+                codeReader.decodeFromImageElement(img)
+                    .then(handleResult)
+                    .catch(() => {
+                        // Intentamos rotado
+                        const rotatedCanvas = document.createElement('canvas');
+                        rotatedCanvas.width = paddedCanvas.height;
+                        rotatedCanvas.height = paddedCanvas.width;
+                        const ctxRot = rotatedCanvas.getContext('2d');
+                        ctxRot.fillStyle = '#FFFFFF';
+                        ctxRot.fillRect(0, 0, rotatedCanvas.width, rotatedCanvas.height);
+                        ctxRot.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
+                        ctxRot.rotate(90 * Math.PI / 180);
+                        ctxRot.drawImage(paddedCanvas, -paddedCanvas.width / 2, -paddedCanvas.height / 2);
+
+                        const rotatedImg = new Image();
+                        rotatedImg.onload = () => {
+                            codeReader.decodeFromImageElement(rotatedImg)
+                                .then(handleResult)
+                                .catch(() => {
+                                    statusMsg.textContent = "No detectado. Intenta recortar más cerca del código negro.";
+                                });
+                        };
+                        rotatedImg.src = rotatedCanvas.toDataURL();
+                    });
+            };
+            img.src = paddedCanvas.toDataURL();
+        }
+    });
+
+    // ==========================================
+    // CÁMARA
+    // ==========================================
     zoomSlider.addEventListener('input', (e) => {
         currentZoom = parseFloat(e.target.value);
         video.style.transform = `scale(${currentZoom})`;
@@ -184,7 +240,14 @@ function decodeCanvasWithRotationFallback(sourceCanvas) {
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        decodeCanvasWithRotationFallback(canvas);
+        
+        const img = new Image();
+        img.onload = () => {
+            codeReader.decodeFromImageElement(img)
+                .then(handleResult)
+                .catch(() => statusMsg.textContent = "No detectado. Ajusta el código en el recuadro.");
+        };
+        img.src = canvas.toDataURL();
     });
 
     startCameraBtn.addEventListener('click', () => {
@@ -204,20 +267,18 @@ function decodeCanvasWithRotationFallback(sourceCanvas) {
         guideWidthSlider.value = 80;
         guideHeightSlider.value = 30;
 
-        // FORZAR ALTA RESOLUCIÓN Y AUTOENFOQUE EN LA CÁMARA
         const constraints = {
             video: {
                 facingMode: 'environment',
-                width: { ideal: 1920 },  // Exigir Full HD para mejorar la lectura de PDF417
+                width: { ideal: 1920 },
                 height: { ideal: 1080 },
-                advanced: [{ focusMode: "continuous" }] // Pedir autoenfoque al dispositivo
+                advanced: [{ focusMode: "continuous" }]
             }
         };
 
         codeReader.decodeFromConstraints(constraints, 'video', (result, err) => {
             if (result) handleResult(result);
         }).catch((err) => {
-            console.error(err);
             statusMsg.textContent = "Error iniciando la cámara en alta resolución.";
         });
     });
@@ -232,45 +293,6 @@ function decodeCanvasWithRotationFallback(sourceCanvas) {
     }
 
     stopCameraBtn.addEventListener('click', stopCamera);
-
-    // LÓGICA DE SUBIDA DE IMAGEN CON ARRASTRE LIBRE (DRAG MODE)
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files.length) {
-            stopCamera();
-            resultBox.style.display = 'none';
-            cameraControls.style.display = 'none';
-            
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            
-            reader.onload = (event) => {
-                imageToCrop.src = event.target.result;
-                cropperContainer.style.display = 'block';
-                statusMsg.textContent = "Usa tus dedos/ratón para hacer zoom y arrastrar la imagen.";
-
-                if (cropper) cropper.destroy();
-                cropper = new Cropper(imageToCrop, {
-                    viewMode: 1,
-                    dragMode: 'move', // ESTA LÍNEA ES LA MAGIA: Permite arrastrar la foto mientras haces zoom
-                    autoCropArea: 0.8,
-                    restore: false,
-                    guides: true,
-                    zoomable: true,
-                    movable: true,
-                    background: true
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    cropAndReadBtn.addEventListener('click', () => {
-        if (cropper) {
-            statusMsg.textContent = "Analizando recorte...";
-            const canvas = cropper.getCroppedCanvas();
-            decodeCanvasWithRotationFallback(canvas);
-        }
-    });
 
     copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(decodedOutput.textContent).then(() => {
