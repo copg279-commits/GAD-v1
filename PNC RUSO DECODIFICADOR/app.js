@@ -176,21 +176,31 @@ window.addEventListener('load', function () {
         }
     });
 
-    // LÓGICA DEL RECORTADOR MANUAL (Plan B)
+// LÓGICA DEL RECORTADOR MANUAL (Plan B en Alta Definición)
     cropAndReadBtn.addEventListener('click', () => {
         if (cropper) {
-            statusMsg.textContent = "Analizando recorte...";
-            const canvas = cropper.getCroppedCanvas();
+            statusMsg.textContent = "Analizando recorte en HD...";
+            const sourceCanvas = cropper.getCroppedCanvas();
             
-            // Le damos margen blanco al recorte manual
-            const margin = 50; 
+            // Volvemos a aplicar el Escalado x2 y el Margen Blanco gigante
+            const scale = 2; 
+            const margin = 100; 
+            
             const paddedCanvas = document.createElement('canvas');
-            paddedCanvas.width = canvas.width + (margin * 2);
-            paddedCanvas.height = canvas.height + (margin * 2);
+            paddedCanvas.width = (sourceCanvas.width * scale) + (margin * 2);
+            paddedCanvas.height = (sourceCanvas.height * scale) + (margin * 2);
             const ctx = paddedCanvas.getContext('2d');
+            
+            // Fondo blanco puro
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
-            ctx.drawImage(canvas, margin, margin);
+            
+            // Dibujar el recorte ampliado
+            ctx.drawImage(
+                sourceCanvas, 
+                0, 0, sourceCanvas.width, sourceCanvas.height, 
+                margin, margin, sourceCanvas.width * scale, sourceCanvas.height * scale 
+            );
 
             const img = new Image();
             img.onload = () => {
@@ -213,13 +223,13 @@ window.addEventListener('load', function () {
                             codeReader.decodeFromImageElement(rotatedImg)
                                 .then(handleResult)
                                 .catch(() => {
-                                    statusMsg.textContent = "No detectado. Intenta recortar más cerca del código negro.";
+                                    statusMsg.textContent = "No detectado. Intenta recortar ajustando el marco casi tocando el código negro.";
                                 });
                         };
-                        rotatedImg.src = rotatedCanvas.toDataURL();
+                        rotatedImg.src = rotatedCanvas.toDataURL("image/jpeg", 1.0);
                     });
             };
-            img.src = paddedCanvas.toDataURL();
+            img.src = paddedCanvas.toDataURL("image/jpeg", 1.0);
         }
     });
 
