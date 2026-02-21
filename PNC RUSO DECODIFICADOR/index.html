@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decodificador PNC Ruso</title>
     <link rel="stylesheet" href="styles.css">
+    
     <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body>
 
@@ -23,14 +27,29 @@
             <button id="stopCamera" class="stop-btn">Detener Cámara</button>
             
             <label class="file-upload-label">
-                Subir Imagen Completa
+                Subir Imagen para Recortar
                 <input type="file" id="fileInput" accept="image/*">
             </label>
+        </div>
+
+        <div id="cropperContainer" class="cropper-container" style="display: none;">
+            <div class="img-container">
+                <img id="imageToCrop" src="" alt="Imagen a recortar">
+            </div>
+            <button id="cropAndReadBtn" class="action-btn">✂️ Confirmar Recorte y Leer</button>
         </div>
 
         <div class="video-wrapper" id="videoWrapper">
             <video id="video" autoplay playsinline></video>
             <div class="scanner-guide"></div>
+        </div>
+
+        <div id="cameraControls" class="camera-controls" style="display: none;">
+            <div class="zoom-control">
+                <label for="zoomSlider">🔍 Zoom:</label>
+                <input type="range" id="zoomSlider" min="1" max="4" step="0.1" value="1">
+            </div>
+            <button id="manualCaptureBtn" class="action-btn">📸 Capturar y Leer Manualmente</button>
         </div>
 
         <div class="result-box" id="resultBox">
@@ -56,19 +75,14 @@
                             <div class="dl-field"><span>1.</span> <strong id="field1"></strong></div>
                             <div class="dl-field"><span>2.</span> <strong id="field2"></strong></div>
                             <div class="dl-field"><span>3.</span> <strong id="field3"></strong></div>
-                            
                             <div class="dl-row">
                                 <div class="dl-field"><span>4a)</span> <strong id="field4a"></strong></div>
                                 <div class="dl-field"><span>4b)</span> <strong id="field4b"></strong></div>
                             </div>
                             <div class="dl-field"><span>4c)</span> <strong id="field4c"></strong></div>
-                            
                             <div class="dl-field"><span>5.</span> <strong id="field5"></strong></div>
                             <div class="dl-field"><span>8.</span> <strong id="field8"></strong></div>
-                            
-                            <div class="dl-field dl-categories">
-                                <span>9.</span> <strong id="field9"></strong>
-                            </div>
+                            <div class="dl-field dl-categories"><span>9.</span> <strong id="field9"></strong></div>
                         </div>
                     </div>
                 </div>
