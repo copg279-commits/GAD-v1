@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decodificador PNC Ruso</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="app-header">
+            <img src="logogad.PNG" alt="Logo GAD" class="header-logo">
+            <h1>Decodificador PNC Ruso</h1>
+            <img src="t4c.png" alt="Logo T4C" class="header-logo">
+        </div>
+        
+        <div id="status">Esperando acción...</div>
+
+        <div class="controls">
+            <button id="startCamera">Usar Cámara</button>
+            <button id="stopCamera" class="stop-btn">Detener Cámara</button>
+            
+            <label class="file-upload-label">
+                Subir Imagen Completa
+                <input type="file" id="fileInput" accept="image/*">
+            </label>
+        </div>
+
+        <div class="video-wrapper" id="videoWrapper">
+            <video id="video" autoplay playsinline></video>
+            <div class="scanner-guide"></div>
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <h3>Resultado de la lectura</h3>
+            
+            <div class="data-label">Código crudo (Base64):</div>
+            <div class="data-content" id="rawOutput">-</div>
+
+            <div class="data-label">Texto Decodificado (UTF-8):</div>
+            <div class="data-content" id="decodedOutput">-</div>
+            
+            <div class="dl-card-container">
+                <div class="dl-card">
+                    <div class="dl-header">
+                        <div class="dl-rus">RUS</div>
+                        <div class="dl-title">ВОДИТЕЛЬСКОЕ УДОСТОВЕРЕНИЕ</div>
+                    </div>
+                    <div class="dl-body">
+                        <div class="dl-photo">
+                            <svg viewBox="0 0 24 24" fill="#666" width="100%" height="100%"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <div class="dl-details">
+                            <div class="dl-field"><span>1.</span> <strong id="field1"></strong></div>
+                            <div class="dl-field"><span>2.</span> <strong id="field2"></strong></div>
+                            <div class="dl-field"><span>3.</span> <strong id="field3"></strong></div>
+                            
+                            <div class="dl-row">
+                                <div class="dl-field"><span>4a)</span> <strong id="field4a"></strong></div>
+                                <div class="dl-field"><span>4b)</span> <strong id="field4b"></strong></div>
+                            </div>
+                            <div class="dl-field"><span>4c)</span> <strong id="field4c"></strong></div>
+                            
+                            <div class="dl-field"><span>5.</span> <strong id="field5"></strong></div>
+                            <div class="dl-field"><span>8.</span> <strong id="field8"></strong></div>
+                            
+                            <div class="dl-field dl-categories">
+                                <span>9.</span> <strong id="field9"></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="copyBtn" class="copy-btn">Copiar Texto Decodificado</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
