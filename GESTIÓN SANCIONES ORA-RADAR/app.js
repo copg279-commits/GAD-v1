@@ -79,15 +79,27 @@ function setMode(m) {
     render();
 }
 
-database.ref(DB_REF).on('value', snap => {
-    const val = snap.val();
-    let rawList = val ? (Array.isArray(val) ? val : Object.values(val)) : [];
-    allData = rawList.map(d => { 
-        if(!d.tipo) d.tipo = 'ORA'; 
-        if(d.matricula) d.matricula = d.matricula.trim().replace(/\s/g,'').toUpperCase();
-        return d; 
-    });
-    render();
+// Esperamos a que Firebase lea la sesión del navegador
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        // ¡El usuario está autorizado! Ahora sí leemos la base de datos
+        console.log("Sesión detectada para:", user.email);
+        
+        database.ref(DB_REF).on('value', snap => {
+            const val = snap.val();
+            let rawList = val ? (Array.isArray(val) ? val : Object.values(val)) : [];
+            allData = rawList.map(d => { 
+                if(!d.tipo) d.tipo = 'ORA'; 
+                if(d.matricula) d.matricula = d.matricula.trim().replace(/\s/g,'').toUpperCase();
+                return d; 
+            });
+            render();
+        });
+    } else {
+        // Si entra directamente sin pasar por tu login previo
+        console.error("No hay sesión activa.");
+        document.getElementById('stats').innerHTML = "<span style='color:red'>⚠️ Acceso denegado: Debes iniciar sesión primero.</span>";
+    }
 });
 
 function render() {
