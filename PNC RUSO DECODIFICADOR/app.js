@@ -39,29 +39,29 @@ window.addEventListener('load', function () {
         setTimeout(() => processSuccess(codigoDesdeApp), 500); 
     }
 
-    // ==========================================
+  // ==========================================
     // 2. CONFIGURACIÓN DEL PUENTE A LA APP EXTERNA
     // ==========================================
     if (nativeAppBtn) {
         const currentUrl = window.location.href.split('?')[0]; 
         const returnUrl = encodeURIComponent(currentUrl + '?codigo_escaneado={CODE}');
-        const fallbackUrl = encodeURIComponent('https://play.google.com/store/apps/details?id=com.google.zxing.client.android');
         
-        const intentUrl = `intent://scan/#Intent;scheme=zxing;package=com.google.zxing.client.android;S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};S.browser_fallback_url=${fallbackUrl};end`;
+        // Enlace exacto a la app de Manatee Works en la Play Store (por si acaso)
+        const fallbackUrl = encodeURIComponent('https://play.google.com/store/apps/details?id=com.manateeworks.barcodescanners');
         
-        // Si es un enlace <a>, le ponemos la ruta directamente
+        // Intent configurado ESPECÍFICAMENTE para la app de Manatee Works
+        const intentUrl = `intent://scan/#Intent;action=com.google.zxing.client.android.SCAN;package=com.manateeworks.barcodescanners;S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};S.browser_fallback_url=${fallbackUrl};end`;
+        
         if (nativeAppBtn.tagName.toLowerCase() === 'a') {
             nativeAppBtn.href = intentUrl;
         } 
         
-        // Por seguridad, si sigue siendo un <button>, le ponemos evento click
         nativeAppBtn.addEventListener('click', (e) => {
             if (nativeAppBtn.tagName.toLowerCase() !== 'a') {
                 window.location.href = intentUrl;
             }
         });
     }
-
     // ==========================================
     // 3. CONFIGURACIÓN LIBRERÍA INTERNA (ZXing)
     // ==========================================
