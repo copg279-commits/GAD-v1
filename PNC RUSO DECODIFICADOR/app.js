@@ -10,10 +10,13 @@ window.addEventListener('load', function () {
     const statusMsg = document.getElementById('status');
     const copyBtn = document.getElementById('copyBtn');
 
-    // Nuevos controles
     const cameraControls = document.getElementById('cameraControls');
     const zoomSlider = document.getElementById('zoomSlider');
+    const guideWidthSlider = document.getElementById('guideWidth');
+    const guideHeightSlider = document.getElementById('guideHeight');
+    const scannerGuide = document.getElementById('scannerGuide');
     const manualCaptureBtn = document.getElementById('manualCaptureBtn');
+    
     const cropperContainer = document.getElementById('cropperContainer');
     const imageToCrop = document.getElementById('imageToCrop');
     const cropAndReadBtn = document.getElementById('cropAndReadBtn');
@@ -45,13 +48,25 @@ window.addEventListener('load', function () {
         return `${dateStr.substring(6, 8)}.${dateStr.substring(4, 6)}.${dateStr.substring(0, 4)}`;
     }
 
+    // LÓGICA INTELIGENTE DE NOMBRES
     function populateVirtualCard(decodedText) {
         const parts = decodedText.split('|');
+        
         document.getElementById('field5').textContent = parts[0] || '';
         document.getElementById('field4a').textContent = formatDate(parts[1]);
         document.getElementById('field4b').textContent = formatDate(parts[2]);
-        document.getElementById('field1').textContent = parts[3] || '';
-        document.getElementById('field2').textContent = `${parts[4] || ''} ${parts[5] || ''}`.trim();
+        
+        // Extraemos y limpiamos espacios adicionales de los apellidos y nombres
+        // parts[3] suele contener todos los apellidos juntos
+        const surnames = parts[3] ? parts[3].trim().replace(/\s+/g, ' ') : '';
+        
+        // parts[4] es el nombre y parts[5] el patronímico (que a veces no existe)
+        const firstName = parts[4] ? parts[4].trim().replace(/\s+/g, ' ') : '';
+        const patronymic = parts[5] ? parts[5].trim().replace(/\s+/g, ' ') : '';
+        
+        document.getElementById('field1').textContent = surnames;
+        document.getElementById('field2').textContent = `${firstName} ${patronymic}`.trim();
+        
         document.getElementById('field3').textContent = formatDate(parts[6]);
         document.getElementById('field9').textContent = parts[7] || '';
         document.getElementById('field4c').textContent = parts[8] || '';
@@ -70,15 +85,16 @@ window.addEventListener('load', function () {
             cropperContainer.style.display = 'none';
             statusMsg.textContent = "¡Código decodificado con éxito!";
             stopCamera();
+            
+            // Forzar un leve scroll automático hacia los resultados
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
-    // LÓGICA DE ROTACIÓN: Si falla normal, intenta girar el lienzo 90 grados (soluciona códigos verticales)
     function decodeCanvasWithRotationFallback(canvas) {
         codeReader.decodeFromCanvas(canvas)
             .then(handleResult)
             .catch(() => {
-                // Si falla, creamos un canvas girado
                 const rotatedCanvas = document.createElement('canvas');
                 rotatedCanvas.width = canvas.height;
                 rotatedCanvas.height = canvas.width;
@@ -95,29 +111,30 @@ window.addEventListener('load', function () {
             });
     }
 
-    // Control de ZOOM del visor
+    // Controles de la Guía y Zoom
     zoomSlider.addEventListener('input', (e) => {
         currentZoom = parseFloat(e.target.value);
         video.style.transform = `scale(${currentZoom})`;
     });
 
-    // CAPTURA MANUAL CON CÁMARA APLICANDO EL ZOOM DIGITAL
+    guideWidthSlider.addEventListener('input', (e) => {
+        scannerGuide.style.width = `${e.target.value}%`;
+    });
+
+    guideHeightSlider.addEventListener('input', (e) => {
+        scannerGuide.style.height = `${e.target.value}%`;
+    });
+
     manualCaptureBtn.addEventListener('click', () => {
         statusMsg.textContent = "Analizando captura manual...";
         const canvas = document.createElement('canvas');
-        const vw = video.videoWidth;
-        const vh = video.videoHeight;
-        canvas.width = vw;
-        canvas.height = vh;
-        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
-        // Calculamos el recorte interno basándonos en el nivel de zoom
-        const cropWidth = vw / currentZoom;
-        const cropHeight = vh / currentZoom;
-        const cropX = (vw - cropWidth) / 2;
-        const cropY = (vh - cropHeight) / 2;
         
-        ctx.drawImage(video, cropX, cropY, cropWidth, cropHeight, 0, 0, canvas.width, canvas.height);
+        // Al capturar manualmente copiamos la totalidad del video. 
+        // El lector TRY_HARDER se encarga de buscar dentro de esa captura.
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         decodeCanvasWithRotationFallback(canvas);
     });
 
@@ -125,15 +142,18 @@ window.addEventListener('load', function () {
         resultBox.style.display = 'none';
         cropperContainer.style.display = 'none';
         videoWrapper.style.display = 'block';
-        cameraControls.style.display = 'block';
+        cameraControls.style.display = 'flex';
         startCameraBtn.style.display = 'none';
         stopCameraBtn.style.display = 'block';
-        statusMsg.textContent = "Cámara activa. El código se leerá automáticamente o pulsa Capturar.";
+        statusMsg.textContent = "Ajusta el marco y escanea o pulsa Capturar.";
 
-        // Reiniciar zoom visual
         currentZoom = 1;
         zoomSlider.value = 1;
         video.style.transform = `scale(1)`;
+        scannerGuide.style.width = '80%';
+        scannerGuide.style.height = '30%';
+        guideWidthSlider.value = 80;
+        guideHeightSlider.value = 30;
 
         codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
             if (result) handleResult(result);
@@ -146,12 +166,11 @@ window.addEventListener('load', function () {
         cameraControls.style.display = 'none';
         startCameraBtn.style.display = 'block';
         stopCameraBtn.style.display = 'none';
-        if(statusMsg.textContent.includes("Cámara activa")) statusMsg.textContent = "Cámara detenida.";
+        if(statusMsg.textContent.includes("Ajusta el marco")) statusMsg.textContent = "Cámara detenida.";
     }
 
     stopCameraBtn.addEventListener('click', stopCamera);
 
-    // LÓGICA DE SUBIDA Y RECORTE DE IMAGEN
     fileInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files.length) {
             stopCamera();

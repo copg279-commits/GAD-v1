@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decodificador PNC Ruso</title>
     <link rel="stylesheet" href="styles.css">
-    
     <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
@@ -25,7 +23,6 @@
         <div class="controls">
             <button id="startCamera">Usar Cámara</button>
             <button id="stopCamera" class="stop-btn">Detener Cámara</button>
-            
             <label class="file-upload-label">
                 Subir Imagen para Recortar
                 <input type="file" id="fileInput" accept="image/*">
@@ -41,25 +38,26 @@
 
         <div class="video-wrapper" id="videoWrapper">
             <video id="video" autoplay playsinline></video>
-            <div class="scanner-guide"></div>
+            <div class="scanner-guide" id="scannerGuide"></div>
         </div>
 
         <div id="cameraControls" class="camera-controls" style="display: none;">
-            <div class="zoom-control">
-                <label for="zoomSlider">🔍 Zoom:</label>
+            <div class="control-group">
+                <label>↔️ Ancho del marco:</label>
+                <input type="range" id="guideWidth" min="20" max="95" value="80">
+            </div>
+            <div class="control-group">
+                <label>↕️ Alto del marco:</label>
+                <input type="range" id="guideHeight" min="10" max="95" value="30">
+            </div>
+            <div class="control-group">
+                <label>🔍 Zoom de cámara:</label>
                 <input type="range" id="zoomSlider" min="1" max="4" step="0.1" value="1">
             </div>
-            <button id="manualCaptureBtn" class="action-btn">📸 Capturar y Leer Manualmente</button>
+            <button id="manualCaptureBtn" class="action-btn" style="margin-top: 10px;">📸 Capturar y Leer Manualmente</button>
         </div>
 
         <div class="result-box" id="resultBox">
-            <h3>Resultado de la lectura</h3>
-            
-            <div class="data-label">Código crudo (Base64):</div>
-            <div class="data-content" id="rawOutput">-</div>
-
-            <div class="data-label">Texto Decodificado (UTF-8):</div>
-            <div class="data-content" id="decodedOutput">-</div>
             
             <div class="dl-card-container">
                 <div class="dl-card">
@@ -88,6 +86,14 @@
                 </div>
             </div>
 
+            <h3 style="margin-top: 30px;">Datos técnicos capturados</h3>
+            
+            <div class="data-label">Código crudo (Base64):</div>
+            <div class="data-content" id="rawOutput">-</div>
+
+            <div class="data-label">Texto Decodificado (UTF-8):</div>
+            <div class="data-content" id="decodedOutput">-</div>
+            
             <button id="copyBtn" class="copy-btn">Copiar Texto Decodificado</button>
         </div>
     </div>
