@@ -63,14 +63,14 @@ function setMode(m) {
     document.getElementById('b-radar').classList.toggle('active', m === 'RADAR');
     
     const title = document.getElementById('main-t');
-    const hint = document.getElementById('manual-mode-hint');
+    const logoImg = document.getElementById('logo-dinamico'); // Capturamos la imagen
     
     if(m === 'ORA') {
         title.innerHTML = '<i class="fas fa-file-invoice-dollar"></i> Listado de denuncias ORA';
-        if(hint) hint.innerHTML = 'Se añadirá como denuncia <b>ORA</b>';
+        if(logoImg) logoImg.src = '../ASSETS/logoora.png'; // Ponemos el logo ORA
     } else {
         title.innerHTML = '<i class="fas fa-tachometer-alt"></i> Gestión de denuncias RADAR';
-        if(hint) hint.innerHTML = 'Se añadirá como denuncia <b>RADAR</b>';
+        if(logoImg) logoImg.src = '../ASSETS/logoradar.png'; // Ponemos el logo RADAR
     }
     
     if(m === 'RADAR') sort = 'plate';
