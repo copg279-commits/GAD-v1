@@ -96,11 +96,28 @@ firebase.auth().onAuthStateChanged(user => {
             render();
         });
     } else {
-        // Si entra directamente sin pasar por tu login previo
-        console.error("No hay sesión activa.");
-        document.getElementById('stats').innerHTML = "<span style='color:red'>⚠️ Acceso denegado: Debes iniciar sesión primero.</span>";
+        // Si entra directamente sin pasar por tu login previo (ej. Live Server)
+        console.warn("No hay sesión activa. Mostrando botón de login local.");
+        document.getElementById('stats').innerHTML = `
+            <span style='color:#ef4444; font-weight:bold;'>⚠️ Modo Local:</span>
+            <button onclick="loginDesarrollo()" class="btn-primary" style="padding: 5px 15px; margin: 0; font-size: 0.85em; width: auto; border-radius: 20px;">
+                <i class="fab fa-google"></i> Iniciar Sesión para Probar
+            </button>
+        `;
     }
 });
+
+// Función exclusiva para poder loguearte desde Live Server
+window.loginDesarrollo = function() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider).then((result) => {
+        console.log("Login local exitoso:", result.user.email);
+        // Al loguearte, el onAuthStateChanged de arriba se dispara solo y carga los datos.
+    }).catch((error) => {
+        console.error("Error en login:", error);
+        alert("Error al iniciar sesión: " + error.message);
+    });
+};
 
 function render() {
     const cont = document.getElementById('list-container');
@@ -160,8 +177,7 @@ function render() {
         card.innerHTML = `
             <div class="card-header" onclick="this.nextElementSibling.classList.toggle('open')">
                 <div class="left-col">
-                    <button class="btn-primary header-btn-small" onclick="event.stopPropagation(); copyM('${g.matricula}')"><i class="fas fa-copy"></i></button>
-                    <button class="btn-warning header-btn-small" onclick="event.stopPropagation(); openEditVehicleModal('${g.matricula}')" title="Editar Vehículo"><i class="fas fa-pen"></i></button>
+<button class="btn-primary header-btn-small" onclick="event.stopPropagation(); copyM('${g.matricula}')" title="Copiar"><i class="fas fa-copy"></i></button>                    <button class="btn-warning header-btn-small" onclick="event.stopPropagation(); openEditVehicleModal('${g.matricula}')" title="Editar Vehículo"><i class="fas fa-pen"></i></button>
                     <div class="plate-box ${isGlobalReincident ? 'reincident' : ''}">${displayMatricula}</div>
                     <div class="count-badge ${isGlobalReincident ? 'reincident' : ''}">${badgeText}</div>
                     <div style="font-size:0.8em; color:#6b7280; font-weight:600;"><i class="far fa-clock"></i> ${formatDate(maxDate)}</div>
