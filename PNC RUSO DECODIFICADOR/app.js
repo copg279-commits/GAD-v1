@@ -39,18 +39,18 @@ window.addEventListener('load', function () {
         setTimeout(() => processSuccess(codigoDesdeApp), 500); 
     }
 
-  // ==========================================
+// ==========================================
     // 2. CONFIGURACIÓN DEL PUENTE A LA APP EXTERNA
     // ==========================================
     if (nativeAppBtn) {
         const currentUrl = window.location.href.split('?')[0]; 
         const returnUrl = encodeURIComponent(currentUrl + '?codigo_escaneado={CODE}');
         
-        // Enlace exacto a la app de Manatee Works en la Play Store (por si acaso)
-        const fallbackUrl = encodeURIComponent('https://play.google.com/store/apps/details?id=com.manateeworks.barcodescanners');
+        // Enlace a la app de TeaCapps (soporta retorno automático 100%)
+        const fallbackUrl = encodeURIComponent('https://play.google.com/store/apps/details?id=com.teacapps.barcodescanner');
         
-        // Intent configurado ESPECÍFICAMENTE para la app de Manatee Works
-        const intentUrl = `intent://scan/#Intent;action=com.google.zxing.client.android.SCAN;package=com.manateeworks.barcodescanners;S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};S.browser_fallback_url=${fallbackUrl};end`;
+        // Intent apuntando ESPECÍFICAMENTE a esa app compatible
+        const intentUrl = `intent://scan/#Intent;action=com.google.zxing.client.android.SCAN;package=com.teacapps.barcodescanner;S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};S.browser_fallback_url=${fallbackUrl};end`;
         
         if (nativeAppBtn.tagName.toLowerCase() === 'a') {
             nativeAppBtn.href = intentUrl;
