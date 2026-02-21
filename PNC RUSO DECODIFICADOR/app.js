@@ -21,7 +21,7 @@ window.addEventListener('load', function () {
     const imageToCrop = document.getElementById('imageToCrop');
     const cropAndReadBtn = document.getElementById('cropAndReadBtn');
     
-    // El nuevo botón de la App
+    // Obtenemos el botón/enlace de la app nativa (¡declarado solo una vez!)
     const nativeAppBtn = document.getElementById('nativeAppBtn');
 
     let cropper = null;
@@ -34,31 +34,37 @@ window.addEventListener('load', function () {
     const codigoDesdeApp = urlParams.get('codigo_escaneado');
 
     if (codigoDesdeApp) {
-        // Limpiamos la URL para no procesarlo dos veces y mostramos el resultado
         window.history.replaceState({}, document.title, window.location.pathname);
         statusMsg.textContent = "¡Código recibido desde la App externa!";
-        // Llamamos a la función que procesa y pinta la tarjeta
         setTimeout(() => processSuccess(codigoDesdeApp), 500); 
     }
 
-// ==========================================
-    // 2. ENLACE PARA ABRIR LA APP EXTERNA (PDF417)
     // ==========================================
-    const nativeAppBtn = document.getElementById('nativeAppBtn');
+    // 2. CONFIGURACIÓN DEL PUENTE A LA APP EXTERNA
+    // ==========================================
     if (nativeAppBtn) {
-        // Calculamos las rutas nada más cargar la página
         const currentUrl = window.location.href.split('?')[0]; 
         const returnUrl = encodeURIComponent(currentUrl + '?codigo_escaneado={CODE}');
         const fallbackUrl = encodeURIComponent('https://play.google.com/store/apps/details?id=com.google.zxing.client.android');
         
-        // Creamos la dirección del Intent
         const intentUrl = `intent://scan/#Intent;scheme=zxing;package=com.google.zxing.client.android;S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};S.browser_fallback_url=${fallbackUrl};end`;
         
-        // Se la inyectamos directamente al enlace HTML
-        nativeAppBtn.href = intentUrl;
+        // Si es un enlace <a>, le ponemos la ruta directamente
+        if (nativeAppBtn.tagName.toLowerCase() === 'a') {
+            nativeAppBtn.href = intentUrl;
+        } 
+        
+        // Por seguridad, si sigue siendo un <button>, le ponemos evento click
+        nativeAppBtn.addEventListener('click', (e) => {
+            if (nativeAppBtn.tagName.toLowerCase() !== 'a') {
+                window.location.href = intentUrl;
+            }
+        });
     }
 
-    // Configuración de la librería interna
+    // ==========================================
+    // 3. CONFIGURACIÓN LIBRERÍA INTERNA (ZXing)
+    // ==========================================
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
     hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
@@ -117,7 +123,6 @@ window.addEventListener('load', function () {
         document.getElementById('field8').textContent = ''; 
     }
 
-    // Función principal que pinta los resultados en pantalla
     function processSuccess(rawText) {
         playBeep();
         rawOutput.textContent = rawText;
@@ -139,7 +144,7 @@ window.addEventListener('load', function () {
     }
 
     // ==========================================
-    // CÁMARA INTERNA DE LA WEB
+    // 4. CÁMARA INTERNA DE LA WEB
     // ==========================================
     zoomSlider.addEventListener('input', (e) => {
         currentZoom = parseFloat(e.target.value);
@@ -205,7 +210,7 @@ window.addEventListener('load', function () {
     stopCameraBtn.addEventListener('click', stopCamera);
 
     // ==========================================
-    // SUBIDA DE FOTOS (IA NATIVA Y RECORTADOR HD)
+    // 5. SUBIDA DE FOTOS (IA NATIVA Y RECORTADOR HD)
     // ==========================================
     fileInput.addEventListener('change', async (e) => {
         if (e.target.files && e.target.files.length) {
