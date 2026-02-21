@@ -42,21 +42,20 @@ window.addEventListener('load', function () {
     }
 
 // ==========================================
-    // 2. BOTÓN PARA ABRIR LA APP EXTERNA (PDF417)
+    // 2. ENLACE PARA ABRIR LA APP EXTERNA (PDF417)
     // ==========================================
+    const nativeAppBtn = document.getElementById('nativeAppBtn');
     if (nativeAppBtn) {
-        nativeAppBtn.addEventListener('click', () => {
-            const currentUrl = window.location.href.split('?')[0]; 
-            const returnUrl = encodeURIComponent(currentUrl + '?codigo_escaneado={CODE}');
-            
-            // Enlace a la Play Store por si el usuario no tiene la app instalada
-            const fallbackUrl = encodeURIComponent('https://play.google.com/store/apps/details?id=com.google.zxing.client.android');
-            
-            // Intent de Android CON red de seguridad (browser_fallback_url)
-            const intentUrl = `intent://scan/#Intent;scheme=zxing;package=com.google.zxing.client.android;S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};S.browser_fallback_url=${fallbackUrl};end`;
-            
-            window.location.href = intentUrl;
-        });
+        // Calculamos las rutas nada más cargar la página
+        const currentUrl = window.location.href.split('?')[0]; 
+        const returnUrl = encodeURIComponent(currentUrl + '?codigo_escaneado={CODE}');
+        const fallbackUrl = encodeURIComponent('https://play.google.com/store/apps/details?id=com.google.zxing.client.android');
+        
+        // Creamos la dirección del Intent
+        const intentUrl = `intent://scan/#Intent;scheme=zxing;package=com.google.zxing.client.android;S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};S.browser_fallback_url=${fallbackUrl};end`;
+        
+        // Se la inyectamos directamente al enlace HTML
+        nativeAppBtn.href = intentUrl;
     }
 
     // Configuración de la librería interna
