@@ -41,19 +41,21 @@ window.addEventListener('load', function () {
         setTimeout(() => processSuccess(codigoDesdeApp), 500); 
     }
 
+// ==========================================
+    // 2. ENLACE PARA ABRIR LA APP EXTERNA (PDF417)
     // ==========================================
-    // 2. BOTÓN PARA ABRIR LA APP EXTERNA (PDF417)
-    // ==========================================
+    const nativeAppBtn = document.getElementById('nativeAppBtn');
     if (nativeAppBtn) {
-        nativeAppBtn.addEventListener('click', () => {
-            const currentUrl = window.location.href.split('?')[0]; 
-            const returnUrl = encodeURIComponent(currentUrl + '?codigo_escaneado={CODE}');
-            
-            // Llama a cualquier app de escáner en Android preparada para PDF417
-            const intentUrl = `intent://scan/#Intent;action=com.google.zxing.client.android.SCAN;S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};end`;
-            
-            window.location.href = intentUrl;
-        });
+        // Calculamos las rutas nada más cargar la página
+        const currentUrl = window.location.href.split('?')[0]; 
+        const returnUrl = encodeURIComponent(currentUrl + '?codigo_escaneado={CODE}');
+        const fallbackUrl = encodeURIComponent('https://play.google.com/store/apps/details?id=com.google.zxing.client.android');
+        
+        // Creamos la dirección del Intent
+        const intentUrl = `intent://scan/#Intent;scheme=zxing;package=com.google.zxing.client.android;S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};S.browser_fallback_url=${fallbackUrl};end`;
+        
+        // Se la inyectamos directamente al enlace HTML
+        nativeAppBtn.href = intentUrl;
     }
 
     // Configuración de la librería interna
