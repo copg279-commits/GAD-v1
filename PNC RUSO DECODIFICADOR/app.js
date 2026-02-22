@@ -21,16 +21,43 @@ window.addEventListener('load', function () {
     const imageToCrop = document.getElementById('imageToCrop');
     const cropAndReadBtn = document.getElementById('cropAndReadBtn');
     
-    const nativeAppBtn = document.getElementById('nativeAppBtn');
-    const appSelector = document.getElementById('appSelector');
+    // Botones principales
+    const showAppMenuBtn = document.getElementById('showAppMenuBtn');
+    const showManualEntryBtn = document.getElementById('showManualEntryBtn');
     const clearBtn = document.getElementById('clearBtn');
+    
+    // Elementos de Modales (Ventanas emergentes)
+    const appModal = document.getElementById('appModal');
+    const manualModal = document.getElementById('manualModal');
+    const closeAppModal = document.getElementById('closeAppModal');
+    const closeManualModal = document.getElementById('closeManualModal');
+    
+    const appSelector = document.getElementById('appSelector');
+    const nativeAppBtn = document.getElementById('nativeAppBtn');
+    const manualInput = document.getElementById('manualInput');
+    const manualDecodeBtn = document.getElementById('manualDecodeBtn');
 
     let cropper = null;
     let currentZoom = 1;
     let autoReadTimeout = null;
 
+// ==========================================
+    // 1. LÓGICA DE VENTANAS EMERGENTES (MODALES)
     // ==========================================
-    // 1. SISTEMA DE LIMPIEZA
+    showAppMenuBtn.addEventListener('click', () => { appModal.classList.add('show'); });
+    showManualEntryBtn.addEventListener('click', () => { manualModal.classList.add('show'); });
+
+    // Cerrar con la X
+    document.getElementById('closeAppModal').addEventListener('click', () => { appModal.classList.remove('show'); });
+    document.getElementById('closeManualModal').addEventListener('click', () => { manualModal.classList.remove('show'); });
+
+    // Cerrar pinchando fuera de la ventana
+    window.addEventListener('click', (event) => {
+        if (event.target === appModal) appModal.classList.remove('show');
+        if (event.target === manualModal) manualModal.classList.remove('show');
+    });
+    // ==========================================
+    // 2. LIMPIEZA TOTAL
     // ==========================================
     clearBtn.addEventListener('click', () => {
         stopCamera();
@@ -39,14 +66,29 @@ window.addEventListener('load', function () {
         cameraControls.style.display = 'none';
         if (cropper) { cropper.destroy(); cropper = null; }
         fileInput.value = '';
+        manualInput.value = '';
         rawOutput.textContent = '-';
         decodedOutput.textContent = '-';
         window.history.replaceState({}, document.title, window.location.pathname);
         statusMsg.textContent = "Búsqueda limpiada. Esperando acción...";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+manualDecodeBtn.addEventListener('click', () => {
+        const text = manualInput.value.trim();
+        if (text) {
+            // PRIMERO cerramos la ventana quitando la clase 'show'
+            manualModal.classList.remove('show'); 
+            // LUEGO procesamos el éxito para que se vea en primer plano
+            processSuccess(text);
+            statusMsg.textContent = "¡Código manual decodificado con éxito!";
+        } else {
+            alert("Por favor, pega un código primero.");
+        }
     });
 
     // ==========================================
-    // 2. RECEPCIÓN DE DATOS Y ENLACE DINÁMICO DE APP
+    // 3. RECEPCIÓN DE DATOS Y ENLACE DE APP
     // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const codigoDesdeApp = urlParams.get('codigo_escaneado');
@@ -57,38 +99,43 @@ window.addEventListener('load', function () {
         setTimeout(() => processSuccess(codigoDesdeApp), 500); 
     }
 
-    // Cargar la app favorita guardada en memoria
+    // Por defecto, lo ponemos en "Preguntar cada vez" (value vacío)
     const savedApp = localStorage.getItem('preferredScannerApp');
     if (savedApp !== null) {
         appSelector.value = savedApp;
     }
 
-    // Función que actualiza el botón azul según lo que elijas
-    function updateIntentUrl() {
+function updateIntentUrl() {
         if (!nativeAppBtn) return;
         const currentUrl = window.location.href.split('?')[0]; 
         const returnUrl = encodeURIComponent(currentUrl + '?codigo_escaneado={CODE}');
         const pkg = appSelector.value;
-        const pkgString = pkg ? `package=${pkg};` : '';
-        const fallbackUrl = pkg ? encodeURIComponent(`https://play.google.com/store/apps/details?id=${pkg}`) : encodeURIComponent('https://play.google.com/store/search?q=scanner&c=apps');
         
-        const intentUrl = `intent://scan/#Intent;action=com.google.zxing.client.android.SCAN;${pkgString}S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};S.browser_fallback_url=${fallbackUrl};end`;
-        
-        if (nativeAppBtn.tagName.toLowerCase() === 'a') {
+        if (pkg === 'web') {
+            // Si elige la web online, preparamos el botón para ir a esa web en otra pestaña
+            nativeAppBtn.href = "https://online-barcode-reader.inliteresearch.com/";
+            nativeAppBtn.target = "_blank"; 
+        } else {
+            // Si elige una App nativa, creamos el Intent de Android
+            nativeAppBtn.target = "_self";
+            const pkgString = pkg ? `package=${pkg};` : '';
+            // Le volvemos a poner el fallback a la Play Store para que no lance error
+            const fallbackUrl = pkg ? encodeURIComponent(`https://play.google.com/store/apps/details?id=${pkg}`) : '';
+            const fallbackString = fallbackUrl ? `S.browser_fallback_url=${fallbackUrl};` : '';
+            
+            const intentUrl = `intent://scan/#Intent;action=com.google.zxing.client.android.SCAN;${pkgString}S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};${fallbackString}end`;
             nativeAppBtn.href = intentUrl;
         }
     }
 
-    // Actualizar enlace al inicio y cada vez que el usuario cambie el desplegable
     updateIntentUrl();
     appSelector.addEventListener('change', (e) => {
         localStorage.setItem('preferredScannerApp', e.target.value);
         updateIntentUrl();
-        statusMsg.textContent = "Preferencias de app guardadas.";
     });
 
     // ==========================================
-    // 3. NÚCLEO LECTOR Y SIMULACIÓN DE TARJETA
+    // 4. NÚCLEO LECTOR Y SIMULACIÓN DE TARJETA
     // ==========================================
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
@@ -100,13 +147,10 @@ window.addEventListener('load', function () {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime);
             gain.gain.setValueAtTime(0.5, ctx.currentTime);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.15);
+            osc.start(); osc.stop(ctx.currentTime + 0.15);
         } catch (e) {}
     }
 
@@ -117,9 +161,7 @@ window.addEventListener('load', function () {
             const bytes = new Uint8Array(bin.length);
             for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
             return new TextDecoder('utf-8').decode(bytes);
-        } catch (e) {
-            return "Error al decodificar Base64.";
-        }
+        } catch (e) { return "Error al decodificar Base64."; }
     }
 
     function formatDate(dateStr) {
@@ -145,14 +187,12 @@ window.addEventListener('load', function () {
     function processSuccess(rawText) {
         playBeep();
         rawOutput.textContent = rawText;
-        const decodedText = decodeBase64ToText(rawText);
-        decodedOutput.textContent = decodedText;
-        populateVirtualCard(decodedText);
+        decodedOutput.textContent = decodeBase64ToText(rawText);
+        populateVirtualCard(decodeBase64ToText(rawText));
         
         resultBox.style.display = 'block';
         cropperContainer.style.display = 'none';
-        if (cropper) { cropper.destroy(); cropper = null; } // Limpiamos el cropper al tener éxito
-        statusMsg.textContent = "¡Código detectado con éxito!";
+        if (cropper) { cropper.destroy(); cropper = null; } 
         stopCamera();
         resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -162,120 +202,7 @@ window.addEventListener('load', function () {
     }
 
     // ==========================================
-    // 4. LECTURA AUTOMÁTICA EN RECORTADOR
-    // ==========================================
-    function attemptAutoReadFromCropper() {
-        if (!cropper) return;
-        statusMsg.textContent = "Analizando encuadre automáticamente...";
-        const sourceCanvas = cropper.getCroppedCanvas();
-        
-        const scale = 2; 
-        const margin = 100; 
-        const paddedCanvas = document.createElement('canvas');
-        paddedCanvas.width = (sourceCanvas.width * scale) + (margin * 2);
-        paddedCanvas.height = (sourceCanvas.height * scale) + (margin * 2);
-        const ctx = paddedCanvas.getContext('2d');
-        
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
-        ctx.drawImage(sourceCanvas, 0, 0, sourceCanvas.width, sourceCanvas.height, margin, margin, sourceCanvas.width * scale, sourceCanvas.height * scale);
-
-        const img = new Image();
-        img.onload = () => {
-            codeReader.decodeFromImageElement(img)
-                .then(handleResult)
-                .catch(() => {
-                    // Intento rotado en segundo plano
-                    const rotCanv = document.createElement('canvas');
-                    rotCanv.width = paddedCanvas.height; rotCanv.height = paddedCanvas.width;
-                    const cR = rotCanv.getContext('2d');
-                    cR.fillStyle = '#FFFFFF'; cR.fillRect(0, 0, rotCanv.width, rotCanv.height);
-                    cR.translate(rotCanv.width/2, rotCanv.height/2); cR.rotate(90 * Math.PI/180);
-                    cR.drawImage(paddedCanvas, -paddedCanvas.width/2, -paddedCanvas.height/2);
-
-                    const rImg = new Image();
-                    rImg.onload = () => {
-                        codeReader.decodeFromImageElement(rImg)
-                            .then(handleResult)
-                            .catch(() => statusMsg.textContent = "Mueve o ajusta el marco para enfocar el código negro...");
-                    };
-                    rImg.src = rotCanv.toDataURL("image/jpeg", 1.0);
-                });
-        };
-        img.src = paddedCanvas.toDataURL("image/jpeg", 1.0);
-    }
-
-    function scheduleAutoRead() {
-        clearTimeout(autoReadTimeout);
-        // Esperamos 400ms después de que el usuario deje de mover el dedo para no colapsar el móvil
-        autoReadTimeout = setTimeout(attemptAutoReadFromCropper, 400); 
-    }
-
-    // Botón manual (por si falla el auto-read)
-    cropAndReadBtn.addEventListener('click', attemptAutoReadFromCropper);
-
-    fileInput.addEventListener('change', async (e) => {
-        if (e.target.files && e.target.files.length) {
-            stopCamera();
-            resultBox.style.display = 'none';
-            cameraControls.style.display = 'none';
-            cropperContainer.style.display = 'none'; 
-            statusMsg.textContent = "Buscando código en toda la imagen...";
-
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = async () => {
-                    let detected = false;
-
-                    // Intento 1: IA Nativa
-                    if ('BarcodeDetector' in window) {
-                        try {
-                            const detector = new BarcodeDetector({ formats: ['pdf417'] });
-                            const barcodes = await detector.detect(img);
-                            if (barcodes.length > 0) {
-                                processSuccess(barcodes[0].rawValue);
-                                detected = true;
-                                return;
-                            }
-                        } catch (err) {}
-                    }
-
-                    // Intento 2: ZXing Genérico
-                    if (!detected) {
-                        try {
-                            const result = await codeReader.decodeFromImageElement(img);
-                            processSuccess(result.text);
-                            detected = true;
-                        } catch (err) {}
-                    }
-
-                    // Intento 3: Recorte Auto-Mágico
-                    if (!detected) {
-                        statusMsg.textContent = "Ajusta el recuadro. Se leerá automáticamente.";
-                        imageToCrop.src = event.target.result;
-                        cropperContainer.style.display = 'block';
-
-                        if (cropper) cropper.destroy();
-                        cropper = new Cropper(imageToCrop, {
-                            viewMode: 1, dragMode: 'move', autoCropArea: 0.8,
-                            restore: false, guides: true, zoomable: true, movable: true, background: true,
-                            ready: scheduleAutoRead, // Dispara al abrirse
-                            cropend: scheduleAutoRead, // Dispara al soltar el dedo tras mover
-                            zoom: scheduleAutoRead     // Dispara al hacer zoom
-                        });
-                    }
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // ==========================================
-    // 5. CÁMARA INTERNA DE LA WEB
+    // 5. CÁMARA INTERNA (CON AUTO-SCROLL)
     // ==========================================
     zoomSlider.addEventListener('input', (e) => {
         currentZoom = parseFloat(e.target.value);
@@ -313,6 +240,11 @@ window.addEventListener('load', function () {
         scannerGuide.style.width = '80%'; scannerGuide.style.height = '30%';
         guideWidthSlider.value = 80; guideHeightSlider.value = 30;
 
+        // Bajar automáticamente la pantalla para centrar la cámara
+        setTimeout(() => {
+            videoWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
+
         const constraints = { video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, advanced: [{ focusMode: "continuous" }] } };
         codeReader.decodeFromConstraints(constraints, 'video', (result, err) => {
             if (result) handleResult(result);
@@ -329,6 +261,95 @@ window.addEventListener('load', function () {
     }
 
     stopCameraBtn.addEventListener('click', stopCamera);
+
+    // ==========================================
+    // 6. RECORTADOR AUTOMÁTICO
+    // ==========================================
+    function attemptAutoReadFromCropper() {
+        if (!cropper) return;
+        const sourceCanvas = cropper.getCroppedCanvas();
+        const scale = 2; const margin = 100; 
+        const paddedCanvas = document.createElement('canvas');
+        paddedCanvas.width = (sourceCanvas.width * scale) + (margin * 2);
+        paddedCanvas.height = (sourceCanvas.height * scale) + (margin * 2);
+        const ctx = paddedCanvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
+        ctx.drawImage(sourceCanvas, 0, 0, sourceCanvas.width, sourceCanvas.height, margin, margin, sourceCanvas.width * scale, sourceCanvas.height * scale);
+
+        const img = new Image();
+        img.onload = () => {
+            codeReader.decodeFromImageElement(img)
+                .then(handleResult)
+                .catch(() => {
+                    const rotCanv = document.createElement('canvas');
+                    rotCanv.width = paddedCanvas.height; rotCanv.height = paddedCanvas.width;
+                    const cR = rotCanv.getContext('2d');
+                    cR.fillStyle = '#FFFFFF'; cR.fillRect(0, 0, rotCanv.width, rotCanv.height);
+                    cR.translate(rotCanv.width/2, rotCanv.height/2); cR.rotate(90 * Math.PI/180);
+                    cR.drawImage(paddedCanvas, -paddedCanvas.width/2, -paddedCanvas.height/2);
+
+                    const rImg = new Image();
+                    rImg.onload = () => {
+                        codeReader.decodeFromImageElement(rImg)
+                            .then(handleResult).catch(() => {});
+                    };
+                    rImg.src = rotCanv.toDataURL("image/jpeg", 1.0);
+                });
+        };
+        img.src = paddedCanvas.toDataURL("image/jpeg", 1.0);
+    }
+
+    function scheduleAutoRead() {
+        clearTimeout(autoReadTimeout);
+        autoReadTimeout = setTimeout(attemptAutoReadFromCropper, 400); 
+    }
+
+    cropAndReadBtn.addEventListener('click', () => {
+        statusMsg.textContent = "Forzando lectura de recorte...";
+        attemptAutoReadFromCropper();
+    });
+
+    fileInput.addEventListener('change', async (e) => {
+        if (e.target.files && e.target.files.length) {
+            stopCamera(); resultBox.style.display = 'none'; cameraControls.style.display = 'none'; cropperContainer.style.display = 'none'; 
+            statusMsg.textContent = "Buscando código en toda la imagen...";
+            const file = e.target.files[0]; const reader = new FileReader();
+            
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = async () => {
+                    let detected = false;
+                    if ('BarcodeDetector' in window) {
+                        try {
+                            const detector = new BarcodeDetector({ formats: ['pdf417'] });
+                            const barcodes = await detector.detect(img);
+                            if (barcodes.length > 0) { processSuccess(barcodes[0].rawValue); detected = true; return; }
+                        } catch (err) {}
+                    }
+                    if (!detected) {
+                        try {
+                            const result = await codeReader.decodeFromImageElement(img);
+                            processSuccess(result.text); detected = true;
+                        } catch (err) {}
+                    }
+                    if (!detected) {
+                        statusMsg.textContent = "Ajusta el recuadro. Se leerá automáticamente.";
+                        imageToCrop.src = event.target.result; cropperContainer.style.display = 'block';
+                        
+                        setTimeout(() => { cropperContainer.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 150);
+
+                        if (cropper) cropper.destroy();
+                        cropper = new Cropper(imageToCrop, {
+                            viewMode: 1, dragMode: 'move', autoCropArea: 0.8, restore: false, guides: true, zoomable: true, movable: true, background: true,
+                            ready: scheduleAutoRead, cropend: scheduleAutoRead, zoom: scheduleAutoRead     
+                        });
+                    }
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 
     copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(decodedOutput.textContent).then(() => {
