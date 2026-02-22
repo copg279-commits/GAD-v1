@@ -9,7 +9,6 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Evita el temblor por la aparición/desaparición de la barra de scroll */
 html {
     overflow-y: scroll; 
     overflow-x: hidden;
@@ -77,13 +76,13 @@ button:hover, .file-upload-label:hover, .action-btn:hover, .copy-btn:hover, #nat
 #nativeAppBtn:hover, .copy-btn:hover, .action-btn:hover { box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.4); }
 
 /* ========================================== */
-/* CÁMARA Y RECORTADOR (MEDIDAS FIJAS PARA EVITAR TEMBLOR) */
+/* CÁMARA Y RECORTADOR (MÁS BAJITOS)          */
 /* ========================================== */
 .video-wrapper { 
     position: relative; 
     width: 100%; 
-    /* ¡AQUÍ ESTÁ LA MAGIA ANTI-TEMBLOR! Medida fija en píxeles */
-    height: 280px; 
+    /* Reducido a 220px para que encaje el footer en móviles sin hacer scroll */
+    height: 220px; 
     margin-bottom: 10px; 
     border-radius: 12px; 
     overflow: hidden; 
@@ -100,8 +99,8 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; transform-
 .cropper-container { width: 100%; margin-bottom: 10px; }
 .img-container { 
     width: 100%; 
-    /* Medida fija también para el recortador */
-    height: 280px; 
+    /* Reducido también aquí a 220px para hacer hueco */
+    height: 220px; 
     background: #000; 
     border-radius: 12px; 
     overflow: hidden; 
@@ -119,7 +118,16 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; transform-
 /* ========================================== */
 /* RESULTADOS Y TARJETA                       */
 /* ========================================== */
-.result-box { background: #252525; padding: 15px 10px; border-radius: 12px; border: 1px solid #333; flex-grow: 1; display: block; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+.result-box { 
+    background: #252525; 
+    padding: 15px 10px; 
+    border-radius: 12px; 
+    border: 1px solid #333; 
+    /* ELIMINADO EL flex-grow: 1; Esto es lo que empujaba el footer fuera de la pantalla */
+    margin-bottom: 15px; 
+    display: block; 
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5); 
+}
 .data-label { font-size: 0.9rem; color: var(--neon-cyan); margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
 .data-content { background: #151515; padding: 12px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; word-break: break-all; border: 1px solid #333; color: #0f0; text-shadow: 0 0 2px rgba(0, 255, 0, 0.5); }
 
