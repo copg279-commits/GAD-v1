@@ -14,8 +14,8 @@
 
     <div class="container">
         <div class="app-header">
-            <div class="header-logo-container"><img src="../ASSETS/logogad.png" alt="Logo GAD" class="header-logo"></div>
-            <h1>Decodificador PNC Ruso</h1>
+            <div class="header-logo-container"><img src="../ASSETS/logogad.png" alt="Logo GAD" class="header-logo" id="logo-gad"></div>
+            <h1>PNC Rusia Decoder</h1>
             <div class="header-logo-container"><img src="../ASSETS/t4c.png" alt="Logo T4C" class="header-logo"></div>
         </div>
         
@@ -52,7 +52,7 @@
             </div>
             <div class="control-group">
                 <label>↕️ Alto del marco:</label>
-                <input type="range" id="guideHeight" min="10" max="95" value="30">
+                <input type="range" id="guideHeight" min="10" max="95" value="95">
             </div>
             <div class="control-group">
                 <label>🔍 Zoom de cámara:</label>
@@ -88,13 +88,12 @@
                     </div>
                 </div>
             </div>
-            <h3 style="margin-top: 20px;">Datos técnicos capturados</h3>
+            
             <div style="display: none;">
                 <div class="data-label">Código crudo (Base64):</div>
                 <div class="data-content" id="rawOutput">-</div>
             </div>
-            <div class="data-label">Texto Decodificado (UTF-8):</div>
-            <div class="data-content" id="decodedOutput">-</div>
+            
             <button id="copyBtn" class="copy-btn">Copiar Texto Decodificado</button>
         </div>
     </div>

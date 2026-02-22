@@ -34,17 +34,11 @@ window.addEventListener('load', function () {
     let currentZoom = 1;
     let autoReadTimeout = null;
 
-    // ==========================================
-    // 1. MODAL APP
-    // ==========================================
     if (showAppMenuBtn) showAppMenuBtn.addEventListener('click', () => { appModal.classList.add('show'); });
     if (closeAppModal) closeAppModal.addEventListener('click', () => { appModal.classList.remove('show'); });
     window.addEventListener('click', (event) => { if (event.target === appModal) appModal.classList.remove('show'); });
     if (nativeAppBtn) nativeAppBtn.addEventListener('click', () => { appModal.classList.remove('show'); });
 
-    // ==========================================
-    // 2. BOTÓN DE LIMPIEZA GLOBAL
-    // ==========================================
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
             stopCamera();
@@ -59,13 +53,10 @@ window.addEventListener('load', function () {
             decodedOutput.textContent = '-';
             window.history.replaceState({}, document.title, window.location.pathname);
             statusMsg.textContent = "Búsqueda limpiada. Esperando acción...";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Te sube a los logos
         });
     }
 
-    // ==========================================
-    // 3. LEER PORTAPAPELES
-    // ==========================================
     if (smartPasteBtn) {
         smartPasteBtn.addEventListener('click', async () => {
             try {
@@ -82,9 +73,6 @@ window.addEventListener('load', function () {
         });
     }
 
-    // ==========================================
-    // 4. RECEPCIÓN DE DATOS Y ENLACES
-    // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const codigoDesdeApp = urlParams.get('codigo_escaneado');
 
@@ -124,9 +112,6 @@ window.addEventListener('load', function () {
         });
     }
 
-    // ==========================================
-    // 5. NÚCLEO LECTOR Y SIMULACIÓN
-    // ==========================================
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
     hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
@@ -183,20 +168,19 @@ window.addEventListener('load', function () {
         if(mainButtons) mainButtons.style.display = 'none'; 
         if(clearBtn) clearBtn.style.display = 'block'; 
         
-        resultBox.style.display = 'block';
+        resultBox.style.display = 'flex'; // Usamos flex para que el CSS centre bien
         cropperContainer.style.display = 'none';
         if (cropper) { cropper.destroy(); cropper = null; } 
         stopCamera();
-        resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Esto fuerza a la pantalla a situarse en la línea cero, mostrando los logos perfectos
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function handleResult(result) {
         if (result && result.text) processSuccess(result.text);
     }
 
-    // ==========================================
-    // 6. CÁMARA INTERNA
-    // ==========================================
     if (zoomSlider) { zoomSlider.addEventListener('input', (e) => { currentZoom = parseFloat(e.target.value); if(video) video.style.transform = `scale(${currentZoom})`; }); }
     if (guideWidthSlider) { guideWidthSlider.addEventListener('input', (e) => { if(scannerGuide) scannerGuide.style.width = `${e.target.value}%`; }); }
     if (guideHeightSlider) { guideHeightSlider.addEventListener('input', (e) => { if(scannerGuide) scannerGuide.style.height = `${e.target.value}%`; }); }
@@ -230,15 +214,17 @@ window.addEventListener('load', function () {
             if(zoomSlider) zoomSlider.value = 1; 
             if(video) video.style.transform = `scale(1)`;
             
-            // LA MAGIA: El marco verde arranca al 95% de ancho para que no tengas que abrirlo
-            if(scannerGuide) { scannerGuide.style.width = '95%'; scannerGuide.style.height = '30%'; }
+            // LA MAGIA: El marco verde arranca al 95% de ANCHO y 95% de ALTO
+            if(scannerGuide) { scannerGuide.style.width = '95%'; scannerGuide.style.height = '95%'; }
             if(guideWidthSlider) guideWidthSlider.value = 95; 
-            if(guideHeightSlider) guideHeightSlider.value = 30;
+            if(guideHeightSlider) guideHeightSlider.value = 95;
 
             const constraints = { video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, advanced: [{ focusMode: "continuous" }] } };
             codeReader.decodeFromConstraints(constraints, 'video', (result, err) => {
                 if (result) handleResult(result);
             }).catch(() => statusMsg.textContent = "Error iniciando la cámara.");
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Te centra los logos arriba del todo
         });
     }
 
@@ -249,9 +235,6 @@ window.addEventListener('load', function () {
         if(statusMsg && statusMsg.textContent.includes("Ajusta el marco")) statusMsg.textContent = "Cámara detenida.";
     }
 
-    // ==========================================
-    // 7. RECORTADOR AUTOMÁTICO
-    // ==========================================
     function attemptAutoReadFromCropper() {
         if (!cropper) return;
         const sourceCanvas = cropper.getCroppedCanvas();
@@ -329,6 +312,7 @@ window.addEventListener('load', function () {
                             if(statusMsg) statusMsg.textContent = "Ajusta el recuadro. Se leerá automáticamente.";
                             if(imageToCrop) imageToCrop.src = event.target.result; 
                             if(cropperContainer) cropperContainer.style.display = 'block';
+                            window.scrollTo({ top: 0, behavior: 'smooth' }); // Centrado
 
                             if (cropper) cropper.destroy();
                             cropper = new Cropper(imageToCrop, {
