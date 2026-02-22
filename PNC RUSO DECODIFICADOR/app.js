@@ -48,8 +48,8 @@ window.addEventListener('load', function () {
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
             stopCamera();
-            if(mainButtons) mainButtons.style.display = 'flex'; // REAPARECE EL MENÚ
-            if(clearBtn) clearBtn.style.display = 'none';       // SE OCULTA EL BOTÓN ROJO
+            if(mainButtons) mainButtons.style.display = 'flex'; 
+            if(clearBtn) clearBtn.style.display = 'none';       
             resultBox.style.display = 'none';
             cropperContainer.style.display = 'none';
             cameraControls.style.display = 'none';
@@ -181,7 +181,7 @@ window.addEventListener('load', function () {
         populateVirtualCard(decodeBase64ToText(rawText));
         
         if(mainButtons) mainButtons.style.display = 'none'; 
-        if(clearBtn) clearBtn.style.display = 'block'; // MUESTRA EL BOTÓN ROJO AL DAR RESULTADO
+        if(clearBtn) clearBtn.style.display = 'block'; 
         
         resultBox.style.display = 'block';
         cropperContainer.style.display = 'none';
@@ -217,8 +217,8 @@ window.addEventListener('load', function () {
 
     if (startCameraBtn) {
         startCameraBtn.addEventListener('click', () => {
-            if(mainButtons) mainButtons.style.display = 'none'; // OCULTA EL MENÚ
-            if(clearBtn) clearBtn.style.display = 'block';      // MUESTRA EL BOTÓN ROJO DE LIMPIAR
+            if(mainButtons) mainButtons.style.display = 'none'; 
+            if(clearBtn) clearBtn.style.display = 'block';      
             
             resultBox.style.display = 'none';
             cropperContainer.style.display = 'none';
@@ -229,8 +229,10 @@ window.addEventListener('load', function () {
             currentZoom = 1; 
             if(zoomSlider) zoomSlider.value = 1; 
             if(video) video.style.transform = `scale(1)`;
-            if(scannerGuide) { scannerGuide.style.width = '80%'; scannerGuide.style.height = '30%'; }
-            if(guideWidthSlider) guideWidthSlider.value = 80; 
+            
+            // LA MAGIA: El marco verde arranca al 95% de ancho para que no tengas que abrirlo
+            if(scannerGuide) { scannerGuide.style.width = '95%'; scannerGuide.style.height = '30%'; }
+            if(guideWidthSlider) guideWidthSlider.value = 95; 
             if(guideHeightSlider) guideHeightSlider.value = 30;
 
             const constraints = { video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, advanced: [{ focusMode: "continuous" }] } };
@@ -298,7 +300,7 @@ window.addEventListener('load', function () {
             if (e.target.files && e.target.files.length) {
                 stopCamera(); 
                 if(mainButtons) mainButtons.style.display = 'none'; 
-                if(clearBtn) clearBtn.style.display = 'block'; // MUESTRA EL BOTÓN ROJO AL SUBIR FOTO
+                if(clearBtn) clearBtn.style.display = 'block'; 
                 
                 if(resultBox) resultBox.style.display = 'none'; 
                 if(cameraControls) cameraControls.style.display = 'none'; 
