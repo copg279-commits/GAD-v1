@@ -16,12 +16,11 @@ body {
     color: var(--text-color);
     display: flex;
     justify-content: center;
-    /* Quitamos el padding enorme para que respire en pantallas pequeñas */
     padding: 5px; 
     min-height: 100vh;
 }
 
-/* El contenedor principal ahora es FLEXIBLE y se estira para ocupar la pantalla entera centrando el contenido */
+/* AQUÍ ESTABA EL ERROR: He cambiado justify-content a flex-start para que empiece arriba */
 .container {
     background-color: var(--surface-color);
     padding: 12px 10px; 
@@ -32,7 +31,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 10px);
-    justify-content: center; /* Centra el contenido verticalmente si sobra espacio */
+    justify-content: flex-start; 
 }
 
 /* ========================================== */
@@ -50,10 +49,8 @@ body {
 .header-logo-container { width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; }
 .header-logo { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-/* Engrandecemos ligeramente el logo de GAD para que iguale visualmente al otro */
 #logo-gad { transform: scale(1.25); }
 
-/* Obligamos al título a estar SIEMPRE en una sola línea */
 h1 { 
     font-size: 1.15rem; 
     color: var(--secondary-color); 
@@ -98,7 +95,6 @@ button:hover, .file-upload-label:hover { opacity: 0.9; }
 .video-wrapper, .cropper-container {
     position: relative;
     width: 100%;
-    /* Dejamos que ocupe todo el hueco que pueda sin comerse a los botones */
     flex-grow: 1; 
     max-height: 35vh; 
     margin-bottom: 10px;
@@ -151,7 +147,6 @@ video {
     padding: 15px 8px; 
     border-radius: 8px; 
     border: 1px solid #444; 
-    /* Si la pantalla es gigante, coge el espacio sobrante */
     flex-grow: 1; 
     display: flex;
     flex-direction: column;

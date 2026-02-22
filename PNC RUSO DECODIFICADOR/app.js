@@ -53,7 +53,7 @@ window.addEventListener('load', function () {
             decodedOutput.textContent = '-';
             window.history.replaceState({}, document.title, window.location.pathname);
             statusMsg.textContent = "Búsqueda limpiada. Esperando acción...";
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // Te sube a los logos
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
         });
     }
 
@@ -168,12 +168,11 @@ window.addEventListener('load', function () {
         if(mainButtons) mainButtons.style.display = 'none'; 
         if(clearBtn) clearBtn.style.display = 'block'; 
         
-        resultBox.style.display = 'flex'; // Usamos flex para que el CSS centre bien
+        resultBox.style.display = 'flex'; 
         cropperContainer.style.display = 'none';
         if (cropper) { cropper.destroy(); cropper = null; } 
         stopCamera();
         
-        // Esto fuerza a la pantalla a situarse en la línea cero, mostrando los logos perfectos
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -214,7 +213,6 @@ window.addEventListener('load', function () {
             if(zoomSlider) zoomSlider.value = 1; 
             if(video) video.style.transform = `scale(1)`;
             
-            // LA MAGIA: El marco verde arranca al 95% de ANCHO y 95% de ALTO
             if(scannerGuide) { scannerGuide.style.width = '95%'; scannerGuide.style.height = '95%'; }
             if(guideWidthSlider) guideWidthSlider.value = 95; 
             if(guideHeightSlider) guideHeightSlider.value = 95;
@@ -224,7 +222,7 @@ window.addEventListener('load', function () {
                 if (result) handleResult(result);
             }).catch(() => statusMsg.textContent = "Error iniciando la cámara.");
             
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // Te centra los logos arriba del todo
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
         });
     }
 
@@ -268,7 +266,8 @@ window.addEventListener('load', function () {
 
     function scheduleAutoRead() {
         clearTimeout(autoReadTimeout);
-        autoReadTimeout = setTimeout(attemptAutoReadFromCropper, 400); 
+        /* Reducido a 200ms para que sea mucho más rápido e instantáneo */
+        autoReadTimeout = setTimeout(attemptAutoReadFromCropper, 200); 
     }
 
     if (cropAndReadBtn) {
@@ -312,12 +311,22 @@ window.addEventListener('load', function () {
                             if(statusMsg) statusMsg.textContent = "Ajusta el recuadro. Se leerá automáticamente.";
                             if(imageToCrop) imageToCrop.src = event.target.result; 
                             if(cropperContainer) cropperContainer.style.display = 'block';
-                            window.scrollTo({ top: 0, behavior: 'smooth' }); // Centrado
+                            window.scrollTo({ top: 0, behavior: 'smooth' }); 
 
                             if (cropper) cropper.destroy();
                             cropper = new Cropper(imageToCrop, {
-                                viewMode: 1, dragMode: 'move', autoCropArea: 0.8, restore: false, guides: true, zoomable: true, movable: true, background: true,
-                                ready: scheduleAutoRead, cropend: scheduleAutoRead, zoom: scheduleAutoRead     
+                                viewMode: 1, 
+                                dragMode: 'move', 
+                                autoCropArea: 1, // AHORA EL RECUADRO OCUPA EL 100% POR DEFECTO
+                                restore: false, 
+                                guides: true, 
+                                zoomable: true, 
+                                movable: true, 
+                                background: true,
+                                responsive: true, // Lo hace más fluido y suave al interactuar
+                                ready: scheduleAutoRead, 
+                                cropend: scheduleAutoRead, 
+                                zoom: scheduleAutoRead     
                             });
                         }
                     };
