@@ -26,16 +26,29 @@
         
         <div id="status">Esperando acción...</div>
 
-        <div class="controls">
+<div class="controls">
             <button id="startCamera">Usar Cámara Web</button>
             <button id="stopCamera" class="stop-btn">Detener Cámara</button>
             <label class="file-upload-label">
                 Subir Imagen para Recortar
                 <input type="file" id="fileInput" accept="image/*">
             </label>
+            
             <a id="nativeAppBtn" href="#" style="display: block; background-color: #3498db; color: white; padding: 12px 20px; border-radius: 8px; font-weight: bold; text-align: center; text-decoration: none; transition: opacity 0.2s; width: 100%;">
                 📱 Usar App Escáner Externa
             </a>
+
+            <div class="app-settings" style="margin-top: 5px; background: #2c2c2c; padding: 10px; border-radius: 8px;">
+                <label style="color: var(--secondary-color); font-size: 0.85rem; font-weight: bold;">⚙️ App externa por defecto:</label>
+                <select id="appSelector" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; background: #1e1e1e; color: white; border: 1px solid #444; font-size: 0.9rem; outline: none;">
+                    <option value="com.github.markusfisch.android.binaryeye">Binary Eye (Recomendada)</option>
+                    <option value="">Preguntar cada vez (Selector de Android)</option>
+                    <option value="com.teacapps.barcodescanner">Escáner QR (TeaCapps)</option>
+                    <option value="com.manateeworks.barcodescanners">Barcode Scanner (Manatee)</option>
+                </select>
+            </div>
+
+            <button id="clearBtn" style="background-color: #e74c3c; color: white; margin-top: 5px;">🗑️ Limpiar Búsqueda</button>
         </div>
 
         <div id="cropperContainer" class="cropper-container" style="display: none;">
