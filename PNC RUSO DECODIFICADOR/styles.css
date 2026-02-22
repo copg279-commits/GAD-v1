@@ -9,11 +9,6 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html {
-    overflow-y: scroll; 
-    overflow-x: hidden;
-}
-
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-color);
@@ -22,7 +17,6 @@ body {
     justify-content: center;
     padding: 5px;
     min-height: 100vh; 
-    min-height: 100dvh; 
 }
 
 .container {
@@ -35,7 +29,6 @@ body {
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 10px);
-    min-height: calc(100dvh - 10px); 
     justify-content: flex-start;
     border: 1px solid #333;
 }
@@ -76,13 +69,13 @@ button:hover, .file-upload-label:hover, .action-btn:hover, .copy-btn:hover, #nat
 #nativeAppBtn:hover, .copy-btn:hover, .action-btn:hover { box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.4); }
 
 /* ========================================== */
-/* CÁMARA Y RECORTADOR (MÁS BAJITOS)          */
+/* CÁMARA Y RECORTADOR (MEDIDAS FIJAS BAJITAS)*/
 /* ========================================== */
 .video-wrapper { 
     position: relative; 
     width: 100%; 
-    /* Reducido a 220px para que encaje el footer en móviles sin hacer scroll */
-    height: 220px; 
+    /* Altura fija ideal para no hacer temblar la pantalla y dejar hueco al footer */
+    height: 240px; 
     margin-bottom: 10px; 
     border-radius: 12px; 
     overflow: hidden; 
@@ -99,8 +92,7 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; transform-
 .cropper-container { width: 100%; margin-bottom: 10px; }
 .img-container { 
     width: 100%; 
-    /* Reducido también aquí a 220px para hacer hueco */
-    height: 220px; 
+    height: 240px; /* Igual que la cámara */
     background: #000; 
     border-radius: 12px; 
     overflow: hidden; 
@@ -118,16 +110,7 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; transform-
 /* ========================================== */
 /* RESULTADOS Y TARJETA                       */
 /* ========================================== */
-.result-box { 
-    background: #252525; 
-    padding: 15px 10px; 
-    border-radius: 12px; 
-    border: 1px solid #333; 
-    /* ELIMINADO EL flex-grow: 1; Esto es lo que empujaba el footer fuera de la pantalla */
-    margin-bottom: 15px; 
-    display: block; 
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.5); 
-}
+.result-box { background: #252525; padding: 15px 10px; border-radius: 12px; border: 1px solid #333; display: block; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
 .data-label { font-size: 0.9rem; color: var(--neon-cyan); margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
 .data-content { background: #151515; padding: 12px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; word-break: break-all; border: 1px solid #333; color: #0f0; text-shadow: 0 0 2px rgba(0, 255, 0, 0.5); }
 
@@ -165,8 +148,15 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; transform-
 /* ========================================== */
 /* FOOTER ADAPTADO                            */
 /* ========================================== */
-.app-footer { margin-top: auto; padding: 8px 0 0 0; text-align: center; width: 100%; }
+.app-footer { 
+    margin-top: auto; 
+    padding: 15px 0 5px 0; 
+    text-align: center; 
+    width: 100%; 
+    /* ¡LA CLAVE! Obliga a que el footer NO se encoja ni desaparezca */
+    flex-shrink: 0; 
+}
 .footer-content { padding: 0 10px; }
-.footer-divider { border: none; border-top: 1px solid #444; width: 100%; max-width: 350px; margin: 0 auto 5px auto; }
-.footer-title { font-weight: bold; color: #999; font-size: 0.8rem; margin-bottom: 0px; letter-spacing: 0.5px; }
-.footer-copyright { font-size: 0.7rem; color: #666; margin-top: 3px; }
+.footer-divider { border: none; border-top: 1px solid #444; width: 100%; max-width: 350px; margin: 0 auto 8px auto; }
+.footer-title { font-weight: bold; color: #999; font-size: 0.8rem; margin-bottom: 2px; letter-spacing: 0.5px; }
+.footer-copyright { font-size: 0.7rem; color: #666; margin-top: 5px; }
