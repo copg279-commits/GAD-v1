@@ -51,6 +51,13 @@ window.addEventListener('load', function () {
             fileInput.value = '';
             if(rawOutput) rawOutput.textContent = '-';
             if(decodedOutput) decodedOutput.textContent = '-';
+            
+            // Limpia el color de la tarjeta
+            const virtualCard = document.getElementById('virtualCard');
+            if(virtualCard) {
+                virtualCard.classList.remove('valid-card', 'invalid-card');
+            }
+
             window.history.replaceState({}, document.title, window.location.pathname);
             statusMsg.textContent = "Búsqueda limpiada. Esperando acción...";
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -144,6 +151,31 @@ window.addEventListener('load', function () {
         return `${dateStr.substring(6, 8)}.${dateStr.substring(4, 6)}.${dateStr.substring(0, 4)}`;
     }
 
+    // ALGORITMO DE SEGURIDAD PARA DETECTAR FALSIFICACIONES
+    function isValidRussianDL(text) {
+        if (!text || !text.includes('|')) return false;
+        const parts = text.split('|');
+        if (parts.length < 9) return false;
+        
+        const isNumeric = (str) => /^\d+$/.test(str);
+        
+        // Comprueba fechas (tienen que ser 8 números exactos)
+        if (!parts[1] || parts[1].length !== 8 || !isNumeric(parts[1])) return false;
+        if (!parts[2] || parts[2].length !== 8 || !isNumeric(parts[2])) return false;
+        if (!parts[6] || parts[6].length !== 8 || !isNumeric(parts[6])) return false;
+        
+        // Comprueba lógica del tiempo (Caducidad posterior a la Expedición)
+        const issueYear = parseInt(parts[1].substring(0, 4));
+        const expYear = parseInt(parts[2].substring(0, 4));
+        if (expYear < issueYear) return false;
+
+        // Comprueba que los apartados numéricos de código no tienen letras coladas
+        if (parts[0] && !isNumeric(parts[0])) return false;
+        if (parts[8] && !isNumeric(parts[8])) return false;
+
+        return true;
+    }
+
     function populateVirtualCard(decodedText) {
         const parts = decodedText.split('|');
         document.getElementById('field5').textContent = parts[0] || '';
@@ -157,6 +189,17 @@ window.addEventListener('load', function () {
         document.getElementById('field9').textContent = parts[7] || '';
         document.getElementById('field4c').textContent = parts[8] || '';
         document.getElementById('field8').textContent = ''; 
+        
+        // APLICAR VERDE O ROJO SEGÚN ANÁLISIS DEL PATRÓN
+        const virtualCard = document.getElementById('virtualCard');
+        if (virtualCard) {
+            virtualCard.classList.remove('valid-card', 'invalid-card');
+            if (isValidRussianDL(decodedText)) {
+                virtualCard.classList.add('valid-card');
+            } else {
+                virtualCard.classList.add('invalid-card');
+            }
+        }
     }
 
     function processSuccess(rawText) {
@@ -319,7 +362,6 @@ window.addEventListener('load', function () {
                             cropper = new Cropper(imageToCrop, {
                                 viewMode: 1, 
                                 dragMode: 'move', 
-                                /* AHORA: Vuelve a dejar margen vital (85%) para que la IA de ZXing funcione perfecta */
                                 autoCropArea: 0.85, 
                                 restore: false, 
                                 guides: true, 

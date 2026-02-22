@@ -63,7 +63,7 @@
 
         <div class="result-box" id="resultBox" style="display: none;">
             <div class="dl-card-container">
-                <div class="dl-card">
+                <div class="dl-card" id="virtualCard">
                     <div class="dl-header">
                         <div class="dl-rus">RUS</div>
                         <div class="dl-title">ВОДИТЕЛЬСКОЕ УДОСТОВЕРЕНИЕ</div>
@@ -85,6 +85,13 @@
                             <div class="dl-field"><span>8.</span> <strong id="field8"></strong></div>
                             <div class="dl-field dl-categories"><span>9.</span> <strong id="field9"></strong></div>
                         </div>
+                    </div>
+                    
+                    <div class="validation-badge valid" id="badgeValid">
+                        ✅ Formato Correcto
+                    </div>
+                    <div class="validation-badge invalid" id="badgeInvalid">
+                        ❌ Documento sospechoso
                     </div>
                 </div>
             </div>
