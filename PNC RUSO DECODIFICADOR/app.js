@@ -49,11 +49,11 @@ window.addEventListener('load', function () {
             cameraControls.style.display = 'none';
             if (cropper) { cropper.destroy(); cropper = null; }
             fileInput.value = '';
-            rawOutput.textContent = '-';
-            decodedOutput.textContent = '-';
+            if(rawOutput) rawOutput.textContent = '-';
+            if(decodedOutput) decodedOutput.textContent = '-';
             window.history.replaceState({}, document.title, window.location.pathname);
             statusMsg.textContent = "Búsqueda limpiada. Esperando acción...";
-            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
 
@@ -161,14 +161,17 @@ window.addEventListener('load', function () {
 
     function processSuccess(rawText) {
         playBeep();
-        rawOutput.textContent = rawText;
-        decodedOutput.textContent = decodeBase64ToText(rawText);
-        populateVirtualCard(decodeBase64ToText(rawText));
+        if (rawOutput) rawOutput.textContent = rawText;
+        if (decodedOutput) decodedOutput.textContent = decodeBase64ToText(rawText);
+        
+        try {
+            populateVirtualCard(decodeBase64ToText(rawText));
+        } catch(err) {}
         
         if(mainButtons) mainButtons.style.display = 'none'; 
         if(clearBtn) clearBtn.style.display = 'block'; 
         
-        resultBox.style.display = 'flex'; 
+        resultBox.style.display = 'block'; 
         cropperContainer.style.display = 'none';
         if (cropper) { cropper.destroy(); cropper = null; } 
         stopCamera();
@@ -266,8 +269,7 @@ window.addEventListener('load', function () {
 
     function scheduleAutoRead() {
         clearTimeout(autoReadTimeout);
-        /* Reducido a 200ms para que sea mucho más rápido e instantáneo */
-        autoReadTimeout = setTimeout(attemptAutoReadFromCropper, 200); 
+        autoReadTimeout = setTimeout(attemptAutoReadFromCropper, 300); 
     }
 
     if (cropAndReadBtn) {
@@ -317,13 +319,14 @@ window.addEventListener('load', function () {
                             cropper = new Cropper(imageToCrop, {
                                 viewMode: 1, 
                                 dragMode: 'move', 
-                                autoCropArea: 1, // AHORA EL RECUADRO OCUPA EL 100% POR DEFECTO
+                                /* AHORA: Vuelve a dejar margen vital (85%) para que la IA de ZXing funcione perfecta */
+                                autoCropArea: 0.85, 
                                 restore: false, 
                                 guides: true, 
                                 zoomable: true, 
                                 movable: true, 
                                 background: true,
-                                responsive: true, // Lo hace más fluido y suave al interactuar
+                                responsive: true,
                                 ready: scheduleAutoRead, 
                                 cropend: scheduleAutoRead, 
                                 zoom: scheduleAutoRead     
