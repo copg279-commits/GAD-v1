@@ -12,51 +12,38 @@
 </head>
 <body>
 
-    <div class="container">
+<div class="container">
         <div class="app-header">
-            <div class="header-logo-container">
-                <img src="../ASSETS/logogad.PNG" alt="Logo GAD" class="header-logo">
-            </div>
+            <div class="header-logo-container"><img src="../ASSETS/logogad.PNG" alt="Logo GAD" class="header-logo"></div>
             <h1>Decodificador PNC Ruso</h1>
-            <div class="header-logo-container">
-                <img src="../ASSETS/t4c.png" alt="Logo T4C" class="header-logo">
-            </div>
+            <div class="header-logo-container"><img src="../ASSETS/t4c.png" alt="Logo T4C" class="header-logo"></div>
         </div>
         
         <div id="status">Esperando acción...</div>
 
-        <div class="controls">
-            <button id="startCamera">Usar Cámara Web</button>
-            <button id="stopCamera" class="stop-btn" style="display: none;">Detener Cámara</button>
+        <div id="mainButtons" class="controls">
+            <button id="startCamera">Usar Cámara</button>
             <label class="file-upload-label">
                 Subir Imagen para Recortar
                 <input type="file" id="fileInput" accept="image/*" style="display: none;">
             </label>
-            
-            <button id="showAppMenuBtn" style="background-color: #3498db; color: white;">
-                📱 Usar App Escáner Externa
-            </button>
-
-            <button id="showManualEntryBtn" style="background-color: #9b59b6; color: white; margin-top: 5px;">
-                ✍️ Introducir Código Manualmente
-            </button>
-
-            <button id="clearBtn" style="background-color: #e74c3c; color: white; margin-top: 5px;">
-                🗑️ Limpiar Búsqueda
-            </button>
-        </div>
-
-        <div id="cropperContainer" class="cropper-container" style="display: none;">
-            <div class="img-container">
-                <img id="imageToCrop" src="" alt="Imagen a recortar">
-            </div>
-            <button id="cropAndReadBtn" class="action-btn">✂️ Confirmar Recorte y Leer</button>
+            <button id="showAppMenuBtn" style="background-color: #3498db; color: white;">📱 Usar App Escáner Externa</button>
+            <button id="smartPasteBtn" style="background-color: #f39c12; color: white;">📋 Pegar código copiado y Leer</button>
         </div>
 
         <div class="video-wrapper" id="videoWrapper" style="display: none;">
             <video id="video" autoplay playsinline></video>
             <div class="scanner-guide" id="scannerGuide"></div>
         </div>
+
+        <div id="cropperContainer" class="cropper-container" style="display: none;">
+            <div class="img-container"><img id="imageToCrop" src="" alt="Imagen a recortar"></div>
+            <button id="cropAndReadBtn" class="action-btn">✂️ Confirmar Recorte y Leer</button>
+        </div>
+
+        <button id="clearBtn" style="background-color: #e74c3c; color: white; width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; border: none; margin-bottom: 15px; display: block;">
+            🗑️ Limpiar / Detener
+        </button>
 
         <div id="cameraControls" class="camera-controls" style="display: none;">
             <div class="control-group">
@@ -71,11 +58,10 @@
                 <label>🔍 Zoom de cámara:</label>
                 <input type="range" id="zoomSlider" min="1" max="4" step="0.1" value="1">
             </div>
-            <button id="manualCaptureBtn" class="action-btn" style="margin-top: 10px;">📸 Capturar y Leer Manualmente</button>
+            <button id="manualCaptureBtn" class="action-btn" style="margin-top: 5px;">📸 Capturar y Leer Manualmente</button>
         </div>
 
         <div class="result-box" id="resultBox" style="display: none;">
-            
             <div class="dl-card-container">
                 <div class="dl-card">
                     <div class="dl-header">
@@ -102,45 +88,32 @@
                     </div>
                 </div>
             </div>
-
-            <h3 style="margin-top: 30px;">Datos técnicos capturados</h3>
-            
-            <div class="data-label">Código crudo (Base64):</div>
-            <div class="data-content" id="rawOutput">-</div>
-
+            <h3 style="margin-top: 20px;">Datos técnicos capturados</h3>
+            <div style="display: none;">
+                <div class="data-label">Código crudo (Base64):</div>
+                <div class="data-content" id="rawOutput">-</div>
+            </div>
             <div class="data-label">Texto Decodificado (UTF-8):</div>
             <div class="data-content" id="decodedOutput">-</div>
-            
             <button id="copyBtn" class="copy-btn">Copiar Texto Decodificado</button>
         </div>
     </div>
 
-    <div id="appModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
+    <div id="appModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
         <div style="background-color: #2c2c2c; margin: 25% auto; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.9); border: 1px solid #444;">
             <span id="closeAppModal" style="color: #aaa; font-size: 32px; font-weight: bold; cursor: pointer; position: absolute; top: 5px; right: 15px;">&times;</span>
             <h3 style="color: #3498db; margin-bottom: 10px; font-size: 1.2rem; margin-top: 0;">⚙️ Elige tu App Escáner</h3>
             <p style="font-size: 0.85rem; color: #bbb; margin-bottom: 15px;">Selecciona "Preguntar cada vez" para buscar entre tus apps instaladas.</p>
-        <select id="appSelector" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; color: white; border: 1px solid #555; font-size: 0.95rem; outline: none;">
-                    <option value="de.markusfisch.android.binaryeye">Binary Eye (Recomendada, auto-retorno)</option>
-                    <option value="web">🌐 Usar Web Online (Inlite Research)</option>
-                    <option value="com.teacapps.barcodescanner">Escáner QR y Barras (TeaCapps)</option>
-                    <option value="com.manateeworks.barcodescanners">Barcode Scanner (Manatee)</option>
-                </select>
+            <select id="appSelector" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; color: white; border: 1px solid #555; font-size: 0.95rem; outline: none;">
+                <option value="de.markusfisch.android.binaryeye">Binary Eye (Recomendada, auto-retorno)</option>
+                <option value="web">🌐 Usar Web Online (Inlite Research)</option>
+                <option value="">Preguntar cada vez (Selector Android)</option>
+                <option value="com.teacapps.barcodescanner">Escáner QR y Barras (TeaCapps)</option>
+                <option value="com.manateeworks.barcodescanners">Barcode Scanner (Manatee)</option>
+            </select>
             <a id="nativeAppBtn" href="#" style="display: block; background-color: #2ecc71; color: white; padding: 14px 20px; border-radius: 8px; font-weight: bold; text-align: center; text-decoration: none; width: 100%;">
                 🚀 ABRIR APP AHORA
             </a>
-        </div>
-    </div>
-
-    <div id="manualModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
-        <div style="background-color: #2c2c2c; margin: 25% auto; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.9); border: 1px solid #444;">
-            <span id="closeManualModal" style="color: #aaa; font-size: 32px; font-weight: bold; cursor: pointer; position: absolute; top: 5px; right: 15px;">&times;</span>
-            <h3 style="color: #9b59b6; margin-bottom: 10px; font-size: 1.2rem; margin-top: 0;">✍️ Decodificar Manualmente</h3>
-            <label style="color: #bbb; font-size: 0.85rem;">Pega el código Base64 aquí:</label>
-            <textarea id="manualInput" placeholder="Ejemplo: JTEwMTgw...=" style="width: 100%; min-height: 100px; background: #1a1a1a; color: white; padding: 10px; margin-top: 8px; border-radius: 8px; border: 1px solid #444; font-family: monospace; resize: vertical; outline: none;"></textarea>
-            <button id="manualDecodeBtn" style="background-color: #2ecc71; color: white; border: none; padding: 14px 20px; margin-top: 15px; border-radius: 8px; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer;">
-                ✅ Decodificar Texto
-            </button>
         </div>
     </div>
 
