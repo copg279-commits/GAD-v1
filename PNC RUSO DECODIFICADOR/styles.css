@@ -9,6 +9,12 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body {
+    /* Restauramos el scroll natural para evitar recortes en pantallas pequeñas */
+    overflow-x: hidden;
+    overflow-y: auto; 
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-color);
@@ -17,11 +23,13 @@ body {
     justify-content: center;
     padding: 5px;
     min-height: 100vh; 
+    min-height: 100dvh; 
 }
 
 .container {
     background-color: var(--surface-color);
-    padding: 12px 10px 5px 10px; 
+    /* LA MAGIA: 75px de padding inferior para que el botón "VOLVER" no tape el footer */
+    padding: 12px 10px 75px 10px; 
     border-radius: 15px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.8);
     width: 100%;
@@ -29,6 +37,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 10px);
+    min-height: calc(100dvh - 10px); 
     justify-content: flex-start;
     border: 1px solid #333;
 }
@@ -69,13 +78,12 @@ button:hover, .file-upload-label:hover, .action-btn:hover, .copy-btn:hover, #nat
 #nativeAppBtn:hover, .copy-btn:hover, .action-btn:hover { box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.4); }
 
 /* ========================================== */
-/* CÁMARA Y RECORTADOR (MEDIDAS FIJAS BAJITAS)*/
+/* CÁMARA Y RECORTADOR                        */
 /* ========================================== */
 .video-wrapper { 
     position: relative; 
     width: 100%; 
-    /* Altura fija ideal para no hacer temblar la pantalla y dejar hueco al footer */
-    height: 240px; 
+    height: 220px; 
     margin-bottom: 10px; 
     border-radius: 12px; 
     overflow: hidden; 
@@ -92,7 +100,7 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; transform-
 .cropper-container { width: 100%; margin-bottom: 10px; }
 .img-container { 
     width: 100%; 
-    height: 240px; /* Igual que la cámara */
+    height: 220px; 
     background: #000; 
     border-radius: 12px; 
     overflow: hidden; 
@@ -102,15 +110,15 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; transform-
 }
 #imageToCrop { display: block; max-width: 100%; max-height: 100%; }
 
-.camera-controls { background: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; align-items: center; border: 1px solid #333; }
+.camera-controls { background: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; align-items: center; border: 1px solid #333; }
 .control-group { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; gap: 2px; }
-.control-group label { font-size: 0.9rem; color: #aaa; width: 100%; text-align: center; }
+.control-group label { font-size: 0.85rem; color: #aaa; width: 100%; text-align: center; }
 .control-group input[type="range"] { width: 95%; height: 20px; accent-color: var(--neon-cyan); }
 
 /* ========================================== */
 /* RESULTADOS Y TARJETA                       */
 /* ========================================== */
-.result-box { background: #252525; padding: 15px 10px; border-radius: 12px; border: 1px solid #333; display: block; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+.result-box { background: #252525; padding: 15px 10px; border-radius: 12px; border: 1px solid #333; display: block; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); margin-bottom: 10px; }
 .data-label { font-size: 0.9rem; color: var(--neon-cyan); margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
 .data-content { background: #151515; padding: 12px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; word-break: break-all; border: 1px solid #333; color: #0f0; text-shadow: 0 0 2px rgba(0, 255, 0, 0.5); }
 
@@ -150,13 +158,11 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; transform-
 /* ========================================== */
 .app-footer { 
     margin-top: auto; 
-    padding: 15px 0 5px 0; 
+    padding: 10px 0 0 0; 
     text-align: center; 
     width: 100%; 
-    /* ¡LA CLAVE! Obliga a que el footer NO se encoja ni desaparezca */
-    flex-shrink: 0; 
 }
 .footer-content { padding: 0 10px; }
-.footer-divider { border: none; border-top: 1px solid #444; width: 100%; max-width: 350px; margin: 0 auto 8px auto; }
+.footer-divider { border: none; border-top: 1px solid #444; width: 100%; max-width: 350px; margin: 0 auto 5px auto; }
 .footer-title { font-weight: bold; color: #999; font-size: 0.8rem; margin-bottom: 2px; letter-spacing: 0.5px; }
 .footer-copyright { font-size: 0.7rem; color: #666; margin-top: 5px; }
