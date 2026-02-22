@@ -21,73 +21,84 @@ window.addEventListener('load', function () {
     const imageToCrop = document.getElementById('imageToCrop');
     const cropAndReadBtn = document.getElementById('cropAndReadBtn');
     
-    // Botones principales
+    // Botones del menú y portapapeles
     const showAppMenuBtn = document.getElementById('showAppMenuBtn');
-    const showManualEntryBtn = document.getElementById('showManualEntryBtn');
+    const smartPasteBtn = document.getElementById('smartPasteBtn');
     const clearBtn = document.getElementById('clearBtn');
     
-    // Elementos de Modales (Ventanas emergentes)
+    // Elementos de la Ventana Emergente (Modal)
     const appModal = document.getElementById('appModal');
-    const manualModal = document.getElementById('manualModal');
     const closeAppModal = document.getElementById('closeAppModal');
-    const closeManualModal = document.getElementById('closeManualModal');
-    
     const appSelector = document.getElementById('appSelector');
     const nativeAppBtn = document.getElementById('nativeAppBtn');
-    const manualInput = document.getElementById('manualInput');
-    const manualDecodeBtn = document.getElementById('manualDecodeBtn');
 
     let cropper = null;
     let currentZoom = 1;
     let autoReadTimeout = null;
 
     // ==========================================
-    // 1. LÓGICA DE VENTANAS EMERGENTES (MODALES)
+    // 1. VENTANA EMERGENTE (MODAL DE APP)
     // ==========================================
-    showAppMenuBtn.addEventListener('click', () => { appModal.style.display = 'block'; });
-    showManualEntryBtn.addEventListener('click', () => { manualModal.style.display = 'block'; });
+    if (showAppMenuBtn) {
+        showAppMenuBtn.addEventListener('click', () => { appModal.classList.add('show'); });
+    }
 
-    // Cerrar con la X
-    closeAppModal.addEventListener('click', () => { appModal.style.display = 'none'; });
-    closeManualModal.addEventListener('click', () => { manualModal.style.display = 'none'; });
+    if (closeAppModal) {
+        closeAppModal.addEventListener('click', () => { appModal.classList.remove('show'); });
+    }
 
     // Cerrar pinchando fuera de la ventana
     window.addEventListener('click', (event) => {
-        if (event.target === appModal) appModal.style.display = 'none';
-        if (event.target === manualModal) manualModal.style.display = 'none';
+        if (event.target === appModal) appModal.classList.remove('show');
     });
 
-    // ==========================================
-    // 2. LIMPIEZA TOTAL
-    // ==========================================
-    clearBtn.addEventListener('click', () => {
-        stopCamera();
-        resultBox.style.display = 'none';
-        cropperContainer.style.display = 'none';
-        cameraControls.style.display = 'none';
-        if (cropper) { cropper.destroy(); cropper = null; }
-        fileInput.value = '';
-        manualInput.value = '';
-        rawOutput.textContent = '-';
-        decodedOutput.textContent = '-';
-        window.history.replaceState({}, document.title, window.location.pathname);
-        statusMsg.textContent = "Búsqueda limpiada. Esperando acción...";
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    manualDecodeBtn.addEventListener('click', () => {
-        const text = manualInput.value.trim();
-        if (text) {
-            processSuccess(text);
-            manualModal.style.display = 'none'; // Cerramos modal al éxito
-            statusMsg.textContent = "¡Código manual decodificado con éxito!";
-        } else {
-            alert("Por favor, pega un código primero.");
-        }
-    });
+    // Cerrar la ventana si le das al botón verde de "Abrir App"
+    if (nativeAppBtn) {
+        nativeAppBtn.addEventListener('click', () => { appModal.classList.remove('show'); });
+    }
 
     // ==========================================
-    // 3. RECEPCIÓN DE DATOS Y ENLACE DE APP
+    // 2. BOTÓN DE LIMPIEZA TOTAL
+    // ==========================================
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            stopCamera();
+            resultBox.style.display = 'none';
+            cropperContainer.style.display = 'none';
+            cameraControls.style.display = 'none';
+            if (cropper) { cropper.destroy(); cropper = null; }
+            fileInput.value = '';
+            rawOutput.textContent = '-';
+            decodedOutput.textContent = '-';
+            window.history.replaceState({}, document.title, window.location.pathname);
+            statusMsg.textContent = "Búsqueda limpiada. Esperando acción...";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // ==========================================
+    // 3. LEER PORTAPAPELES DIRECTAMENTE
+    // ==========================================
+    if (smartPasteBtn) {
+        smartPasteBtn.addEventListener('click', async () => {
+            try {
+                // Le pide permiso al navegador para pegar
+                const text = await navigator.clipboard.readText();
+                
+                if (text && text.trim().length > 20) {
+                    statusMsg.textContent = "¡Código leído del portapapeles!";
+                    processSuccess(text.trim());
+                } else {
+                    alert("El portapapeles está vacío o no parece un código válido.");
+                }
+            } catch (err) {
+                alert("No se pudo acceder al portapapeles. Asegúrate de darle permiso al navegador si te lo pregunta.");
+            }
+        });
+    }
+
+    // ==========================================
+    // 4. RECEPCIÓN DE DATOS Y ENLACE DINÁMICO DE APP
     // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const codigoDesdeApp = urlParams.get('codigo_escaneado');
@@ -98,32 +109,45 @@ window.addEventListener('load', function () {
         setTimeout(() => processSuccess(codigoDesdeApp), 500); 
     }
 
-    // Por defecto, lo ponemos en "Preguntar cada vez" (value vacío)
+    // Recordar la app preferida
     const savedApp = localStorage.getItem('preferredScannerApp');
-    if (savedApp !== null) {
+    if (savedApp !== null && appSelector) {
         appSelector.value = savedApp;
     }
 
     function updateIntentUrl() {
-        if (!nativeAppBtn) return;
+        if (!nativeAppBtn || !appSelector) return;
+        
         const currentUrl = window.location.href.split('?')[0]; 
         const returnUrl = encodeURIComponent(currentUrl + '?codigo_escaneado={CODE}');
         const pkg = appSelector.value;
-        const pkgString = pkg ? `package=${pkg};` : '';
-        const fallbackUrl = pkg ? encodeURIComponent(`https://play.google.com/store/apps/details?id=${pkg}`) : encodeURIComponent('https://play.google.com/store/search?q=barcode+scanner&c=apps');
         
-        const intentUrl = `intent://scan/#Intent;action=com.google.zxing.client.android.SCAN;${pkgString}S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};S.browser_fallback_url=${fallbackUrl};end`;
-        nativeAppBtn.href = intentUrl;
+        if (pkg === 'web') {
+            // Si elige la web de Inlite Research
+            nativeAppBtn.href = "https://online-barcode-reader.inliteresearch.com/";
+            nativeAppBtn.target = "_blank"; 
+        } else {
+            // Si elige una App de móvil (Binary Eye, etc)
+            nativeAppBtn.target = "_self";
+            const pkgString = pkg ? `package=${pkg};` : '';
+            const fallbackUrl = pkg ? encodeURIComponent(`https://play.google.com/store/apps/details?id=${pkg}`) : '';
+            const fallbackString = fallbackUrl ? `S.browser_fallback_url=${fallbackUrl};` : '';
+            
+            const intentUrl = `intent://scan/#Intent;action=com.google.zxing.client.android.SCAN;${pkgString}S.SCAN_FORMATS=PDF_417;S.RET_URL=${returnUrl};${fallbackString}end`;
+            nativeAppBtn.href = intentUrl;
+        }
     }
 
-    updateIntentUrl();
-    appSelector.addEventListener('change', (e) => {
-        localStorage.setItem('preferredScannerApp', e.target.value);
+    if (appSelector) {
         updateIntentUrl();
-    });
+        appSelector.addEventListener('change', (e) => {
+            localStorage.setItem('preferredScannerApp', e.target.value);
+            updateIntentUrl();
+        });
+    }
 
     // ==========================================
-    // 4. NÚCLEO LECTOR Y SIMULACIÓN DE TARJETA
+    // 5. NÚCLEO LECTOR Y SIMULACIÓN DE TARJETA
     // ==========================================
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
@@ -182,6 +206,8 @@ window.addEventListener('load', function () {
         cropperContainer.style.display = 'none';
         if (cropper) { cropper.destroy(); cropper = null; } 
         stopCamera();
+        
+        // Baja solo hasta la tarjeta virtual
         resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -190,68 +216,77 @@ window.addEventListener('load', function () {
     }
 
     // ==========================================
-    // 5. CÁMARA INTERNA (CON AUTO-SCROLL)
+    // 6. CÁMARA INTERNA DE LA WEB (CON AUTO-SCROLL)
     // ==========================================
-    zoomSlider.addEventListener('input', (e) => {
-        currentZoom = parseFloat(e.target.value);
-        video.style.transform = `scale(${currentZoom})`;
-    });
-    guideWidthSlider.addEventListener('input', (e) => { scannerGuide.style.width = `${e.target.value}%`; });
-    guideHeightSlider.addEventListener('input', (e) => { scannerGuide.style.height = `${e.target.value}%`; });
+    if (zoomSlider) {
+        zoomSlider.addEventListener('input', (e) => {
+            currentZoom = parseFloat(e.target.value);
+            if(video) video.style.transform = `scale(${currentZoom})`;
+        });
+    }
+    if (guideWidthSlider) { guideWidthSlider.addEventListener('input', (e) => { if(scannerGuide) scannerGuide.style.width = `${e.target.value}%`; }); }
+    if (guideHeightSlider) { guideHeightSlider.addEventListener('input', (e) => { if(scannerGuide) scannerGuide.style.height = `${e.target.value}%`; }); }
 
-    manualCaptureBtn.addEventListener('click', () => {
-        statusMsg.textContent = "Analizando captura...";
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        const img = new Image();
-        img.onload = () => {
-            codeReader.decodeFromImageElement(img)
-                .then(handleResult)
-                .catch(() => statusMsg.textContent = "No detectado. Ajusta el código en el recuadro.");
-        };
-        img.src = canvas.toDataURL();
-    });
+    if (manualCaptureBtn) {
+        manualCaptureBtn.addEventListener('click', () => {
+            statusMsg.textContent = "Analizando captura...";
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const img = new Image();
+            img.onload = () => {
+                codeReader.decodeFromImageElement(img)
+                    .then(handleResult)
+                    .catch(() => statusMsg.textContent = "No detectado. Ajusta el código en el recuadro.");
+            };
+            img.src = canvas.toDataURL();
+        });
+    }
 
-    startCameraBtn.addEventListener('click', () => {
-        resultBox.style.display = 'none';
-        cropperContainer.style.display = 'none';
-        videoWrapper.style.display = 'block';
-        cameraControls.style.display = 'flex';
-        startCameraBtn.style.display = 'none';
-        stopCameraBtn.style.display = 'block';
-        statusMsg.textContent = "Ajusta el marco y escanea o pulsa Capturar.";
+    if (startCameraBtn) {
+        startCameraBtn.addEventListener('click', () => {
+            resultBox.style.display = 'none';
+            cropperContainer.style.display = 'none';
+            videoWrapper.style.display = 'block';
+            cameraControls.style.display = 'flex';
+            startCameraBtn.style.display = 'none';
+            stopCameraBtn.style.display = 'block';
+            statusMsg.textContent = "Ajusta el marco y escanea o pulsa Capturar.";
 
-        currentZoom = 1; zoomSlider.value = 1; video.style.transform = `scale(1)`;
-        scannerGuide.style.width = '80%'; scannerGuide.style.height = '30%';
-        guideWidthSlider.value = 80; guideHeightSlider.value = 30;
+            currentZoom = 1; 
+            if(zoomSlider) zoomSlider.value = 1; 
+            if(video) video.style.transform = `scale(1)`;
+            if(scannerGuide) { scannerGuide.style.width = '80%'; scannerGuide.style.height = '30%'; }
+            if(guideWidthSlider) guideWidthSlider.value = 80; 
+            if(guideHeightSlider) guideHeightSlider.value = 30;
 
-        // Bajar automáticamente la pantalla para centrar la cámara
-        setTimeout(() => {
-            videoWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 150);
+            // Bajar automáticamente al abrir cámara
+            setTimeout(() => {
+                videoWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 150);
 
-        const constraints = { video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, advanced: [{ focusMode: "continuous" }] } };
-        codeReader.decodeFromConstraints(constraints, 'video', (result, err) => {
-            if (result) handleResult(result);
-        }).catch(() => statusMsg.textContent = "Error iniciando la cámara.");
-    });
+            const constraints = { video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, advanced: [{ focusMode: "continuous" }] } };
+            codeReader.decodeFromConstraints(constraints, 'video', (result, err) => {
+                if (result) handleResult(result);
+            }).catch(() => statusMsg.textContent = "Error iniciando la cámara.");
+        });
+    }
 
     function stopCamera() {
         codeReader.reset();
-        videoWrapper.style.display = 'none';
-        cameraControls.style.display = 'none';
-        startCameraBtn.style.display = 'block';
-        stopCameraBtn.style.display = 'none';
-        if(statusMsg.textContent.includes("Ajusta el marco")) statusMsg.textContent = "Cámara detenida.";
+        if(videoWrapper) videoWrapper.style.display = 'none';
+        if(cameraControls) cameraControls.style.display = 'none';
+        if(startCameraBtn) startCameraBtn.style.display = 'block';
+        if(stopCameraBtn) stopCameraBtn.style.display = 'none';
+        if(statusMsg && statusMsg.textContent.includes("Ajusta el marco")) statusMsg.textContent = "Cámara detenida.";
     }
 
-    stopCameraBtn.addEventListener('click', stopCamera);
+    if (stopCameraBtn) stopCameraBtn.addEventListener('click', stopCamera);
 
     // ==========================================
-    // 6. RECORTADOR AUTOMÁTICO
+    // 7. RECORTADOR AUTOMÁTICO
     // ==========================================
     function attemptAutoReadFromCropper() {
         if (!cropper) return;
@@ -292,58 +327,68 @@ window.addEventListener('load', function () {
         autoReadTimeout = setTimeout(attemptAutoReadFromCropper, 400); 
     }
 
-    cropAndReadBtn.addEventListener('click', () => {
-        statusMsg.textContent = "Forzando lectura de recorte...";
-        attemptAutoReadFromCropper();
-    });
-
-    fileInput.addEventListener('change', async (e) => {
-        if (e.target.files && e.target.files.length) {
-            stopCamera(); resultBox.style.display = 'none'; cameraControls.style.display = 'none'; cropperContainer.style.display = 'none'; 
-            statusMsg.textContent = "Buscando código en toda la imagen...";
-            const file = e.target.files[0]; const reader = new FileReader();
-            
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = async () => {
-                    let detected = false;
-                    if ('BarcodeDetector' in window) {
-                        try {
-                            const detector = new BarcodeDetector({ formats: ['pdf417'] });
-                            const barcodes = await detector.detect(img);
-                            if (barcodes.length > 0) { processSuccess(barcodes[0].rawValue); detected = true; return; }
-                        } catch (err) {}
-                    }
-                    if (!detected) {
-                        try {
-                            const result = await codeReader.decodeFromImageElement(img);
-                            processSuccess(result.text); detected = true;
-                        } catch (err) {}
-                    }
-                    if (!detected) {
-                        statusMsg.textContent = "Ajusta el recuadro. Se leerá automáticamente.";
-                        imageToCrop.src = event.target.result; cropperContainer.style.display = 'block';
-                        
-                        setTimeout(() => { cropperContainer.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 150);
-
-                        if (cropper) cropper.destroy();
-                        cropper = new Cropper(imageToCrop, {
-                            viewMode: 1, dragMode: 'move', autoCropArea: 0.8, restore: false, guides: true, zoomable: true, movable: true, background: true,
-                            ready: scheduleAutoRead, cropend: scheduleAutoRead, zoom: scheduleAutoRead     
-                        });
-                    }
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    copyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(decodedOutput.textContent).then(() => {
-            const orig = copyBtn.textContent;
-            copyBtn.textContent = "¡Copiado!";
-            setTimeout(() => copyBtn.textContent = orig, 2000);
+    if (cropAndReadBtn) {
+        cropAndReadBtn.addEventListener('click', () => {
+            if(statusMsg) statusMsg.textContent = "Forzando lectura de recorte...";
+            attemptAutoReadFromCropper();
         });
-    });
+    }
+
+    if (fileInput) {
+        fileInput.addEventListener('change', async (e) => {
+            if (e.target.files && e.target.files.length) {
+                stopCamera(); 
+                if(resultBox) resultBox.style.display = 'none'; 
+                if(cameraControls) cameraControls.style.display = 'none'; 
+                if(cropperContainer) cropperContainer.style.display = 'none'; 
+                if(statusMsg) statusMsg.textContent = "Buscando código en toda la imagen...";
+                const file = e.target.files[0]; const reader = new FileReader();
+                
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = async () => {
+                        let detected = false;
+                        if ('BarcodeDetector' in window) {
+                            try {
+                                const detector = new BarcodeDetector({ formats: ['pdf417'] });
+                                const barcodes = await detector.detect(img);
+                                if (barcodes.length > 0) { processSuccess(barcodes[0].rawValue); detected = true; return; }
+                            } catch (err) {}
+                        }
+                        if (!detected) {
+                            try {
+                                const result = await codeReader.decodeFromImageElement(img);
+                                processSuccess(result.text); detected = true;
+                            } catch (err) {}
+                        }
+                        if (!detected) {
+                            if(statusMsg) statusMsg.textContent = "Ajusta el recuadro. Se leerá automáticamente.";
+                            if(imageToCrop) imageToCrop.src = event.target.result; 
+                            if(cropperContainer) cropperContainer.style.display = 'block';
+                            
+                            setTimeout(() => { if(cropperContainer) cropperContainer.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 150);
+
+                            if (cropper) cropper.destroy();
+                            cropper = new Cropper(imageToCrop, {
+                                viewMode: 1, dragMode: 'move', autoCropArea: 0.8, restore: false, guides: true, zoomable: true, movable: true, background: true,
+                                ready: scheduleAutoRead, cropend: scheduleAutoRead, zoom: scheduleAutoRead     
+                            });
+                        }
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(decodedOutput.textContent).then(() => {
+                const orig = copyBtn.textContent;
+                copyBtn.textContent = "¡Copiado!";
+                setTimeout(() => copyBtn.textContent = orig, 2000);
+            });
+        });
+    }
 });

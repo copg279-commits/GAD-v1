@@ -25,7 +25,7 @@
         
         <div id="status">Esperando acción...</div>
 
-        <div class="controls">
+<div class="controls">
             <button id="startCamera">Usar Cámara Web</button>
             <button id="stopCamera" class="stop-btn" style="display: none;">Detener Cámara</button>
             <label class="file-upload-label">
@@ -37,8 +37,8 @@
                 📱 Usar App Escáner Externa
             </button>
 
-            <button id="showManualEntryBtn" style="background-color: #9b59b6; color: white; margin-top: 5px;">
-                ✍️ Introducir Código Manualmente
+            <button id="smartPasteBtn" style="background-color: #f39c12; color: white; margin-top: 5px;">
+                📋 Pegar código copiado y Leer
             </button>
 
             <button id="clearBtn" style="background-color: #e74c3c; color: white; margin-top: 5px;">
@@ -120,12 +120,12 @@
             <span id="closeAppModal" style="color: #aaa; font-size: 32px; font-weight: bold; cursor: pointer; position: absolute; top: 5px; right: 15px;">&times;</span>
             <h3 style="color: #3498db; margin-bottom: 10px; font-size: 1.2rem; margin-top: 0;">⚙️ Elige tu App Escáner</h3>
             <p style="font-size: 0.85rem; color: #bbb; margin-bottom: 15px;">Selecciona "Preguntar cada vez" para buscar entre tus apps instaladas.</p>
-            <select id="appSelector" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; color: white; border: 1px solid #555; font-size: 0.95rem; outline: none;">
-                <option value="">Preguntar cada vez (Selector Android)</option>
-                <option value="com.github.markusfisch.android.binaryeye">Binary Eye (Recomendada, auto-retorno)</option>
-                <option value="com.teacapps.barcodescanner">Escáner QR y Barras (TeaCapps)</option>
-                <option value="com.manateeworks.barcodescanners">Barcode Scanner (Manatee)</option>
-            </select>
+        <select id="appSelector" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; color: white; border: 1px solid #555; font-size: 0.95rem; outline: none;">
+                    <option value="de.markusfisch.android.binaryeye">Binary Eye (Recomendada, auto-retorno)</option>
+                    <option value="web">🌐 Usar Web Online (Inlite Research)</option>
+                    <option value="com.teacapps.barcodescanner">Escáner QR y Barras (TeaCapps)</option>
+                    <option value="com.manateeworks.barcodescanners">Barcode Scanner (Manatee)</option>
+                </select>
             <a id="nativeAppBtn" href="#" style="display: block; background-color: #2ecc71; color: white; padding: 14px 20px; border-radius: 8px; font-weight: bold; text-align: center; text-decoration: none; width: 100%;">
                 🚀 ABRIR APP AHORA
             </a>
