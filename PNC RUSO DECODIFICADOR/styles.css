@@ -21,13 +21,14 @@ body {
 
 .container {
     background-color: var(--surface-color);
-    padding: 15px 12px;
+    padding: 12px 10px;
     border-radius: 15px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.8);
     width: 100%;
     max-width: 600px;
     display: flex;
     flex-direction: column;
+    /* Ajuste para que se adapte mejor a las pantallas móviles modernas */
     min-height: calc(100vh - 10px);
     justify-content: flex-start;
     border: 1px solid #333;
@@ -122,33 +123,34 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; transform-
 .close-btn:hover, .close-btn:focus { color: #fff; }
 
 /* ========================================== */
-/* FOOTER ADAPTADO AL TEMA OSCURO             */
+/* FOOTER ADAPTADO (MÁS COMPACTO)             */
 /* ========================================== */
 .app-footer {
-    margin-top: auto; /* Equivale al mt-auto de Tailwind */
-    padding: 25px 0 15px 0;
+    margin-top: auto; 
+    /* Reducidos los paddings para que suba más y no pida scroll */
+    padding: 10px 0 5px 0; 
     text-align: center;
     width: 100%;
 }
 .footer-content {
-    padding: 0 15px;
+    padding: 0 10px;
 }
 .footer-divider {
     border: none;
-    border-top: 1px solid #444; /* Línea separadora sutil */
+    border-top: 1px solid #444; 
     width: 100%;
     max-width: 350px;
-    margin: 0 auto 15px auto;
+    margin: 0 auto 8px auto; /* Reducido de 15px a 8px */
 }
 .footer-title {
     font-weight: bold;
-    color: #999; /* Gris medio, profesional y legible sobre fondo negro */
-    font-size: 0.9rem;
-    margin-bottom: 4px;
+    color: #999; 
+    font-size: 0.85rem; /* Un punto más pequeño */
+    margin-bottom: 2px; /* Reducido */
     letter-spacing: 0.5px;
 }
 .footer-copyright {
-    font-size: 0.8rem;
-    color: #666; /* Gris más oscuro para el copyright */
-    margin-top: 10px;
+    font-size: 0.75rem; /* Un punto más pequeño */
+    color: #666; 
+    margin-top: 5px; /* Reducido */
 }
