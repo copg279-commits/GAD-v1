@@ -43,12 +43,13 @@ window.addEventListener('load', function () {
     if (nativeAppBtn) nativeAppBtn.addEventListener('click', () => { appModal.classList.remove('show'); });
 
     // ==========================================
-    // 2. BOTÓN DE LIMPIEZA GLOBAL (Vuelve a Home)
+    // 2. BOTÓN DE LIMPIEZA GLOBAL
     // ==========================================
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
             stopCamera();
             if(mainButtons) mainButtons.style.display = 'flex'; // REAPARECE EL MENÚ
+            if(clearBtn) clearBtn.style.display = 'none';       // SE OCULTA EL BOTÓN ROJO
             resultBox.style.display = 'none';
             cropperContainer.style.display = 'none';
             cameraControls.style.display = 'none';
@@ -179,7 +180,9 @@ window.addEventListener('load', function () {
         decodedOutput.textContent = decodeBase64ToText(rawText);
         populateVirtualCard(decodeBase64ToText(rawText));
         
-        if(mainButtons) mainButtons.style.display = 'none'; // LIMPIA LA PANTALLA
+        if(mainButtons) mainButtons.style.display = 'none'; 
+        if(clearBtn) clearBtn.style.display = 'block'; // MUESTRA EL BOTÓN ROJO AL DAR RESULTADO
+        
         resultBox.style.display = 'block';
         cropperContainer.style.display = 'none';
         if (cropper) { cropper.destroy(); cropper = null; } 
@@ -215,10 +218,12 @@ window.addEventListener('load', function () {
     if (startCameraBtn) {
         startCameraBtn.addEventListener('click', () => {
             if(mainButtons) mainButtons.style.display = 'none'; // OCULTA EL MENÚ
+            if(clearBtn) clearBtn.style.display = 'block';      // MUESTRA EL BOTÓN ROJO DE LIMPIAR
+            
             resultBox.style.display = 'none';
             cropperContainer.style.display = 'none';
             videoWrapper.style.display = 'block';
-            cameraControls.style.display = 'flex'; // ESTO AHORA LO CENTRARÁ POR EL CSS
+            cameraControls.style.display = 'flex'; 
             statusMsg.textContent = "Ajusta el marco y escanea o pulsa Capturar.";
 
             currentZoom = 1; 
@@ -292,7 +297,9 @@ window.addEventListener('load', function () {
         fileInput.addEventListener('change', async (e) => {
             if (e.target.files && e.target.files.length) {
                 stopCamera(); 
-                if(mainButtons) mainButtons.style.display = 'none'; // OCULTA EL MENÚ
+                if(mainButtons) mainButtons.style.display = 'none'; 
+                if(clearBtn) clearBtn.style.display = 'block'; // MUESTRA EL BOTÓN ROJO AL SUBIR FOTO
+                
                 if(resultBox) resultBox.style.display = 'none'; 
                 if(cameraControls) cameraControls.style.display = 'none'; 
                 if(cropperContainer) cropperContainer.style.display = 'none'; 

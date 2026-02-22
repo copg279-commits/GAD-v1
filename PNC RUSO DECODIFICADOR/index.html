@@ -12,14 +12,18 @@
 </head>
 <body>
 
-<div class="container">
+    <div class="container">
         <div class="app-header">
-            <div class="header-logo-container"><img src="../ASSETS/logogad.PNG" alt="Logo GAD" class="header-logo"></div>
+            <div class="header-logo-container"><img src="../ASSETS/logogad.png" alt="Logo GAD" class="header-logo"></div>
             <h1>Decodificador PNC Ruso</h1>
             <div class="header-logo-container"><img src="../ASSETS/t4c.png" alt="Logo T4C" class="header-logo"></div>
         </div>
         
         <div id="status">Esperando acción...</div>
+
+        <button id="clearBtn" style="background-color: #e74c3c; color: white; width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; border: none; margin-bottom: 15px; display: none;">
+            🗑️ Limpiar / Detener
+        </button>
 
         <div id="mainButtons" class="controls">
             <button id="startCamera">Usar Cámara</button>
@@ -40,10 +44,6 @@
             <div class="img-container"><img id="imageToCrop" src="" alt="Imagen a recortar"></div>
             <button id="cropAndReadBtn" class="action-btn">✂️ Confirmar Recorte y Leer</button>
         </div>
-
-        <button id="clearBtn" style="background-color: #e74c3c; color: white; width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; border: none; margin-bottom: 15px; display: block;">
-            🗑️ Limpiar / Detener
-        </button>
 
         <div id="cameraControls" class="camera-controls" style="display: none;">
             <div class="control-group">
