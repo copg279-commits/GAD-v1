@@ -9,6 +9,12 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Evita el temblor por la aparición/desaparición de la barra de scroll */
+html {
+    overflow-y: scroll; 
+    overflow-x: hidden;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-color);
@@ -16,15 +22,12 @@ body {
     display: flex;
     justify-content: center;
     padding: 5px;
-    /* FALLBACK para móviles antiguos */
     min-height: 100vh; 
-    /* LA MAGIA: Altura dinámica real para que Chrome no corte el pie */
     min-height: 100dvh; 
 }
 
 .container {
     background-color: var(--surface-color);
-    /* Reducimos el padding inferior para ganar espacio */
     padding: 12px 10px 5px 10px; 
     border-radius: 15px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.8);
@@ -33,13 +36,13 @@ body {
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 10px);
-    min-height: calc(100dvh - 10px); /* Aplica también la altura dinámica aquí */
+    min-height: calc(100dvh - 10px); 
     justify-content: flex-start;
     border: 1px solid #333;
 }
 
 /* ========================================== */
-/* HEADER Y LOGOS (Más compactos)             */
+/* HEADER Y LOGOS                             */
 /* ========================================== */
 .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #333; padding-bottom: 8px; }
 .header-logo-container { width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; }
@@ -74,14 +77,38 @@ button:hover, .file-upload-label:hover, .action-btn:hover, .copy-btn:hover, #nat
 #nativeAppBtn:hover, .copy-btn:hover, .action-btn:hover { box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.4); }
 
 /* ========================================== */
-/* CÁMARA Y RECORTADOR                        */
+/* CÁMARA Y RECORTADOR (MEDIDAS FIJAS PARA EVITAR TEMBLOR) */
 /* ========================================== */
-.video-wrapper { position: relative; width: 100%; height: 35vh; margin-bottom: 10px; border-radius: 12px; overflow: hidden; background: #000; display: flex; justify-content: center; align-items: center; border: 2px solid #333; box-shadow: 0 0 15px rgba(0, 247, 255, 0.1); }
+.video-wrapper { 
+    position: relative; 
+    width: 100%; 
+    /* ¡AQUÍ ESTÁ LA MAGIA ANTI-TEMBLOR! Medida fija en píxeles */
+    height: 280px; 
+    margin-bottom: 10px; 
+    border-radius: 12px; 
+    overflow: hidden; 
+    background: #000; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    border: 2px solid #333; 
+    box-shadow: 0 0 15px rgba(0, 247, 255, 0.1); 
+}
 video { width: 100%; height: 100%; object-fit: cover; display: block; transform-origin: center; }
 .scanner-guide { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 2px solid var(--neon-green); box-shadow: 0 0 15px var(--neon-green), inset 0 0 5px var(--neon-green); pointer-events: none; }
 
 .cropper-container { width: 100%; margin-bottom: 10px; }
-.img-container { width: 100%; height: 35vh; background: #000; border-radius: 12px; overflow: hidden; display: block; border: 2px solid #333; box-shadow: 0 0 15px rgba(0, 247, 255, 0.1); }
+.img-container { 
+    width: 100%; 
+    /* Medida fija también para el recortador */
+    height: 280px; 
+    background: #000; 
+    border-radius: 12px; 
+    overflow: hidden; 
+    display: block; 
+    border: 2px solid #333; 
+    box-shadow: 0 0 15px rgba(0, 247, 255, 0.1); 
+}
 #imageToCrop { display: block; max-width: 100%; max-height: 100%; }
 
 .camera-controls { background: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; align-items: center; border: 1px solid #333; }
@@ -128,31 +155,10 @@ video { width: 100%; height: 100%; object-fit: cover; display: block; transform-
 .close-btn:hover, .close-btn:focus { color: #fff; }
 
 /* ========================================== */
-/* FOOTER SUPER COMPACTO                      */
+/* FOOTER ADAPTADO                            */
 /* ========================================== */
-.app-footer {
-    margin-top: auto; 
-    padding: 8px 0 0 0; /* Padding inferior eliminado para subir todo */
-    text-align: center;
-    width: 100%;
-}
+.app-footer { margin-top: auto; padding: 8px 0 0 0; text-align: center; width: 100%; }
 .footer-content { padding: 0 10px; }
-.footer-divider {
-    border: none;
-    border-top: 1px solid #444; 
-    width: 100%;
-    max-width: 350px;
-    margin: 0 auto 5px auto; /* Línea separadora subida */
-}
-.footer-title {
-    font-weight: bold;
-    color: #999; 
-    font-size: 0.8rem; /* Texto más pequeño y sin interlineado ancho */
-    margin-bottom: 0px; 
-    letter-spacing: 0.5px;
-}
-.footer-copyright {
-    font-size: 0.7rem; 
-    color: #666; 
-    margin-top: 3px;
-}
+.footer-divider { border: none; border-top: 1px solid #444; width: 100%; max-width: 350px; margin: 0 auto 5px auto; }
+.footer-title { font-weight: bold; color: #999; font-size: 0.8rem; margin-bottom: 0px; letter-spacing: 0.5px; }
+.footer-copyright { font-size: 0.7rem; color: #666; margin-top: 3px; }
