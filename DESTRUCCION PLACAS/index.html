@@ -9,16 +9,7 @@
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        gadBg: '#0f172a', /* slate-900 */
-                        gadPanel: '#1e293b', /* slate-800 */
-                        gadBorder: '#334155', /* slate-700 */
-                        gadAccent: '#3b82f6', /* blue-500 */
-                    }
-                }
-            }
+            theme: { extend: { colors: { gadBg: '#0f172a', gadPanel: '#1e293b', gadBorder: '#334155', gadAccent: '#3b82f6' } } }
         }
     </script>
     
@@ -39,7 +30,7 @@
 
     <header class="bg-gadPanel border-b border-gadBorder shadow-lg py-3 px-6 flex justify-between items-center">
         <div class="h-14 w-14 flex items-center justify-center">
-            <img src="ASSETS/logoora.png" alt="Logo Izq" class="max-h-full max-w-full drop-shadow-md" onerror="this.style.display='none'">
+            <img src="../ASSETS/logoora.png" alt="Logo Izq" class="max-h-full max-w-full drop-shadow-md" onerror="this.style.display='none'">
         </div>
         
         <div class="text-center flex-1 px-4">
@@ -49,11 +40,11 @@
         </div>
 
         <div class="h-14 w-14 flex items-center justify-center">
-            <img src="ASSETS/logogad.png" alt="Logo GAD" class="max-h-full max-w-full drop-shadow-md" onerror="this.style.display='none'">
+            <img src="../ASSETS/logogad.png" alt="Logo GAD" class="max-h-full max-w-full drop-shadow-md" onerror="this.style.display='none'">
         </div>
     </header>
 
-    <main id="main-app-content" class="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto" style="display:none;">
+    <main id="main-app-content" class="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto pb-24" style="display:none;">
         
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 bg-gadPanel p-4 rounded-xl border border-gadBorder shadow-md">
             <div class="text-lg font-bold">
@@ -75,7 +66,7 @@
                 </div>
                 
                 <div>
-                    <button id="generateLotButton" disabled class="w-full bg-red-600 hover:bg-red-500 disabled:bg-gray-600 disabled:text-gray-400 text-white font-bold rounded-lg p-2.5 transition shadow-lg flex justify-center items-center gap-2">
+                    <button id="generateLotMainBtn" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg p-2.5 transition shadow-lg flex justify-center items-center gap-2">
                         <i class="fas fa-box"></i> Generar Lote <span id="selectedCount" class="font-normal">(0)</span>
                     </button>
                 </div>
@@ -126,7 +117,43 @@
         </div>
     </main>
 
+    <footer class="fixed bottom-0 left-0 w-full p-4 md:p-6 flex justify-between items-center bg-gradient-to-t from-gadBg to-transparent pointer-events-none z-40">
+        <button id="openMainMenu" class="pointer-events-auto w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-2xl border-2 border-gadBorder shadow-[0_4px_15px_rgba(0,0,0,0.6)] transition-transform hover:-translate-y-1" title="Menú Principal">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a href="index.html" class="pointer-events-auto w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-2xl border-2 border-gadBorder shadow-[0_4px_15px_rgba(0,0,0,0.6)] transition-transform hover:-translate-y-1" title="Volver">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </footer>
+
     <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-40 hidden"></div>
+
+    <div id="generateLotModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-md rounded-xl shadow-2xl z-50 p-6 hidden">
+        <h3 class="text-xl font-bold text-blue-400 mb-2 border-b border-gadBorder pb-2"><i class="fas fa-cogs mr-2"></i>Generación de Lote</h3>
+        <p class="text-gray-300 mb-5 text-sm">¿Cómo deseas incluir las placas en el <span id="modalNextLotName" class="font-bold text-white uppercase"></span>?</p>
+
+        <div class="flex flex-col gap-3 mb-6">
+            <button id="btnGenAuto" class="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-lg transition text-left shadow-md flex items-center gap-4">
+                <i class="fas fa-magic text-2xl"></i>
+                <div>
+                    <div class="font-bold text-base">Incluir todas las pendientes</div>
+                    <div class="text-xs text-blue-200">Agrupa automáticamente todas las placas sin lote (<span id="countPendingAuto" class="font-bold">0</span>)</div>
+                </div>
+            </button>
+
+            <button id="btnGenManual" class="bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-lg transition text-left shadow-md flex items-center gap-4">
+                <i class="fas fa-hand-pointer text-2xl ml-1"></i>
+                <div>
+                    <div class="font-bold text-base">Usar selección manual</div>
+                    <div class="text-xs text-emerald-200">Usa solo las placas marcadas con el checkbox (<span id="countSelectedManual" class="font-bold">0</span>)</div>
+                </div>
+            </button>
+        </div>
+
+        <div class="flex justify-end pt-3 border-t border-gadBorder">
+            <button id="closeGenerateLotModal" class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg font-bold transition">Cancelar</button>
+        </div>
+    </div>
 
     <div id="newPlateModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-md rounded-xl shadow-2xl z-50 p-6 hidden">
         <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2"><i class="fas fa-plus-circle mr-2"></i>Añadir Nueva Placa</h3>
