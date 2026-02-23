@@ -20,19 +20,19 @@ let allPlatesData = [];
 let anuladasData = []; 
 let uniqueLots = {}; 
 let currentSort = { column: 'FECHA_AGREGADA', direction: 'desc' };
-let lotMetadataGlobal = {}; // Ahora guardará {eurocop, estado, etc.} de cada lote
+let lotMetadataGlobal = {}; 
 let currentPlatesInConsultedLot = [];
 let currentConsultedLotName = "";
 let knownCountries = []; 
 let isUserAuthenticated = false;
 
-// --- AUTO LOGIN (Para pruebas en Live Server) ---
+// --- AUTO LOGIN ---
 const currentHost = window.location.hostname;
 const isLocal = (currentHost === '127.0.0.1' || currentHost === 'localhost');
 
 if (isLocal) {
-    // ⚠️ Usa tus credenciales reales aquí para Live Server
-    signInWithEmailAndPassword(auth, "tu_correo_real@gad.com", "TuContraseña") 
+    // ⚠️ PON AQUÍ TU CORREO REAL DE PRUEBAS
+    signInWithEmailAndPassword(auth, "test@gad.com", "123456") 
         .catch(error => console.error("Error Auto-login:", error));
 }
 
@@ -54,7 +54,7 @@ onAuthStateChanged(auth, (user) => {
 function initApp() {
     loadPlates();
     
-    // Sort Headers interactivos
+    // Configura los eventos de click en las cabeceras (País, Placa, Fecha) para ordenar
     document.querySelectorAll('.sort-header').forEach(header => {
         header.addEventListener('click', () => { handleSort(header.dataset.sortBy); });
     });
@@ -68,7 +68,6 @@ function initApp() {
         updateLotButton();
     });
 
-    // SISTEMA DE MODALES
     const overlay = document.getElementById('modal-overlay');
     const toggleModal = (modalId, show) => {
         overlay.style.display = show ? 'block' : 'none';
@@ -109,7 +108,7 @@ function initApp() {
     document.getElementById('btnGenManual').addEventListener('click', () => {
         const selectedIds = Array.from(document.querySelectorAll('.plate-checkbox:checked')).map(cb => cb.dataset.plateId);
         if(selectedIds.length === 0) {
-            alert("⚠️ Selecciona manualmente alguna placa de la lista marcando el recuadro antes de usar esta opción.");
+            alert("⚠️ Selecciona manualmente alguna placa marcando el recuadro.");
             toggleModal('generateLotModal', false);
             return;
         }
@@ -119,15 +118,12 @@ function initApp() {
 
     document.getElementById('exportLotToExcelButton').addEventListener('click', handleExportToExcel);
     
-    // Botón exportar PDF desde el Modal
     document.getElementById('exportLotToPDFButton').addEventListener('click', async (e) => {
         const btn = e.currentTarget;
         const originalHtml = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generando...';
         btn.disabled = true;
-        
         await generatePDFForLot(currentConsultedLotName, currentPlatesInConsultedLot);
-        
         btn.innerHTML = originalHtml;
         btn.disabled = false;
     });
@@ -197,7 +193,7 @@ async function getNextLotNumber() {
     document.getElementById('lotNumber').value = `LOTE ${maxLotNumber + 1}`;
 }
 
-// --- FILTRO Y ORDENACIÓN (AHORA ALFABÉTICO PERFECTO) ---
+// --- FILTRO Y ORDENACIÓN ALFABÉTICA PERFECTA ---
 function handleSearchPlate() {
     const searchTerm = document.getElementById('searchPlate').value.trim().toUpperCase();
     let filtered = allPlatesData;
@@ -222,7 +218,6 @@ function updateSortIcons() {
     if (currentIcon) { currentIcon.innerHTML = currentSort.direction === 'asc' ? '<i class="fas fa-sort-up ml-1 text-blue-400"></i>' : '<i class="fas fa-sort-down ml-1 text-blue-400"></i>'; }
 }
 
-// --- RENDERIZAR TABLA PRINCIPAL ---
 function renderPlates(platesToRender) {
     const tableBody = document.getElementById('platesTableBody');
     tableBody.innerHTML = '';
@@ -233,7 +228,8 @@ function renderPlates(platesToRender) {
         const isBDestroyed = !!b.LoteDestruccion && b.LoteDestruccion.trim() !== "";
         if (isADestroyed !== isBDestroyed) return isADestroyed ? 1 : -1; 
         
-        let aVal = a[currentSort.column] || '', bVal = b[currentSort.column] || '';
+        let aVal = a[currentSort.column] || '';
+        let bVal = b[currentSort.column] || '';
         
         if (currentSort.column === 'FECHA_AGREGADA') {
             aVal = aVal ? new Date(aVal).getTime() : 0; bVal = bVal ? new Date(bVal).getTime() : 0;
@@ -241,7 +237,7 @@ function renderPlates(platesToRender) {
             if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
             return 0;
         } else {
-            // Ordenación alfabética perfecta reconociendo acentos (ej: España vs Francia)
+            // Ordenación alfabética perfecta reconociendo acentos
             const cmp = String(aVal).localeCompare(String(bVal), 'es', { sensitivity: 'base' });
             return currentSort.direction === 'asc' ? cmp : -cmp;
         }
@@ -254,7 +250,7 @@ function renderPlates(platesToRender) {
     platesToRender.forEach((placa, i) => {
         const isAssigned = placa.LoteDestruccion && placa.LoteDestruccion.trim() !== "";
         const assignedLotName = isAssigned ? placa.LoteDestruccion.trim() : "";
-        const isLotLocked = isAssigned && lotMetadataGlobal[assignedLotName]?.estado === 'destruido';
+        const isLotLocked = isAssigned && lotMetadataGlobal[assignedLotName]?.estado === 'destruidas';
         
         const rowClass = isAssigned ? (isLotLocked ? 'bg-red-900 bg-opacity-10 text-gray-400' : 'bg-emerald-900 bg-opacity-20 text-gray-400') : 'hover:bg-slate-800 transition';
         const fechaFormat = placa.FECHA_AGREGADA ? new Date(placa.FECHA_AGREGADA).toLocaleDateString('es-ES') : '';
@@ -311,7 +307,7 @@ async function executeGenerateLot(plateIdsArray) {
     }
 }
 
-// --- PANEL DE LOTES CREADOS (NUEVO BLINDAJE) ---
+// --- PANEL DE LOTES CREADOS (SISTEMA DE CANDADO DE SEGURIDAD) ---
 function loadLotAdministrationPanel() {
     const tbody = document.getElementById('lotAdminBody');
     tbody.innerHTML = '';
@@ -324,7 +320,7 @@ function loadLotAdministrationPanel() {
         row.className = 'hover:bg-slate-800 transition';
         
         const metadata = lotMetadataGlobal[lotName] || {};
-        const isLocked = metadata.estado === 'destruido';
+        const isLocked = metadata.estado === 'destruidas';
         const dateMatch = lotName.match(/\((.*?)\)/);
         
         row.innerHTML = `
@@ -339,14 +335,15 @@ function loadLotAdministrationPanel() {
             <td class="p-3">
                 <div class="flex flex-wrap gap-2 items-center">
                     ${isLocked ? `
-                        <span class="bg-red-900/40 text-red-400 border border-red-800 px-3 py-1.5 rounded text-xs font-bold mr-2"><i class="fas fa-lock mr-1"></i> DESTRUIDO</span>
+                        <span class="bg-red-900/40 text-red-400 border border-red-800 px-3 py-1.5 rounded text-xs font-bold mr-2"><i class="fas fa-lock mr-1"></i> DESTRUIDAS</span>
                         <button class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.consultLot('${lotName}')"><i class="fas fa-search"></i></button>
                         <button class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.downloadLotPDF('${lotName}', event)"><i class="fas fa-file-pdf"></i></button>
+                        <button class="bg-gray-600 hover:bg-gray-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.unlockLot('${lotName}')"><i class="fas fa-lock-open"></i> Abrir</button>
                     ` : `
                         <button class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.consultLot('${lotName}')"><i class="fas fa-search"></i> Consultar</button>
                         <button class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.downloadLotPDF('${lotName}', event)"><i class="fas fa-file-pdf"></i> PDF</button>
                         <button class="bg-orange-600 hover:bg-orange-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.undoLot('${lotName}')"><i class="fas fa-undo"></i> Deshacer</button>
-                        <button class="bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.destroyLot('${lotName}')"><i class="fas fa-fire"></i> Destruir</button>
+                        <button class="bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.destroyLot('${lotName}')"><i class="fas fa-lock"></i> Destruir</button>
                     `}
                 </div>
             </td>
@@ -362,17 +359,22 @@ function loadLotAdministrationPanel() {
     });
 }
 
-// Bloquear Lote Definitivamente
+// Funciones de Candado
 window.destroyLot = async (lotName) => {
-    if(confirm(`⚠️ CUIDADO: Vas a confirmar la destrucción física de las placas del ${lotName}.\n\nUna vez marcado como DESTRUIDO, este lote quedará BLINDADO: no podrás deshacerlo ni modificarlo.\n\n¿Estás completamente seguro de continuar?`)) {
+    if(confirm(`¿Deseas activar el candado de seguridad en el ${lotName}?\n\nEl lote pasará a estar protegido como DESTRUIDAS, desactivando el botón de deshacer para evitar accidentes.`)) {
         try {
-            await update(ref(database, `lotes/${lotName}`), { estado: 'destruido' });
-            alert(`🔒 El ${lotName} ha sido blindado exitosamente.`);
+            await update(ref(database, `lotes/${lotName}`), { estado: 'destruidas' });
             await loadPlates();
-        } catch (error) {
-            console.error(error);
-            alert("Error al destruir el lote.");
-        }
+        } catch (error) { console.error(error); alert("Error al bloquear el lote."); }
+    }
+};
+
+window.unlockLot = async (lotName) => {
+    if(confirm(`🔓 ¿Quitar el candado de seguridad del ${lotName}?\n\nVolverá a estar disponible para modificaciones o para deshacer el lote.`)) {
+        try {
+            await update(ref(database, `lotes/${lotName}`), { estado: 'pendiente' });
+            await loadPlates();
+        } catch (error) { console.error(error); alert("Error al desbloquear el lote."); }
     }
 };
 
@@ -391,7 +393,7 @@ window.consultLot = (lotName) => {
 
 window.undoLot = async (lotName) => {
     const metadata = lotMetadataGlobal[lotName];
-    if (metadata && metadata.estado === 'destruido') { return alert("Acción denegada. Este lote está blindado."); }
+    if (metadata && metadata.estado === 'destruidas') { return alert("Acción denegada. El candado está puesto. Quítalo primero."); }
     
     if (confirm(`¿Estás seguro de deshacer el ${lotName}? Las placas volverán a estar pendientes.`)) {
         const updates = {};
@@ -403,10 +405,9 @@ window.undoLot = async (lotName) => {
 };
 
 // ==========================================
-// GENERACIÓN DE PDF: BASE64 E INCRUSTACIÓN
+// GENERACIÓN DE PDF: INCRUSTACIÓN BASE64 Y LOGOS ESPECÍFICOS
 // ==========================================
 
-// Función auxiliar para forzar la carga de la imagen en Base64
 async function getBase64ImageFromUrl(imageUrl) {
     return new Promise((resolve) => {
         const img = new Image();
@@ -418,7 +419,7 @@ async function getBase64ImageFromUrl(imageUrl) {
             ctx.drawImage(img, 0, 0);
             resolve(canvas.toDataURL('image/png'));
         };
-        img.onerror = () => resolve(null); // Si falla, devolvemos null para no romper el PDF
+        img.onerror = () => resolve(null); 
         img.src = imageUrl;
     });
 }
@@ -442,17 +443,15 @@ window.downloadLotPDF = async (lotName, event) => {
 async function generatePDFForLot(lotName, platesArray) {
     if (!platesArray || platesArray.length === 0) return alert("No hay datos para exportar.");
     
-    // ORDENACIÓN ALFABÉTICA OBLIGATORIA POR MATRÍCULA
     platesArray.sort((a, b) => (a.PLACA || '').localeCompare(b.PLACA || ''));
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     
-    // 1. OBTENER IMÁGENES EN BASE64
-    const logoIzquierda = await getBase64ImageFromUrl('../ASSETS/judicial.png') || await getBase64ImageFromUrl('../ASSETS/logodestructora.png'); 
+    // 1. OBTENER IMÁGENES ESPECÍFICAS PARA EL PDF
+    const logoIzquierda = await getBase64ImageFromUrl('../ASSETS/judicial.png'); 
     const logoDerecha = await getBase64ImageFromUrl('../ASSETS/logogad.png');
 
-    // 2. INCRUSTAR LOGOS O DIBUJAR RECUADRO SI FALLAN
     if(logoIzquierda) {
         doc.addImage(logoIzquierda, 'PNG', 14, 10, 25, 25);
     } else {
@@ -465,7 +464,6 @@ async function generatePDFForLot(lotName, platesArray) {
         doc.setDrawColor(200, 200, 200); doc.rect(171, 10, 25, 25); doc.text("logogad.png", 173, 23);
     }
 
-    // 3. CABECERA: TEXTO CENTRAL EXACTO
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text("EXCMO. AYUNTAMIENTO DE ALICANTE", 105, 12, { align: "center" });
@@ -483,7 +481,6 @@ async function generatePDFForLot(lotName, platesArray) {
     doc.text("TEL: +34629111387 - Central PL 965107200", 105, 38, { align: "center" });
     doc.line(14, 42, 196, 42);
 
-    // 4. TÍTULO DEL LOTE Y FECHA
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text(`Registro GAD - Placas del ${lotName}`, 14, 49);
@@ -494,7 +491,6 @@ async function generatePDFForLot(lotName, platesArray) {
     const formattedDate = today.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     doc.text(`Generado el: ${formattedDate} - Total Placas: ${platesArray.length}`, 14, 54);
 
-    // 5. PREPARACIÓN DE DATOS A 3 COLUMNAS
     const bodyData = [];
     for (let i = 0; i < platesArray.length; i += 3) {
         const row = [];
@@ -503,13 +499,12 @@ async function generatePDFForLot(lotName, platesArray) {
                 const p = platesArray[i + j];
                 row.push(i + j + 1, p.PAIS || '', p.PLACA || '');
             } else {
-                row.push('', '', ''); // Rellenos vacíos para cuadrar columnas
+                row.push('', '', ''); 
             }
         }
         bodyData.push(row);
     }
 
-    // 6. TABLA COMPACTA DE 3 COLUMNAS
     doc.autoTable({
         startY: 58,
         head: [['#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA']],
@@ -525,7 +520,6 @@ async function generatePDFForLot(lotName, platesArray) {
         margin: { left: 14, right: 14, bottom: 20 }
     });
     
-    // 7. ESPACIO PARA FIRMAS Y SELLO AL FINAL DEL DOCUMENTO
     let finalY = doc.lastAutoTable.finalY || 58;
     if (finalY > 240) { doc.addPage(); finalY = 20; } else { finalY += 15; }
 
