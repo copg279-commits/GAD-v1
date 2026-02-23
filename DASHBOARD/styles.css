@@ -39,19 +39,17 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .loading-bar { position: absolute; top:0; left:0; height: 100%; width: 50%; background: var(--cyan); animation: loading-scan 2s infinite ease-in-out; box-shadow: 0 0 15px var(--cyan); }
 @keyframes loading-scan { 0% { left: -50%; } 100% { left: 100%; } }
 
-/* --- ESTRUCTURA PRINCIPAL (FLUIDA Y EXPANSIVA) --- */
+/* --- ESTRUCTURA PRINCIPAL (SCROLL REPARADO) --- */
 #main-scroll-area {
     flex: 1; 
     overflow-y: auto; overflow-x: hidden;
-    padding: 20px 0 150px 0; /* Espacio crítico para que el último botón no quede tapado por el footer */
+    padding: 10px 0 150px 0; /* Padding inferior grande para que el footer no tape el final */
     position: relative; z-index: 1;
-    display: flex; flex-direction: column; justify-content: flex-start;
+    display: block; /* ESTO ARREGLA EL SCROLL */
 }
 
-/* El contenedor principal ahora ocupa el 96% para dejar botones muy anchos */
 .main-content-wrapper { 
-    width: 96%; 
-    max-width: 1400px; /* Permitimos que crezca muchísimo en pantallas ultra-panorámicas */
+    width: 96%; max-width: 1400px; 
     margin: 0 auto; padding: 25px;
     background: radial-gradient(circle at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 100%);
     border-radius: 20px;
@@ -61,7 +59,8 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 
 /* --- TÍTULOS Y TEXTOS --- */
 .title-container h1 { 
-    font-size: 2.2rem; text-align: center; margin: 10px 0 5px 0; 
+    font-size: 2.2rem; text-align: center; 
+    margin: 10px 80px 5px 80px; /* Márgenes laterales para no chocar con los botones flotantes */
     color: var(--cyan);
     text-shadow: 0 0 15px rgba(0, 240, 255, 0.8), 0 2px 4px #000;
     text-transform: uppercase; font-weight: 900;
@@ -80,33 +79,20 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 }
 
 /* --- GRID DE BOTONES --- */
-#main-menu-grid { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; /* Siempre 2 columnas */
-    gap: 20px; 
-    padding-bottom: 10px; 
-}
+#main-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-bottom: 10px; }
 .full-width { grid-column: 1 / -1; }
 
 .tech-btn svg, .tech-btn .energy-beam { display: none !important; }
 
 .tech-btn {
-    position: relative; 
-    min-height: 110px; height: auto;
-    background: rgba(0, 0, 0, 0.5); 
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border); 
-    border-radius: 10px; 
+    position: relative; min-height: 110px; height: auto;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border); border-radius: 10px; 
     cursor: pointer; display: flex; align-items: center; justify-content: center;
     padding: 20px 15px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.tech-btn:hover { 
-    transform: translateY(-4px) scale(1.02); 
-    background: rgba(0, 240, 255, 0.1); 
-    box-shadow: 0 8px 25px rgba(0, 240, 255, 0.3);
-    border-color: var(--cyan);
-}
+.tech-btn:hover { transform: translateY(-4px) scale(1.02); background: rgba(0, 240, 255, 0.1); box-shadow: 0 8px 25px rgba(0, 240, 255, 0.3); border-color: var(--cyan); }
 
 .tech-btn.color-alert { border-color: rgba(239, 68, 68, 0.6); }
 .tech-btn.color-alert:hover { border-color: var(--red); background: rgba(239, 68, 68, 0.1); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3); }
@@ -124,14 +110,10 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .tech-btn.color-success .tech-label i { color: var(--green); }
 
 .tech-label {
-    position: relative; z-index: 10; 
-    color: #fff; font-size: 1.1rem; font-weight: 700;
-    text-transform: uppercase; text-align: center; 
-    text-shadow: 0 2px 5px #000, 0 0 10px rgba(0, 240, 255, 0.5);
-    line-height: 1.4;
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
-    word-wrap: break-word; 
-    transition: font-size 0.3s ease;
+    position: relative; z-index: 10; color: #fff; font-size: 1.1rem; font-weight: 700;
+    text-transform: uppercase; text-align: center; text-shadow: 0 2px 5px #000, 0 0 10px rgba(0, 240, 255, 0.5);
+    line-height: 1.4; display: flex; flex-direction: column; align-items: center; gap: 10px;
+    word-wrap: break-word; transition: font-size 0.3s ease;
 }
 .tech-label i { font-size: 1.8rem; color: var(--cyan); display: block; }
 
@@ -158,7 +140,7 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .counter-card.total .counter-number { color: var(--green); text-shadow: 0 0 8px var(--green); }
 .counter-header { font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
 
-/* --- SIDEBAR Y BOTÓN FLOTANTE --- */
+/* --- SIDEBAR Y BOTONES FLOTANTES --- */
 #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 9998; backdrop-filter: blur(5px); }
 .side-panel { position: fixed; top: 0; left: 0; height: 100%; width: 320px; border-right: 2px solid var(--cyan); z-index: 9999; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-radius: 0 15px 15px 0; }
 .sidebar-header { padding: 25px; border-bottom: 1px solid rgba(0, 240, 255, 0.2); color: var(--cyan); display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem;}
@@ -169,8 +151,9 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .sidebar-footer { margin-top: auto; padding: 25px; border-top: 1px solid rgba(0, 240, 255, 0.2); }
 .children-container { background: rgba(0,0,0,0.3); }
 
-#sidebar-toggle-float {
-    position: fixed; top: 25px; left: 25px; z-index: 1000;
+/* Botones circulares (Menú a la izquierda, Atrás a la derecha) */
+#sidebar-toggle-float, #global-back-btn {
+    position: fixed; top: 25px; z-index: 1000;
     width: 60px; height: 60px;
     background: rgba(6, 11, 25, 0.85); backdrop-filter: blur(10px);
     border: 2px solid var(--cyan); border-radius: 50%;
@@ -179,7 +162,10 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
     box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
     transition: all 0.3s;
 }
-#sidebar-toggle-float:hover { background: var(--cyan); color: #000; box-shadow: 0 0 30px var(--cyan); transform: scale(1.05); }
+#sidebar-toggle-float { left: 25px; }
+#global-back-btn { right: 25px; }
+
+#sidebar-toggle-float:hover, #global-back-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 30px var(--cyan); transform: scale(1.05); }
 
 
 /* --- MODALES E IFRAME --- */
@@ -209,65 +195,48 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 #iframe-back-float:hover { transform: scale(1.1); }
 
 /* --- FOOTER FIJO --- */
-/* Al sacarlo fuera del contenedor en el HTML, ahora sí se fijará a la base de la pantalla */
 footer { 
-    position: fixed; 
-    bottom: 0; left: 0; width: 100%;
-    background: rgba(6, 11, 25, 0.95); /* Casi opaco para que no se mezcle con nada */
-    backdrop-filter: blur(10px);
+    position: fixed; bottom: 0; left: 0; width: 100%;
+    background: rgba(6, 11, 25, 0.95); backdrop-filter: blur(10px);
     border-top: 2px solid rgba(0, 240, 255, 0.5);
-    padding: 12px 0;
-    text-align: center; 
-    font-size: 0.9rem; 
-    color: #ffffff; 
-    font-family: 'Orbitron', sans-serif; 
-    letter-spacing: 1px; 
-    line-height: 1.6;
+    padding: 12px 0; text-align: center; font-size: 0.9rem; 
+    color: #ffffff; font-family: 'Orbitron', sans-serif; 
+    letter-spacing: 1px; line-height: 1.6;
     text-shadow: 2px 2px 5px #000, -2px -2px 5px #000, 0 0 15px #000; 
-    font-weight: 700;
-    z-index: 9999; /* Por encima de absolutamente todo */
+    font-weight: 700; z-index: 9999; 
 }
 
 /* =======================================================
    REGLAS PARA ADAPTARSE DINÁMICAMENTE A LA PANTALLA
 ======================================================= */
-/* Cuando estrechas el navegador a tamaño tablet/móvil ancho */
 @media (max-width: 900px) {
-    .main-content-wrapper { 
-        width: 98%; /* Ocupa casi el 100% del ancho */
-        padding: 15px; 
-    }
-    
-    .title-container h1 { font-size: 1.7rem; }
+    .main-content-wrapper { width: 98%; padding: 15px; }
+    .title-container h1 { font-size: 1.7rem; margin: 10px 70px 5px 70px; }
     #user-info-display { font-size: 0.9rem; }
-    
     #main-menu-grid { gap: 15px; }
-    
     .tech-btn { min-height: 95px; padding: 15px 10px; }
     .tech-label { font-size: 0.95rem; }
 }
 
-/* Cuando estrechas al máximo (tamaño móvil vertical) */
 @media (max-width: 600px) {
-    .main-content-wrapper { 
-        width: 100%; /* Aprovecha el máximo absoluto */
-        padding: 10px; 
-        border-radius: 10px;
-    }
+    .main-content-wrapper { width: 100%; padding: 10px; border-radius: 10px; }
 
-    /* Empujamos todo un poco hacia abajo para que el botón circular no moleste */
-    .title-container { padding-top: 60px; }
-    .title-container h1 { font-size: 1.4rem; }
-    #user-info-display { font-size: 0.8rem; margin-bottom: 25px; }
-
-    #sidebar-toggle-float {
-        width: 48px; height: 48px; 
-        font-size: 1.3rem;
-        top: 15px; left: 15px;
+    /* AHORRAMOS ESPACIO: Título pequeño y entre los dos botones */
+    .title-container h1 { 
+        font-size: 1.25rem; 
+        margin: 15px 55px 5px 55px; /* Evita pisar los botones de las esquinas */
     }
+    #user-info-display { font-size: 0.75rem; margin-bottom: 20px; }
+
+    /* Botones flotantes (Menú y Atrás) más pequeños en móvil */
+    #sidebar-toggle-float, #global-back-btn {
+        width: 45px; height: 45px; 
+        font-size: 1.3rem; top: 15px;
+    }
+    #sidebar-toggle-float { left: 10px; }
+    #global-back-btn { right: 10px; }
 
     #main-menu-grid { gap: 12px; }
-
     .tech-btn { min-height: 85px; padding: 12px 8px; }
     .tech-label { font-size: 0.8rem; gap: 6px; }
     .tech-label i { font-size: 1.5rem; }
