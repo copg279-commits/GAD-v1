@@ -68,10 +68,6 @@
 </footer>
 
 <div id="iframe-viewer-area">
-    </div>
-</div>
-
-<div id="iframe-viewer-area">
     <iframe id="content-iframe"></iframe>
     <div id="iframe-back-float" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> RETORNAR</div>
 </div>
@@ -125,65 +121,6 @@
         
         <button id="save-button-changes" class="cyber-button confirm-btn">GUARDAR CAMBIOS</button>
         <button onclick="delBtn(document.getElementById('edit-button-id').value)" class="cyber-button delete-btn">ELIMINAR NODO</button>
-    </div>
-</div>
-
-<div id="add-button-modal" class="modal-overlay">
-    <div class="modal large-modal" style="height: auto;">
-        <span class="modal-close" onclick="document.getElementById('add-button-modal').style.display='none'">&times;</span>
-        <h2>NUEVO NODO</h2>
-        
-        <div class="input-group">
-            <label>TEXTO DEL BOTÓN:</label>
-            <input type="text" id="new-button-text" class="cyber-input" placeholder="Nombre del botón">
-        </div>
-        
-        <div class="flex-row">
-            <div class="input-group half">
-                <label>TIPO:</label>
-                <select id="new-button-type" class="cyber-input">
-                    <option value="link">Enlace / Documento</option>
-                    <option value="parent">Submenú (Carpeta)</option>
-                </select>
-            </div>
-            <div class="input-group half">
-                <label>TAMAÑO:</label>
-                <select id="new-button-size" class="cyber-input">
-                    <option value="normal">Normal (Mitad)</option>
-                    <option value="full-width">Completo (Largo)</option>
-                </select>
-            </div>
-        </div>
-        
-        <button id="save-new-button" class="cyber-button confirm-btn">CREAR NODO</button>
-    </div>
-</div>
-
-<div id="add-button-modal" class="modal-overlay">
-    <div class="modal">
-        <span class="modal-close" onclick="document.getElementById('add-button-modal').style.display='none'">&times;</span>
-        <h2>NUEVO NODO</h2>
-        <div class="input-group">
-            <label>TEXTO DEL BOTÓN:</label>
-            <input type="text" id="new-button-text" class="cyber-input" placeholder="Nombre del botón">
-        </div>
-        <div class="flex-row">
-            <div class="input-group half">
-                <label>TIPO:</label>
-                <select id="new-button-type" class="cyber-input">
-                    <option value="link">Enlace / Documento</option>
-                    <option value="parent">Submenú (Carpeta)</option>
-                </select>
-            </div>
-            <div class="input-group half">
-                <label>TAMAÑO:</label>
-                <select id="new-button-size" class="cyber-input">
-                    <option value="normal">Normal (Mitad)</option>
-                    <option value="full-width">Completo (Largo)</option>
-                </select>
-            </div>
-        </div>
-        <button id="save-new-button" class="confirm-btn">CREAR NODO</button>
     </div>
 </div>
 

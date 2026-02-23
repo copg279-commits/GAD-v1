@@ -274,16 +274,16 @@ function renderSidebarTree(parentId, container) {
 // ================= VISOR DE IFRAME (CON AUTO-RUTAS) =================
 
 function showContent(data) {
-    if (!data.href) {
-        alert("Este botón no tiene un enlace configurado.");
+    const viewer = document.getElementById('iframe-viewer-area'); 
+    const iframe = document.getElementById('content-iframe');
+    const backBtn = document.getElementById('iframe-back-float');
+
+    if (!data.href && !data.htmlCode) {
+        alert("Este botón no tiene contenido configurado.");
         return;
     }
     
     history.pushState({ page: 'content' }, '', '');
-    const viewer = document.getElementById('iframe-viewer-area'); 
-    const iframe = document.getElementById('content-iframe');
-    const backBtn = document.getElementById('iframe-back-float');
-    
     document.getElementById('main-scroll-area').style.display = 'none'; 
     viewer.style.display = 'block'; 
     
@@ -292,23 +292,30 @@ function showContent(data) {
          if(backBtn) backBtn.style.display = 'block';
     }, 100);
 
-    // --- NUEVA MAGIA A PRUEBA DE GITHUB ---
-    let finalUrl = data.href.trim();
-    
-    // 1. Convertimos los espacios en formato web (%20) para que GitHub no dé error
-    finalUrl = finalUrl.replace(/ /g, '%20');
+    // PRIORIDAD 1: Si hay Código HTML (como en tu dashboard antiguo)
+    if (data.htmlCode) {
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(data.htmlCode);
+        doc.close();
+        return;
+    }
 
-    // 2. Si no es un enlace externo, y no le hemos puesto "../" a mano...
+    // PRIORIDAD 2: Si es un Enlace (URL)
+    let finalUrl = data.href.trim();
+    finalUrl = finalUrl.replace(/ /g, '%20'); // Corregir espacios para GitHub
+
+    // Si NO es un enlace externo (http) y NO tiene ya el salto de carpeta (../)
     if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../')) {
-        // Por si acaso en la base de datos lo escribiste con barra inicial (ej: /inventario.html)
-        if (finalUrl.startsWith('/')) {
-            finalUrl = finalUrl.substring(1); 
-        }
-        // Le añadimos el salto de carpeta hacia atrás
+        // Si empieza por carpeta raíz, quitamos la barra
+        if (finalUrl.startsWith('/')) finalUrl = finalUrl.substring(1);
+        
+        // AÑADIMOS EL SALTO: Como index.html está en /DASHBOARD/, 
+        // necesitamos ../ para ir a la carpeta principal de GitHub
         finalUrl = '../' + finalUrl;
     }
 
-    console.log("Intentando cargar:", finalUrl); // Chivato para la consola
+    console.log("Cargando recurso en:", finalUrl);
     iframe.src = finalUrl; 
 }
 
