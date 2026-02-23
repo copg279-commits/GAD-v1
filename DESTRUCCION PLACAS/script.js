@@ -449,7 +449,7 @@ async function generatePDFForLot(lotName, platesArray) {
     const doc = new jsPDF();
     
     // 1. OBTENER IMÁGENES EN BASE64
-    const logoIzquierda = await getBase64ImageFromUrl('../ASSETS/judicial.png') || await getBase64ImageFromUrl('../ASSETS/logoora.png'); 
+    const logoIzquierda = await getBase64ImageFromUrl('../ASSETS/judicial.png') || await getBase64ImageFromUrl('../ASSETS/logodestructora.png'); 
     const logoDerecha = await getBase64ImageFromUrl('../ASSETS/logogad.png');
 
     // 2. INCRUSTAR LOGOS O DIBUJAR RECUADRO SI FALLAN
