@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Menú GAD V5 - Elite Cyber Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<svg style="position: absolute; width: 0; height: 0;">
+    <defs>
+        <linearGradient id="blue-green-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00f0ff" />   <stop offset="100%" stop-color="#00ff9d" /> 
+        </linearGradient>
+    </defs>
+</svg>
+
+<div id="loading-screen">
+    <div class="loading-content">
+        <i class="fas fa-shield-alt fa-spin fa-3x mb-4" style="color: var(--cyan);"></i>
+        <h2 style="font-family: 'Orbitron'; letter-spacing: 2px;">INICIANDO SISTEMA GAD V5</h2>
+        <div class="loading-bar-container"><div class="loading-bar"></div></div>
+    </div>
+</div>
+
+<div id="main-scroll-area">
+    
+    <div class="main-content-wrapper">
+        <div class="title-container animate-fade-in-down">
+            <h1 id="main-title-text">UNIDAD GAD: INTERFAZ DE MANDO</h1>
+            <div id="user-info-display">ESTABLECIENDO ENLACE NEURAL...</div>
+        </div>
+
+        <div id="main-menu-grid" class="animate-fade-in-up"></div>
+
+        <div class="bottom-controls animate-fade-in-up" style="animation-delay: 0.3s;">
+            <button id="admin-toggle-btn" class="cyber-button glow-effect"><i class="fas fa-terminal"></i> CONSOLA DE MANDO</button>
+            
+            <div id="user-controls" style="display:none; width: 100%;">
+                 <button id="btn-logout-user" class="cyber-button btn-logout" style="width:100%"><i class="fas fa-sign-out-alt"></i> CERRAR SESIÓN</button>
+            </div>
+        </div>
+        
+        <div class="controls-container glass-panel" id="admin-panel">
+            <div id="counters-row"></div>
+            <div class="admin-grid">
+                <button id="show-edit-menu-modal" class="admin-btn"><i class="fas fa-edit"></i> EDITAR UI</button>
+                <button id="show-manage-users-modal" class="admin-btn"><i class="fas fa-users"></i> AGENTES</button>
+                <button id="show-full-log-modal" class="admin-btn"><i class="fas fa-list"></i> REGISTROS</button>
+                <button onclick="window.location.href='PROMTS.html'" class="admin-btn"><i class="fas fa-robot"></i> IA PROMPTS</button>
+                <button onclick="window.open('COPIA SEGURIDAD FIREBASE.html')" class="admin-btn"><i class="fas fa-save"></i> BACKUP DATA</button>
+                <button id="btn-logout" class="admin-btn btn-logout full-span"><i class="fas fa-power-off"></i> DESCONEXIÓN SEGURA</button>
+            </div>
+        </div>
+
+        <footer>
+            GRUPO DE ANÁLISIS DOCUMENTAL // POLICÍA LOCAL DE ALICANTE // SISTEMA OPERATIVO V5.0 // CONEXIÓN CIFRADA
+        </footer>
+    </div>
+</div>
+
+<div id="iframe-viewer-area">
+    <iframe id="content-iframe"></iframe>
+    <div id="iframe-back-float" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> RETORNAR</div>
+</div>
+
+<div id="sidebar-overlay"></div>
+<div id="sidebar-menu" class="glass-panel side-panel">
+     <div class="sidebar-header">
+         <h2><i class="fas fa-sitemap"></i> NAVEGACIÓN TÁCTICA</h2>
+         <i class="fas fa-times" id="close-sidebar"></i>
+     </div>
+     <div id="sidebar-tree-container"></div>
+     <div class="sidebar-footer">
+         <button class="sidebar-back-btn cyber-button" onclick="window.history.back(); closeSidebar();">VOLVER AL NIVEL SUPERIOR</button>
+     </div>
+</div>
+
+<div id="edit-button-modal" class="modal-overlay">
+    <div class="modal glass-panel">
+        <span class="modal-close" onclick="document.getElementById('edit-button-modal').style.display='none'">&times;</span>
+        <h2>EDITAR NODO DE DATOS</h2>
+        <input type="hidden" id="edit-button-id">
+        <div class="input-group">
+            <label>Etiqueta del Botón:</label>
+            <input type="text" id="edit-button-text" class="cyber-input" placeholder="Ej: Protocolo Alpha">
+        </div>
+        <div class="input-group">
+            <label>Enlace Externo (URL):</label>
+            <input type="text" id="edit-button-href" class="cyber-input" placeholder="https://...">
+        </div>
+        <div class="input-group">
+            <label>Código Embebido (HTML):</label>
+            <textarea id="edit-button-html-code" rows="5" class="cyber-input" placeholder="<iframe> o contenido raw"></textarea>
+        </div>
+        
+        <div class="flex-row">
+            <div class="input-group half">
+                <label>Tamaño de Módulo:</label>
+                <select id="edit-button-size" class="cyber-input">
+                    <option value="normal">Estándar (1/2)</option>
+                    <option value="full-width">Completo (Full)</option>
+                </select>
+            </div>
+            <div class="input-group half">
+                <label>Esquema de Color:</label>
+                <select id="edit-button-color-select" class="cyber-input">
+                    <option value="#00f0ff">Cyan (Sistema)</option>
+                    <option value="#ef4444">Rojo (Crítico)</option>
+                    <option value="#f59e0b">Ámbar (Precaución)</option>
+                    <option value="#10b981">Verde (Seguro)</option>
+                </select>
+            </div>
+        </div>
+        <button id="save-button-changes" class="cyber-button confirm-btn">GUARDAR CONFIGURACIÓN</button>
+        <button onclick="delBtn(document.getElementById('edit-button-id').value)" class="cyber-button delete-btn">ELIMINAR NODO</button>
+    </div>
+</div>
+
+<div id="add-button-modal" class="modal-overlay">
+    <div class="modal glass-panel">
+        <span class="modal-close" onclick="document.getElementById('add-button-modal').style.display='none'">&times;</span>
+        <h2>INICIALIZAR NUEVO NODO</h2>
+        <input type="text" id="new-button-text" class="cyber-input" placeholder="Nombre del módulo">
+        <div class="flex-row">
+            <select id="new-button-type" class="cyber-input half">
+                <option value="link">Enlace / Documento</option>
+                <option value="parent">Subdirectorio (Carpeta)</option>
+            </select>
+            <select id="new-button-size" class="cyber-input half">
+                <option value="normal">Tamaño Estándar</option>
+                <option value="full-width">Ancho Completo</option>
+            </select>
+        </div>
+        <textarea id="new-button-html-code" rows="4" class="cyber-input" placeholder="HTML Code (Opcional)"></textarea>
+        <button id="save-new-button" class="cyber-button confirm-btn">CREAR NODO</button>
+    </div>
+</div>
+
+<div id="manage-users-modal" class="modal-overlay">
+    <div class="modal glass-panel">
+        <span class="modal-close" onclick="document.getElementById('manage-users-modal').style.display='none'">&times;</span>
+        <h2>CONTROL DE ACCESO BIOMÉTRICO</h2>
+        <div class="flex-row">
+            <input type="email" id="new-user-email" class="cyber-input" style="flex:2" placeholder="ID Google (Gmail)">
+            <input type="text" id="new-user-alias" class="cyber-input" style="flex:1" placeholder="Alias/Placa">
+        </div>
+        <button id="add-user-button" class="cyber-button confirm-btn">AUTORIZAR CREDENCIALES</button>
+        <div id="user-list-container" class="cyber-list"></div>
+    </div>
+</div>
+
+<div id="full-log-modal" class="modal-overlay">
+    <div class="modal glass-panel large-modal">
+        <span class="modal-close" onclick="document.getElementById('full-log-modal').style.display='none'">&times;</span>
+        <h2>REGISTRO DE EVENTOS DEL SISTEMA</h2>
+        <div id="full-log-container" class="cyber-terminal"></div>
+    </div>
+</div>
+
+<div id="sidebar-toggle-float" onclick="openSidebar()">
+    <i class="fas fa-bars"></i>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
