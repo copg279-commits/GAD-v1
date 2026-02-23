@@ -1,213 +1,184 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Destrucción de Placas - GAD</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gadBg: '#0f172a', /* slate-900 */
+                        gadPanel: '#1e293b', /* slate-800 */
+                        gadBorder: '#334155', /* slate-700 */
+                        gadAccent: '#3b82f6', /* blue-500 */
+                    }
+                }
+            }
+        }
+    </script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
-    <style>
-        /* PALETA ULTRA OSCURA Y AJUSTES BASE FIJOS */
-        :root {
-            --primary-ora: #3b82f6; 
-            --accent: #60a5fa; 
-            --bg: #111827;          
-            --panel-bg: #1f2937;    
-            --border: #374151;      
-            --text-main: #f3f4f6;   
-            --text-muted: #9ca3af;  
-            --success: #10b981; 
-            --danger: #ef4444;
-        }
-
-        * { box-sizing: border-box; outline: none; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; }
-
-        /* CABECERA PEQUEÑA Y ALINEADA */
-        .header-main { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 10px 20px; 
-            background: linear-gradient(135deg, #0f172a, #1e3a8a); 
-            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
-        }
-        .header-logo-container { 
-            width: 55px; height: 55px; /* TAMAÑO CONTROLADO PARA EL LOGO */
-            display: flex; align-items: center; justify-content: center; 
-        }
-        .header-logo-container img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
-        .header-center { flex-grow: 1; text-align: center; }
-        .header-center h1 { margin: 0; font-size: 1.3em; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* PANELES Y BOTONES */
-        main { padding: 20px; max-width: 1200px; margin: 0 auto; padding-bottom: 90px; }
-        .panel { background: var(--panel-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid var(--border); margin-bottom: 20px; }
-        .panel h3 { color: var(--accent); margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        
-        .btn { border: none; padding: 10px 15px; border-radius: 6px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { background: #059669; }
-        .btn-primary { background: var(--primary-ora); color: white; }
-        .btn-primary:hover { background: #2563eb; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-dark { background: #4b5563; color: white; }
-        .btn-dark:hover { background: #6b7280; }
-
-        /* INPUTS */
-        input[type="text"] { width: 100%; padding: 10px; border-radius: 6px; font-family: 'Inter', sans-serif; background: #111827; border: 1px solid var(--border); color: var(--text-main); font-size: 0.9em; }
-        input[type="text"]:focus { border-color: var(--accent); }
-
-        /* TABLAS OSCURAS */
-        .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); background: #111827; }
-        .gad-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85em; }
-        .gad-table th { background: #0f172a; color: var(--text-muted); padding: 12px; border-bottom: 2px solid var(--border); font-weight: 800; text-transform: uppercase; }
-        .gad-table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-main); }
-        .gad-table tr:hover { background-color: rgba(255,255,255,0.05); }
-
-        /* FOOTER FLOTANTE */
-        .footer-action-bar { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to top, var(--bg) 50%, transparent); pointer-events: none; z-index: 1000; }
-        .circle-action-btn { pointer-events: auto; width: 50px; height: 50px; border-radius: 50%; background-color: var(--primary-ora); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.3em; border: 2px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; text-decoration: none; }
-        .circle-action-btn:hover { background-color: var(--accent); transform: translateY(-3px); }
-
-        /* MODALES */
-        #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; backdrop-filter: blur(2px); }
-        .custom-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--panel-bg); border: 1px solid var(--border); border-radius: 12px; z-index: 2001; width: 95%; max-width: 500px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.8em; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="bg-gadBg text-gray-200 font-sans min-h-screen flex flex-col">
 
-    <div id="auth-loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--accent); font-weight:bold; font-size:1.2em;">
-        <i class="fas fa-shield-alt fa-3x" style="margin-bottom:15px;"></i>
+    <div id="auth-loading-screen" class="fixed inset-0 bg-gadBg z-[9999] flex flex-col items-center justify-center text-blue-400 font-bold text-xl">
+        <i class="fas fa-shield-alt fa-3x mb-4 text-blue-500"></i>
         <span>Verificando credenciales V4...</span>
     </div>
 
-    <header class="header-main">
-        <div class="header-logo-container">
-            <img src="logo1.png" alt="Logo Izq" onerror="this.style.display='none'">
+    <header class="bg-gadPanel border-b border-gadBorder shadow-lg py-3 px-6 flex justify-between items-center">
+        <div class="h-14 w-14 flex items-center justify-center">
+            <img src="ASSETS/logoora.png" alt="Logo Izq" class="max-h-full max-w-full drop-shadow-md" onerror="this.style.display='none'">
         </div>
         
-        <div class="header-center">
-            <h1 id="main-t"><i class="fas fa-trash-alt"></i> Destrucción de Placas</h1>
+        <div class="text-center flex-1 px-4">
+            <h1 class="text-xl md:text-2xl font-black text-white uppercase tracking-wide">
+                <i class="fas fa-trash-alt text-red-500 mr-2"></i> Destrucción de Placas
+            </h1>
         </div>
 
-        <div class="header-logo-container">
-            <img src="logogad.png" alt="Logo Der" onerror="this.style.display='none'">
+        <div class="h-14 w-14 flex items-center justify-center">
+            <img src="ASSETS/logogad.png" alt="Logo GAD" class="max-h-full max-w-full drop-shadow-md" onerror="this.style.display='none'">
         </div>
     </header>
 
-    <main id="main-app-content" style="display:none;">
+    <main id="main-app-content" class="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto" style="display:none;">
         
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
-            <div style="font-size: 1.1em; font-weight: bold;">
-                Total Placas: <span id="plateCounter" style="color: var(--danger);">0</span>
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 bg-gadPanel p-4 rounded-xl border border-gadBorder shadow-md">
+            <div class="text-lg font-bold">
+                Total Placas: <span id="plateCounter" class="text-red-500 text-xl ml-2">0</span>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button id="openNewPlateModal" class="btn btn-success"><i class="fas fa-plus"></i> Nueva Placa</button>
-                <button id="openAnuladasModal" class="btn btn-primary"><i class="fas fa-trash-restore"></i> Devolución (<span id="anuladasCount">0</span>)</button>
+            <div class="flex gap-3 w-full md:w-auto">
+                <button id="openNewPlateModal" class="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold transition shadow-lg"><i class="fas fa-plus-circle mr-2"></i>Nueva Placa</button>
+                <button id="openAnuladasModal" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold transition shadow-lg"><i class="fas fa-trash-restore mr-2"></i>Devolución (<span id="anuladasCount">0</span>)</button>
             </div>
         </div>
 
-        <div class="panel">
-            <h3><i class="fas fa-layer-group"></i> Generación y Consulta Rápida</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+        <div class="bg-gadPanel p-5 rounded-xl shadow-lg mb-8 border border-gadBorder">
+            <h2 class="text-lg font-bold mb-4 text-blue-400 border-b border-gadBorder pb-2"><i class="fas fa-layer-group mr-2"></i>Generación y Consulta Rápida</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
                 <div>
-                    <label style="font-size: 0.8em; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; display: block;">Próximo Lote</label>
-                    <input type="text" id="lotNumber" readonly style="font-weight: 900; color: var(--accent); cursor: default;">
+                    <label class="block text-sm font-bold text-gray-400 mb-1">Próximo Lote</label>
+                    <input type="text" id="lotNumber" readonly class="w-full bg-gadBg border border-gadBorder text-blue-400 font-black rounded-lg p-2.5 outline-none cursor-default">
                 </div>
+                
                 <div>
-                    <button id="generateLotButton" class="btn btn-danger" disabled style="width: 100%; height: 40px; justify-content: center;">
-                        <i class="fas fa-box"></i> Generar Lote <span id="selectedCount">(0)</span>
+                    <button id="generateLotButton" disabled class="w-full bg-red-600 hover:bg-red-500 disabled:bg-gray-600 disabled:text-gray-400 text-white font-bold rounded-lg p-2.5 transition shadow-lg flex justify-center items-center gap-2">
+                        <i class="fas fa-box"></i> Generar Lote <span id="selectedCount" class="font-normal">(0)</span>
                     </button>
                 </div>
-                <div>
-                    <label style="font-size: 0.8em; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; display: block;">Buscar Placa</label>
-                    <input type="text" id="searchPlate" placeholder="Ej: GY846WR" style="text-transform: uppercase;">
+
+                <div class="relative">
+                    <label class="block text-sm font-bold text-gray-400 mb-1">Buscar Placa (Filtro instantáneo)</label>
+                    <div class="relative">
+                        <input type="text" id="searchPlate" placeholder="Ej: 317 o GY846WR" class="w-full bg-gadBg border border-gadBorder focus:border-blue-500 text-white rounded-lg p-2.5 pl-10 uppercase transition outline-none">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="panel">
-            <h3><i class="fas fa-archive"></i> Administración de Lotes Creados</h3>
-            <div class="table-container">
-                <table class="gad-table">
-                    <thead><tr><th>Lote</th><th>EUROCOP</th><th>Total</th><th>Fecha</th><th>Acción</th></tr></thead>
-                    <tbody id="lotAdminBody">
-                        <tr><td colspan="5" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Cargando lotes...</td></tr>
+        <div class="bg-gadPanel p-5 rounded-xl shadow-lg mb-8 border border-gadBorder">
+            <h2 class="text-lg font-bold mb-4 text-blue-400 border-b border-gadBorder pb-2"><i class="fas fa-archive mr-2"></i>Administración de Lotes Creados</h2>
+            <div class="overflow-x-auto rounded-lg border border-gadBorder custom-scrollbar">
+                <table class="min-w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-gadBg text-gray-400 border-b border-gadBorder uppercase font-bold">
+                        <tr><th class="p-3">Lote</th><th class="p-3">EUROCOP</th><th class="p-3">Total</th><th class="p-3">Fecha</th><th class="p-3">Acción</th></tr>
+                    </thead>
+                    <tbody id="lotAdminBody" class="divide-y divide-gadBorder">
+                        <tr><td colspan="5" class="text-center p-4 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando lotes...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <div class="panel">
-            <div class="table-container">
-                <table class="gad-table">
-                    <thead>
+        <div class="bg-gadPanel rounded-xl shadow-lg border border-gadBorder overflow-hidden">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="min-w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-gadBg text-gray-400 border-b border-gadBorder uppercase font-bold">
                         <tr>
-                            <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllCheckbox"></th>
-                            <th>#</th>
-                            <th class="sort-header" data-sort-by="PAIS" style="cursor:pointer;">País <span id="sortIconPAIS"></span></th>
-                            <th class="sort-header" data-sort-by="PLACA" style="cursor:pointer;">Placa <span id="sortIconPLACA"></span></th>
-                            <th class="sort-header" data-sort-by="FECHA_AGREGADA" style="cursor:pointer;">Fecha Agregada <span id="sortIconFECHA_AGREGADA"></span></th>
-                            <th>Estado / Lote</th>
-                            <th style="text-align: center;">Acción</th>
+                            <th class="p-3 text-center w-12"><input type="checkbox" id="selectAllCheckbox" class="w-4 h-4 accent-red-500 cursor-pointer"></th>
+                            <th class="p-3">#</th>
+                            <th class="p-3 cursor-pointer hover:text-white sort-header" data-sort-by="PAIS">País <span class="sort-icon" id="sortIconPAIS"></span></th>
+                            <th class="p-3 cursor-pointer hover:text-white sort-header" data-sort-by="PLACA">Placa <span class="sort-icon" id="sortIconPLACA"></span></th>
+                            <th class="p-3 cursor-pointer hover:text-white sort-header" data-sort-by="FECHA_AGREGADA">Fecha Agregada <span class="sort-icon" id="sortIconFECHA_AGREGADA"></span></th>
+                            <th class="p-3">Estado / Lote</th>
+                            <th class="p-3 text-center">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="platesTableBody">
-                        <tr id="loadingRow"><td colspan="7" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Cargando datos...</td></tr>
+                    <tbody id="platesTableBody" class="divide-y divide-gadBorder">
+                        <tr id="loadingRow"><td colspan="7" class="text-center p-6 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando datos...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <footer class="footer-action-bar">
-        <button id="openMainMenu" class="circle-action-btn" title="Menú Principal"><i class="fas fa-bars"></i></button>
-        <a href="index.html" class="circle-action-btn" title="Volver"><i class="fas fa-arrow-left"></i></a>
-    </footer>
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-40 hidden"></div>
 
-    <div id="modal-overlay"></div>
-    
-    <div id="newPlateModal" class="custom-modal">
-        <h3><i class="fas fa-plus-circle"></i> Añadir Nueva Placa</h3>
-        <div class="form-group"><label>País</label><input type="text" id="newPlateCountry" list="countryDatalist" placeholder="Ej: FRANCIA" style="text-transform: uppercase;"><datalist id="countryDatalist"></datalist></div>
-        <div class="form-group"><label>Número de Placa</label><input type="text" id="newPlateNumber" placeholder="Ej: WX123YZ" style="text-transform: uppercase;"></div>
-        <div style="margin-top:25px; display:flex; justify-content:flex-end; gap:10px;">
-            <button id="closeNewPlateModal" class="btn btn-dark">Cancelar</button>
-            <button id="saveNewPlateButton" class="btn btn-success"><i class="fas fa-save"></i> Guardar</button>
-        </div>
-    </div>
-
-    <div id="consultLotModal" class="custom-modal">
-        <h3 id="consultLotTitle">Placas del Lote</h3>
-        <div style="max-height: 250px; overflow-y: auto; background: #111827; border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 20px;">
-            <ul id="consultLotList" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;"></ul>
-        </div>
-        <div style="display:flex; justify-content:space-between; gap: 10px;">
+    <div id="newPlateModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-md rounded-xl shadow-2xl z-50 p-6 hidden">
+        <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2"><i class="fas fa-plus-circle mr-2"></i>Añadir Nueva Placa</h3>
+        <div class="space-y-4">
             <div>
-                <button id="exportLotToExcelButton" class="btn btn-success"><i class="fas fa-file-excel"></i> Excel</button>
-                <button id="exportLotToPDFButton" class="btn btn-danger"><i class="fas fa-file-pdf"></i> PDF</button>
+                <label class="block text-sm font-bold text-gray-400 mb-1">País</label>
+                <input type="text" id="newPlateCountry" list="countryDatalist" class="w-full bg-gadBg border border-gadBorder focus:border-blue-500 text-white rounded-lg p-2.5 uppercase outline-none" placeholder="Ej: ESPAÑA">
+                <datalist id="countryDatalist"></datalist>
             </div>
-            <button id="closeConsultLotModal" class="btn btn-dark">Cerrar</button>
+            <div>
+                <label class="block text-sm font-bold text-gray-400 mb-1">Número de Placa</label>
+                <input type="text" id="newPlateNumber" class="w-full bg-gadBg border border-gadBorder focus:border-blue-500 text-white rounded-lg p-2.5 uppercase outline-none" placeholder="Ej: 1234ABC">
+            </div>
+            <div class="flex justify-end gap-3 pt-4 mt-2 border-t border-gadBorder">
+                <button id="closeNewPlateModal" class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg font-bold transition">Cancelar</button>
+                <button id="saveNewPlateButton" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold transition"><i class="fas fa-save mr-2"></i>Guardar</button>
+            </div>
         </div>
     </div>
 
-    <div id="anuladasModal" class="custom-modal" style="max-width: 700px;">
-        <h3><i class="fas fa-trash-restore"></i> Devolución de Placas</h3>
-        <div class="table-container" style="max-height: 300px;">
-            <table class="gad-table">
-                <thead><tr><th>País</th><th>Placa</th><th>Fecha</th><th style="text-align: center;">Acción</th></tr></thead>
-                <tbody id="anuladasListBody"><tr><td colspan="4" style="text-align: center;">Cargando...</td></tr></tbody>
+    <div id="consultLotModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-lg rounded-xl shadow-2xl z-50 p-6 hidden flex-col max-h-[90vh]">
+        <h3 id="consultLotTitle" class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2">Placas del Lote</h3>
+        
+        <div class="flex-1 overflow-y-auto bg-gadBg border border-gadBorder rounded-lg p-3 mb-5 custom-scrollbar min-h-[200px]">
+            <ul id="consultLotList" class="space-y-2"></ul>
+        </div>
+        
+        <div class="flex flex-wrap justify-between gap-3 pt-2 border-t border-gadBorder">
+            <div class="flex gap-2">
+                <button id="exportLotToExcelButton" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold transition"><i class="fas fa-file-excel mr-2"></i>Excel</button>
+                <button id="exportLotToPDFButton" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg font-bold transition"><i class="fas fa-file-pdf mr-2"></i>PDF</button>
+            </div>
+            <button id="closeConsultLotModal" class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg font-bold transition">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="anuladasModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-3xl rounded-xl shadow-2xl z-50 p-6 hidden flex-col max-h-[90vh]">
+        <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2"><i class="fas fa-trash-restore mr-2"></i>Devolución de Placas</h3>
+        
+        <div class="flex-1 overflow-auto rounded-lg border border-gadBorder custom-scrollbar min-h-[250px] bg-gadBg">
+            <table class="min-w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-gadBg text-gray-400 border-b border-gadBorder uppercase font-bold sticky top-0">
+                    <tr><th class="p-3">País</th><th class="p-3">Placa</th><th class="p-3">Fecha Anulación</th><th class="p-3 text-center">Acción</th></tr>
+                </thead>
+                <tbody id="anuladasListBody" class="divide-y divide-gadBorder">
+                    <tr><td colspan="4" class="text-center p-4 text-gray-500">Cargando...</td></tr>
+                </tbody>
             </table>
         </div>
-        <div style="margin-top:20px; display:flex; justify-content:flex-end;">
-            <button id="closeAnuladasModal" class="btn btn-dark">Cerrar</button>
+        
+        <div class="flex justify-end pt-4 mt-4 border-t border-gadBorder">
+            <button id="closeAnuladasModal" class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg font-bold transition">Cerrar</button>
         </div>
     </div>
 

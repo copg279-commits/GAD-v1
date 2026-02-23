@@ -1,0 +1,42 @@
+/* Custom Scrollbar para que coincida con el Dark Mode */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #0f172a; /* gadBg */
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #334155; /* gadBorder */
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #475569; 
+}
+
+/* Inputs dinámicos dentro de la tabla al editar */
+.inline-edit-input {
+    background-color: #0f172a;
+    border: 1px solid #3b82f6;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    width: 100%;
+    outline: none;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.inline-edit-input:focus {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+/* Iconos de acción en las tablas */
+.action-icon {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.1em;
+}
+.action-icon:hover {
+    transform: scale(1.2);
+}
