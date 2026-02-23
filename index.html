@@ -3,51 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso GAD Alicante V4</title>
+    <title>Acceso Proyecto VigIA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     
     <style>
         body {
-            background-color: #0f172a;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; margin: 0; font-family: 'Inter', sans-serif;
+            background-image: url('fondovigia.jpeg');
+            background-size: cover;
+            background-position: center top;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh; 
+            margin: 0; 
+            position: relative;
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
         }
+
+        @media (min-width: 768px) {
+            body {
+                justify-content: flex-end;
+                padding-right: 10%;
+            }
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.1) 0%, rgba(4, 12, 24, 0.8) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
         .login-card {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 1px solid #334155;
-            width: 100%; max-width: 400px;
-            padding: 2rem; border-radius: 1rem;
-            text-align: center; color: white;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            /* --- CAMBIO PRINCIPAL: ALTURA REDUCIDA --- */
+            background: rgba(10, 18, 35, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            
+            border-top: 1px solid rgba(34, 211, 238, 0.6);
+            border-left: 1px solid rgba(34, 211, 238, 0.3);
+            border-bottom: 1px solid rgba(34, 211, 238, 0.2);
+            
+            width: 100%; 
+            max-width: 350px; /* Ligeramente más estrecho */
+            margin: 1rem; 
+            /* Padding superior e inferior muy reducido */
+            padding: 1.5rem 1.5rem 2rem 1.5rem; 
+            border-radius: 1.2rem;
+            text-align: center; 
+            color: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95), inset 0 0 30px rgba(34, 211, 238, 0.1);
+            position: relative;
+            z-index: 1;
         }
-        .police-badge {
-            width: 120px; height: 120px; margin: 0 auto 1.5rem;
-            background: #1e40af; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 20px rgba(30, 64, 175, 0.5);
+
+        /* Botón Táctico con Escáner */
+        #google-login-btn {
+            background: rgba(6, 182, 212, 0.15);
+            border: 1px solid rgba(34, 211, 238, 0.6);
+            color: #ecfeff;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+            position: relative;
+            overflow: hidden;
         }
-        .police-badge img { width: 90%; height: 90%; object-fit: contain; }
-        #debug-log { display: none; margin-top: 10px; color: #f87171; font-size: 0.8rem; text-align: left; background: rgba(0,0,0,0.2); padding: 5px; }
+
+        /* Efecto de barrido de luz en el botón al pasar el mouse */
+        #google-login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.4), transparent);
+            transition: 0.5s;
+        }
+
+        #google-login-btn:hover::before {
+            left: 100%;
+        }
+
+        #google-login-btn:hover {
+            background: rgba(6, 182, 212, 0.3);
+            border-color: rgba(34, 211, 238, 1);
+            box-shadow: 0 0 35px rgba(34, 211, 238, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        /* Animación del icono del escáner */
+        #google-login-btn:hover .scanner-icon {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 10px cyan);
+        }
+
+        #debug-log { display: none; margin-top: 15px; color: #fca5a5; font-size: 0.75rem; text-align: left; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 6px; border: 1px solid rgba(248, 113, 113, 0.5); }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <div class="police-badge">
-            <img src="logogad.png" alt="GAD" onerror="this.style.display='none'">
-        </div>
-        <h1 class="text-2xl font-bold mb-1 text-blue-400">GAD ALICANTE</h1>
-        <p class="text-gray-400 text-sm mb-8">Unidad de Análisis Documental</p>
+        <h1 class="text-2xl font-extrabold mb-0 text-white tracking-wider drop-shadow-[0_0_15px_rgba(34,211,238,0.7)] leading-tight">
+            Proyecto <span class="text-cyan-400 text-3xl">VigIA</span>
+        </h1>
+        <p class="text-cyan-300 text-[0.65rem] mb-6 tracking-[0.35em] opacity-80 uppercase font-bold">Acceso Biométrico Táctico</p>
 
-        <button id="google-login-btn" class="w-full bg-white text-gray-800 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 transition-all shadow-lg">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
-            Iniciar Sesión con Google
+        <button id="google-login-btn" class="w-full font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-4 shadow-lg group">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="scanner-icon w-6 h-6 text-cyan-400 transition-transform duration-300">
+              <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+              <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd" />
+            </svg>
+            
+            <span class="tracking-widest text-sm relative z-10">ESCANEAR CREDENCIAL</span>
         </button>
 
-        <p id="status-msg" class="mt-4 text-sm text-yellow-500 min-h-[20px]"></p>
+        <p id="status-msg" class="mt-4 text-xs font-bold text-cyan-400 min-h-[1rem] transition-all duration-300 tracking-wider lowercase"></p>
         <div id="debug-log"></div>
     </div>
 
@@ -68,7 +145,7 @@
             'gadalicante@gmail.com', 
             'copg279@gmail.com',
             'adamus03248@gmail.com',
-            'davidmesi83@gmail.com', // CORREGIDO
+            'davidmesi83@gmail.com', 
             'pamiseseg@gmail.com',
             'policia.g496@gmail.com',
             'verdeguer279@gmail.com',
@@ -83,40 +160,56 @@
             const btn = document.getElementById('google-login-btn');
             const msg = document.getElementById('status-msg');
             const debug = document.getElementById('debug-log');
+            // Referencia al texto e icono dentro del botón para cambiarlos
+            const btnText = btn.querySelector('span');
+            const btnIcon = btn.querySelector('svg');
 
             firebase.auth().onAuthStateChanged((user) => {
                 if (user) {
                     if (AUTHORIZED_EMAILS.includes(user.email)) {
-                        msg.innerText = "Acceso Correcto. Redirigiendo...";
-                        msg.className = "mt-4 text-sm text-green-400";
-                        window.location.href = 'dashboard.html';
+                        msg.innerHTML = "IDENTIDAD CONFIRMADA";
+                        msg.className = "mt-4 text-xs font-extrabold text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,1)] tracking-widest uppercase";
+                        
+                        // Efecto visual en el botón al confirmar
+                        btn.style.pointerEvents = 'none';
+                        btnIcon.classList.add('animate-spin'); // El ojo gira
+                        btnText.innerText = 'ACCESO CONCEDIDO';
+                        btn.style.borderColor = '#34d399';
+                        btn.style.background = 'rgba(52, 211, 153, 0.25)';
+                        btn.style.boxShadow = '0 0 30px rgba(52, 211, 153, 0.6)';
+
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
                     } else {
-                        msg.innerText = "ACCESO DENEGADO: " + user.email;
-                        msg.className = "mt-4 text-sm text-red-500";
+                        msg.innerHTML = "DENEGADO: " + user.email;
+                        msg.className = "mt-4 text-xs font-extrabold text-red-500 drop-shadow-[0_0_10px_rgba(248,113,113,1)] tracking-widest animate-pulse uppercase";
                         firebase.auth().signOut();
+                        btnIcon.classList.remove('animate-pulse');
                     }
                 }
             });
 
             btn.onclick = () => {
-                msg.innerText = "Conectando con Google...";
+                msg.innerText = "iniciando escaneo...";
+                msg.className = "mt-4 text-xs font-bold text-cyan-300 animate-pulse tracking-widest lowercase";
+                // Pequeña animación del icono al hacer click
+                btnIcon.classList.add('animate-pulse');
+
                 const provider = new firebase.auth.GoogleAuthProvider();
                 provider.setCustomParameters({ prompt: 'select_account' });
                 
                 firebase.auth().signInWithPopup(provider).catch((error) => {
-                    msg.innerText = "Error al conectar.";
-                    msg.className = "mt-4 text-sm text-red-500";
+                    msg.innerText = "error en el enlace.";
+                    msg.className = "mt-4 text-xs font-bold text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.8)] uppercase";
+                    btnIcon.classList.remove('animate-pulse');
                     debug.style.display = 'block';
                     debug.innerHTML = `Error: ${error.message} <br> Code: ${error.code}`;
-                    
-                    if(error.code === 'auth/unauthorized-domain') {
-                        alert("IMPORTANTE: Debes ir a Firebase Console > Authentication > Settings y añadir este dominio a la lista autorizada.");
-                    }
                 });
             };
 
         } catch (e) {
-            alert("Error de script: " + e.message);
+            alert("Error crítico del sistema: " + e.message);
         }
     </script>
 </body>
