@@ -270,7 +270,6 @@ function renderSidebarTree(parentId, container) {
     });
 }
 
-// ================= VISOR DE IFRAME (LIMPIADO DE HTML) =================
 
 // ================= VISOR DE IFRAME (CON AUTO-RUTAS) =================
 
@@ -293,17 +292,23 @@ function showContent(data) {
          if(backBtn) backBtn.style.display = 'block';
     }, 100);
 
-    // --- LA MAGIA QUE ARREGLA TODOS TUS ENLACES DE GOLPE ---
-    let finalUrl = data.href;
+    // --- NUEVA MAGIA A PRUEBA DE GITHUB ---
+    let finalUrl = data.href.trim();
     
-    // Si la URL NO empieza por "http" (es decir, no es un enlace absoluto a internet) 
-    // y NO empieza por "../" (es decir, no lo has arreglado a mano ya)
+    // 1. Convertimos los espacios en formato web (%20) para que GitHub no dé error
+    finalUrl = finalUrl.replace(/ /g, '%20');
+
+    // 2. Si no es un enlace externo, y no le hemos puesto "../" a mano...
     if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../')) {
-        // Le añadimos automáticamente el salto hacia atrás para que vaya al Main de GitHub
+        // Por si acaso en la base de datos lo escribiste con barra inicial (ej: /inventario.html)
+        if (finalUrl.startsWith('/')) {
+            finalUrl = finalUrl.substring(1); 
+        }
+        // Le añadimos el salto de carpeta hacia atrás
         finalUrl = '../' + finalUrl;
     }
 
-    // Cargamos la URL ya corregida
+    console.log("Intentando cargar:", finalUrl); // Chivato para la consola
     iframe.src = finalUrl; 
 }
 
