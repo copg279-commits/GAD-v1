@@ -150,27 +150,49 @@ p[style*="background:#eff6ff"] { background: rgba(30, 58, 138, 0.2) !important; 
    DISEÑO RESPONSIVE (MÓVILES Y PANTALLAS PEQUEÑAS)
    ========================================= */
 @media (max-width: 850px) {
-    /* 1. Cabecera con cuadrícula estricta inamovible */
+    /* 1. Cabecera Inteligente: Logos grandes arriba, Texto y Botones abajo */
     .header-main {
         display: grid !important;
-        grid-template-columns: auto 1fr auto; /* Logo | Espacio flexible | Logo */
+        grid-template-columns: 1fr 1fr; /* Dividimos la pantalla en 2 columnas exactas */
         grid-template-areas: 
-            "logoIzq vacio logoDer"
-            "centro centro centro"; /* El centro ocupa toda la fila 2 obligatoriamente */
-        padding: 15px 10px;
-        gap: 15px 0; /* Separación vertical entre logos y botones */
-        align-items: center;
+            "logoIzq logoDer"   /* Fila 1: Logos a los lados */
+            "centro centro";    /* Fila 2: El centro ocupa todo el ancho */
+        padding: 15px;
+        gap: 15px 0; /* Separación vertical entre logos y el título */
     }
     
-    /* Asignamos cada elemento a su zona para que no se escapen */
-    .header-main > div:nth-child(1) { grid-area: logoIzq; }
-    .header-center { grid-area: centro; width: 100%; margin: 0; }
-    .header-main > div:nth-child(3) { grid-area: logoDer; }
+    /* Mandamos cada logo a su rincón */
+    .header-main > div:nth-child(1) { grid-area: logoIzq; justify-self: start; }
+    .header-main > div:nth-child(3) { grid-area: logoDer; justify-self: end; }
     
-    /* Achicamos los logos un poco para que no estorben */
-    .header-logo-container { width: 55px !important; height: 55px !important; margin: 0; }
-    .header-main h1 { font-size: 1.1em; text-align: center; margin-bottom: 10px; }
-    .mode-selector { width: 100%; max-width: 100%; margin: 0 auto; }
+    /* El centro ocupa toda su fila inferior sin que nadie le moleste */
+    .header-center { 
+        grid-area: centro; 
+        width: 100%; 
+        margin: 0; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+    }
+    
+    /* ¡AUMENTAMOS LOS LOGOS AL DOBLE! (De 45px a 90px) */
+    .header-logo-container { width: 90px !important; height: 90px !important; margin: 0; }
+    
+    /* Título perfectamente centrado en pantalla móvil */
+    .header-main h1 { 
+        font-size: 1.25em; 
+        text-align: center !important; 
+        margin-bottom: 15px; 
+        width: 100%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        flex-wrap: wrap; /* Por si el texto es muy largo, que baje suavemente */
+        gap: 8px; /* Separación entre el icono y el texto */
+    }
+    
+    .mode-selector { width: 100%; max-width: 320px; margin: 0 auto; }
 
     /* 2. Tarjetas de Vehículos Adaptadas a Dedo */
     .card-header { flex-direction: column; align-items: stretch; text-align: center; padding: 15px; }
@@ -190,9 +212,9 @@ p[style*="background:#eff6ff"] { background: rgba(30, 58, 138, 0.2) !important; 
     .modal-content-scrollable { padding: 20px; }
 }
 
-/* Ajuste extra para pantallas de móviles muy estrechos */
+/* Ajuste extra para pantallas de móviles súper estrechos */
 @media (max-width: 400px) {
-    .header-logo-container { width: 45px !important; height: 45px !important; }
-    .header-main h1 { font-size: 0.95em; }
+    .header-logo-container { width: 75px !important; height: 75px !important; }
+    .header-main h1 { font-size: 1.1em; }
     .plate-box { font-size: 1.2em; }
 }
