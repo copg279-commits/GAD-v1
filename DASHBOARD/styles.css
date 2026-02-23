@@ -5,7 +5,7 @@
     --red: #ef4444;
     --amber: #f59e0b;
     --bg-dark: #060b19;
-    --glass-bg: rgba(6, 11, 25, 0.65); 
+    --glass-bg: rgba(6, 11, 25, 0.75); /* Botones un poco más oscuros para contrastar bien */
     --glass-border: rgba(0, 240, 255, 0.4);
 }
 
@@ -39,30 +39,31 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .loading-bar { position: absolute; top:0; left:0; height: 100%; width: 50%; background: var(--cyan); animation: loading-scan 2s infinite ease-in-out; box-shadow: 0 0 15px var(--cyan); }
 @keyframes loading-scan { 0% { left: -50%; } 100% { left: 100%; } }
 
-/* --- ESTRUCTURA PRINCIPAL (SCROLL REPARADO) --- */
+/* --- ESTRUCTURA PRINCIPAL --- */
 #main-scroll-area {
     flex: 1; 
     overflow-y: auto; overflow-x: hidden;
-    padding: 10px 0 150px 0; /* Padding inferior grande para que el footer no tape el final */
+    padding: 10px 0 150px 0; 
     position: relative; z-index: 1;
-    display: block; /* ESTO ARREGLA EL SCROLL */
+    display: block; 
 }
 
+/* CAJA PRINCIPAL TOTALMENTE TRANSPARENTE PARA VER AL POLICÍA NÍTIDO */
 .main-content-wrapper { 
     width: 96%; max-width: 1400px; 
     margin: 0 auto; padding: 25px;
-    background: radial-gradient(circle at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 100%);
-    border-radius: 20px;
-    backdrop-filter: blur(3px);
+    background: transparent; /* Fuera gradientes */
+    backdrop-filter: none; /* Fuera difuminado */
     transition: all 0.3s ease; 
 }
 
 /* --- TÍTULOS Y TEXTOS --- */
 .title-container h1 { 
     font-size: 2.2rem; text-align: center; 
-    margin: 10px 80px 5px 80px; /* Márgenes laterales para no chocar con los botones flotantes */
+    margin: 10px 80px 5px 80px; 
     color: var(--cyan);
-    text-shadow: 0 0 15px rgba(0, 240, 255, 0.8), 0 2px 4px #000;
+    /* Sombras más duras para que se lea perfecto sobre fondo nítido */
+    text-shadow: 0 0 15px rgba(0, 0, 0, 0.9), 0 2px 5px #000;
     text-transform: uppercase; font-weight: 900;
     transition: font-size 0.3s ease;
 }
@@ -84,65 +85,67 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 
 .tech-btn svg, .tech-btn .energy-beam { display: none !important; }
 
+/* BOTONES LIMPIOS Y DE TAMAÑO FIJO */
 .tech-btn {
-    position: relative; min-height: 110px; height: auto;
-    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    position: relative; 
+    height: 115px; /* ALTURA FIJA PARA TODOS LOS BOTONES */
+    background: var(--glass-bg); /* Solo los botones difuminan lo que hay detrás suyo */
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--glass-border); border-radius: 10px; 
     cursor: pointer; display: flex; align-items: center; justify-content: center;
-    padding: 20px 15px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    padding: 15px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.tech-btn:hover { transform: translateY(-4px) scale(1.02); background: rgba(0, 240, 255, 0.1); box-shadow: 0 8px 25px rgba(0, 240, 255, 0.3); border-color: var(--cyan); }
+.tech-btn:hover { transform: translateY(-4px) scale(1.02); background: rgba(0, 240, 255, 0.15); box-shadow: 0 8px 25px rgba(0, 240, 255, 0.4); border-color: var(--cyan); }
 
 .tech-btn.color-alert { border-color: rgba(239, 68, 68, 0.6); }
-.tech-btn.color-alert:hover { border-color: var(--red); background: rgba(239, 68, 68, 0.1); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3); }
+.tech-btn.color-alert:hover { border-color: var(--red); background: rgba(239, 68, 68, 0.15); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); }
 .tech-btn.color-alert .tech-label { color: #ffcccc; text-shadow: 0 2px 4px #000, 0 0 8px var(--red); }
-.tech-btn.color-alert .tech-label i { color: var(--red); }
 
 .tech-btn.color-warning { border-color: rgba(245, 158, 11, 0.6); }
-.tech-btn.color-warning:hover { border-color: var(--amber); background: rgba(245, 158, 11, 0.1); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3); }
+.tech-btn.color-warning:hover { border-color: var(--amber); background: rgba(245, 158, 11, 0.15); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
 .tech-btn.color-warning .tech-label { color: #ffeebb; text-shadow: 0 2px 4px #000, 0 0 8px var(--amber); }
-.tech-btn.color-warning .tech-label i { color: var(--amber); }
 
 .tech-btn.color-success { border-color: rgba(16, 185, 129, 0.6); }
-.tech-btn.color-success:hover { border-color: var(--green); background: rgba(16, 185, 129, 0.1); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3); }
+.tech-btn.color-success:hover { border-color: var(--green); background: rgba(16, 185, 129, 0.15); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
 .tech-btn.color-success .tech-label { color: #ccffdd; text-shadow: 0 2px 4px #000, 0 0 8px var(--green); }
-.tech-btn.color-success .tech-label i { color: var(--green); }
 
 .tech-label {
     position: relative; z-index: 10; color: #fff; font-size: 1.1rem; font-weight: 700;
     text-transform: uppercase; text-align: center; text-shadow: 0 2px 5px #000, 0 0 10px rgba(0, 240, 255, 0.5);
-    line-height: 1.4; display: flex; flex-direction: column; align-items: center; gap: 10px;
-    word-wrap: break-word; transition: font-size 0.3s ease;
+    line-height: 1.4; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    word-wrap: break-word; transition: font-size 0.3s ease; height: 100%; width: 100%;
 }
-.tech-label i { font-size: 1.8rem; color: var(--cyan); display: block; }
+
+/* ESTA REGLA OCULTA DEFINITIVAMENTE LOS ICONOS DE LAS CARPETAS Y ENLACES */
+.tech-label i { display: none !important; }
 
 .edit-mode-icon { position:absolute; top:8px; right:8px; z-index:20; background: var(--amber); color:#000; padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight: bold; }
 
 /* --- CONTROLES ADMIN Y PANELES --- */
 .bottom-controls { margin-top: 40px; display: flex; flex-direction: column; gap: 15px; }
-.glass-panel { background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--glass-border); box-shadow: 0 20px 40px rgba(0,0,0,0.6); border-radius: 12px; }
+.glass-panel { background: rgba(6, 11, 25, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--glass-border); box-shadow: 0 20px 40px rgba(0,0,0,0.8); border-radius: 12px; }
 .controls-container { padding: 30px; margin-top: 20px; display: none; flex-direction: column; gap: 20px; border-left: 4px solid var(--cyan); }
-.cyber-button { background: rgba(0, 0, 0, 0.6); border: 1px solid var(--cyan); color: var(--cyan); padding: 15px 25px; font-size: 1rem; text-transform: uppercase; font-weight: bold; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 8px; position: relative; overflow: hidden; }
-.cyber-button:hover { background: rgba(0, 240, 255, 0.15); color: #fff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.4); }
+.cyber-button { background: rgba(0, 0, 0, 0.8); border: 1px solid var(--cyan); color: var(--cyan); padding: 15px 25px; font-size: 1rem; text-transform: uppercase; font-weight: bold; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 8px; position: relative; overflow: hidden; }
+.cyber-button:hover { background: rgba(0, 240, 255, 0.2); color: #fff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.5); }
 .cyber-button.glow-effect { font-size: 1.1rem; padding: 18px; letter-spacing: 2px; }
 .btn-logout { border-color: var(--red); color: var(--red); }
 .btn-logout:hover { background: rgba(239, 68, 68, 0.2); color: #fff; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
 .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
-.admin-btn { background: rgba(0,0,0,0.5); border: 1px solid #444; color: #ccc; padding: 12px; font-family: 'Orbitron'; font-size: 0.85rem; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.2s; border-radius: 8px; }
+.admin-btn { background: rgba(0,0,0,0.7); border: 1px solid #444; color: #ccc; padding: 12px; font-family: 'Orbitron'; font-size: 0.85rem; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.2s; border-radius: 8px; }
 .admin-btn i { font-size: 1.4rem; margin-bottom: 5px; }
 .admin-btn:hover { background: rgba(0, 240, 255, 0.1); color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 10px rgba(0, 240, 255, 0.2); }
 .full-span { grid-column: 1 / -1; }
 .counters-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 20px; }
-.counter-card { background: rgba(0,0,0,0.5); border: 1px solid #444; padding: 12px; width: 140px; text-align: center; border-radius: 8px; }
-.counter-card.total { border-color: var(--green); background: rgba(16, 185, 129, 0.1); width: 100%; }
+.counter-card { background: rgba(0,0,0,0.7); border: 1px solid #444; padding: 12px; width: 140px; text-align: center; border-radius: 8px; }
+.counter-card.total { border-color: var(--green); background: rgba(16, 185, 129, 0.15); width: 100%; }
 .counter-number { font-size: 1.6rem; font-weight: bold; color: var(--cyan); }
 .counter-card.total .counter-number { color: var(--green); text-shadow: 0 0 8px var(--green); }
 .counter-header { font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
 
 /* --- SIDEBAR Y BOTONES FLOTANTES --- */
 #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 9998; backdrop-filter: blur(5px); }
-.side-panel { position: fixed; top: 0; left: 0; height: 100%; width: 320px; border-right: 2px solid var(--cyan); z-index: 9999; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-radius: 0 15px 15px 0; }
+.side-panel { position: fixed; top: 0; left: 0; height: 100%; width: 320px; background: rgba(6, 11, 25, 0.95); border-right: 2px solid var(--cyan); z-index: 9999; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-radius: 0 15px 15px 0; }
 .sidebar-header { padding: 25px; border-bottom: 1px solid rgba(0, 240, 255, 0.2); color: var(--cyan); display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem;}
 #close-sidebar { cursor:pointer; transition: 0.3s; } #close-sidebar:hover { color: var(--red); transform: rotate(90deg); }
 .sidebar-item { padding: 20px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ccc; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 15px; font-size: 1rem;}
@@ -151,7 +154,6 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .sidebar-footer { margin-top: auto; padding: 25px; border-top: 1px solid rgba(0, 240, 255, 0.2); }
 .children-container { background: rgba(0,0,0,0.3); }
 
-/* Botones circulares (Menú a la izquierda, Atrás a la derecha) */
 #sidebar-toggle-float, #global-back-btn {
     position: fixed; top: 25px; z-index: 1000;
     width: 60px; height: 60px;
@@ -170,7 +172,7 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 
 /* --- MODALES E IFRAME --- */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(8px); }
-.modal { padding: 35px; width: 90%; max-width: 500px; position: relative; border: 1px solid var(--cyan); box-shadow: 0 0 50px rgba(0, 240, 255, 0.2); }
+.modal { padding: 35px; width: 90%; max-width: 500px; position: relative; background: rgba(6, 11, 25, 0.95); border: 1px solid var(--cyan); box-shadow: 0 0 50px rgba(0, 240, 255, 0.2); }
 .large-modal { max-width: 800px; height: 85vh; display: flex; flex-direction: column; }
 .modal h2 { color: var(--cyan); margin-top: 0; text-align: center; margin-bottom: 30px; text-shadow: 0 0 10px var(--cyan); font-size: 1.5rem; }
 .modal-close { position: absolute; top: 15px; right: 20px; color: #fff; cursor: pointer; font-size: 2rem; transition: 0.3s; }
@@ -210,36 +212,25 @@ footer {
    REGLAS PARA ADAPTARSE DINÁMICAMENTE A LA PANTALLA
 ======================================================= */
 @media (max-width: 900px) {
-    .main-content-wrapper { width: 98%; padding: 15px; }
     .title-container h1 { font-size: 1.7rem; margin: 10px 70px 5px 70px; }
     #user-info-display { font-size: 0.9rem; }
     #main-menu-grid { gap: 15px; }
-    .tech-btn { min-height: 95px; padding: 15px 10px; }
+    .tech-btn { height: 105px; padding: 15px 10px; }
     .tech-label { font-size: 0.95rem; }
 }
 
 @media (max-width: 600px) {
-    .main-content-wrapper { width: 100%; padding: 10px; border-radius: 10px; }
-
-    /* AHORRAMOS ESPACIO: Título pequeño y entre los dos botones */
-    .title-container h1 { 
-        font-size: 1.25rem; 
-        margin: 15px 55px 5px 55px; /* Evita pisar los botones de las esquinas */
-    }
+    .title-container h1 { font-size: 1.25rem; margin: 15px 55px 5px 55px; }
     #user-info-display { font-size: 0.75rem; margin-bottom: 20px; }
 
-    /* Botones flotantes (Menú y Atrás) más pequeños en móvil */
-    #sidebar-toggle-float, #global-back-btn {
-        width: 45px; height: 45px; 
-        font-size: 1.3rem; top: 15px;
-    }
+    #sidebar-toggle-float, #global-back-btn { width: 45px; height: 45px; font-size: 1.3rem; top: 15px; }
     #sidebar-toggle-float { left: 10px; }
     #global-back-btn { right: 10px; }
 
     #main-menu-grid { gap: 12px; }
-    .tech-btn { min-height: 85px; padding: 12px 8px; }
-    .tech-label { font-size: 0.8rem; gap: 6px; }
-    .tech-label i { font-size: 1.5rem; }
+    /* Altura fija también en móviles para uniformidad absoluta */
+    .tech-btn { height: 90px; padding: 12px 8px; }
+    .tech-label { font-size: 0.8rem; gap: 0; }
 
     footer { font-size: 0.75rem; padding: 10px 0; }
 }
