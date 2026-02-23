@@ -234,3 +234,6 @@ footer {
 
     footer { font-size: 0.75rem; padding: 10px 0; }
 }
+/* EFECTOS VISUALES PARA ARRASTRAR Y SOLTAR */
+.tech-btn.dragging { opacity: 0.4; border: 2px dashed var(--cyan); transform: scale(0.95); z-index: 50; }
+.tech-btn.drag-over { transform: scale(1.05); border: 2px solid var(--green); box-shadow: 0 0 25px rgba(0, 255, 157, 0.6); background: rgba(0, 255, 157, 0.1); }
