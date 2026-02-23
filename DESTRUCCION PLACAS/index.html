@@ -29,8 +29,8 @@
     </div>
 
     <header class="bg-gadPanel border-b border-gadBorder shadow-lg py-3 px-6 flex justify-between items-center">
-        <div class="h-14 w-14 flex items-center justify-center">
-            <img src="../ASSETS/logodestructora.png" alt="Logo Izq" class="max-h-full max-w-full drop-shadow-md" onerror="this.style.display='none'">
+        <div class="h-28 w-28 flex items-center justify-center shrink-0">
+            <img src="assets/logodestructora.png" alt="Logo Izq" class="max-h-full max-w-full object-contain drop-shadow-md" onerror="this.style.display='none'">
         </div>
         
         <div class="text-center flex-1 px-4">
@@ -39,8 +39,8 @@
             </h1>
         </div>
 
-        <div class="h-14 w-14 flex items-center justify-center">
-            <img src="../ASSETS/logogad.png" alt="Logo GAD" class="max-h-full max-w-full drop-shadow-md" onerror="this.style.display='none'">
+        <div class="h-24 w-24 flex items-center justify-center shrink-0">
+            <img src="assets/logogad.png" alt="Logo GAD" class="max-h-full max-w-full object-contain drop-shadow-md" onerror="this.style.display='none'">
         </div>
     </header>
 
@@ -128,6 +128,27 @@
 
     <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-40 hidden"></div>
 
+    <div id="pdfPreviewModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-[98vw] h-[95vh] rounded-xl shadow-2xl z-50 p-4 md:p-6 hidden flex-col">
+        <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2 shrink-0">
+            <i class="fas fa-file-pdf mr-2"></i>Previsualización del Documento
+        </h3>
+        
+        <div class="flex justify-center gap-4 mb-4 shrink-0">
+            <button id="btn2Cols" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-bold transition flex items-center gap-2">2 Columnas</button>
+            <button id="btn3Cols" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold transition flex items-center gap-2">3 Columnas</button>
+        </div>
+
+        <div class="flex-1 bg-gray-900 rounded-lg border border-gray-600 w-full flex items-center justify-center overflow-hidden relative min-h-0">
+            <div id="pdfLoadingSpinner" class="absolute text-blue-500 text-2xl hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Generando Vista...</div>
+            <iframe id="pdfPreviewFrame" class="w-full h-full bg-white rounded"></iframe>
+        </div>
+        
+        <div class="flex justify-between pt-4 mt-4 border-t border-gadBorder shrink-0">
+            <button id="closePdfPreviewModal" class="bg-gray-600 hover:bg-gray-500 px-6 py-2 rounded-lg font-bold transition text-white">Cancelar</button>
+            <button id="downloadPdfBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg font-bold transition shadow-lg"><i class="fas fa-download mr-2"></i>Generar PDF Definitivo</button>
+        </div>
+    </div>
+
     <div id="generateLotModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-md rounded-xl shadow-2xl z-50 p-6 hidden flex-col">
         <h3 class="text-xl font-bold text-blue-400 mb-3 border-b border-gadBorder pb-2"><i class="fas fa-cogs mr-2"></i>Generación de Lote</h3>
         <p class="text-gray-300 mb-5 text-sm">¿Cómo deseas incluir las placas en el <span id="modalNextLotName" class="font-bold text-white uppercase"></span>?</p>
@@ -180,10 +201,7 @@
             <ul id="consultLotList" class="space-y-2"></ul>
         </div>
         <div class="flex flex-wrap justify-between gap-3 pt-3 border-t border-gadBorder">
-            <div class="flex gap-2">
-                <button id="exportLotToExcelButton" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold transition"><i class="fas fa-file-excel mr-2"></i>Excel</button>
-                <button id="exportLotToPDFButton" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg font-bold transition"><i class="fas fa-file-pdf mr-2"></i>PDF</button>
-            </div>
+            <button id="exportLotToExcelButton" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold transition"><i class="fas fa-file-excel mr-2"></i>Excel</button>
             <button id="closeConsultLotModal" class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg font-bold transition">Cerrar</button>
         </div>
     </div>
