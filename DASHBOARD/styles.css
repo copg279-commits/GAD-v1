@@ -14,7 +14,6 @@
 /* --- ESTILOS GLOBALES Y FONDO --- */
 body { 
     font-family: 'Roboto', sans-serif; 
-    /* Anclado arriba para mantener la cabeza del policía visible */
     background: url('fondovigia.jpeg') no-repeat center top fixed;
     background-size: cover; 
     color: #fff;
@@ -34,62 +33,57 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 4px; box-shadow: 0 0 10px var(--cyan); }
 
 /* --- PANTALLA DE CARGA --- */
-#loading-screen { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: #000; z-index: 99999; 
-    display: flex; justify-content: center; align-items: center; 
-    transition: opacity 0.5s, visibility 0.5s;
-}
+#loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 99999; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s, visibility 0.5s; }
 .loading-content { text-align: center; color: var(--cyan); }
 .loading-bar-container { width: 200px; height: 4px; background: #111; margin: 20px auto; border-radius: 2px; overflow: hidden; position: relative; }
 .loading-bar { position: absolute; top:0; left:0; height: 100%; width: 50%; background: var(--cyan); animation: loading-scan 2s infinite ease-in-out; box-shadow: 0 0 15px var(--cyan); }
 @keyframes loading-scan { 0% { left: -50%; } 100% { left: 100%; } }
 
-/* --- ESTRUCTURA PRINCIPAL (FLUIDA) --- */
+/* --- ESTRUCTURA PRINCIPAL (FLUIDA Y EXPANSIVA) --- */
 #main-scroll-area {
     flex: 1; 
     overflow-y: auto; overflow-x: hidden;
-    /* Espacio extra abajo para que el footer fijo no tape el contenido al hacer scroll total */
-    padding: 20px 0 150px 0; 
+    padding: 20px 0 150px 0; /* Espacio crítico para que el último botón no quede tapado por el footer */
     position: relative; z-index: 1;
     display: flex; flex-direction: column; justify-content: flex-start;
 }
 
-/* El contenedor principal ahora crece y decrece fluidamente */
+/* El contenedor principal ahora ocupa el 96% para dejar botones muy anchos */
 .main-content-wrapper { 
-    width: 90%; /* Ocupa el 90% del ancho disponible */
-    max-width: 1200px; /* Ancho máximo mucho mayor para aprovechar pantallas grandes */
+    width: 96%; 
+    max-width: 1400px; /* Permitimos que crezca muchísimo en pantallas ultra-panorámicas */
     margin: 0 auto; padding: 25px;
     background: radial-gradient(circle at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 100%);
     border-radius: 20px;
     backdrop-filter: blur(3px);
-    transition: all 0.3s ease; /* Transición suave al redimensionar la ventana */
+    transition: all 0.3s ease; 
 }
 
 /* --- TÍTULOS Y TEXTOS --- */
 .title-container h1 { 
-    font-size: 2rem; text-align: center; margin: 10px 0 5px 0; 
+    font-size: 2.2rem; text-align: center; margin: 10px 0 5px 0; 
     color: var(--cyan);
     text-shadow: 0 0 15px rgba(0, 240, 255, 0.8), 0 2px 4px #000;
     text-transform: uppercase; font-weight: 900;
+    transition: font-size 0.3s ease;
 }
 
 #user-info-display { 
-    text-align: center; color: #fff; font-size: 1rem; margin-bottom: 35px; 
+    text-align: center; color: #fff; font-size: 1.1rem; margin-bottom: 35px; 
     font-weight: 500; text-transform: uppercase; letter-spacing: 2px;
     text-shadow: 0 2px 4px #000;
     position: relative; display: inline-block; left: 50%; transform: translateX(-50%);
 }
 #user-info-display::after {
-    content: ''; position: absolute; bottom: -10px; left: 10%; width: 80%; height: 2px;
+    content: ''; position: absolute; bottom: -10px; left: 0%; width: 100%; height: 2px;
     background: linear-gradient(90deg, transparent, var(--cyan), transparent);
 }
 
 /* --- GRID DE BOTONES --- */
 #main-menu-grid { 
     display: grid; 
-    grid-template-columns: 1fr 1fr; /* Mantenemos las 2 columnas */
-    gap: 20px; /* Separación un poco mayor para respirar en pantallas grandes */
+    grid-template-columns: 1fr 1fr; /* Siempre 2 columnas */
+    gap: 20px; 
     padding-bottom: 10px; 
 }
 .full-width { grid-column: 1 / -1; }
@@ -99,7 +93,7 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .tech-btn {
     position: relative; 
     min-height: 110px; height: auto;
-    background: rgba(0, 0, 0, 0.5); /* Ligeramente más opaco para legibilidad */
+    background: rgba(0, 0, 0, 0.5); 
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--glass-border); 
     border-radius: 10px; 
@@ -131,12 +125,13 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 
 .tech-label {
     position: relative; z-index: 10; 
-    color: #fff; font-size: 1.05rem; font-weight: 700;
+    color: #fff; font-size: 1.1rem; font-weight: 700;
     text-transform: uppercase; text-align: center; 
     text-shadow: 0 2px 5px #000, 0 0 10px rgba(0, 240, 255, 0.5);
     line-height: 1.4;
     display: flex; flex-direction: column; align-items: center; gap: 10px;
     word-wrap: break-word; 
+    transition: font-size 0.3s ease;
 }
 .tech-label i { font-size: 1.8rem; color: var(--cyan); display: block; }
 
@@ -144,24 +139,18 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 
 /* --- CONTROLES ADMIN Y PANELES --- */
 .bottom-controls { margin-top: 40px; display: flex; flex-direction: column; gap: 15px; }
-
 .glass-panel { background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--glass-border); box-shadow: 0 20px 40px rgba(0,0,0,0.6); border-radius: 12px; }
-
 .controls-container { padding: 30px; margin-top: 20px; display: none; flex-direction: column; gap: 20px; border-left: 4px solid var(--cyan); }
-
 .cyber-button { background: rgba(0, 0, 0, 0.6); border: 1px solid var(--cyan); color: var(--cyan); padding: 15px 25px; font-size: 1rem; text-transform: uppercase; font-weight: bold; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 8px; position: relative; overflow: hidden; }
 .cyber-button:hover { background: rgba(0, 240, 255, 0.15); color: #fff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.4); }
 .cyber-button.glow-effect { font-size: 1.1rem; padding: 18px; letter-spacing: 2px; }
-
 .btn-logout { border-color: var(--red); color: var(--red); }
 .btn-logout:hover { background: rgba(239, 68, 68, 0.2); color: #fff; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
-
 .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
 .admin-btn { background: rgba(0,0,0,0.5); border: 1px solid #444; color: #ccc; padding: 12px; font-family: 'Orbitron'; font-size: 0.85rem; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.2s; border-radius: 8px; }
 .admin-btn i { font-size: 1.4rem; margin-bottom: 5px; }
 .admin-btn:hover { background: rgba(0, 240, 255, 0.1); color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 10px rgba(0, 240, 255, 0.2); }
 .full-span { grid-column: 1 / -1; }
-
 .counters-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 20px; }
 .counter-card { background: rgba(0,0,0,0.5); border: 1px solid #444; padding: 12px; width: 140px; text-align: center; border-radius: 8px; }
 .counter-card.total { border-color: var(--green); background: rgba(16, 185, 129, 0.1); width: 100%; }
@@ -169,7 +158,7 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .counter-card.total .counter-number { color: var(--green); text-shadow: 0 0 8px var(--green); }
 .counter-header { font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
 
-/* --- SIDEBAR --- */
+/* --- SIDEBAR Y BOTÓN FLOTANTE --- */
 #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 9998; backdrop-filter: blur(5px); }
 .side-panel { position: fixed; top: 0; left: 0; height: 100%; width: 320px; border-right: 2px solid var(--cyan); z-index: 9999; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-radius: 0 15px 15px 0; }
 .sidebar-header { padding: 25px; border-bottom: 1px solid rgba(0, 240, 255, 0.2); color: var(--cyan); display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem;}
@@ -180,7 +169,6 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .sidebar-footer { margin-top: auto; padding: 25px; border-top: 1px solid rgba(0, 240, 255, 0.2); }
 .children-container { background: rgba(0,0,0,0.3); }
 
-/* --- BOTÓN FLOTANTE SIDEBAR --- */
 #sidebar-toggle-float {
     position: fixed; top: 25px; left: 25px; z-index: 1000;
     width: 60px; height: 60px;
@@ -194,7 +182,7 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 #sidebar-toggle-float:hover { background: var(--cyan); color: #000; box-shadow: 0 0 30px var(--cyan); transform: scale(1.05); }
 
 
-/* --- MODALES --- */
+/* --- MODALES E IFRAME --- */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(8px); }
 .modal { padding: 35px; width: 90%; max-width: 500px; position: relative; border: 1px solid var(--cyan); box-shadow: 0 0 50px rgba(0, 240, 255, 0.2); }
 .large-modal { max-width: 800px; height: 85vh; display: flex; flex-direction: column; }
@@ -215,74 +203,74 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .cyber-list-item { display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid rgba(255,255,255,0.1); color:#ccc; font-size:0.95rem; align-items: center;}
 .cyber-terminal { flex:1; overflow-y:auto; color:#aaa; font-size:0.9rem; font-family:'Roboto Mono'; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 8px; border: 1px solid #333; }
 
-/* --- IFRAME --- */
 #iframe-viewer-area { display:none; width:100%; height:100vh; background: #000; position: absolute; top: 0; z-index: 200; }
 #content-iframe { width:100%; height:100%; border:none; opacity: 0; transition: opacity 0.5s; }
 #iframe-back-float { position: fixed; bottom: 40px; right: 40px; background: var(--red); color: white; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-weight: bold; font-family: 'Orbitron'; font-size: 1.1rem; box-shadow: 0 5px 20px rgba(239, 68, 68, 0.6); z-index: 201; display: none; transition: 0.3s; }
 #iframe-back-float:hover { transform: scale(1.1); }
 
 /* --- FOOTER FIJO --- */
+/* Al sacarlo fuera del contenedor en el HTML, ahora sí se fijará a la base de la pantalla */
 footer { 
     position: fixed; 
     bottom: 0; left: 0; width: 100%;
-    /* Fondo oscuro semi-transparente para garantizar lectura */
-    background: rgba(6, 11, 25, 0.9); 
+    background: rgba(6, 11, 25, 0.95); /* Casi opaco para que no se mezcle con nada */
     backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(0, 240, 255, 0.3);
-    padding: 15px 0;
+    border-top: 2px solid rgba(0, 240, 255, 0.5);
+    padding: 12px 0;
     text-align: center; 
     font-size: 0.9rem; 
     color: #ffffff; 
     font-family: 'Orbitron', sans-serif; 
     letter-spacing: 1px; 
     line-height: 1.6;
-    /* Sombras fuertes para contraste máximo */
     text-shadow: 2px 2px 5px #000, -2px -2px 5px #000, 0 0 15px #000; 
     font-weight: 700;
-    z-index: 1000; 
+    z-index: 9999; /* Por encima de absolutamente todo */
 }
 
 /* =======================================================
-   REGLAS ESPECÍFICAS PARA MÓVILES Y PANTALLAS PEQUEÑAS
+   REGLAS PARA ADAPTARSE DINÁMICAMENTE A LA PANTALLA
 ======================================================= */
-@media (max-width: 768px) {
-    /* El contenedor en móvil ocupa casi toda la pantalla */
+/* Cuando estrechas el navegador a tamaño tablet/móvil ancho */
+@media (max-width: 900px) {
     .main-content-wrapper { 
-        width: 95%; 
+        width: 98%; /* Ocupa casi el 100% del ancho */
         padding: 15px; 
     }
-
-    /* Empujamos el título hacia abajo para que el botón no lo pise jamás */
-    .title-container { 
-        padding-top: 60px; 
-    }
     
+    .title-container h1 { font-size: 1.7rem; }
+    #user-info-display { font-size: 0.9rem; }
+    
+    #main-menu-grid { gap: 15px; }
+    
+    .tech-btn { min-height: 95px; padding: 15px 10px; }
+    .tech-label { font-size: 0.95rem; }
+}
+
+/* Cuando estrechas al máximo (tamaño móvil vertical) */
+@media (max-width: 600px) {
+    .main-content-wrapper { 
+        width: 100%; /* Aprovecha el máximo absoluto */
+        padding: 10px; 
+        border-radius: 10px;
+    }
+
+    /* Empujamos todo un poco hacia abajo para que el botón circular no moleste */
+    .title-container { padding-top: 60px; }
     .title-container h1 { font-size: 1.4rem; }
     #user-info-display { font-size: 0.8rem; margin-bottom: 25px; }
 
-    /* Botón circular más contenido en móvil */
     #sidebar-toggle-float {
         width: 48px; height: 48px; 
         font-size: 1.3rem;
         top: 15px; left: 15px;
     }
 
-    /* Reducimos huecos entre botones */
     #main-menu-grid { gap: 12px; }
 
-    /* Botones más compactos y texto más pequeño para asegurar que caben */
-    .tech-btn { 
-        min-height: 85px; 
-        padding: 12px 8px; 
-    }
-    
-    .tech-label { font-size: 0.75rem; gap: 6px; }
-    .tech-label i { font-size: 1.4rem; }
+    .tech-btn { min-height: 85px; padding: 12px 8px; }
+    .tech-label { font-size: 0.8rem; gap: 6px; }
+    .tech-label i { font-size: 1.5rem; }
 
-    /* Ajustes footer móvil */
     footer { font-size: 0.75rem; padding: 10px 0; }
-    
-    /* Panel admin móvil */
-    .cyber-button { padding: 12px 15px; font-size: 0.85rem; }
-    .admin-grid { grid-template-columns: 1fr 1fr; }
 }
