@@ -272,6 +272,8 @@ function renderSidebarTree(parentId, container) {
 
 // ================= VISOR DE IFRAME (LIMPIADO DE HTML) =================
 
+// ================= VISOR DE IFRAME (CON AUTO-RUTAS) =================
+
 function showContent(data) {
     if (!data.href) {
         alert("Este botón no tiene un enlace configurado.");
@@ -291,8 +293,18 @@ function showContent(data) {
          if(backBtn) backBtn.style.display = 'block';
     }, 100);
 
-    // Solo se carga la URL (href), nada de códigos HTML inyectados
-    iframe.src = data.href; 
+    // --- LA MAGIA QUE ARREGLA TODOS TUS ENLACES DE GOLPE ---
+    let finalUrl = data.href;
+    
+    // Si la URL NO empieza por "http" (es decir, no es un enlace absoluto a internet) 
+    // y NO empieza por "../" (es decir, no lo has arreglado a mano ya)
+    if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../')) {
+        // Le añadimos automáticamente el salto hacia atrás para que vaya al Main de GitHub
+        finalUrl = '../' + finalUrl;
+    }
+
+    // Cargamos la URL ya corregida
+    iframe.src = finalUrl; 
 }
 
 // ================= GESTIÓN CRUD (LIMPIADO DE HTML) =================
