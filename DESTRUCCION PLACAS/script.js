@@ -30,12 +30,11 @@ let previewLotName = "";
 let previewPlatesArray = [];
 let previewCols = 3; 
 
-// --- AUTO LOGIN MEMORIZADO ---
 const currentHost = window.location.hostname;
 const isLocal = (currentHost === '127.0.0.1' || currentHost === 'localhost');
 
+// --- AUTO LOGIN MEMORIZADO ---
 if (isLocal) {
-    // Usando tus credenciales memorizadas: test@gad.com / 123456
     signInWithEmailAndPassword(auth, "test@gad.com", "123456") 
         .catch(error => console.error("Error Auto-login:", error));
 }
@@ -83,6 +82,7 @@ function initApp() {
     document.getElementById('closeConsultLotModal').addEventListener('click', () => toggleModal('consultLotModal', false));
     document.getElementById('exportLotToExcelButton').addEventListener('click', handleExportToExcel);
 
+    // Botones Lotes
     document.getElementById('generateLotMainBtn').addEventListener('click', () => {
         const lotName = document.getElementById('lotNumber').value;
         document.getElementById('modalNextLotName').textContent = lotName;
@@ -126,8 +126,8 @@ function initApp() {
     });
 }
 
+// --- DATOS Y ORDENACIÓN ---
 async function loadPlates() {
-    document.getElementById('platesTableBody').innerHTML = '<tr><td colspan="7" class="text-center p-6 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando datos...</td></tr>';
     try {
         await loadLotMetadata(); await loadAnuladas(); 
         const snapshot = await get(ref(database, 'placas_destruccion'));
@@ -248,7 +248,7 @@ async function executeGenerateLot(plateIdsArray) {
         updates[`lotes/${lotName}`] = { fechaCreacion: new Date().toLocaleDateString('es-ES'), totalPlacas: plateIdsArray.length, eurocop: "", estado: "pendiente" };
         await update(ref(database), updates);
         document.getElementById('selectAllCheckbox').checked = false;
-        await loadPlates(); alert(`✅ ${lotName} generado correctamente con ${plateIdsArray.length} placas.`);
+        await loadPlates(); alert(`✅ ${lotName} generado correctamente.`);
     } catch (error) { console.error(error); alert("Error al generar."); }
 }
 
@@ -289,8 +289,8 @@ function loadLotAdministrationPanel() {
     });
 }
 
-window.destroyLot = async (lotName) => { if(confirm(`⚠️ CUIDADO: Vas a activar el candado del ${lotName}. ¿Continuar?`)) { await update(ref(database, `lotes/${lotName}`), { estado: 'destruidas' }); await loadPlates(); }};
-window.unlockLot = async (lotName) => { if(confirm(`🔓 ¿Quitar el candado del ${lotName}?`)) { await update(ref(database, `lotes/${lotName}`), { estado: 'pendiente' }); await loadPlates(); }};
+window.destroyLot = async (lotName) => { if(confirm(`⚠️ Activar candado del ${lotName}?`)) { await update(ref(database, `lotes/${lotName}`), { estado: 'destruidas' }); await loadPlates(); }};
+window.unlockLot = async (lotName) => { if(confirm(`🔓 Quitar candado del ${lotName}?`)) { await update(ref(database, `lotes/${lotName}`), { estado: 'pendiente' }); await loadPlates(); }};
 
 window.consultLot = (lotName) => {
     currentConsultedLotName = lotName; 
@@ -309,9 +309,7 @@ window.undoLot = async (lotName) => {
     }
 };
 
-// ==========================================
-// MOTOR DE PDF CON RUTAS DE SALIDA (../ASSETS/)
-// ==========================================
+// --- MOTOR PDF ---
 async function getBase64ImageFromUrl(imageUrl) {
     return new Promise((resolve) => {
         const img = new Image(); img.crossOrigin = 'Anonymous';
@@ -405,7 +403,7 @@ async function buildPDFDocument(lotName, platesArray, columns) {
     return doc;
 }
 
-// RESTO DE FUNCIONES
+// RESTO DE FUNCIONES (Edición, Anulación, Excel...)
 function handleExportToExcel() {
     if (currentPlatesInConsultedLot.length === 0) return alert("No hay datos.");
     let csv = "PAIS,PLACA\n"; currentPlatesInConsultedLot.forEach(p => csv += `"${p.PAIS || ''}","${p.PLACA || ''}"\n`);
@@ -431,12 +429,13 @@ function handleEditPlate(id) {
     document.getElementById(`edit-placa-${id}`).addEventListener('keypress', (e) => { if(e.key === 'Enter') save(); });
 }
 
-async function handleAnularPlate(placa) { if (confirm(`¿Anular ${placa.PLACA}?`)) { await update(ref(database, `placas_anuladas/${placa.id}`), { PAIS: placa.PAIS, PLACA: placa.PLACA, FECHA_ANULACION: new Date().toISOString() }); await remove(ref(database, `placas_destruccion/${placa.id}`)); loadPlates(); } }
+async function handleAnularPlate(placa) { if (confirm(`¿Mover la placa ${placa.PLACA} a Devolución?`)) { await update(ref(database, `placas_anuladas/${placa.id}`), { PAIS: placa.PAIS, PLACA: placa.PLACA, FECHA_ANULACION: new Date().toISOString() }); await remove(ref(database, `placas_destruccion/${placa.id}`)); loadPlates(); } }
 
 async function handleSaveNewPlate() {
     const pais = document.getElementById('newPlateCountry').value.trim().toUpperCase(), placa = document.getElementById('newPlateNumber').value.trim().toUpperCase();
     if (!pais || !placa) return alert("Completa campos.");
     await push(ref(database, 'placas_destruccion'), { PAIS: pais, PLACA: placa, FECHA_AGREGADA: new Date().toISOString(), LoteDestruccion: "" });
+    document.getElementById('newPlateCountry').value = ''; document.getElementById('newPlateNumber').value = '';
     document.getElementById('modal-overlay').style.display = 'none'; document.getElementById('newPlateModal').style.display = 'none'; loadPlates();
 }
 
@@ -446,5 +445,5 @@ function renderAnuladasModal() {
         tbody.innerHTML += `<tr class="hover:bg-slate-800 transition"><td class="p-3">${p.PAIS}</td><td class="p-3 text-red-400 font-bold">${p.PLACA}</td><td class="p-3 text-gray-400">${new Date(p.FECHA_ANULACION).toLocaleDateString()}</td><td class="p-3 text-center"><button class="text-emerald-500 hover:text-emerald-400 mr-3" onclick="window.restorePlate('${p.id}')"><i class="fas fa-trash-restore"></i></button><button class="text-red-500 hover:text-red-400" onclick="window.deleteAnulada('${p.id}')"><i class="fas fa-times"></i></button></td></tr>`;
     });
 }
-window.restorePlate = async (id) => { const p = anuladasData.find(x => x.id === id); if(confirm(`Restaurar ${p.PLACA}?`)) { await update(ref(database, `placas_destruccion/${id}`), { PAIS: p.PAIS, PLACA: p.PLACA, FECHA_AGREGADA: new Date().toISOString(), LoteDestruccion: "" }); await remove(ref(database, `placas_anuladas/${id}`)); loadPlates(); document.getElementById('closeAnuladasModal').click(); }};
-window.deleteAnulada = async (id) => { if(confirm("Eliminar permanente?")) { await remove(ref(database, `placas_anuladas/${id}`)); loadAnuladas(); renderAnuladasModal(); }};
+window.restorePlate = async (id) => { const p = anuladasData.find(x => x.id === id); if(confirm(`¿Restaurar ${p.PLACA}?`)) { await update(ref(database, `placas_destruccion/${id}`), { PAIS: p.PAIS, PLACA: p.PLACA, FECHA_AGREGADA: new Date().toISOString(), LoteDestruccion: "" }); await remove(ref(database, `placas_anuladas/${id}`)); loadPlates(); document.getElementById('closeAnuladasModal').click(); }};
+window.deleteAnulada = async (id) => { if(confirm("¿Eliminar PERMANENTEMENTE?")) { await remove(ref(database, `placas_anuladas/${id}`)); loadAnuladas(); renderAnuladasModal(); }};

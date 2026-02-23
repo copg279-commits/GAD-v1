@@ -29,7 +29,6 @@
     </div>
 
     <header class="bg-gadPanel border-b border-gadBorder shadow-lg py-3 px-6 flex justify-between items-center">
-        
         <div class="h-28 w-28 flex items-center justify-center shrink-0">
             <img src="../ASSETS/logodestructora.png" alt="Logo Izq" class="max-h-full max-w-full object-contain drop-shadow-md" onerror="this.style.display='none'">
         </div>
@@ -43,7 +42,6 @@
         <div class="h-24 w-24 flex items-center justify-center shrink-0">
             <img src="../ASSETS/logogad.png" alt="Logo Der" class="max-h-full max-w-full object-contain drop-shadow-md" onerror="this.style.display='none'">
         </div>
-        
     </header>
 
     <main id="main-app-content" class="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto pb-24" style="display:none;">
@@ -74,7 +72,7 @@
                 </div>
 
                 <div class="relative">
-                    <label class="block text-sm font-bold text-gray-400 mb-1">Buscar Placa (Filtro instantáneo)</label>
+                    <label class="block text-sm font-bold text-gray-400 mb-1">Buscar Placa</label>
                     <div class="relative">
                         <input type="text" id="searchPlate" placeholder="Ej: 317 o GY846WR" class="w-full bg-gadBg border border-gadBorder focus:border-blue-500 text-white rounded-lg p-2.5 pl-10 uppercase transition outline-none">
                         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -120,109 +118,68 @@
     </main>
 
     <footer class="fixed bottom-0 left-0 w-full p-4 md:p-6 flex justify-between items-center bg-gradient-to-t from-gadBg to-transparent pointer-events-none z-40">
-        <button id="openMainMenu" class="pointer-events-auto w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-2xl border-2 border-gadBorder shadow-[0_4px_15px_rgba(0,0,0,0.6)] transition-transform hover:-translate-y-1" title="Menú Principal">
-            <i class="fas fa-bars"></i>
-        </button>
-        <a href="index.html" class="pointer-events-auto w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-2xl border-2 border-gadBorder shadow-[0_4px_15px_rgba(0,0,0,0.6)] transition-transform hover:-translate-y-1" title="Volver">
-            <i class="fas fa-arrow-left"></i>
-        </a>
+        <button id="openMainMenu" class="pointer-events-auto w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-2xl border-2 border-gadBorder shadow-[0_4px_15px_rgba(0,0,0,0.6)] transition-transform hover:-translate-y-1" title="Menú Principal"><i class="fas fa-bars"></i></button>
+        <a href="index.html" class="pointer-events-auto w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-2xl border-2 border-gadBorder shadow-[0_4px_15px_rgba(0,0,0,0.6)] transition-transform hover:-translate-y-1" title="Volver"><i class="fas fa-arrow-left"></i></a>
     </footer>
 
-    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-40 hidden"></div>
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-[90] hidden"></div>
 
-    <div id="pdfPreviewModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-[98vw] h-[95vh] rounded-xl shadow-2xl z-50 p-4 md:p-6 hidden flex-col">
-        <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2 shrink-0">
+    <div id="pdfPreviewModal" class="fixed top-[45%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-[96vw] h-[82vh] rounded-xl shadow-2xl z-[100] p-4 md:p-6 hidden flex-col">
+        <h3 class="text-xl font-bold text-blue-400 mb-2 border-b border-gadBorder pb-2 shrink-0">
             <i class="fas fa-file-pdf mr-2"></i>Previsualización del Documento
         </h3>
         
-        <div class="flex justify-center gap-4 mb-4 shrink-0">
-            <button id="btn2Cols" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-bold transition flex items-center gap-2">2 Columnas</button>
-            <button id="btn3Cols" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold transition flex items-center gap-2">3 Columnas</button>
+        <div class="flex justify-center gap-4 mb-3 shrink-0">
+            <button id="btn2Cols" class="bg-gray-700 hover:bg-gray-600 text-white px-5 py-1.5 rounded-lg font-bold transition text-sm">2 Columnas</button>
+            <button id="btn3Cols" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-1.5 rounded-lg font-bold transition text-sm">3 Columnas</button>
         </div>
 
-        <div class="flex-1 bg-gray-900 rounded-lg border border-gray-600 w-full flex items-center justify-center overflow-hidden relative min-h-0">
-            <div id="pdfLoadingSpinner" class="absolute text-blue-500 text-2xl hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Generando Vista...</div>
+        <div class="flex-1 bg-gray-900 rounded-lg border border-gray-600 w-full flex items-center justify-center overflow-hidden relative">
+            <div id="pdfLoadingSpinner" class="absolute text-blue-500 text-xl hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Generando...</div>
             <iframe id="pdfPreviewFrame" class="w-full h-full bg-white rounded"></iframe>
         </div>
         
-        <div class="flex justify-between pt-4 mt-4 border-t border-gadBorder shrink-0">
-            <button id="closePdfPreviewModal" class="bg-gray-600 hover:bg-gray-500 px-6 py-2 rounded-lg font-bold transition text-white">Cancelar</button>
-            <button id="downloadPdfBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg font-bold transition shadow-lg"><i class="fas fa-download mr-2"></i>Generar PDF Definitivo</button>
+        <div class="flex justify-between pt-4 mt-3 border-t border-gadBorder shrink-0">
+            <button id="closePdfPreviewModal" class="bg-gray-600 hover:bg-gray-500 px-6 py-2 rounded-lg font-bold transition text-white text-sm">Cancelar</button>
+            <button id="downloadPdfBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg font-bold transition shadow-lg text-sm"><i class="fas fa-download mr-2"></i>Generar PDF Definitivo</button>
         </div>
     </div>
 
-    <div id="generateLotModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-md rounded-xl shadow-2xl z-50 p-6 hidden flex-col">
-        <h3 class="text-xl font-bold text-blue-400 mb-3 border-b border-gadBorder pb-2"><i class="fas fa-cogs mr-2"></i>Generación de Lote</h3>
+    <div id="generateLotModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-md rounded-xl shadow-2xl z-[100] p-6 hidden flex-col">
+        <h3 class="text-xl font-bold text-blue-400 mb-3 border-b border-gadBorder pb-2">Generación de Lote</h3>
         <p class="text-gray-300 mb-5 text-sm">¿Cómo deseas incluir las placas en el <span id="modalNextLotName" class="font-bold text-white uppercase"></span>?</p>
-
         <div class="flex flex-col gap-4 mb-6">
-            <button id="btnGenAuto" class="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-lg transition shadow-md flex items-center gap-4 text-left border border-blue-400 border-opacity-30">
-                <div class="w-10 flex justify-center"><i class="fas fa-magic text-3xl opacity-80"></i></div>
-                <div class="flex-1">
-                    <div class="font-bold text-base leading-tight">Incluir todas las pendientes</div>
-                    <div class="text-xs text-blue-200 mt-1 opacity-90">Agrupa automáticamente todas las placas sin lote (<span id="countPendingAuto" class="font-bold">0</span>)</div>
-                </div>
+            <button id="btnGenAuto" class="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-lg transition shadow-md flex items-center gap-4 text-left">
+                <i class="fas fa-magic text-2xl"></i>
+                <div class="flex-1"><div class="font-bold">Incluir todas las pendientes</div><div class="text-xs opacity-80">(<span id="countPendingAuto">0</span> placas)</div></div>
             </button>
-
-            <button id="btnGenManual" class="bg-emerald-600 hover:bg-emerald-500 text-white p-4 rounded-lg transition shadow-md flex items-center gap-4 text-left border border-emerald-400 border-opacity-30">
-                <div class="w-10 flex justify-center"><i class="fas fa-hand-pointer text-3xl opacity-80"></i></div>
-                <div class="flex-1">
-                    <div class="font-bold text-base leading-tight">Usar selección manual</div>
-                    <div class="text-xs text-emerald-100 mt-1 opacity-90">Usa solo las placas marcadas con el checkbox (<span id="countSelectedManual" class="font-bold">0</span>)</div>
-                </div>
+            <button id="btnGenManual" class="bg-emerald-600 hover:bg-emerald-500 text-white p-4 rounded-lg transition shadow-md flex items-center gap-4 text-left">
+                <i class="fas fa-hand-pointer text-2xl"></i>
+                <div class="flex-1"><div class="font-bold">Usar selección manual</div><div class="text-xs opacity-80">(<span id="countSelectedManual">0</span> placas)</div></div>
             </button>
         </div>
-
-        <div class="flex justify-end pt-4 border-t border-gadBorder">
-            <button id="closeGenerateLotModal" class="bg-gray-600 hover:bg-gray-500 px-6 py-2 rounded-lg font-bold transition">Cancelar</button>
-        </div>
+        <div class="flex justify-end pt-4 border-t border-gadBorder"><button id="closeGenerateLotModal" class="bg-gray-600 hover:bg-gray-500 px-6 py-2 rounded-lg font-bold transition">Cancelar</button></div>
     </div>
 
-    <div id="newPlateModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-md rounded-xl shadow-2xl z-50 p-6 hidden">
-        <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2"><i class="fas fa-plus-circle mr-2"></i>Añadir Nueva Placa</h3>
+    <div id="newPlateModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-md rounded-xl shadow-2xl z-[100] p-6 hidden">
+        <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2">Añadir Nueva Placa</h3>
         <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-bold text-gray-400 mb-1">País</label>
-                <input type="text" id="newPlateCountry" list="countryDatalist" class="w-full bg-gadBg border border-gadBorder focus:border-blue-500 text-white rounded-lg p-2.5 uppercase outline-none" placeholder="Ej: ESPAÑA">
-                <datalist id="countryDatalist"></datalist>
-            </div>
-            <div>
-                <label class="block text-sm font-bold text-gray-400 mb-1">Número de Placa</label>
-                <input type="text" id="newPlateNumber" class="w-full bg-gadBg border border-gadBorder focus:border-blue-500 text-white rounded-lg p-2.5 uppercase outline-none" placeholder="Ej: 1234ABC">
-            </div>
-            <div class="flex justify-end gap-3 pt-4 mt-2 border-t border-gadBorder">
-                <button id="closeNewPlateModal" class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg font-bold transition">Cancelar</button>
-                <button id="saveNewPlateButton" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold transition"><i class="fas fa-save mr-2"></i>Guardar</button>
-            </div>
+            <div><label class="block text-sm font-bold text-gray-400 mb-1">País</label><input type="text" id="newPlateCountry" list="countryDatalist" class="w-full bg-gadBg border border-gadBorder text-white rounded-lg p-2.5 uppercase outline-none"><datalist id="countryDatalist"></datalist></div>
+            <div><label class="block text-sm font-bold text-gray-400 mb-1">Número de Placa</label><input type="text" id="newPlateNumber" class="w-full bg-gadBg border border-gadBorder text-white rounded-lg p-2.5 uppercase outline-none"></div>
+            <div class="flex justify-end gap-3 pt-4 border-t border-gadBorder"><button id="closeNewPlateModal" class="bg-gray-600 px-4 py-2 rounded-lg font-bold transition">Cancelar</button><button id="saveNewPlateButton" class="bg-emerald-600 px-4 py-2 rounded-lg font-bold transition">Guardar</button></div>
         </div>
     </div>
 
-    <div id="consultLotModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-lg rounded-xl shadow-2xl z-50 p-6 hidden flex-col">
+    <div id="consultLotModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-lg rounded-xl shadow-2xl z-[100] p-6 hidden flex-col">
         <h3 id="consultLotTitle" class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2">Placas del Lote</h3>
-        <div class="overflow-y-auto bg-gadBg border border-gadBorder rounded-lg p-3 mb-5 custom-scrollbar max-h-64">
-            <ul id="consultLotList" class="space-y-2"></ul>
-        </div>
-        <div class="flex flex-wrap justify-between gap-3 pt-3 border-t border-gadBorder">
-            <button id="exportLotToExcelButton" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold transition"><i class="fas fa-file-excel mr-2"></i>Excel</button>
-            <button id="closeConsultLotModal" class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg font-bold transition">Cerrar</button>
-        </div>
+        <div class="overflow-y-auto bg-gadBg border border-gadBorder rounded-lg p-3 mb-5 max-h-64 custom-scrollbar"><ul id="consultLotList" class="space-y-2 text-sm"></ul></div>
+        <div class="flex justify-between pt-3 border-t border-gadBorder"><button id="exportLotToExcelButton" class="bg-emerald-600 px-4 py-2 rounded-lg font-bold text-sm transition">Excel</button><button id="closeConsultLotModal" class="bg-gray-600 px-4 py-2 rounded-lg font-bold text-sm transition">Cerrar</button></div>
     </div>
 
-    <div id="anuladasModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-3xl rounded-xl shadow-2xl z-50 p-6 hidden flex-col">
-        <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2"><i class="fas fa-trash-restore mr-2"></i>Devolución de Placas</h3>
-        <div class="overflow-y-auto rounded-lg border border-gadBorder custom-scrollbar max-h-64 bg-gadBg">
-            <table class="min-w-full text-left text-sm whitespace-nowrap">
-                <thead class="bg-gadBg text-gray-400 border-b border-gadBorder uppercase font-bold sticky top-0">
-                    <tr><th class="p-3">País</th><th class="p-3">Placa</th><th class="p-3">Fecha Anulación</th><th class="p-3 text-center">Acción</th></tr>
-                </thead>
-                <tbody id="anuladasListBody" class="divide-y divide-gadBorder">
-                    <tr><td colspan="4" class="text-center p-4 text-gray-500">Cargando...</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="flex justify-end pt-4 mt-4 border-t border-gadBorder">
-            <button id="closeAnuladasModal" class="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg font-bold transition">Cerrar</button>
-        </div>
+    <div id="anuladasModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gadPanel border border-gadBorder w-11/12 max-w-3xl rounded-xl shadow-2xl z-[100] p-6 hidden flex-col">
+        <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-gadBorder pb-2">Devolución de Placas</h3>
+        <div class="overflow-y-auto border border-gadBorder max-h-64 bg-gadBg rounded-lg"><table class="min-w-full text-left text-xs"><thead class="bg-gadBg text-gray-400 uppercase font-bold sticky top-0"><tr><th class="p-3">País</th><th class="p-3">Placa</th><th class="p-3">Fecha</th><th class="p-3 text-center">Acción</th></tr></thead><tbody id="anuladasListBody" class="divide-y divide-gadBorder"></tbody></table></div>
+        <div class="flex justify-end pt-4 mt-4 border-t border-gadBorder"><button id="closeAnuladasModal" class="bg-gray-600 px-4 py-2 rounded-lg font-bold transition">Cerrar</button></div>
     </div>
 
     <script type="module" src="script.js"></script>
