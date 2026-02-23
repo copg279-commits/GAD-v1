@@ -20,18 +20,18 @@ let allPlatesData = [];
 let anuladasData = []; 
 let uniqueLots = {}; 
 let currentSort = { column: 'FECHA_AGREGADA', direction: 'desc' };
-let lotEurocopData = {}; 
+let lotMetadataGlobal = {}; // Ahora guardará {eurocop, estado, etc.} de cada lote
 let currentPlatesInConsultedLot = [];
 let currentConsultedLotName = "";
 let knownCountries = []; 
 let isUserAuthenticated = false;
 
-// --- AUTO LOGIN (Para Live Server) ---
+// --- AUTO LOGIN (Para pruebas en Live Server) ---
 const currentHost = window.location.hostname;
 const isLocal = (currentHost === '127.0.0.1' || currentHost === 'localhost');
 
 if (isLocal) {
-    // ⚠️ PON AQUÍ TU CORREO REAL CUANDO USES LIVE SERVER
+    // ⚠️ Usa tus credenciales reales aquí para Live Server
     signInWithEmailAndPassword(auth, "tu_correo_real@gad.com", "TuContraseña") 
         .catch(error => console.error("Error Auto-login:", error));
 }
@@ -54,6 +54,7 @@ onAuthStateChanged(auth, (user) => {
 function initApp() {
     loadPlates();
     
+    // Sort Headers interactivos
     document.querySelectorAll('.sort-header').forEach(header => {
         header.addEventListener('click', () => { handleSort(header.dataset.sortBy); });
     });
@@ -117,8 +118,18 @@ function initApp() {
     });
 
     document.getElementById('exportLotToExcelButton').addEventListener('click', handleExportToExcel);
-    document.getElementById('exportLotToPDFButton').addEventListener('click', () => {
-        generatePDFForLot(currentConsultedLotName, currentPlatesInConsultedLot);
+    
+    // Botón exportar PDF desde el Modal
+    document.getElementById('exportLotToPDFButton').addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generando...';
+        btn.disabled = true;
+        
+        await generatePDFForLot(currentConsultedLotName, currentPlatesInConsultedLot);
+        
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
     });
 
     window.addEventListener('click', (e) => {
@@ -131,6 +142,7 @@ function initApp() {
     });
 }
 
+// --- CARGA DE DATOS ---
 async function loadPlates() {
     document.getElementById('platesTableBody').innerHTML = '<tr><td colspan="7" class="text-center p-6 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando datos...</td></tr>';
     try {
@@ -161,11 +173,9 @@ async function loadPlates() {
 
 async function loadLotMetadata() {
     const snapshot = await get(ref(database, 'lotes'));
-    lotEurocopData = {}; 
+    lotMetadataGlobal = {}; 
     if (snapshot.exists()) {
-        Object.entries(snapshot.val()).forEach(([lotNumber, metadata]) => {
-            if (metadata && metadata.eurocop !== undefined) lotEurocopData[lotNumber] = metadata.eurocop;
-        });
+        lotMetadataGlobal = snapshot.val();
     }
 }
 
@@ -187,6 +197,7 @@ async function getNextLotNumber() {
     document.getElementById('lotNumber').value = `LOTE ${maxLotNumber + 1}`;
 }
 
+// --- FILTRO Y ORDENACIÓN (AHORA ALFABÉTICO PERFECTO) ---
 function handleSearchPlate() {
     const searchTerm = document.getElementById('searchPlate').value.trim().toUpperCase();
     let filtered = allPlatesData;
@@ -211,23 +222,29 @@ function updateSortIcons() {
     if (currentIcon) { currentIcon.innerHTML = currentSort.direction === 'asc' ? '<i class="fas fa-sort-up ml-1 text-blue-400"></i>' : '<i class="fas fa-sort-down ml-1 text-blue-400"></i>'; }
 }
 
+// --- RENDERIZAR TABLA PRINCIPAL ---
 function renderPlates(platesToRender) {
     const tableBody = document.getElementById('platesTableBody');
     tableBody.innerHTML = '';
     
+    // Motor de Ordenación Avanzada
     platesToRender.sort((a, b) => {
         const isADestroyed = !!a.LoteDestruccion && a.LoteDestruccion.trim() !== "";
         const isBDestroyed = !!b.LoteDestruccion && b.LoteDestruccion.trim() !== "";
         if (isADestroyed !== isBDestroyed) return isADestroyed ? 1 : -1; 
+        
         let aVal = a[currentSort.column] || '', bVal = b[currentSort.column] || '';
+        
         if (currentSort.column === 'FECHA_AGREGADA') {
             aVal = aVal ? new Date(aVal).getTime() : 0; bVal = bVal ? new Date(bVal).getTime() : 0;
+            if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+            if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+            return 0;
         } else {
-            aVal = String(aVal).toUpperCase(); bVal = String(bVal).toUpperCase();
+            // Ordenación alfabética perfecta reconociendo acentos (ej: España vs Francia)
+            const cmp = String(aVal).localeCompare(String(bVal), 'es', { sensitivity: 'base' });
+            return currentSort.direction === 'asc' ? cmp : -cmp;
         }
-        if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
-        if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
-        return 0;
     });
 
     if (platesToRender.length === 0) {
@@ -235,28 +252,33 @@ function renderPlates(platesToRender) {
     }
 
     platesToRender.forEach((placa, i) => {
-        const isDestroyed = placa.LoteDestruccion && placa.LoteDestruccion.trim() !== "";
-        const rowClass = isDestroyed ? 'bg-emerald-900 bg-opacity-20 text-gray-400' : 'hover:bg-slate-800 transition';
+        const isAssigned = placa.LoteDestruccion && placa.LoteDestruccion.trim() !== "";
+        const assignedLotName = isAssigned ? placa.LoteDestruccion.trim() : "";
+        const isLotLocked = isAssigned && lotMetadataGlobal[assignedLotName]?.estado === 'destruido';
+        
+        const rowClass = isAssigned ? (isLotLocked ? 'bg-red-900 bg-opacity-10 text-gray-400' : 'bg-emerald-900 bg-opacity-20 text-gray-400') : 'hover:bg-slate-800 transition';
         const fechaFormat = placa.FECHA_AGREGADA ? new Date(placa.FECHA_AGREGADA).toLocaleDateString('es-ES') : '';
         const row = document.createElement('tr');
         row.className = rowClass;
         
         row.innerHTML = `
-            <td class="p-3 text-center"><input type="checkbox" data-plate-id="${placa.id}" ${isDestroyed ? 'disabled hidden' : ''} class="plate-checkbox w-4 h-4 accent-red-500 cursor-pointer"></td>
+            <td class="p-3 text-center"><input type="checkbox" data-plate-id="${placa.id}" ${isAssigned ? 'disabled hidden' : ''} class="plate-checkbox w-4 h-4 accent-red-500 cursor-pointer"></td>
             <td class="p-3 text-gray-500 font-bold">${platesToRender.length - i}</td>
             <td class="p-3 font-bold" id="pais-${placa.id}">${placa.PAIS || ''}</td>
             <td class="p-3 font-bold text-red-400 text-base" id="placa-${placa.id}">${placa.PLACA || ''}</td>
             <td class="p-3 text-gray-400">${fechaFormat}</td>
-            <td class="p-3 font-bold ${isDestroyed ? 'text-emerald-500' : 'text-gray-500'}">${isDestroyed ? `<i class="fas fa-check-circle mr-1"></i>${placa.LoteDestruccion}` : 'PENDIENTE'}</td>
+            <td class="p-3 font-bold ${isAssigned ? (isLotLocked ? 'text-red-500' : 'text-emerald-500') : 'text-gray-500'}">
+                ${isAssigned ? (isLotLocked ? `<i class="fas fa-lock mr-1"></i>${assignedLotName}` : `<i class="fas fa-check-circle mr-1"></i>${assignedLotName}`) : 'PENDIENTE'}
+            </td>
             <td class="p-3 text-center">
-                ${!isDestroyed ? `
+                ${!isAssigned ? `
                     <i class="fas fa-edit action-icon text-blue-400 hover:text-blue-300 mr-3" data-plate-id="${placa.id}" title="Editar"></i>
                     <i class="fas fa-times-circle action-icon text-red-500 hover:text-red-400" data-plate-id="${placa.id}" title="Anular"></i>
                 ` : ''}
             </td>
         `;
         tableBody.appendChild(row);
-        if (!isDestroyed) {
+        if (!isAssigned) {
             row.querySelector('.fa-times-circle').addEventListener('click', () => handleAnularPlate(placa));
             row.querySelector('.fa-edit').addEventListener('click', () => handleEditPlate(placa.id));
         }
@@ -276,7 +298,7 @@ async function executeGenerateLot(plateIdsArray) {
     try {
         const updates = {};
         plateIdsArray.forEach(id => updates[`placas_destruccion/${id}/LoteDestruccion`] = lotName);
-        updates[`lotes/${lotName}`] = { fechaCreacion: new Date().toLocaleDateString('es-ES'), totalPlacas: plateIdsArray.length, eurocop: "" };
+        updates[`lotes/${lotName}`] = { fechaCreacion: new Date().toLocaleDateString('es-ES'), totalPlacas: plateIdsArray.length, eurocop: "", estado: "pendiente" };
         
         await update(ref(database), updates);
         
@@ -289,6 +311,7 @@ async function executeGenerateLot(plateIdsArray) {
     }
 }
 
+// --- PANEL DE LOTES CREADOS (NUEVO BLINDAJE) ---
 function loadLotAdministrationPanel() {
     const tbody = document.getElementById('lotAdminBody');
     tbody.innerHTML = '';
@@ -299,30 +322,59 @@ function loadLotAdministrationPanel() {
     sortedLots.forEach(lotName => {
         const row = document.createElement('tr');
         row.className = 'hover:bg-slate-800 transition';
+        
+        const metadata = lotMetadataGlobal[lotName] || {};
+        const isLocked = metadata.estado === 'destruido';
         const dateMatch = lotName.match(/\((.*?)\)/);
         
         row.innerHTML = `
-            <td class="p-3 font-bold text-gray-300">${lotName.replace(/\s*\([^)]*\)/, '')}</td>
-            <td class="p-3"><input type="text" value="${lotLotDataEurocop(lotName)}" data-lot="${lotName}" placeholder="Nº Eurocop" class="bg-gadBg border border-gadBorder text-white px-2 py-1.5 rounded w-28 outline-none focus:border-blue-500"></td>
+            <td class="p-3 font-bold ${isLocked ? 'text-red-400' : 'text-gray-300'}">${lotName.replace(/\s*\([^)]*\)/, '')}</td>
+            <td class="p-3">
+                <input type="text" value="${metadata.eurocop || ''}" data-lot="${lotName}" placeholder="Nº Eurocop" 
+                       class="border border-gadBorder px-2 py-1.5 rounded w-28 outline-none focus:border-blue-500 ${isLocked ? 'bg-gray-800 text-gray-500 cursor-not-allowed' : 'bg-gadBg text-white'}" 
+                       ${isLocked ? 'disabled' : ''}>
+            </td>
             <td class="p-3 font-bold">${uniqueLots[lotName].length}</td>
             <td class="p-3 text-gray-400">${dateMatch ? dateMatch[1] : 'N/A'}</td>
             <td class="p-3">
-                <div class="flex flex-wrap gap-2">
-                    <button class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-bold" onclick="window.consultLot('${lotName}')"><i class="fas fa-search"></i> Consultar</button>
-                    <button class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold" onclick="window.downloadLotPDF('${lotName}')"><i class="fas fa-file-pdf"></i> PDF</button>
-                    <button class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded text-xs font-bold" onclick="window.undoLot('${lotName}')"><i class="fas fa-undo"></i> Deshacer</button>
+                <div class="flex flex-wrap gap-2 items-center">
+                    ${isLocked ? `
+                        <span class="bg-red-900/40 text-red-400 border border-red-800 px-3 py-1.5 rounded text-xs font-bold mr-2"><i class="fas fa-lock mr-1"></i> DESTRUIDO</span>
+                        <button class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.consultLot('${lotName}')"><i class="fas fa-search"></i></button>
+                        <button class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.downloadLotPDF('${lotName}', event)"><i class="fas fa-file-pdf"></i></button>
+                    ` : `
+                        <button class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.consultLot('${lotName}')"><i class="fas fa-search"></i> Consultar</button>
+                        <button class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.downloadLotPDF('${lotName}', event)"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="bg-orange-600 hover:bg-orange-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.undoLot('${lotName}')"><i class="fas fa-undo"></i> Deshacer</button>
+                        <button class="bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded text-xs font-bold shadow-md" onclick="window.destroyLot('${lotName}')"><i class="fas fa-fire"></i> Destruir</button>
+                    `}
                 </div>
             </td>
         `;
         tbody.appendChild(row);
-        row.querySelector('input').addEventListener('change', async (e) => {
-            await update(ref(database, `lotes/${lotName}`), { eurocop: e.target.value });
-            e.target.style.borderColor = '#10b981'; setTimeout(() => e.target.style.borderColor = '', 1000);
-        });
+        
+        if(!isLocked) {
+            row.querySelector('input').addEventListener('change', async (e) => {
+                await update(ref(database, `lotes/${lotName}`), { eurocop: e.target.value });
+                e.target.style.borderColor = '#10b981'; setTimeout(() => e.target.style.borderColor = '', 1000);
+            });
+        }
     });
 }
 
-function lotLotDataEurocop(lotName) { return lotEurocopData[lotName.replace(/\s*\([^)]*\)/, '')] || ''; }
+// Bloquear Lote Definitivamente
+window.destroyLot = async (lotName) => {
+    if(confirm(`⚠️ CUIDADO: Vas a confirmar la destrucción física de las placas del ${lotName}.\n\nUna vez marcado como DESTRUIDO, este lote quedará BLINDADO: no podrás deshacerlo ni modificarlo.\n\n¿Estás completamente seguro de continuar?`)) {
+        try {
+            await update(ref(database, `lotes/${lotName}`), { estado: 'destruido' });
+            alert(`🔒 El ${lotName} ha sido blindado exitosamente.`);
+            await loadPlates();
+        } catch (error) {
+            console.error(error);
+            alert("Error al destruir el lote.");
+        }
+    }
+};
 
 window.consultLot = (lotName) => {
     currentConsultedLotName = lotName; 
@@ -338,6 +390,9 @@ window.consultLot = (lotName) => {
 };
 
 window.undoLot = async (lotName) => {
+    const metadata = lotMetadataGlobal[lotName];
+    if (metadata && metadata.estado === 'destruido') { return alert("Acción denegada. Este lote está blindado."); }
+    
     if (confirm(`¿Estás seguro de deshacer el ${lotName}? Las placas volverán a estar pendientes.`)) {
         const updates = {};
         uniqueLots[lotName].forEach(id => updates[`placas_destruccion/${id}/LoteDestruccion`] = "");
@@ -348,15 +403,43 @@ window.undoLot = async (lotName) => {
 };
 
 // ==========================================
-// NUEVA GENERACIÓN DE PDF PROFESIONAL Y COMPACTO
+// GENERACIÓN DE PDF: BASE64 E INCRUSTACIÓN
 // ==========================================
-window.downloadLotPDF = (lotName) => {
-    // Obtenemos placas del lote directamente
+
+// Función auxiliar para forzar la carga de la imagen en Base64
+async function getBase64ImageFromUrl(imageUrl) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width; canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => resolve(null); // Si falla, devolvemos null para no romper el PDF
+        img.src = imageUrl;
+    });
+}
+
+window.downloadLotPDF = async (lotName, event) => {
     const platesArray = uniqueLots[lotName].map(id => allPlatesData.find(p => p.id === id)).filter(Boolean);
-    generatePDFForLot(lotName, platesArray);
+    
+    let btn = null; let originalHtml = "";
+    if (event && event.currentTarget) {
+        btn = event.currentTarget;
+        originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+    }
+    
+    await generatePDFForLot(lotName, platesArray);
+    
+    if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; }
 };
 
-function generatePDFForLot(lotName, platesArray) {
+async function generatePDFForLot(lotName, platesArray) {
     if (!platesArray || platesArray.length === 0) return alert("No hay datos para exportar.");
     
     // ORDENACIÓN ALFABÉTICA OBLIGATORIA POR MATRÍCULA
@@ -365,19 +448,24 @@ function generatePDFForLot(lotName, platesArray) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     
-    // 1. CABECERA: ESPACIOS PARA LOGOS
-    doc.setDrawColor(200, 200, 200); 
-    
-    // LOGO IZQUIERDA (judicial.png)
-    doc.rect(14, 10, 25, 25); 
-    doc.setFontSize(8);
-    doc.text("judicial.png", 16, 23);
+    // 1. OBTENER IMÁGENES EN BASE64
+    const logoIzquierda = await getBase64ImageFromUrl('../ASSETS/judicial.png') || await getBase64ImageFromUrl('../ASSETS/logoora.png'); 
+    const logoDerecha = await getBase64ImageFromUrl('../ASSETS/logogad.png');
 
-    // LOGO DERECHA (logogad.png)
-    doc.rect(171, 10, 25, 25);
-    doc.text("logogad.png", 173, 23);
+    // 2. INCRUSTAR LOGOS O DIBUJAR RECUADRO SI FALLAN
+    if(logoIzquierda) {
+        doc.addImage(logoIzquierda, 'PNG', 14, 10, 25, 25);
+    } else {
+        doc.setDrawColor(200, 200, 200); doc.rect(14, 10, 25, 25); doc.setFontSize(8); doc.text("judicial.png", 16, 23);
+    }
 
-    // 2. CABECERA: TEXTO CENTRAL EXACTO
+    if(logoDerecha) {
+        doc.addImage(logoDerecha, 'PNG', 171, 10, 25, 25);
+    } else {
+        doc.setDrawColor(200, 200, 200); doc.rect(171, 10, 25, 25); doc.text("logogad.png", 173, 23);
+    }
+
+    // 3. CABECERA: TEXTO CENTRAL EXACTO
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text("EXCMO. AYUNTAMIENTO DE ALICANTE", 105, 12, { align: "center" });
@@ -389,18 +477,13 @@ function generatePDFForLot(lotName, platesArray) {
     
     doc.setFont("helvetica", "normal");
     doc.text("Av. Julián Besteiro 15", 105, 30, { align: "center" });
-    
-    // Simular el enlace azul
     doc.setTextColor(30, 64, 175);
     doc.text("Email: policia.gad@alicante.es", 105, 34, { align: "center" });
-    
     doc.setTextColor(0, 0, 0);
     doc.text("TEL: +34629111387 - Central PL 965107200", 105, 38, { align: "center" });
-
-    // Línea separadora
     doc.line(14, 42, 196, 42);
 
-    // 3. TÍTULO DEL LOTE Y FECHA
+    // 4. TÍTULO DEL LOTE Y FECHA
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text(`Registro GAD - Placas del ${lotName}`, 14, 49);
@@ -411,8 +494,7 @@ function generatePDFForLot(lotName, platesArray) {
     const formattedDate = today.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     doc.text(`Generado el: ${formattedDate} - Total Placas: ${platesArray.length}`, 14, 54);
 
-    // 4. PREPARACIÓN DE DATOS A 3 COLUMNAS
-    // Dividimos el array lineal en filas de 3 placas cada una.
+    // 5. PREPARACIÓN DE DATOS A 3 COLUMNAS
     const bodyData = [];
     for (let i = 0; i < platesArray.length; i += 3) {
         const row = [];
@@ -421,54 +503,38 @@ function generatePDFForLot(lotName, platesArray) {
                 const p = platesArray[i + j];
                 row.push(i + j + 1, p.PAIS || '', p.PLACA || '');
             } else {
-                row.push('', '', ''); // Rellenos vacíos
+                row.push('', '', ''); // Rellenos vacíos para cuadrar columnas
             }
         }
         bodyData.push(row);
     }
 
-    // 5. TABLA COMPACTA DE 3 COLUMNAS
+    // 6. TABLA COMPACTA DE 3 COLUMNAS
     doc.autoTable({
         startY: 58,
         head: [['#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA']],
         body: bodyData,
         theme: 'grid',
         headStyles: { fillColor: [220, 38, 38], fontSize: 8, halign: 'center' }, 
-        styles: { fontSize: 8, cellPadding: 1 }, // Celda reducida para que quepan muchas
+        styles: { fontSize: 8, cellPadding: 1 }, 
         columnStyles: {
-            0: { cellWidth: 8, halign: 'center' },
-            1: { cellWidth: 25 },
-            2: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] },
-            3: { cellWidth: 8, halign: 'center' },
-            4: { cellWidth: 25 },
-            5: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] },
-            6: { cellWidth: 8, halign: 'center' },
-            7: { cellWidth: 25 },
-            8: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] }
+            0: { cellWidth: 8, halign: 'center' }, 1: { cellWidth: 25 }, 2: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] },
+            3: { cellWidth: 8, halign: 'center' }, 4: { cellWidth: 25 }, 5: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] },
+            6: { cellWidth: 8, halign: 'center' }, 7: { cellWidth: 25 }, 8: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] }
         },
         margin: { left: 14, right: 14, bottom: 20 }
     });
     
-    // 6. ESPACIO PARA FIRMAS Y SELLO AL FINAL DEL DOCUMENTO
+    // 7. ESPACIO PARA FIRMAS Y SELLO AL FINAL DEL DOCUMENTO
     let finalY = doc.lastAutoTable.finalY || 58;
-    
-    // Si la tabla terminó muy abajo, creamos una página nueva para las firmas
-    if (finalY > 240) {
-        doc.addPage();
-        finalY = 20;
-    } else {
-        finalY += 15; // Dejamos un poco de margen tras la tabla
-    }
+    if (finalY > 240) { doc.addPage(); finalY = 20; } else { finalY += 15; }
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.text("Firma del receptor y Sello:", 14, finalY);
-    
-    // Recuadro grande para estampar el sello y firmar
     doc.setDrawColor(0, 0, 0); 
     doc.rect(14, finalY + 3, 100, 35); 
 
-    // GUARDAR PDF
     doc.save(`Placas_${lotName.replace(/\s+/g, '_')}.pdf`);
 }
 
