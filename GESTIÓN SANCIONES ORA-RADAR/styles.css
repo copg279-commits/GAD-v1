@@ -146,3 +146,53 @@ h3[style*="color:var(--primary-ora)"] { color: var(--accent) !important; border-
 h3[style*="color:#3498db"] { color: var(--accent) !important; border-bottom-color: var(--border) !important; }
 div[style*="border-top:1px solid #eee"] { border-top-color: var(--border) !important; }
 p[style*="background:#eff6ff"] { background: rgba(30, 58, 138, 0.2) !important; color: var(--text-muted) !important; border-left-color: var(--accent) !important; }
+/* =========================================
+   DISEÑO RESPONSIVE (MÓVILES Y PANTALLAS PEQUEÑAS)
+   ========================================= */
+@media (max-width: 850px) {
+    /* 1. Cabecera con cuadrícula estricta inamovible */
+    .header-main {
+        display: grid !important;
+        grid-template-columns: auto 1fr auto; /* Logo | Espacio flexible | Logo */
+        grid-template-areas: 
+            "logoIzq vacio logoDer"
+            "centro centro centro"; /* El centro ocupa toda la fila 2 obligatoriamente */
+        padding: 15px 10px;
+        gap: 15px 0; /* Separación vertical entre logos y botones */
+        align-items: center;
+    }
+    
+    /* Asignamos cada elemento a su zona para que no se escapen */
+    .header-main > div:nth-child(1) { grid-area: logoIzq; }
+    .header-center { grid-area: centro; width: 100%; margin: 0; }
+    .header-main > div:nth-child(3) { grid-area: logoDer; }
+    
+    /* Achicamos los logos un poco para que no estorben */
+    .header-logo-container { width: 55px !important; height: 55px !important; margin: 0; }
+    .header-main h1 { font-size: 1.1em; text-align: center; margin-bottom: 10px; }
+    .mode-selector { width: 100%; max-width: 100%; margin: 0 auto; }
+
+    /* 2. Tarjetas de Vehículos Adaptadas a Dedo */
+    .card-header { flex-direction: column; align-items: stretch; text-align: center; padding: 15px; }
+    .left-col { justify-content: center; width: 100%; margin-bottom: 10px; }
+    .plate-box { width: 100%; max-width: 250px; font-size: 1.4em; padding: 6px 0; }
+    
+    /* Contenedor de los chips de estado y botón de borrar */
+    .card-header > div:last-child { justify-content: center; flex-wrap: wrap; width: 100%; gap: 8px; }
+    .status-chip { flex-grow: 1; text-align: center; padding: 10px 5px; font-size: 0.75em; }
+    
+    /* 3. Detalles de cada multa (Desplegable) */
+    .detail-row { flex-direction: column; align-items: flex-start; gap: 12px; padding: 15px 0; }
+    .detail-row > div { width: 100%; justify-content: space-between; padding-left: 10px; border-left: 2px solid var(--border); }
+
+    /* 4. Modales (Formularios) */
+    .custom-modal { width: 95%; max-height: 85vh; }
+    .modal-content-scrollable { padding: 20px; }
+}
+
+/* Ajuste extra para pantallas de móviles muy estrechos */
+@media (max-width: 400px) {
+    .header-logo-container { width: 45px !important; height: 45px !important; }
+    .header-main h1 { font-size: 0.95em; }
+    .plate-box { font-size: 1.2em; }
+}
