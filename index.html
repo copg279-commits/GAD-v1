@@ -179,8 +179,9 @@
                         btn.style.boxShadow = '0 0 30px rgba(52, 211, 153, 0.6)';
 
                         setTimeout(() => {
-                            window.location.href = 'dashboard.html';
-                        }, 1500);
+    // Le decimos que entre a la carpeta dashboard y abra su index.html
+    window.location.href = 'dashboard/index.html'; 
+}, 1500);
                     } else {
                         msg.innerHTML = "DENEGADO: " + user.email;
                         msg.className = "mt-4 text-xs font-extrabold text-red-500 drop-shadow-[0_0_10px_rgba(248,113,113,1)] tracking-widest animate-pulse uppercase";
