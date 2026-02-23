@@ -30,10 +30,12 @@ let previewLotName = "";
 let previewPlatesArray = [];
 let previewCols = 3; 
 
+// --- AUTO LOGIN MEMORIZADO ---
 const currentHost = window.location.hostname;
 const isLocal = (currentHost === '127.0.0.1' || currentHost === 'localhost');
 
 if (isLocal) {
+    // Usando tus credenciales memorizadas: test@gad.com / 123456
     signInWithEmailAndPassword(auth, "test@gad.com", "123456") 
         .catch(error => console.error("Error Auto-login:", error));
 }
@@ -186,36 +188,26 @@ function renderPlates(platesToRender) {
     const tableBody = document.getElementById('platesTableBody');
     tableBody.innerHTML = '';
     
-    // ORDENACIÓN AVANZADA: Ahora es una ordenación alfabética pura absoluta
     platesToRender.sort((a, b) => {
         if (currentSort.column === 'FECHA_AGREGADA') {
-            // Solo si ordenamos por fecha, agrupamos Pendientes arriba
             const isADestroyed = !!a.LoteDestruccion && a.LoteDestruccion.trim() !== "";
             const isBDestroyed = !!b.LoteDestruccion && b.LoteDestruccion.trim() !== "";
             if (isADestroyed !== isBDestroyed) return isADestroyed ? 1 : -1; 
-            
             const aVal = a.FECHA_AGREGADA ? new Date(a.FECHA_AGREGADA).getTime() : 0;
             const bVal = b.FECHA_AGREGADA ? new Date(b.FECHA_AGREGADA).getTime() : 0;
             if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
             if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
             return 0;
         } else {
-            // SI ORDENAMOS POR PAÍS O PLACA: Orden alfabético puro ignorando los lotes
             const aVal = a[currentSort.column] || '';
             const bVal = b[currentSort.column] || '';
             const cmp = String(aVal).localeCompare(String(bVal), 'es', { sensitivity: 'base' });
             if (cmp !== 0) return currentSort.direction === 'asc' ? cmp : -cmp;
-            
-            // Desempate
             const fallback = currentSort.column === 'PAIS' ? 'PLACA' : 'PAIS';
             const cmp2 = String(a[fallback]||'').localeCompare(String(b[fallback]||''), 'es', { sensitivity: 'base' });
             return currentSort.direction === 'asc' ? cmp2 : -cmp2;
         }
     });
-
-    if (platesToRender.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="7" class="text-center p-6 text-gray-500">No hay resultados.</td></tr>'; return;
-    }
 
     platesToRender.forEach((placa, i) => {
         const isAssigned = placa.LoteDestruccion && placa.LoteDestruccion.trim() !== "";
@@ -297,7 +289,7 @@ function loadLotAdministrationPanel() {
     });
 }
 
-window.destroyLot = async (lotName) => { if(confirm(`⚠️ CUIDADO: Vas a activar el candado del ${lotName}.\nNo podrás deshacerlo ni modificarlo.\n¿Continuar?`)) { await update(ref(database, `lotes/${lotName}`), { estado: 'destruidas' }); await loadPlates(); }};
+window.destroyLot = async (lotName) => { if(confirm(`⚠️ CUIDADO: Vas a activar el candado del ${lotName}. ¿Continuar?`)) { await update(ref(database, `lotes/${lotName}`), { estado: 'destruidas' }); await loadPlates(); }};
 window.unlockLot = async (lotName) => { if(confirm(`🔓 ¿Quitar el candado del ${lotName}?`)) { await update(ref(database, `lotes/${lotName}`), { estado: 'pendiente' }); await loadPlates(); }};
 
 window.consultLot = (lotName) => {
@@ -310,13 +302,16 @@ window.consultLot = (lotName) => {
 };
 
 window.undoLot = async (lotName) => {
-    if (lotMetadataGlobal[lotName]?.estado === 'destruidas') return alert("Acción denegada. Lote blindado.");
+    if (lotMetadataGlobal[lotName]?.estado === 'destruidas') return alert("Lote blindado.");
     if (confirm(`¿Deshacer ${lotName}?`)) {
         const updates = {}; uniqueLots[lotName].forEach(id => updates[`placas_destruccion/${id}/LoteDestruccion`] = "");
         await remove(ref(database, `lotes/${lotName}`)); await update(ref(database), updates); loadPlates();
     }
 };
 
+// ==========================================
+// MOTOR DE PDF CON RUTAS DE SALIDA (../ASSETS/)
+// ==========================================
 async function getBase64ImageFromUrl(imageUrl) {
     return new Promise((resolve) => {
         const img = new Image(); img.crossOrigin = 'Anonymous';
@@ -338,10 +333,8 @@ window.preparePDFPreview = async (lotName) => {
         if (cmp !== 0) return cmp;
         return (a.PLACA||'').localeCompare((b.PLACA||''), 'es', { sensitivity: 'base' });
     });
-
     previewCols = 3; 
     updatePdfPreviewBtns();
-    
     document.getElementById('modal-overlay').style.display = 'block';
     document.getElementById('pdfPreviewModal').style.display = 'flex';
     await renderPdfPreview();
@@ -350,7 +343,6 @@ window.preparePDFPreview = async (lotName) => {
 async function renderPdfPreview() {
     document.getElementById('pdfLoadingSpinner').style.display = 'block';
     currentPdfDoc = await buildPDFDocument(previewLotName, previewPlatesArray, previewCols);
-    
     const pdfBlob = currentPdfDoc.output('blob');
     document.getElementById('pdfPreviewFrame').src = URL.createObjectURL(pdfBlob) + "#view=Fit";
     document.getElementById('pdfLoadingSpinner').style.display = 'none';
@@ -360,19 +352,16 @@ async function buildPDFDocument(lotName, platesArray, columns) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     
-    const logoIzquierda = await getBase64ImageFromUrl('assets/judicial.png'); 
-    const logoDerecha = await getBase64ImageFromUrl('assets/logogad.png');
+    // RUTAS CORREGIDAS PARA SALIR DE CARPETA (../ASSETS/)
+    const logoIzquierda = await getBase64ImageFromUrl('../ASSETS/judicial.png'); 
+    const logoDerecha = await getBase64ImageFromUrl('../ASSETS/logogad.png');
 
     if(logoIzquierda) doc.addImage(logoIzquierda, 'PNG', 14, 10, 25, 25);
-    else { doc.setDrawColor(200, 200, 200); doc.rect(14, 10, 25, 25); doc.setFontSize(8); doc.text("judicial.png", 16, 23); }
-
     if(logoDerecha) doc.addImage(logoDerecha, 'PNG', 171, 10, 25, 25);
-    else { doc.setDrawColor(200, 200, 200); doc.rect(171, 10, 25, 25); doc.text("logogad.png", 173, 23); }
 
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("EXCMO. AYUNTAMIENTO DE ALICANTE", 105, 12, { align: "center" });
     doc.text("POLICÍA LOCAL", 105, 17, { align: "center" });
-    
     doc.setFontSize(9);
     doc.text("Grupo de Análisis Documental", 105, 22, { align: "center" });
     doc.text("Unidad Judicial de Tráfico", 105, 26, { align: "center" });
@@ -385,7 +374,7 @@ async function buildPDFDocument(lotName, platesArray, columns) {
     doc.setFontSize(14); doc.setFont("helvetica", "bold");
     doc.text(`Registro GAD - Placas del ${lotName}`, 14, 49);
     doc.setFontSize(9); doc.setFont("helvetica", "italic");
-    doc.text(`Generado el: ${new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} - Total Placas: ${platesArray.length}`, 14, 54);
+    doc.text(`Generado el: ${new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`, 14, 54);
 
     const bodyData = [];
     for (let i = 0; i < platesArray.length; i += columns) {
@@ -398,33 +387,17 @@ async function buildPDFDocument(lotName, platesArray, columns) {
         bodyData.push(row);
     }
 
-    let headRow = []; let colStyles = {};
-    if (columns === 3) {
-        headRow = ['#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA'];
-        colStyles = {
-            0: { cellWidth: 8, halign: 'center' }, 1: { cellWidth: 23 }, 2: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] },
-            3: { cellWidth: 8, halign: 'center' }, 4: { cellWidth: 23 }, 5: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] },
-            6: { cellWidth: 8, halign: 'center' }, 7: { cellWidth: 23 }, 8: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] }
-        };
-    } else {
-        headRow = ['#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA'];
-        colStyles = {
-            0: { cellWidth: 10, halign: 'center' }, 1: { cellWidth: 38 }, 2: { cellWidth: 36, fontStyle: 'bold', textColor: [220, 38, 38] },
-            3: { cellWidth: 10, halign: 'center' }, 4: { cellWidth: 38 }, 5: { cellWidth: 36, fontStyle: 'bold', textColor: [220, 38, 38] }
-        };
-    }
-
+    let headRow = columns === 3 ? ['#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA'] : ['#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA'];
+    
     doc.autoTable({
         startY: 58,
         head: [headRow], body: bodyData, theme: 'grid',
         headStyles: { fillColor: [220, 38, 38], fontSize: 8, halign: 'center' }, 
-        styles: { fontSize: 8, cellPadding: 1.5 }, 
-        columnStyles: colStyles, margin: { left: 14, right: 14, bottom: 20 }
+        styles: { fontSize: 8, cellPadding: 1.5 }, margin: { left: 14, right: 14, bottom: 20 }
     });
     
     let finalY = doc.lastAutoTable.finalY || 58;
     if (finalY > 240) { doc.addPage(); finalY = 20; } else { finalY += 15; }
-
     doc.setFontSize(10); doc.setFont("helvetica", "bold");
     doc.text("Firma del receptor y Sello:", 14, finalY);
     doc.setDrawColor(0, 0, 0); doc.rect(14, finalY + 3, 100, 35); 
@@ -432,6 +405,7 @@ async function buildPDFDocument(lotName, platesArray, columns) {
     return doc;
 }
 
+// RESTO DE FUNCIONES
 function handleExportToExcel() {
     if (currentPlatesInConsultedLot.length === 0) return alert("No hay datos.");
     let csv = "PAIS,PLACA\n"; currentPlatesInConsultedLot.forEach(p => csv += `"${p.PAIS || ''}","${p.PLACA || ''}"\n`);
@@ -445,7 +419,6 @@ function handleEditPlate(id) {
     paisTd.innerHTML = `<input type="text" value="${oldPais}" class="inline-edit-input" id="edit-pais-${id}">`;
     placaTd.innerHTML = `<input type="text" value="${oldPlaca}" class="inline-edit-input" id="edit-placa-${id}">`;
     document.getElementById(`edit-pais-${id}`).focus();
-    
     const save = async () => {
         const nPais = document.getElementById(`edit-pais-${id}`).value.trim().toUpperCase(), nPlaca = document.getElementById(`edit-placa-${id}`).value.trim().toUpperCase();
         if (nPais && nPlaca && (nPais !== oldPais || nPlaca !== oldPlaca)) {
@@ -458,22 +431,20 @@ function handleEditPlate(id) {
     document.getElementById(`edit-placa-${id}`).addEventListener('keypress', (e) => { if(e.key === 'Enter') save(); });
 }
 
-async function handleAnularPlate(placa) { if (confirm(`¿Mover la placa ${placa.PLACA} a Devolución?`)) { await update(ref(database, `placas_anuladas/${placa.id}`), { PAIS: placa.PAIS, PLACA: placa.PLACA, FECHA_ANULACION: new Date().toISOString() }); await remove(ref(database, `placas_destruccion/${placa.id}`)); loadPlates(); } }
+async function handleAnularPlate(placa) { if (confirm(`¿Anular ${placa.PLACA}?`)) { await update(ref(database, `placas_anuladas/${placa.id}`), { PAIS: placa.PAIS, PLACA: placa.PLACA, FECHA_ANULACION: new Date().toISOString() }); await remove(ref(database, `placas_destruccion/${placa.id}`)); loadPlates(); } }
 
 async function handleSaveNewPlate() {
     const pais = document.getElementById('newPlateCountry').value.trim().toUpperCase(), placa = document.getElementById('newPlateNumber').value.trim().toUpperCase();
-    if (!pais || !placa) return alert("Completa País y Placa."); if (allPlatesData.some(p => p.PLACA === placa && p.PAIS === pais)) return alert("Placa duplicada.");
+    if (!pais || !placa) return alert("Completa campos.");
     await push(ref(database, 'placas_destruccion'), { PAIS: pais, PLACA: placa, FECHA_AGREGADA: new Date().toISOString(), LoteDestruccion: "" });
-    document.getElementById('newPlateCountry').value = ''; document.getElementById('newPlateNumber').value = '';
     document.getElementById('modal-overlay').style.display = 'none'; document.getElementById('newPlateModal').style.display = 'none'; loadPlates();
 }
 
 function renderAnuladasModal() {
     const tbody = document.getElementById('anuladasListBody'); tbody.innerHTML = '';
-    if(anuladasData.length === 0) return tbody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-gray-500">No hay placas devueltas.</td></tr>';
     anuladasData.forEach(p => {
         tbody.innerHTML += `<tr class="hover:bg-slate-800 transition"><td class="p-3">${p.PAIS}</td><td class="p-3 text-red-400 font-bold">${p.PLACA}</td><td class="p-3 text-gray-400">${new Date(p.FECHA_ANULACION).toLocaleDateString()}</td><td class="p-3 text-center"><button class="text-emerald-500 hover:text-emerald-400 mr-3" onclick="window.restorePlate('${p.id}')"><i class="fas fa-trash-restore"></i></button><button class="text-red-500 hover:text-red-400" onclick="window.deleteAnulada('${p.id}')"><i class="fas fa-times"></i></button></td></tr>`;
     });
 }
-window.restorePlate = async (id) => { const p = anuladasData.find(x => x.id === id); if(confirm(`¿Restaurar ${p.PLACA}?`)) { await update(ref(database, `placas_destruccion/${id}`), { PAIS: p.PAIS, PLACA: p.PLACA, FECHA_AGREGADA: new Date().toISOString(), LoteDestruccion: "" }); await remove(ref(database, `placas_anuladas/${id}`)); loadPlates(); document.getElementById('closeAnuladasModal').click(); }};
-window.deleteAnulada = async (id) => { if(confirm("¿Eliminar PERMANENTEMENTE?")) { await remove(ref(database, `placas_anuladas/${id}`)); loadAnuladas(); renderAnuladasModal(); }};
+window.restorePlate = async (id) => { const p = anuladasData.find(x => x.id === id); if(confirm(`Restaurar ${p.PLACA}?`)) { await update(ref(database, `placas_destruccion/${id}`), { PAIS: p.PAIS, PLACA: p.PLACA, FECHA_AGREGADA: new Date().toISOString(), LoteDestruccion: "" }); await remove(ref(database, `placas_anuladas/${id}`)); loadPlates(); document.getElementById('closeAnuladasModal').click(); }};
+window.deleteAnulada = async (id) => { if(confirm("Eliminar permanente?")) { await remove(ref(database, `placas_anuladas/${id}`)); loadAnuladas(); renderAnuladasModal(); }};
