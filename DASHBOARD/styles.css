@@ -5,7 +5,8 @@
     --red: #ef4444;
     --amber: #f59e0b;
     --bg-dark: #060b19;
-    --glass-border: rgba(0, 240, 255, 0.3);
+    --glass-bg: rgba(6, 11, 25, 0.75); /* Botones un poco más oscuros para contrastar bien */
+    --glass-border: rgba(0, 240, 255, 0.4);
 }
 
 * { box-sizing: border-box; }
@@ -47,12 +48,12 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
     display: block; 
 }
 
-/* CAJA PRINCIPAL TOTALMENTE TRANSPARENTE */
+/* CAJA PRINCIPAL TOTALMENTE TRANSPARENTE PARA VER AL POLICÍA NÍTIDO */
 .main-content-wrapper { 
     width: 96%; max-width: 1400px; 
     margin: 0 auto; padding: 25px;
-    background: transparent; 
-    backdrop-filter: none; 
+    background: transparent; /* Fuera gradientes */
+    backdrop-filter: none; /* Fuera difuminado */
     transition: all 0.3s ease; 
 }
 
@@ -61,6 +62,7 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
     font-size: 2.2rem; text-align: center; 
     margin: 10px 80px 5px 80px; 
     color: var(--cyan);
+    /* Sombras más duras para que se lea perfecto sobre fondo nítido */
     text-shadow: 0 0 15px rgba(0, 0, 0, 0.9), 0 2px 5px #000;
     text-transform: uppercase; font-weight: 900;
     transition: font-size 0.3s ease;
@@ -80,68 +82,49 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 /* --- GRID DE BOTONES --- */
 #main-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-bottom: 10px; }
 .full-width { grid-column: 1 / -1; }
+
 .tech-btn svg, .tech-btn .energy-beam { display: none !important; }
 
-/* === BOTONES CRISTALINOS: Más transparencia === */
+/* BOTONES LIMPIOS Y DE TAMAÑO FIJO */
 .tech-btn {
     position: relative; 
-    height: 115px; 
-    /* Transparencia alta para que el fondo se vea genial */
-    background: rgba(0, 0, 0, 0.25); 
-    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    height: 115px; /* ALTURA FIJA PARA TODOS LOS BOTONES */
+    background: var(--glass-bg); /* Solo los botones difuminan lo que hay detrás suyo */
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--glass-border); border-radius: 10px; 
     cursor: pointer; display: flex; align-items: center; justify-content: center;
-    padding: 10px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    padding: 15px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.tech-btn:hover { 
-    transform: translateY(-4px) scale(1.02); 
-    background: rgba(0, 240, 255, 0.15); 
-    box-shadow: 0 8px 25px rgba(0, 240, 255, 0.3); 
-    border-color: var(--cyan); 
-}
+.tech-btn:hover { transform: translateY(-4px) scale(1.02); background: rgba(0, 240, 255, 0.15); box-shadow: 0 8px 25px rgba(0, 240, 255, 0.4); border-color: var(--cyan); }
 
-/* Variantes de botones: Borde + Hover */
-.tech-btn.color-alert { border-color: rgba(239, 68, 68, 0.5); }
-.tech-btn.color-alert:hover { border-color: var(--red); background: rgba(239, 68, 68, 0.15); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3); }
+.tech-btn.color-alert { border-color: rgba(239, 68, 68, 0.6); }
+.tech-btn.color-alert:hover { border-color: var(--red); background: rgba(239, 68, 68, 0.15); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); }
+.tech-btn.color-alert .tech-label { color: #ffcccc; text-shadow: 0 2px 4px #000, 0 0 8px var(--red); }
 
-.tech-btn.color-warning { border-color: rgba(245, 158, 11, 0.5); }
-.tech-btn.color-warning:hover { border-color: var(--amber); background: rgba(245, 158, 11, 0.15); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3); }
+.tech-btn.color-warning { border-color: rgba(245, 158, 11, 0.6); }
+.tech-btn.color-warning:hover { border-color: var(--amber); background: rgba(245, 158, 11, 0.15); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
+.tech-btn.color-warning .tech-label { color: #ffeebb; text-shadow: 0 2px 4px #000, 0 0 8px var(--amber); }
 
-.tech-btn.color-success { border-color: rgba(16, 185, 129, 0.5); }
-.tech-btn.color-success:hover { border-color: var(--green); background: rgba(16, 185, 129, 0.15); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3); }
+.tech-btn.color-success { border-color: rgba(16, 185, 129, 0.6); }
+.tech-btn.color-success:hover { border-color: var(--green); background: rgba(16, 185, 129, 0.15); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
+.tech-btn.color-success .tech-label { color: #ccffdd; text-shadow: 0 2px 4px #000, 0 0 8px var(--green); }
 
-/* === TEXTO DEL BOTÓN (SIN PLACAS, COLORES RESTAURADOS) === */
 .tech-label {
-    position: relative; z-index: 10; 
-    /* Color por defecto (Cyan brillante) */
-    color: var(--cyan); 
-    font-size: 1.05rem; font-weight: 700;
-    text-transform: uppercase; text-align: center; 
-    /* Sombras duras múltiples para garantizar que se lea siempre */
-    text-shadow: 0 2px 4px #000, 0 0 8px rgba(0,0,0,0.8), 0 0 10px var(--cyan); 
-    line-height: 1.4; 
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    word-wrap: break-word; transition: all 0.3s ease;
-    width: 100%;
+    position: relative; z-index: 10; color: #fff; font-size: 1.1rem; font-weight: 700;
+    text-transform: uppercase; text-align: center; text-shadow: 0 2px 5px #000, 0 0 10px rgba(0, 240, 255, 0.5);
+    line-height: 1.4; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    word-wrap: break-word; transition: font-size 0.3s ease; height: 100%; width: 100%;
 }
 
-/* Colores específicos según el tipo de botón */
-.tech-btn.color-alert .tech-label { color: #ffcccc; text-shadow: 0 2px 4px #000, 0 0 10px #000, 0 0 8px var(--red); }
-.tech-btn.color-warning .tech-label { color: #ffeebb; text-shadow: 0 2px 4px #000, 0 0 10px #000, 0 0 8px var(--amber); }
-.tech-btn.color-success .tech-label { color: #ccffdd; text-shadow: 0 2px 4px #000, 0 0 10px #000, 0 0 8px var(--green); }
-
-/* Ocultar definitivamente los iconos de los botones */
+/* ESTA REGLA OCULTA DEFINITIVAMENTE LOS ICONOS DE LAS CARPETAS Y ENLACES */
 .tech-label i { display: none !important; }
 
-/* Efectos al arrastrar y soltar */
-.tech-btn.dragging { opacity: 0.4; border: 2px dashed var(--cyan); transform: scale(0.95); z-index: 50; }
-.tech-btn.drag-over { transform: scale(1.05); border: 2px solid var(--green); box-shadow: 0 0 25px rgba(0, 255, 157, 0.6); background: rgba(0, 255, 157, 0.1); }
 .edit-mode-icon { position:absolute; top:8px; right:8px; z-index:20; background: var(--amber); color:#000; padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight: bold; }
 
 /* --- CONTROLES ADMIN Y PANELES --- */
 .bottom-controls { margin-top: 40px; display: flex; flex-direction: column; gap: 15px; }
-.glass-panel { background: rgba(6, 11, 25, 0.9); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--glass-border); box-shadow: 0 20px 40px rgba(0,0,0,0.8); border-radius: 12px; }
+.glass-panel { background: rgba(6, 11, 25, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--glass-border); box-shadow: 0 20px 40px rgba(0,0,0,0.8); border-radius: 12px; }
 .controls-container { padding: 30px; margin-top: 20px; display: none; flex-direction: column; gap: 20px; border-left: 4px solid var(--cyan); }
 .cyber-button { background: rgba(0, 0, 0, 0.8); border: 1px solid var(--cyan); color: var(--cyan); padding: 15px 25px; font-size: 1rem; text-transform: uppercase; font-weight: bold; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 8px; position: relative; overflow: hidden; }
 .cyber-button:hover { background: rgba(0, 240, 255, 0.2); color: #fff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.5); }
@@ -160,47 +143,39 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .counter-card.total .counter-number { color: var(--green); text-shadow: 0 0 8px var(--green); }
 .counter-header { font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
 
-/* --- SIDEBAR Y SCROLL ARREGLADO DEFINITIVAMENTE --- */
+/* --- SIDEBAR Y BOTONES FLOTANTES --- */
 #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 9998; backdrop-filter: blur(5px); }
-
-/* Se recuperó el ID exacto de tu HTML: #sidebar-menu */
-#sidebar-menu { 
-    position: fixed; top: 0; left: 0; height: 100%; width: 320px; 
-    background: rgba(6, 11, 25, 0.95); border-right: 2px solid var(--cyan); 
-    z-index: 9999; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-    display: flex; flex-direction: column; border-radius: 0 15px 15px 0; 
-}
-
+.side-panel { position: fixed; top: 0; left: 0; height: 100%; width: 320px; background: rgba(6, 11, 25, 0.95); border-right: 2px solid var(--cyan); z-index: 9999; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-radius: 0 15px 15px 0; }
 .sidebar-header { padding: 25px; border-bottom: 1px solid rgba(0, 240, 255, 0.2); color: var(--cyan); display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem;}
 #close-sidebar { cursor:pointer; transition: 0.3s; } #close-sidebar:hover { color: var(--red); transform: rotate(90deg); }
-
-/* CONTENEDOR CON SCROLL ACTIVADO PARA EL MENÚ */
-#sidebar-tree-container {
-    flex: 1; 
-    overflow-y: auto; /* Permite scroll vertical */
-    min-height: 0; /* Propiedad clave para que Flexbox entienda que debe hacer scroll aquí */
-    padding: 10px 0;
-}
-
 .sidebar-item { padding: 20px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ccc; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 15px; font-size: 1rem;}
 .sidebar-item:hover { color: #fff; background: rgba(0, 240, 255, 0.1); padding-left: 35px; border-left: 3px solid var(--cyan); }
 .sidebar-item i { width: 25px; text-align: center; color: var(--cyan); }
 .sidebar-footer { margin-top: auto; padding: 25px; border-top: 1px solid rgba(0, 240, 255, 0.2); }
 .children-container { background: rgba(0,0,0,0.3); }
 
-/* --- BOTONES FLOTANTES --- */
 #sidebar-toggle-float, #global-back-btn {
-    position: fixed; top: 25px; z-index: 1000;
-    width: 60px; height: 60px;
-    background: rgba(6, 11, 25, 0.85); backdrop-filter: blur(10px);
-    border: 2px solid var(--cyan); border-radius: 50%;
-    display: flex; justify-content: center; align-items: center;
-    color: var(--cyan); font-size: 1.8rem; cursor: pointer;
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
-    transition: all 0.3s;
+    position: fixed; 
+    bottom: 15px; /* Los bajamos a la parte inferior */
+    width: 50px;  /* Un poco más pequeños (antes 60px) */
+    height: 50px; /* Un poco más pequeños (antes 60px) */
+    background: rgba(6, 11, 25, 0.9); 
+    border: 2px solid var(--cyan); 
+    border-radius: 50%;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    color: var(--cyan); 
+    font-size: 1.4rem; 
+    z-index: 10001; /* Por encima del footer */
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+    transition: 0.3s;
 }
-#sidebar-toggle-float { left: 25px; }
-#global-back-btn { right: 25px; }
+
+#sidebar-toggle-float { left: 20px; }
+#global-back-btn { right: 20px; }
+
 #sidebar-toggle-float:hover, #global-back-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 30px var(--cyan); transform: scale(1.05); }
 
 
@@ -232,21 +207,27 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 
 /* --- FOOTER FIJO --- */
 footer { 
-    position: fixed; bottom: 0; left: 0; width: 100%;
-    background: rgba(6, 11, 25, 0.95); backdrop-filter: blur(10px);
-    border-top: 2px solid rgba(0, 240, 255, 0.5);
-    padding: 12px 0; text-align: center; font-size: 0.9rem; 
-    color: #ffffff; font-family: 'Orbitron', sans-serif; 
-    letter-spacing: 1px; line-height: 1.6;
-    text-shadow: 2px 2px 5px #000, -2px -2px 5px #000, 0 0 15px #000; 
-    font-weight: 700; z-index: 9999; 
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%;
+    background: rgba(6, 11, 25, 0.95); 
+    padding: 15px 80px; /* El 80px protege el espacio de los botones en las esquinas */
+    text-align: center; 
+    color: #ffffff; 
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem; /* Tamaño legible en PC */
+    line-height: 1.4;
+    text-shadow: 2px 2px 5px #000; 
+    z-index: 9999; 
+    border-top: 1px solid rgba(0, 240, 255, 0.3);
 }
 
 /* =======================================================
    REGLAS PARA ADAPTARSE DINÁMICAMENTE A LA PANTALLA
 ======================================================= */
 @media (max-width: 900px) {
-    .title-container h1 { font-size: 1.7rem; margin: 10px 70px 5px 70px; }
+    .title-container h1 { font-size: 1.7rem; margin: 10px 20px; }
     #user-info-display { font-size: 0.9rem; }
     #main-menu-grid { gap: 15px; }
     .tech-btn { height: 105px; padding: 15px 10px; }
@@ -254,17 +235,30 @@ footer {
 }
 
 @media (max-width: 600px) {
-    .title-container h1 { font-size: 1.25rem; margin: 15px 55px 5px 55px; }
+    /* Eliminamos el margen lateral del título para ganar espacio */
+    .title-container h1 { font-size: 1.25rem; margin: 15px 10px 5px 10px; }
     #user-info-display { font-size: 0.75rem; margin-bottom: 20px; }
 
-    #sidebar-toggle-float, #global-back-btn { width: 45px; height: 45px; font-size: 1.3rem; top: 15px; }
+    /* Ajuste de botones flotantes ABAJO para móvil */
+    #sidebar-toggle-float, #global-back-btn { 
+        width: 45px; 
+        height: 45px; 
+        font-size: 1.2rem; 
+        bottom: 10px; /* Importante: Posición inferior */
+    }
     #sidebar-toggle-float { left: 10px; }
     #global-back-btn { right: 10px; }
 
     #main-menu-grid { gap: 12px; }
     .tech-btn { height: 90px; padding: 12px 8px; }
-    
     .tech-label { font-size: 0.8rem; }
 
-    footer { font-size: 0.75rem; padding: 10px 0; }
+    /* Footer en móvil: Letra pequeña y con "escudo" para los botones */
+    footer { 
+        font-size: 0.65rem; 
+        padding: 8px 60px; /* Evita que el texto choque con los botones */
+    }
 }
+/* EFECTOS VISUALES PARA ARRASTRAR Y SOLTAR */
+.tech-btn.dragging { opacity: 0.4; border: 2px dashed var(--cyan); transform: scale(0.95); z-index: 50; }
+.tech-btn.drag-over { transform: scale(1.05); border: 2px solid var(--green); box-shadow: 0 0 25px rgba(0, 255, 157, 0.6); background: rgba(0, 255, 157, 0.1); }
