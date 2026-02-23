@@ -22,6 +22,7 @@ let uniqueLots = {};
 let currentSort = { column: 'FECHA_AGREGADA', direction: 'desc' };
 let lotEurocopData = {}; 
 let currentPlatesInConsultedLot = [];
+let currentConsultedLotName = "";
 let knownCountries = []; 
 let isUserAuthenticated = false;
 
@@ -30,7 +31,8 @@ const currentHost = window.location.hostname;
 const isLocal = (currentHost === '127.0.0.1' || currentHost === 'localhost');
 
 if (isLocal) {
-    signInWithEmailAndPassword(auth, "test@gad.com", "123456") // <- PON TU CORREO AQUÍ
+    // ⚠️ PON AQUÍ TU CORREO REAL CUANDO USES LIVE SERVER
+    signInWithEmailAndPassword(auth, "tu_correo_real@gad.com", "TuContraseña") 
         .catch(error => console.error("Error Auto-login:", error));
 }
 
@@ -59,7 +61,6 @@ function initApp() {
     
     document.getElementById('searchPlate').addEventListener('input', handleSearchPlate);
     
-    // Checkbox Maestro (Seleccionar Todos)
     document.getElementById('selectAllCheckbox').addEventListener('change', function() {
         const checkboxes = document.querySelectorAll('.plate-checkbox:not(:disabled)');
         checkboxes.forEach(cb => { cb.checked = this.checked; });
@@ -73,24 +74,19 @@ function initApp() {
         document.getElementById(modalId).style.display = show ? 'flex' : 'none';
     };
 
-    // Modal Nueva Placa
     document.getElementById('openNewPlateModal').addEventListener('click', () => toggleModal('newPlateModal', true));
     document.getElementById('closeNewPlateModal').addEventListener('click', () => toggleModal('newPlateModal', false));
     document.getElementById('saveNewPlateButton').addEventListener('click', handleSaveNewPlate);
     
-    // Modal Anuladas
     document.getElementById('openAnuladasModal').addEventListener('click', () => { renderAnuladasModal(); toggleModal('anuladasModal', true); });
     document.getElementById('closeAnuladasModal').addEventListener('click', () => toggleModal('anuladasModal', false));
     
-    // Modal Consultar Lote
     document.getElementById('closeConsultLotModal').addEventListener('click', () => toggleModal('consultLotModal', false));
     
-    // NUEVO MODAL: GENERAR LOTE (Automático vs Manual)
     document.getElementById('generateLotMainBtn').addEventListener('click', () => {
         const lotName = document.getElementById('lotNumber').value;
         document.getElementById('modalNextLotName').textContent = lotName;
         
-        // Calcular conteos
         const pendingCount = allPlatesData.filter(p => !p.LoteDestruccion || p.LoteDestruccion.trim() === "").length;
         const selectedCount = document.querySelectorAll('.plate-checkbox:checked').length;
         
@@ -102,7 +98,6 @@ function initApp() {
 
     document.getElementById('closeGenerateLotModal').addEventListener('click', () => toggleModal('generateLotModal', false));
     
-    // Lógica Botón: Incluir TODAS
     document.getElementById('btnGenAuto').addEventListener('click', () => {
         const pendingIds = allPlatesData.filter(p => !p.LoteDestruccion || p.LoteDestruccion.trim() === "").map(p => p.id);
         if(pendingIds.length === 0) return alert("No hay placas pendientes en el sistema.");
@@ -110,7 +105,6 @@ function initApp() {
         toggleModal('generateLotModal', false);
     });
 
-    // Lógica Botón: Seleccionar MANUALMENTE
     document.getElementById('btnGenManual').addEventListener('click', () => {
         const selectedIds = Array.from(document.querySelectorAll('.plate-checkbox:checked')).map(cb => cb.dataset.plateId);
         if(selectedIds.length === 0) {
@@ -122,11 +116,11 @@ function initApp() {
         toggleModal('generateLotModal', false);
     });
 
-    // Exportaciones
     document.getElementById('exportLotToExcelButton').addEventListener('click', handleExportToExcel);
-    document.getElementById('exportLotToPDFButton').addEventListener('click', handleExportToPDF);
+    document.getElementById('exportLotToPDFButton').addEventListener('click', () => {
+        generatePDFForLot(currentConsultedLotName, currentPlatesInConsultedLot);
+    });
 
-    // Cerrar modales clickeando fuera
     window.addEventListener('click', (e) => {
         if (e.target === overlay) {
             toggleModal('newPlateModal', false);
@@ -137,7 +131,6 @@ function initApp() {
     });
 }
 
-// --- CARGA DE DATOS ---
 async function loadPlates() {
     document.getElementById('platesTableBody').innerHTML = '<tr><td colspan="7" class="text-center p-6 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando datos...</td></tr>';
     try {
@@ -194,7 +187,6 @@ async function getNextLotNumber() {
     document.getElementById('lotNumber').value = `LOTE ${maxLotNumber + 1}`;
 }
 
-// --- FILTRO Y ORDENACIÓN ---
 function handleSearchPlate() {
     const searchTerm = document.getElementById('searchPlate').value.trim().toUpperCase();
     let filtered = allPlatesData;
@@ -219,7 +211,6 @@ function updateSortIcons() {
     if (currentIcon) { currentIcon.innerHTML = currentSort.direction === 'asc' ? '<i class="fas fa-sort-up ml-1 text-blue-400"></i>' : '<i class="fas fa-sort-down ml-1 text-blue-400"></i>'; }
 }
 
-// --- RENDERIZAR TABLA PRINCIPAL ---
 function renderPlates(platesToRender) {
     const tableBody = document.getElementById('platesTableBody');
     tableBody.innerHTML = '';
@@ -278,13 +269,10 @@ function renderPlates(platesToRender) {
 function updateLotButton() {
     const count = document.querySelectorAll('.plate-checkbox:checked').length;
     document.getElementById('selectedCount').textContent = `(${count})`;
-    // NOTA: El botón ya NO se desactiva aquí.
 }
 
-// --- FUNCIÓN EJECUTORA DE GENERAR LOTE ---
 async function executeGenerateLot(plateIdsArray) {
     const lotName = document.getElementById('lotNumber').value;
-    
     try {
         const updates = {};
         plateIdsArray.forEach(id => updates[`placas_destruccion/${id}/LoteDestruccion`] = lotName);
@@ -301,7 +289,6 @@ async function executeGenerateLot(plateIdsArray) {
     }
 }
 
-// --- PANEL DE LOTES CREADOS ---
 function loadLotAdministrationPanel() {
     const tbody = document.getElementById('lotAdminBody');
     tbody.innerHTML = '';
@@ -316,12 +303,15 @@ function loadLotAdministrationPanel() {
         
         row.innerHTML = `
             <td class="p-3 font-bold text-gray-300">${lotName.replace(/\s*\([^)]*\)/, '')}</td>
-            <td class="p-3"><input type="text" value="${lotLotDataEurocop(lotName)}" data-lot="${lotName}" placeholder="Nº Eurocop" class="bg-gadBg border border-gadBorder text-white px-2 py-1 rounded w-28 outline-none focus:border-blue-500"></td>
+            <td class="p-3"><input type="text" value="${lotLotDataEurocop(lotName)}" data-lot="${lotName}" placeholder="Nº Eurocop" class="bg-gadBg border border-gadBorder text-white px-2 py-1.5 rounded w-28 outline-none focus:border-blue-500"></td>
             <td class="p-3 font-bold">${uniqueLots[lotName].length}</td>
             <td class="p-3 text-gray-400">${dateMatch ? dateMatch[1] : 'N/A'}</td>
             <td class="p-3">
-                <button class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold mr-2" onclick="window.consultLot('${lotName}')"><i class="fas fa-search"></i> Consultar</button>
-                <button class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded text-xs font-bold" onclick="window.undoLot('${lotName}')"><i class="fas fa-undo"></i> Deshacer</button>
+                <div class="flex flex-wrap gap-2">
+                    <button class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-bold" onclick="window.consultLot('${lotName}')"><i class="fas fa-search"></i> Consultar</button>
+                    <button class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold" onclick="window.downloadLotPDF('${lotName}')"><i class="fas fa-file-pdf"></i> PDF</button>
+                    <button class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded text-xs font-bold" onclick="window.undoLot('${lotName}')"><i class="fas fa-undo"></i> Deshacer</button>
+                </div>
             </td>
         `;
         tbody.appendChild(row);
@@ -335,6 +325,7 @@ function loadLotAdministrationPanel() {
 function lotLotDataEurocop(lotName) { return lotEurocopData[lotName.replace(/\s*\([^)]*\)/, '')] || ''; }
 
 window.consultLot = (lotName) => {
+    currentConsultedLotName = lotName; 
     document.getElementById('consultLotTitle').textContent = `Placas del ${lotName}`;
     const list = document.getElementById('consultLotList');
     list.innerHTML = '';
@@ -356,60 +347,129 @@ window.undoLot = async (lotName) => {
     }
 };
 
-// --- PDF CON FECHA Y MARCAS DE LOGOS ---
-function handleExportToPDF() {
-    if (currentPlatesInConsultedLot.length === 0) return alert("No hay datos para exportar.");
+// ==========================================
+// NUEVA GENERACIÓN DE PDF PROFESIONAL Y COMPACTO
+// ==========================================
+window.downloadLotPDF = (lotName) => {
+    // Obtenemos placas del lote directamente
+    const platesArray = uniqueLots[lotName].map(id => allPlatesData.find(p => p.id === id)).filter(Boolean);
+    generatePDFForLot(lotName, platesArray);
+};
+
+function generatePDFForLot(lotName, platesArray) {
+    if (!platesArray || platesArray.length === 0) return alert("No hay datos para exportar.");
+    
+    // ORDENACIÓN ALFABÉTICA OBLIGATORIA POR MATRÍCULA
+    platesArray.sort((a, b) => (a.PLACA || '').localeCompare(b.PLACA || ''));
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const title = document.getElementById('consultLotTitle').textContent;
     
-    // Configuración de Márgenes y Logos
-    doc.setDrawColor(200, 200, 200); // Color del borde de los huecos para logos
+    // 1. CABECERA: ESPACIOS PARA LOGOS
+    doc.setDrawColor(200, 200, 200); 
     
-    // Espacio LOGO A (Izquierda)
-    doc.rect(14, 10, 30, 20); 
-    doc.setFontSize(10);
-    doc.text("LOGO A", 19, 21);
+    // LOGO IZQUIERDA (judicial.png)
+    doc.rect(14, 10, 25, 25); 
+    doc.setFontSize(8);
+    doc.text("judicial.png", 16, 23);
 
-    // Espacio LOGO B (Derecha)
-    doc.rect(166, 10, 30, 20);
-    doc.text("LOGO B", 172, 21);
+    // LOGO DERECHA (logogad.png)
+    doc.rect(171, 10, 25, 25);
+    doc.text("logogad.png", 173, 23);
 
-    // Texto Predeterminado Central
-    doc.setFontSize(14);
+    // 2. CABECERA: TEXTO CENTRAL EXACTO
+    doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
-    doc.text("TEXTO PREDETERMINADO AQUÍ", 105, 18, { align: "center" });
+    doc.text("EXCMO. AYUNTAMIENTO DE ALICANTE", 105, 12, { align: "center" });
+    doc.text("POLICÍA LOCAL", 105, 17, { align: "center" });
     
-    doc.setFontSize(10);
+    doc.setFontSize(9);
+    doc.text("Grupo de Análisis Documental", 105, 22, { align: "center" });
+    doc.text("Unidad Judicial de Tráfico", 105, 26, { align: "center" });
+    
     doc.setFont("helvetica", "normal");
-    doc.text("Puedes escribir aquí la descripción del departamento", 105, 24, { align: "center" });
+    doc.text("Av. Julián Besteiro 15", 105, 30, { align: "center" });
+    
+    // Simular el enlace azul
+    doc.setTextColor(30, 64, 175);
+    doc.text("Email: policia.gad@alicante.es", 105, 34, { align: "center" });
+    
+    doc.setTextColor(0, 0, 0);
+    doc.text("TEL: +34629111387 - Central PL 965107200", 105, 38, { align: "center" });
 
     // Línea separadora
-    doc.line(14, 35, 196, 35);
+    doc.line(14, 42, 196, 42);
 
-    // Título Principal y Fecha
-    doc.setFontSize(18);
+    // 3. TÍTULO DEL LOTE Y FECHA
+    doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text(`Registro GAD - ${title}`, 14, 45);
+    doc.text(`Registro GAD - Placas del ${lotName}`, 14, 49);
     
-    // Fecha de Generación
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont("helvetica", "italic");
     const today = new Date();
     const formattedDate = today.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    doc.text(`Generado el: ${formattedDate}`, 14, 52);
+    doc.text(`Generado el: ${formattedDate} - Total Placas: ${platesArray.length}`, 14, 54);
 
-    // Tabla de Placas
+    // 4. PREPARACIÓN DE DATOS A 3 COLUMNAS
+    // Dividimos el array lineal en filas de 3 placas cada una.
+    const bodyData = [];
+    for (let i = 0; i < platesArray.length; i += 3) {
+        const row = [];
+        for (let j = 0; j < 3; j++) {
+            if (i + j < platesArray.length) {
+                const p = platesArray[i + j];
+                row.push(i + j + 1, p.PAIS || '', p.PLACA || '');
+            } else {
+                row.push('', '', ''); // Rellenos vacíos
+            }
+        }
+        bodyData.push(row);
+    }
+
+    // 5. TABLA COMPACTA DE 3 COLUMNAS
     doc.autoTable({
         startY: 58,
-        head: [['#', 'PAÍS', 'NÚMERO DE PLACA']],
-        body: currentPlatesInConsultedLot.map((p, i) => [i + 1, p.PAIS || '', p.PLACA || '']),
+        head: [['#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA', '#', 'PAÍS', 'PLACA']],
+        body: bodyData,
         theme: 'grid',
-        headStyles: { fillColor: [220, 38, 38] }, // Rojo Tailwind
-        styles: { fontSize: 11 }
+        headStyles: { fillColor: [220, 38, 38], fontSize: 8, halign: 'center' }, 
+        styles: { fontSize: 8, cellPadding: 1 }, // Celda reducida para que quepan muchas
+        columnStyles: {
+            0: { cellWidth: 8, halign: 'center' },
+            1: { cellWidth: 25 },
+            2: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] },
+            3: { cellWidth: 8, halign: 'center' },
+            4: { cellWidth: 25 },
+            5: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] },
+            6: { cellWidth: 8, halign: 'center' },
+            7: { cellWidth: 25 },
+            8: { cellWidth: 25, fontStyle: 'bold', textColor: [220, 38, 38] }
+        },
+        margin: { left: 14, right: 14, bottom: 20 }
     });
     
-    doc.save(`${title.replace(/\s+/g, '_')}.pdf`);
+    // 6. ESPACIO PARA FIRMAS Y SELLO AL FINAL DEL DOCUMENTO
+    let finalY = doc.lastAutoTable.finalY || 58;
+    
+    // Si la tabla terminó muy abajo, creamos una página nueva para las firmas
+    if (finalY > 240) {
+        doc.addPage();
+        finalY = 20;
+    } else {
+        finalY += 15; // Dejamos un poco de margen tras la tabla
+    }
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("Firma del receptor y Sello:", 14, finalY);
+    
+    // Recuadro grande para estampar el sello y firmar
+    doc.setDrawColor(0, 0, 0); 
+    doc.rect(14, finalY + 3, 100, 35); 
+
+    // GUARDAR PDF
+    doc.save(`Placas_${lotName.replace(/\s+/g, '_')}.pdf`);
 }
 
 function handleExportToExcel() {
@@ -418,7 +478,7 @@ function handleExportToExcel() {
     currentPlatesInConsultedLot.forEach(p => csv += `"${p.PAIS || ''}","${p.PLACA || ''}"\n`);
     const link = document.createElement("a");
     link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-    link.download = `${document.getElementById('consultLotTitle').textContent.replace(/\s+/g, '_')}.csv`;
+    link.download = `Placas_${currentConsultedLotName.replace(/\s+/g, '_')}.csv`;
     link.click();
 }
 
