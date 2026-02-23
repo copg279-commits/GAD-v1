@@ -1,197 +1,213 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Registro de Destrucción de Placas - GAD</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-gray-900 text-gray-100 flex flex-col min-h-screen font-sans antialiased m-0 p-0">
+    <style>
+        /* PALETA ULTRA OSCURA Y AJUSTES BASE FIJOS */
+        :root {
+            --primary-ora: #3b82f6; 
+            --accent: #60a5fa; 
+            --bg: #111827;          
+            --panel-bg: #1f2937;    
+            --border: #374151;      
+            --text-main: #f3f4f6;   
+            --text-muted: #9ca3af;  
+            --success: #10b981; 
+            --danger: #ef4444;
+        }
 
-    <div id="auth-loading-screen" class="fixed inset-0 bg-gray-900 z-[9999] flex flex-col items-center justify-center text-blue-400 font-bold text-xl">
-        <i class="fas fa-shield-alt fa-3x mb-4 text-blue-500"></i>
+        * { box-sizing: border-box; outline: none; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; }
+
+        /* CABECERA PEQUEÑA Y ALINEADA */
+        .header-main { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 10px 20px; 
+            background: linear-gradient(135deg, #0f172a, #1e3a8a); 
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+        }
+        .header-logo-container { 
+            width: 55px; height: 55px; /* TAMAÑO CONTROLADO PARA EL LOGO */
+            display: flex; align-items: center; justify-content: center; 
+        }
+        .header-logo-container img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
+        .header-center { flex-grow: 1; text-align: center; }
+        .header-center h1 { margin: 0; font-size: 1.3em; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* PANELES Y BOTONES */
+        main { padding: 20px; max-width: 1200px; margin: 0 auto; padding-bottom: 90px; }
+        .panel { background: var(--panel-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid var(--border); margin-bottom: 20px; }
+        .panel h3 { color: var(--accent); margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        
+        .btn { border: none; padding: 10px 15px; border-radius: 6px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-primary { background: var(--primary-ora); color: white; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-dark { background: #4b5563; color: white; }
+        .btn-dark:hover { background: #6b7280; }
+
+        /* INPUTS */
+        input[type="text"] { width: 100%; padding: 10px; border-radius: 6px; font-family: 'Inter', sans-serif; background: #111827; border: 1px solid var(--border); color: var(--text-main); font-size: 0.9em; }
+        input[type="text"]:focus { border-color: var(--accent); }
+
+        /* TABLAS OSCURAS */
+        .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); background: #111827; }
+        .gad-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85em; }
+        .gad-table th { background: #0f172a; color: var(--text-muted); padding: 12px; border-bottom: 2px solid var(--border); font-weight: 800; text-transform: uppercase; }
+        .gad-table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-main); }
+        .gad-table tr:hover { background-color: rgba(255,255,255,0.05); }
+
+        /* FOOTER FLOTANTE */
+        .footer-action-bar { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to top, var(--bg) 50%, transparent); pointer-events: none; z-index: 1000; }
+        .circle-action-btn { pointer-events: auto; width: 50px; height: 50px; border-radius: 50%; background-color: var(--primary-ora); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.3em; border: 2px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; text-decoration: none; }
+        .circle-action-btn:hover { background-color: var(--accent); transform: translateY(-3px); }
+
+        /* MODALES */
+        #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; backdrop-filter: blur(2px); }
+        .custom-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--panel-bg); border: 1px solid var(--border); border-radius: 12px; z-index: 2001; width: 95%; max-width: 500px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.8em; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--accent); font-weight:bold; font-size:1.2em;">
+        <i class="fas fa-shield-alt fa-3x" style="margin-bottom:15px;"></i>
         <span>Verificando credenciales V4...</span>
     </div>
 
-    <header class="bg-gray-800 border-b border-gray-700 w-full flex justify-center items-center py-4 shadow-md"> 
-        <div class="gad-logo-header">
-            <img src="logogad.png" alt="Logo GAD" class="block">
+    <header class="header-main">
+        <div class="header-logo-container">
+            <img src="logo1.png" alt="Logo Izq" onerror="this.style.display='none'">
+        </div>
+        
+        <div class="header-center">
+            <h1 id="main-t"><i class="fas fa-trash-alt"></i> Destrucción de Placas</h1>
+        </div>
+
+        <div class="header-logo-container">
+            <img src="logogad.png" alt="Logo Der" onerror="this.style.display='none'">
         </div>
     </header>
 
-    <main id="main-app-content" class="flex-1 p-4 max-w-7xl w-full mx-auto" style="display:none;">
-        <div class="flex flex-col justify-start mb-6 space-y-4"> 
-
-            <h1 class="text-2xl md:text-3xl font-extrabold text-white"> 
-                Registro de Destrucción de Placas 
-                <span class="text-lg md:text-xl font-semibold text-red-500 ml-0 mt-1 md:ml-4 md:mt-0 block md:inline">
-                    (Total: <span id="plateCounter">0</span>)
-                </span>
-            </h1>
-
-            <div id="quickNavButtons" class="grid grid-cols-3 gap-3 w-full"> 
-                <button id="openNewPlateModal" class="quick-nav-button button-green">
-                    <i class="fas fa-plus-circle hidden sm:inline mr-1"></i> Nueva Placa
-                </button>
-                <button id="openAnuladasModal" class="quick-nav-button button-blue-light">
-                    <i class="fas fa-trash-restore hidden sm:inline mr-1"></i> Devolución (<span id="anuladasCount">0</span>)
-                </button>
-                <a href="index.html" class="quick-nav-button button-yellow">
-                    <i class="fas fa-home hidden sm:inline mr-1"></i> Volver Menú
-                </a>
+    <main id="main-app-content" style="display:none;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+            <div style="font-size: 1.1em; font-weight: bold;">
+                Total Placas: <span id="plateCounter" style="color: var(--danger);">0</span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="openNewPlateModal" class="btn btn-success"><i class="fas fa-plus"></i> Nueva Placa</button>
+                <button id="openAnuladasModal" class="btn btn-primary"><i class="fas fa-trash-restore"></i> Devolución (<span id="anuladasCount">0</span>)</button>
             </div>
         </div>
 
-        <div class="bg-gray-800 p-4 md:p-6 rounded-xl shadow-xl mb-8 border border-gray-700"> 
-            <h2 class="text-lg md:text-xl font-semibold mb-4 text-gray-200">Generación y Consulta Rápida</h2> 
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
-                <div class="col-span-1">
-                    <label for="lotNumber" class="block text-sm font-medium text-gray-400 mb-1">Próximo Lote</label> 
-                    <input type="text" id="lotNumber" readonly 
-                            class="w-full border-gray-600 rounded-lg shadow-inner p-2.5 text-sm bg-gray-700 text-gray-300 font-bold cursor-default focus:outline-none"> 
+        <div class="panel">
+            <h3><i class="fas fa-layer-group"></i> Generación y Consulta Rápida</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+                <div>
+                    <label style="font-size: 0.8em; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; display: block;">Próximo Lote</label>
+                    <input type="text" id="lotNumber" readonly style="font-weight: 900; color: var(--accent); cursor: default;">
                 </div>
-                
-                <div class="col-span-1 order-3 lg:order-2"> 
-                    <button id="generateLotButton" disabled
-                            class="w-full px-4 py-2.5 bg-red-600 text-white font-bold rounded-lg shadow-lg transition duration-150 ease-in-out hover:bg-red-500 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed text-sm"> 
-                        Generar Lote <span id="selectedCount" class="font-normal"> (0)</span>
+                <div>
+                    <button id="generateLotButton" class="btn btn-danger" disabled style="width: 100%; height: 40px; justify-content: center;">
+                        <i class="fas fa-box"></i> Generar Lote <span id="selectedCount">(0)</span>
                     </button>
                 </div>
-
-                <div class="col-span-1 order-2 lg:order-3"> 
-                    <label for="searchPlate" class="block text-sm font-medium text-gray-400 mb-1">Buscar Placa</label>
-                    <div class="relative">
-                        <input type="text" id="searchPlate" placeholder="Ej: GY846WR" 
-                               class="w-full border border-gray-600 bg-gray-700 text-white rounded-lg shadow-inner focus:border-blue-500 focus:ring-2 focus:ring-blue-500 px-3 py-2.5 text-sm font-medium uppercase transition duration-200 placeholder-gray-500"> 
-                        <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-400"></i>
-                    </div>
+                <div>
+                    <label style="font-size: 0.8em; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; display: block;">Buscar Placa</label>
+                    <input type="text" id="searchPlate" placeholder="Ej: GY846WR" style="text-transform: uppercase;">
                 </div>
             </div>
         </div>
         
-        <div class="bg-gray-800 p-4 md:p-6 rounded-xl shadow-xl mb-8 border border-gray-700"> 
-            <h2 class="text-lg md:text-xl font-semibold mb-4 text-gray-200">Administración de Lotes Creados</h2> 
-            <div class="overflow-x-auto rounded-lg border border-gray-700 custom-scrollbar">
-                <table class="min-w-full divide-y divide-gray-700">
-                    <thead class="bg-gray-900">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-2/12">Lote</th> 
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-2/12">EUROCOP</th> 
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-2/12">Total</th> 
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-3/12">FECHA DESTRUCCIÓN</th> 
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-3/12">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lotAdminBody" class="divide-y divide-gray-700 bg-gray-800">
-                        <tr><td colspan="5" class="text-center py-4 text-gray-400"><i class="fas fa-spinner fa-spin"></i> Cargando lotes...</td></tr>
+        <div class="panel">
+            <h3><i class="fas fa-archive"></i> Administración de Lotes Creados</h3>
+            <div class="table-container">
+                <table class="gad-table">
+                    <thead><tr><th>Lote</th><th>EUROCOP</th><th>Total</th><th>Fecha</th><th>Acción</th></tr></thead>
+                    <tbody id="lotAdminBody">
+                        <tr><td colspan="5" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Cargando lotes...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <div class="overflow-x-auto rounded-xl shadow-xl border border-gray-700 table-responsive custom-scrollbar bg-gray-800">
-            <table class="min-w-full divide-y divide-gray-700">
-                <thead class="bg-gray-900">
-                    <tr>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-1/12"> 
-                            <input type="checkbox" id="selectAllCheckbox" class="rounded bg-gray-700 border-gray-600 text-red-500 focus:ring-red-500">
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-1/12">#</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-2/12 sort-header hover:text-white transition" data-sort-by="PAIS">
-                            País <span class="sort-icon" id="sortIconPAIS"></span>
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-2/12 sort-header hover:text-white transition" data-sort-by="PLACA">
-                            Placa <span class="sort-icon" id="sortIconPLACA"></span>
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-2/12 sort-header hover:text-white transition" data-sort-by="FECHA_AGREGADA">
-                            Fecha Agregada <span class="sort-icon" id="sortIconFECHA_AGREGADA"></span>
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-3/12">Estado / Lote</th>
-                        <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider w-1/12">Acción</th>
-                    </tr>
-                </thead>
-                <tbody id="platesTableBody" class="divide-y divide-gray-700">
-                    <tr id="loadingRow"><td colspan="7" class="text-center py-6 text-gray-400"><i class="fas fa-spinner fa-spin"></i> Cargando datos...</td></tr>
-                </tbody>
-            </table>
+        <div class="panel">
+            <div class="table-container">
+                <table class="gad-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllCheckbox"></th>
+                            <th>#</th>
+                            <th class="sort-header" data-sort-by="PAIS" style="cursor:pointer;">País <span id="sortIconPAIS"></span></th>
+                            <th class="sort-header" data-sort-by="PLACA" style="cursor:pointer;">Placa <span id="sortIconPLACA"></span></th>
+                            <th class="sort-header" data-sort-by="FECHA_AGREGADA" style="cursor:pointer;">Fecha Agregada <span id="sortIconFECHA_AGREGADA"></span></th>
+                            <th>Estado / Lote</th>
+                            <th style="text-align: center;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="platesTableBody">
+                        <tr id="loadingRow"><td colspan="7" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Cargando datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        
     </main>
 
-    <footer class="mt-auto text-center py-6 bg-gray-900 border-t border-gray-800 text-xs text-gray-500"> 
-        <div class="flex flex-col items-center">
-            <p class="font-bold text-gray-400">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-            <p class="font-bold text-gray-400">POLICÍA LOCAL DE ALICANTE</p>
-            <p class="mt-1">&copy; GAD - Todos los derechos reservados</p>
-        </div>
+    <footer class="footer-action-bar">
+        <button id="openMainMenu" class="circle-action-btn" title="Menú Principal"><i class="fas fa-bars"></i></button>
+        <a href="index.html" class="circle-action-btn" title="Volver"><i class="fas fa-arrow-left"></i></a>
     </footer>
 
-    <div id="newPlateModal" class="modal">
-        <div class="modal-content">
-            <h3 class="text-xl font-bold mb-4 text-white">Añadir Nueva Placa</h3>
-            <div class="space-y-4">
-                <div>
-                    <label for="newPlateCountry" class="block text-sm font-medium text-gray-300">País</label>
-                    <input type="text" id="newPlateCountry" list="countryDatalist" class="mt-1 w-full bg-gray-700 border border-gray-600 text-white rounded-lg shadow-sm p-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 uppercase placeholder-gray-500" placeholder="Ej: FRANCIA" required>
-                    <datalist id="countryDatalist"></datalist>
-                </div>
-                <div>
-                    <label for="newPlateNumber" class="block text-sm font-medium text-gray-300">Número de Placa</label>
-                    <input type="text" id="newPlateNumber" class="mt-1 w-full bg-gray-700 border border-gray-600 text-white rounded-lg shadow-sm p-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 uppercase placeholder-gray-500" placeholder="Ej: WX123YZ" required>
-                </div>
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button id="closeNewPlateModal" class="px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500 transition text-sm">Cancelar</button>
-                    <button id="saveNewPlateButton" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-500 transition text-sm"><i class="fas fa-save"></i> Guardar</button>
-                </div>
-            </div>
+    <div id="modal-overlay"></div>
+    
+    <div id="newPlateModal" class="custom-modal">
+        <h3><i class="fas fa-plus-circle"></i> Añadir Nueva Placa</h3>
+        <div class="form-group"><label>País</label><input type="text" id="newPlateCountry" list="countryDatalist" placeholder="Ej: FRANCIA" style="text-transform: uppercase;"><datalist id="countryDatalist"></datalist></div>
+        <div class="form-group"><label>Número de Placa</label><input type="text" id="newPlateNumber" placeholder="Ej: WX123YZ" style="text-transform: uppercase;"></div>
+        <div style="margin-top:25px; display:flex; justify-content:flex-end; gap:10px;">
+            <button id="closeNewPlateModal" class="btn btn-dark">Cancelar</button>
+            <button id="saveNewPlateButton" class="btn btn-success"><i class="fas fa-save"></i> Guardar</button>
         </div>
     </div>
 
-    <div id="consultLotModal" class="modal">
-        <div class="modal-content">
-            <h3 id="consultLotTitle" class="text-xl font-bold mb-4 text-white">Placas del Lote</h3>
-            <div class="h-64 overflow-y-auto border border-gray-600 rounded-lg p-3 bg-gray-900 custom-scrollbar">
-                <ul id="consultLotList" class="space-y-1 text-gray-300"></ul>
+    <div id="consultLotModal" class="custom-modal">
+        <h3 id="consultLotTitle">Placas del Lote</h3>
+        <div style="max-height: 250px; overflow-y: auto; background: #111827; border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 20px;">
+            <ul id="consultLotList" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;"></ul>
+        </div>
+        <div style="display:flex; justify-content:space-between; gap: 10px;">
+            <div>
+                <button id="exportLotToExcelButton" class="btn btn-success"><i class="fas fa-file-excel"></i> Excel</button>
+                <button id="exportLotToPDFButton" class="btn btn-danger"><i class="fas fa-file-pdf"></i> PDF</button>
             </div>
-            <div class="flex flex-wrap justify-between mt-6 gap-2">
-                <div>
-                    <button id="exportLotToExcelButton" class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-500 transition text-sm mr-2"><i class="fas fa-file-excel"></i> Excel</button>
-                    <button id="exportLotToPDFButton" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-500 transition text-sm"><i class="fas fa-file-pdf"></i> PDF</button>
-                </div>
-                <button id="closeConsultLotModal" class="px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500 transition text-sm">Cerrar</button>
-            </div>
+            <button id="closeConsultLotModal" class="btn btn-dark">Cerrar</button>
         </div>
     </div>
 
-    <div id="anuladasModal" class="modal">
-        <div class="modal-content max-w-4xl"> 
-            <h3 class="text-xl font-bold mb-4 text-white">Devolución de Placas</h3> 
-            <div class="h-80 overflow-y-auto border border-gray-600 rounded-lg p-2 bg-gray-900 custom-scrollbar"> 
-                <table class="min-w-full divide-y divide-gray-700">
-                    <thead class="bg-gray-800">
-                        <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider w-3/12">País</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider w-3/12">Placa</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider w-3/12">Fecha Devolución</th>
-                            <th class="px-4 py-2 text-center text-xs font-medium text-gray-400 uppercase tracking-wider w-3/12">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="anuladasListBody" class="divide-y divide-gray-700">
-                        <tr><td colspan="4" class="text-center py-4 text-gray-500">Cargando...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="flex justify-end mt-6">
-                <button id="closeAnuladasModal" class="px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500 transition text-sm">Cerrar</button>
-            </div>
+    <div id="anuladasModal" class="custom-modal" style="max-width: 700px;">
+        <h3><i class="fas fa-trash-restore"></i> Devolución de Placas</h3>
+        <div class="table-container" style="max-height: 300px;">
+            <table class="gad-table">
+                <thead><tr><th>País</th><th>Placa</th><th>Fecha</th><th style="text-align: center;">Acción</th></tr></thead>
+                <tbody id="anuladasListBody"><tr><td colspan="4" style="text-align: center;">Cargando...</td></tr></tbody>
+            </table>
+        </div>
+        <div style="margin-top:20px; display:flex; justify-content:flex-end;">
+            <button id="closeAnuladasModal" class="btn btn-dark">Cerrar</button>
         </div>
     </div>
 

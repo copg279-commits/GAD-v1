@@ -173,3 +173,51 @@
         border-bottom: 0;
     }
 }
+/* =========================================
+   FOOTER DE ACCIÓN FLOTANTE (MENÚ Y ATRÁS)
+   ========================================= */
+.footer-action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Un ligero degradado oscuro en el fondo para que los botones destaquen */
+    background: linear-gradient(to top, rgba(17, 24, 39, 0.95) 40%, transparent);
+    pointer-events: none; /* Evita que el fondo transparente bloquee los clics en la tabla */
+    z-index: 1000;
+}
+
+.circle-action-btn {
+    pointer-events: auto; /* Reactivamos el clic SOLO en los botones */
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background-color: var(--primary-ora);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4em;
+    border: 2px solid var(--border);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none; /* Para la etiqueta <a> */
+}
+
+.circle-action-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    background-color: var(--accent);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.8);
+    border-color: #f3f4f6;
+}
+
+/* Ajuste móvil para el footer */
+@media (max-width: 600px) {
+    .footer-action-bar { padding: 15px 20px; }
+    .circle-action-btn { width: 50px; height: 50px; font-size: 1.2em; }
+}

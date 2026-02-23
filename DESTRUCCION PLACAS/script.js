@@ -65,25 +65,45 @@ function initApp() {
     updateSortIcons();
     
     // Listeners Modales
-    document.getElementById('openNewPlateModal').addEventListener('click', () => document.getElementById('newPlateModal').style.display = 'flex');
-    document.getElementById('closeNewPlateModal').addEventListener('click', () => document.getElementById('newPlateModal').style.display = 'none');
+// --- Listeners Modales ---
+    const overlay = document.getElementById('modal-overlay');
+
+    // 1. Modal Nueva Placa
+    document.getElementById('openNewPlateModal').addEventListener('click', () => {
+        overlay.style.display = 'block';
+        document.getElementById('newPlateModal').style.display = 'block';
+    });
+    document.getElementById('closeNewPlateModal').addEventListener('click', () => {
+        overlay.style.display = 'none';
+        document.getElementById('newPlateModal').style.display = 'none';
+    });
     document.getElementById('saveNewPlateButton').addEventListener('click', handleSaveNewPlate);
     
-    document.getElementById('openAnuladasModal').addEventListener('click', () => { renderAnuladasModal(); document.getElementById('anuladasModal').style.display = 'flex'; });
-    document.getElementById('closeAnuladasModal').addEventListener('click', () => document.getElementById('anuladasModal').style.display = 'none');
+    // 2. Modal Devolución (Anuladas)
+    document.getElementById('openAnuladasModal').addEventListener('click', () => { 
+        renderAnuladasModal(); 
+        overlay.style.display = 'block';
+        document.getElementById('anuladasModal').style.display = 'block'; 
+    });
+    document.getElementById('closeAnuladasModal').addEventListener('click', () => { 
+        overlay.style.display = 'none';
+        document.getElementById('anuladasModal').style.display = 'none'; 
+    });
     
-    document.getElementById('closeConsultLotModal').addEventListener('click', () => document.getElementById('consultLotModal').style.display = 'none');
+    // 3. Botón cerrar del Modal Consultar Lote
+    document.getElementById('closeConsultLotModal').addEventListener('click', () => { 
+        overlay.style.display = 'none';
+        document.getElementById('consultLotModal').style.display = 'none'; 
+    });
     
-    // Listeners Botones principales
-    document.getElementById('generateLotButton').addEventListener('click', handleGenerateLot);
-    document.getElementById('searchPlate').addEventListener('input', handleSearchPlate);
-    document.getElementById('exportLotToExcelButton').addEventListener('click', handleExportToExcel);
-    document.getElementById('exportLotToPDFButton').addEventListener('click', handleExportToPDF);
-    
-    document.getElementById('selectAllCheckbox').addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('.plate-checkbox:not(:disabled)');
-        checkboxes.forEach(cb => { cb.checked = this.checked; });
-        updateLotButton();
+    // 4. Cerrar ventanas si el usuario hace clic en el fondo oscuro
+    window.addEventListener('click', function(event) {
+        if (event.target === overlay) {
+            overlay.style.display = 'none';
+            document.getElementById('newPlateModal').style.display = 'none';
+            document.getElementById('anuladasModal').style.display = 'none';
+            document.getElementById('consultLotModal').style.display = 'none';
+        }
     });
     
     window.addEventListener('click', function(event) {
