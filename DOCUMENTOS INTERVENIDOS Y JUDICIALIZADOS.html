@@ -194,15 +194,19 @@
     #viewImgArea { width: 100%; display: flex; justify-content: center; background: #0f172a; padding: 10px; border-radius: 8px;}
     #viewImgArea img { max-width: 100%; max-height: 70vh; object-fit: contain; }
     
-    /* AYUDA MEJORADA Y FORZADO DE COLORES OSCUROS SOBRE FIREBASE */
+/* AYUDA MEJORADA Y FORZADO DE COLORES OSCUROS SOBRE FIREBASE */
     .help-panel { background: #1e293b; border: 1px solid #334155; padding: 25px; margin-bottom: 25px; border-radius: 12px; border-left: 6px solid #06b6d4; display: none; }
     
-    /* Este bloque limpia las clases bg-white antiguas traídas de Firebase */
-    #helpContent [class*="bg-white"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
-    #helpContent p, #helpContent span, #helpContent li, #helpContent div { color: #e2e8f0 !important; }
-    #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; }
+    /* Aniquilamos cualquier fondo blanco o claro que venga de Firebase y lo volvemos oscuro */
+    #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
     
-    /* Mantenemos los colores de los círculos indicadores */
+    /* Forzamos que todos los textos normales sean gris claro/blanco */
+    #helpContent, #helpContent p, #helpContent span, #helpContent li, #helpContent div { color: #e2e8f0 !important; }
+    
+    /* Forzamos que los títulos y negritas sean cyan brillante */
+    #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+    
+    /* Mantenemos vivos los colores de los círculos semáforo (Verde, Rojo, Naranja) */
     #helpContent .text-green-500 { color: #22c55e !important; }
     #helpContent .text-red-500 { color: #ef4444 !important; }
     #helpContent .text-yellow-600 { color: #ca8a04 !important; }
@@ -282,11 +286,6 @@
     </div>
   </main>
 
-  <footer class="mt-auto text-center py-6 bg-slate-900 border-t border-slate-800 text-slate-400 text-sm">
-    <p class="font-bold text-slate-300">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold text-slate-300">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
 
   <div id="editModal" class="modal-overlay">
     <div class="modal-compact">
