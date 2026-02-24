@@ -124,14 +124,13 @@
 </head>
 <body class="bg-slate-900 min-h-screen flex flex-col pb-16 text-slate-200">
 
-  <header class="min-h-[5rem] py-3 md:py-0 md:h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 md:px-8 shadow-md sticky top-0 z-[1000]">
-    <div class="flex items-center gap-3 md:gap-6">
-      <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-12 w-12 md:h-20 md:w-20 drop-shadow-md">
-      <div class="text-left">
-        <h1 class="text-lg md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">CONSULTA DE FABRICANTE LC</h1>
-        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[10px] md:text-sm mt-1">Grupo de Análisis Documental</h2>
-      </div>
+<header class="min-h-[5rem] py-3 md:py-0 md:h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+    <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-12 w-12 md:h-20 md:w-20 drop-shadow-md flex-shrink-0">
+    <div class="text-center">
+      <h1 class="text-[13px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">CONSULTA DE<br class="md:hidden"> FABRICANTE LC</h1>
+      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[8px] md:text-sm mt-1">Grupo de Análisis Documental</h2>
     </div>
+    <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-12 w-12 md:h-20 md:w-20 drop-shadow-md flex-shrink-0">
   </header>
 
   <p class="text-center mt-6 px-4 text-slate-300">
@@ -157,12 +156,6 @@
 
   <div id="resultado" class="w-11/12 max-w-md mx-auto mt-8 text-lg font-semibold text-center"></div>
 
-  <div class="mt-10 flex justify-center">
-    <button onclick="window.location.href='index.html'"
-            class="w-11/12 max-w-md p-4 bg-slate-800 border-2 border-yellow-500 text-yellow-500 font-bold rounded-lg shadow-md transition-colors duration-200 hover:bg-yellow-500 hover:text-slate-900 tracking-wide">
-        MENÚ PRINCIPAL
-    </button>
-  </div>
 
   <script>
   // 1. Lógica y Arquitectura (CRÍTICO) - Intacta
@@ -193,9 +186,16 @@
     }
   }
 
-  function mostrarTodos() {
+function mostrarTodos() {
     const resultado = document.getElementById("resultado");
-    // Clases UI adaptadas al Dark Mode GAD manteniendo la estructura requerida para la conversión CSS móvil
+    
+    // SI YA HAY UNA TABLA VISIBLE, LA CERRAMOS Y SALIMOS
+    if (resultado.querySelector('table')) {
+      resultado.innerHTML = "";
+      return;
+    }
+
+    // SI NO, GENERAMOS LA LISTA (Lógica existente)
     let listaHTML = `
       <div class="mt-4 bg-slate-800 rounded-xl shadow-lg border border-slate-700 table-responsive results-container overflow-hidden">
         <table class="w-full text-sm text-left text-slate-300">
@@ -218,13 +218,7 @@
         `;
       }
     }
-
-    listaHTML += `
-          </tbody>
-        </table>
-      </div>
-    `;
-
+    listaHTML += `</tbody></table></div>`;
     resultado.innerHTML = listaHTML;
   }
   
