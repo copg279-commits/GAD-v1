@@ -285,9 +285,9 @@ function showContent(data) {
     let finalUrl = data.href.trim();
     finalUrl = finalUrl.replace(/ /g, '%20'); 
 
-    if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../')) {
+   if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../') && !finalUrl.startsWith('./')) {
         if (finalUrl.startsWith('/')) finalUrl = finalUrl.substring(1);
-        finalUrl = '../' + finalUrl;
+        // Eliminado el "finalUrl = '../' + finalUrl;" para que respete rutas exactas como "archivo.html" o "carpeta/archivo.html"
     }
 
     console.log("Cargando recurso desde GitHub:", finalUrl);
@@ -313,10 +313,11 @@ function openEditModal(key, data) {
 
 document.getElementById('save-button-changes').onclick = () => {
     const id = document.getElementById('edit-button-id').value;
+    const hrefValue = document.getElementById('edit-button-href').value || ""; // Asegura que se guarde aunque esté en blanco
     
     db.ref(`${BUTTONS_NODE}/${id}`).update({ 
         text: document.getElementById('edit-button-text').value, 
-        href: document.getElementById('edit-button-href').value, 
+        href: hrefValue, 
         size: document.getElementById('edit-button-size').value, 
         color: document.getElementById('edit-button-color-select').value 
     });
@@ -335,18 +336,19 @@ document.getElementById('save-new-button').onclick = async () => {
     const snap = await db.ref(BUTTONS_NODE).orderByChild('parent').equalTo(parent).once('value');
     const order = (snap.val() ? Object.keys(snap.val()).length : 0) + 1;
     
-    db.ref(BUTTONS_NODE).push({ 
+  db.ref(BUTTONS_NODE).push({ 
         text: text, 
         type: document.getElementById('new-button-type').value, 
         size: document.getElementById('new-button-size').value, 
         parent: parent, 
         order: order, 
-        color: '#00f0ff'
+        color: '#00f0ff',
+        href: document.getElementById('new-button-href').value || '' // <--- ESTO CREA EL HREF VACÍO O CON ENLACE
     });
     
     document.getElementById('new-button-text').value = '';
+    document.getElementById('new-button-href').value = ''; // <--- LIMPIA EL CAMPO
     document.getElementById('add-button-modal').style.display = 'none';
-};
 
 window.delBtn = (key) => { 
     if(confirm('ADVERTENCIA: ¿Confirmar eliminación del nodo de datos? Esta acción es irreversible.')) { 
