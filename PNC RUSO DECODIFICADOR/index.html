@@ -3,21 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decodificador PNC Ruso</title>
+    <title>Decodificador PNC Ruso - GAD</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
     
     <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
-<body>
+<body class="bg-slate-900">
 
-    <div class="container">
-        <div class="app-header">
-            <div class="header-logo-container"><img src="../ASSETS/logogad.png" alt="Logo GAD" class="header-logo" id="logo-gad"></div>
-            <h1>PNC Rusia Decoder</h1>
-            <div class="header-logo-container"><img src="../ASSETS/t4c.png" alt="Logo T4C" class="header-logo"></div>
-        </div>
+    <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+      <img src="../ASSETS/logogad.png" onerror="this.onerror=null; this.src='https://via.placeholder.com/112?text=GAD';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+      
+      <div class="text-center flex-1">
+        <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+          PNC RUSIA<br class="md:hidden"> DECODER
+        </h1>
+        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+          Grupo de Análisis Documental
+        </h2>
+      </div>
+
+      <img src="../ASSETS/t4c.png" onerror="this.onerror=null; this.src='https://via.placeholder.com/96?text=T4C';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
+    </header>
+
+    <div class="container mx-auto mt-4">
         
         <div id="status">Esperando acción...</div>
 
@@ -26,13 +38,13 @@
         </button>
 
         <div id="mainButtons" class="controls">
-            <button id="startCamera">Usar Cámara</button>
-            <label class="file-upload-label">
-                Subir Imagen para Recortar
+            <button id="startCamera" class="btn-cam">📸 USAR CÁMARA</button>
+            <label class="file-upload-label btn-img">
+                🖼️ SUBIR IMAGEN PARA RECORTAR
                 <input type="file" id="fileInput" accept="image/*" style="display: none;">
             </label>
-            <button id="showAppMenuBtn" style="background-color: #3498db; color: white;">📱 Usar App Escáner Externa</button>
-            <button id="smartPasteBtn" style="background-color: #f39c12; color: white;">📋 Pegar código copiado y Leer</button>
+            <button id="showAppMenuBtn" class="btn-app">📱 USAR APP ESCÁNER EXTERNA</button>
+            <button id="smartPasteBtn" class="btn-paste">📋 PEGAR CÓDIGO COPIADO Y LEER</button>
         </div>
 
         <div class="video-wrapper" id="videoWrapper" style="display: none;">
@@ -86,8 +98,13 @@
                             <div class="dl-field dl-categories"><span>9.</span> <strong id="field9"></strong></div>
                         </div>
                     </div>
-                    <div class="validation-badge valid" id="badgeValid">✅ Formato Correcto</div>
-                    <div class="validation-badge invalid" id="badgeInvalid">❌ Documento sospechoso</div>
+                    
+                    <div class="validation-badge valid" id="badgeValid">
+                        ✅ Formato Correcto
+                    </div>
+                    <div class="validation-badge invalid" id="badgeInvalid">
+                        ❌ Documento sospechoso
+                    </div>
                 </div>
             </div>
             
@@ -100,33 +117,27 @@
             
             <button id="copyBtn" class="copy-btn">Copiar Texto Decodificado</button>
         </div>
-
-        <footer class="app-footer">
-            <div class="footer-content">
-                <hr class="footer-divider">
-                <p class="footer-title">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-                <p class="footer-title">POLICÍA LOCAL DE ALICANTE</p>
-                <p class="footer-copyright">&copy; GAD - Todos los derechos reservados</p>
-            </div>
-        </footer>
-
     </div>
 
     <div id="appModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
-        <div style="background-color: #252525; margin: 25% auto; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 0 30px rgba(0, 247, 255, 0.2); border: 2px solid var(--neon-cyan); color: #fff;">
-            <span id="closeAppModal" class="close-btn">&times;</span>
-            <h3 style="margin-bottom: 10px; font-size: 1.2rem; margin-top: 0;">⚙️ Elige tu App Escáner</h3>
-            <p style="font-size: 0.85rem; margin-bottom: 15px;">Selecciona "Preguntar cada vez" para buscar entre tus apps instaladas.</p>
-            <select id="appSelector" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; font-size: 0.95rem; outline: none;">
+        <div style="background-color: #1e293b; margin: 25% auto; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.9); border: 1px solid #334155;">
+            <span id="closeAppModal" style="color: #aaa; font-size: 32px; font-weight: bold; cursor: pointer; position: absolute; top: 5px; right: 15px;">&times;</span>
+            <h3 style="color: #06b6d4; margin-bottom: 10px; font-size: 1.2rem; margin-top: 0;">⚙️ Elige tu App Escáner</h3>
+            <p style="font-size: 0.85rem; color: #e2e8f0; margin-bottom: 15px;">Selecciona "Preguntar cada vez" para buscar entre tus apps instaladas.</p>
+            <select id="appSelector" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #334155; font-size: 0.95rem; outline: none;">
                 <option value="de.markusfisch.android.binaryeye">Binary Eye (Recomendada, auto-retorno)</option>
                 <option value="web">🌐 Usar Web Online (Inlite Research)</option>
                 <option value="">Preguntar cada vez (Selector Android)</option>
                 <option value="com.teacapps.barcodescanner">Escáner QR y Barras (TeaCapps)</option>
                 <option value="com.manateeworks.barcodescanners">Barcode Scanner (Manatee)</option>
             </select>
-            <a id="nativeAppBtn" href="#">🚀 ABRIR APP AHORA</a>
+            <a id="nativeAppBtn" href="#" style="display: block; background-color: #2ecc71; color: white; padding: 14px 20px; border-radius: 8px; font-weight: bold; text-align: center; text-decoration: none; width: 100%;">
+                🚀 ABRIR APP AHORA
+            </a>
         </div>
     </div>
+
+    <div id="helpContent" class="hidden"></div>
 
     <script src="app.js"></script>
 </body>
