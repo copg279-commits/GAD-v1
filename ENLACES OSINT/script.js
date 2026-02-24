@@ -242,35 +242,56 @@ window.buscar = function(pais, refreshing = false) {
             linkItem.appendChild(linkAnchor);
             
             // Sección estado y controles
-            const statusContainer = document.createElement('div');
-            statusContainer.className = 'mt-4 pt-4 border-t border-slate-700 flex flex-col gap-4';
+            // ... dentro de window.buscar, donde se crea statusContainer ...
 
-            const statusTextRow = document.createElement('div');
-            statusTextRow.className = 'flex justify-between items-center';
-            statusTextRow.innerHTML = link.status === 'caido' 
-                ? `<span class="text-[11px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span> INACTIVO</span>`
-                : `<span class="text-[11px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> ACTIVO</span>`;
+const statusContainer = document.createElement('div');
+statusContainer.className = 'mt-4 pt-4 border-t border-slate-700 flex flex-col gap-4';
 
-            statusContainer.appendChild(statusTextRow);
+const statusTextRow = document.createElement('div');
+// Flexbox que en móvil pone las flechas al lado del texto de estado
+statusTextRow.className = 'flex justify-between items-center w-full';
 
-            // Botones edición
-            if (isEditMode) {
-                const btnRow = document.createElement('div');
-                btnRow.className = 'flex gap-2';
-                
-                const btnBase = "text-xs font-bold px-4 py-2 rounded bg-slate-900 text-slate-300 border border-slate-600 hover:text-white transition shadow-sm";
-                
-                btnRow.innerHTML = `
-                    <button onclick="moverEnlace('${pais}', ${index}, 'arriba')" class="${btnBase}">▲</button>
-                    <button onclick="moverEnlace('${pais}', ${index}, 'abajo')" class="${btnBase}">▼</button>
-                    <button onclick="toggleEditForm(this.closest('.bg-slate-800'), true)" class="${btnBase} hover:border-blue-500 hover:bg-blue-900/30 text-blue-400">EDITAR</button>
-                    <button onclick="toggleLinkStatus('${pais}', '${key}', '${link.status === 'caido' ? 'activo' : 'caido'}')" class="${btnBase} ${link.status === 'caido' ? 'hover:border-emerald-500 text-emerald-400' : 'hover:border-orange-500 text-orange-400'}">${link.status === 'caido' ? 'ACTIVAR' : 'CAÍDO'}</button>
-                    <button onclick="eliminarEnlace('${pais}', '${key}')" class="${btnBase} ml-auto hover:border-red-500 hover:bg-red-900/30 text-red-400">BORRAR</button>
-                `;
-                statusContainer.appendChild(btnRow);
-            }
+// Lado izquierdo: El estado (Activo/Inactivo)
+const statusInfo = document.createElement('div');
+statusInfo.innerHTML = link.status === 'caido' 
+    ? `<span class="text-[11px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span> INACTIVO</span>`
+    : `<span class="text-[11px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> ACTIVO</span>`;
 
-            linkItem.appendChild(statusContainer);
+statusTextRow.appendChild(statusInfo);
+
+// Lado derecho: Las flechas (Solo en modo edición)
+if (isEditMode) {
+    const arrowGroup = document.createElement('div');
+    arrowGroup.className = 'flex gap-2';
+    const btnArrow = "text-xs font-bold px-3 py-1.5 rounded bg-slate-900 text-slate-300 border border-slate-600 hover:text-white transition shadow-sm";
+    
+    arrowGroup.innerHTML = `
+        <button onclick="moverEnlace('${pais}', ${index}, 'arriba')" class="${btnArrow}" title="Subir">▲</button>
+        <button onclick="moverEnlace('${pais}', ${index}, 'abajo')" class="${btnArrow}" title="Bajar">▼</button>
+    `;
+    statusTextRow.appendChild(arrowGroup);
+}
+
+statusContainer.appendChild(statusTextRow);
+
+// Fila inferior de botones (Solo en modo edición)
+if (isEditMode) {
+    const actionRow = document.createElement('div');
+    // En móvil (flex) ocupan el ancho disponible o se envuelven, en escritorio se alinean normal
+    actionRow.className = 'flex flex-wrap md:flex-nowrap gap-2 w-full';
+    
+    const btnAction = "text-[10px] font-bold px-3 py-2 rounded bg-slate-900 text-slate-300 border border-slate-600 hover:text-white transition shadow-sm flex-1 md:flex-none text-center";
+    
+    actionRow.innerHTML = `
+        <button onclick="toggleEditForm(this.closest('.bg-slate-800'), true)" class="${btnAction} hover:border-blue-500 hover:bg-blue-900/30 text-blue-400">EDITAR</button>
+        <button onclick="toggleLinkStatus('${pais}', '${key}', '${link.status === 'caido' ? 'activo' : 'caido'}')" class="${btnAction} ${link.status === 'caido' ? 'hover:border-emerald-500 text-emerald-400' : 'hover:border-orange-500 text-orange-400'}">${link.status === 'caido' ? 'ACTIVAR' : 'CAÍDO'}</button>
+        <button onclick="eliminarEnlace('${pais}', '${key}')" class="${btnAction} hover:border-red-500 hover:bg-red-900/30 text-red-400 md:ml-auto">BORRAR</button>
+    `;
+    statusContainer.appendChild(actionRow);
+}
+
+linkItem.appendChild(statusContainer);
+// ... resto de la función ...
 
             // Formulario Edición Inline
             const editForm = document.createElement('div');
