@@ -264,7 +264,6 @@ function showContent(data) {
     const iframe = document.getElementById('content-iframe');
     const backBtn = document.getElementById('iframe-back-float');
 
-    // Ahora solo validamos que exista un archivo en href para continuar
     if (!data.href) {
         alert("Este botón no tiene un archivo configurado en la casilla 'href'.");
         return;
@@ -279,18 +278,14 @@ function showContent(data) {
          if(backBtn) backBtn.style.display = 'block';
     }, 100);
 
-    // --- BLOQUE DE CÓDIGO HTML ELIMINADO PARA PRIORIZAR SIEMPRE EL ARCHIVO DE GITHUB ---
-
-    // PROCESAMIENTO DEL ENLACE (URL)
     let finalUrl = data.href.trim();
     finalUrl = finalUrl.replace(/ /g, '%20'); 
 
-   if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../') && !finalUrl.startsWith('./')) {
+    if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../') && !finalUrl.startsWith('./')) {
         if (finalUrl.startsWith('/')) finalUrl = finalUrl.substring(1);
-        // Eliminado el "finalUrl = '../' + finalUrl;" para que respete rutas exactas como "archivo.html" o "carpeta/archivo.html"
     }
 
-    console.log("Cargando recurso desde GitHub:", finalUrl);
+    console.log("Cargando recurso:", finalUrl);
     iframe.src = finalUrl; 
 }
 
@@ -336,19 +331,22 @@ document.getElementById('save-new-button').onclick = async () => {
     const snap = await db.ref(BUTTONS_NODE).orderByChild('parent').equalTo(parent).once('value');
     const order = (snap.val() ? Object.keys(snap.val()).length : 0) + 1;
     
-  db.ref(BUTTONS_NODE).push({ 
+    db.ref(BUTTONS_NODE).push({ 
         text: text, 
         type: document.getElementById('new-button-type').value, 
         size: document.getElementById('new-button-size').value, 
         parent: parent, 
         order: order, 
         color: '#00f0ff',
-        href: document.getElementById('new-button-href').value || '' // <--- ESTO CREA EL HREF VACÍO O CON ENLACE
+        href: document.getElementById('new-button-href') ? document.getElementById('new-button-href').value : ''
     });
     
     document.getElementById('new-button-text').value = '';
-    document.getElementById('new-button-href').value = ''; // <--- LIMPIA EL CAMPO
+    if(document.getElementById('new-button-href')) {
+        document.getElementById('new-button-href').value = '';
+    }
     document.getElementById('add-button-modal').style.display = 'none';
+}; // <--- ¡AQUÍ ESTÁ LA LLAVE QUE FALTABA!
 
 window.delBtn = (key) => { 
     if(confirm('ADVERTENCIA: ¿Confirmar eliminación del nodo de datos? Esta acción es irreversible.')) { 
