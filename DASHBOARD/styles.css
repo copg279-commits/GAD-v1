@@ -148,6 +148,20 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .side-panel { position: fixed; top: 0; left: 0; height: 100%; width: 320px; background: rgba(6, 11, 25, 0.95); border-right: 2px solid var(--cyan); z-index: 9999; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-radius: 0 15px 15px 0; }
 .sidebar-header { padding: 25px; border-bottom: 1px solid rgba(0, 240, 255, 0.2); color: var(--cyan); display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem;}
 #close-sidebar { cursor:pointer; transition: 0.3s; } #close-sidebar:hover { color: var(--red); transform: rotate(90deg); }
+#sidebar-tree-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 10px 0;
+}
+#sidebar-tree-container { 
+    flex: 1 1 auto; /* Obliga al contenedor a adaptarse al espacio sobrante */
+    overflow-y: auto; /* Activa el scroll vertical */
+    overflow-x: hidden; /* Evita scrolls horizontales raros */
+    min-height: 0; 
+    max-height: 100%; /* Le prohíbe crecer más allá de la pantalla */
+    padding: 10px 0; 
+}
 .sidebar-item { padding: 20px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ccc; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 15px; font-size: 1rem;}
 .sidebar-item:hover { color: #fff; background: rgba(0, 240, 255, 0.1); padding-left: 35px; border-left: 3px solid var(--cyan); }
 .sidebar-item i { width: 25px; text-align: center; color: var(--cyan); }

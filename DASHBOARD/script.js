@@ -436,21 +436,14 @@ async function getClientIP() {
 }
 
 auth.onAuthStateChanged(async (user) => {
-    const loadingScreen = document.getElementById('loading-screen');
-    
     if (user && AUTHORIZED_EMAILS.includes(user.email)) {
-        currentUserEmail = user.email; 
-
-        db.ref(BUTTONS_NODE).on('value', s => { 
+        currentUserEmail = user.email;
+        
+        db.ref('menuButtons').on('value', s => { 
             menuButtonsData = s.val() || {}; 
             renderMenuButtons(); 
-            
-            if(loadingScreen) {
-                setTimeout(() => {
-                    loadingScreen.style.opacity = '0'; 
-                    setTimeout(()=> loadingScreen.style.display='none', 500);
-                }, 1000);
-            }
+            const loading = document.getElementById('loading-screen');
+            if(loading) loading.style.display = 'none';
         });
 
         const emailKey = sanitizeEmail(user.email); 
@@ -470,10 +463,11 @@ auth.onAuthStateChanged(async (user) => {
         }
 
     } else { 
+        const loadingScreen = document.getElementById('loading-screen');
         if(loadingScreen) {
             loadingScreen.innerHTML = '<h2 style="color:red; font-family:Orbitron">ACCESO DENEGADO</h2><p style="color:#ccc">Retornando...</p>';
         }
-        setTimeout(() => { window.location.href = '/index.html'; }, 2000);
+        setTimeout(() => { window.location.href = '../index.html'; }, 2000);
     }
 });
 
