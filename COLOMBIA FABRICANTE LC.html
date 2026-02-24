@@ -2,21 +2,27 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  <title>Consulta de Fabricante LC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Consulta de Fabricante LC</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* Estilos del Input en Dark Mode */
     .input-wrapper {
       display: flex;
       align-items: center;
-      border: 1px solid #d1d5db;
-      border-radius: 0.375rem;
-      padding: 0.5rem;
-      background-color: white;
+      border: 1px solid #334155; /* border-slate-700 */
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      background-color: #1e293b; /* bg-slate-800 */
+      transition: border-color 0.3s;
+    }
+    .input-wrapper:focus-within {
+      border-color: #06b6d4; /* cyan-500 */
     }
     .input-prefix {
       font-weight: bold;
-      color: red;
-      margin-right: 0.25rem;
+      color: #06b6d4; /* cyan-500 */
+      margin-right: 0.5rem;
     }
     .input-number {
       border: none;
@@ -24,66 +30,142 @@
       flex: 1;
       text-transform: uppercase;
       text-align: center;
+      background-color: transparent;
+      color: #e2e8f0; /* text-slate-200 */
+      font-weight: 600;
+      font-size: 1.125rem;
     }
+    
     .table-responsive {
       overflow-x: auto;
     }
+
+    /* 5. Correcciones Estructurales Obligatorias */
+    /* Ayuda a prueba de Firebase (anula fondos blancos) */
+    #helpContent [class*="bg-"], #helpContent [style*="background"] { 
+      background-color: #0f172a !important; 
+      border-color: #334155 !important; 
+    }
+    #helpContent, #helpContent p, #helpContent span, #helpContent li { 
+      color: #e2e8f0 !important; 
+    }
+    #helpContent h4, #helpContent strong, #helpContent b { 
+      color: #06b6d4 !important; 
+      font-weight: bold !important; 
+      background: transparent !important; 
+    }
+    
+    /* Zoom de miniaturas sin cortes (Solo PC) */
+    td, tr { position: static !important; }
+    .results-container { overflow: visible !important; }
+    @media (hover: hover) and (pointer: fine) { 
+      .thumbnail-img:hover { 
+        transform: scale(4); 
+        z-index: 9999 !important; 
+        position: relative; 
+        box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+        border-color: #06b6d4; 
+      } 
+    }
+
+    /* 6. Responsive (Móvil) - Tabla a Tarjetas */
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr { 
+        display: block; 
+        width: 100%;
+      }
+      thead { 
+        display: none; 
+      }
+      tr {
+        display: flex;
+        flex-direction: column;
+        background: #1e293b !important; /* bg-slate-800 */
+        border: 1px solid #334155 !important; /* border-slate-700 */
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        padding: 1rem;
+      }
+      td {
+        border: none !important;
+        padding: 0.5rem 0 !important;
+        display: flex;
+        flex-direction: column;
+        color: #e2e8f0 !important;
+        text-align: left !important;
+      }
+      /* Títulos inyectados por CSS para cada celda en móvil */
+      td:nth-of-type(1)::before { 
+        content: "Código LC"; 
+        font-weight: 700; 
+        color: #06b6d4; 
+        text-transform: uppercase; 
+        font-size: 0.75rem; 
+        margin-bottom: 0.25rem; 
+      }
+      td:nth-of-type(2)::before { 
+        content: "Fabricante"; 
+        font-weight: 700; 
+        color: #06b6d4; 
+        text-transform: uppercase; 
+        font-size: 0.75rem; 
+        margin-bottom: 0.25rem; 
+      }
+      /* Regla general por si hay imágenes miniatura en el futuro */
+      td img, .thumbnail-img {
+        width: 100%;
+        height: auto;
+        order: -1;
+        margin-bottom: 0.5rem;
+        border-radius: 0.5rem;
+      }
+    }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
+<body class="bg-slate-900 min-h-screen flex flex-col pb-16 text-slate-200">
 
-<header class="bg-blue-600 w-full flex justify-center items-center py-2">
-  <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
-    <img
-      src="logogad.png"
-      alt="Logo GAD"
-      class="w-full h-full object-cover block"
-    >
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 md:px-8 shadow-md sticky top-0 z-[1000]">
+    <div class="flex items-center gap-3 md:gap-6">
+      <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-12 w-12 md:h-20 md:w-20 drop-shadow-md">
+      <div class="text-left">
+        <h1 class="text-lg md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">CONSULTA DE FABRICANTE LC</h1>
+        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[10px] md:text-sm mt-1">Grupo de Análisis Documental</h2>
+      </div>
+    </div>
+  </header>
+
+  <p class="text-center mt-6 px-4 text-slate-300">
+      Introduce el número del código LC:
+  </p>
+
+  <div class="w-11/12 max-w-md mx-auto mt-4">
+    <img src="logocolombia.png" alt="Logo Colombia" class="w-full rounded-xl shadow-lg border border-slate-700 bg-slate-800 p-2">
   </div>
-</header>
 
-<h1 class="text-black text-center mt-6 text-xl font-bold px-4">
-    Consulta de Fabricante LC
-</h1>
+  <div class="input-wrapper w-11/12 max-w-md mx-auto mt-6 shadow-md">
+    <span class="input-prefix">LC</span>
+    <input id="numero" type="text" class="input-number" placeholder="01" maxlength="2">
+  </div>
 
-<p class="text-center mt-2 px-4">
-    Introduce el número del código LC:
-</p>
+  <button onclick="buscarFabricante()" class="block mx-auto mt-6 w-11/12 max-w-md bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-lg shadow-md transition-colors duration-200">
+    Buscar
+  </button>
 
-<div class="w-11/12 max-w-md mx-auto mt-4">
-  <img src="logocolombia.png" alt="Logo Colombia" class="w-full">
-</div>
+  <button onclick="mostrarTodos()" class="block mx-auto mt-4 w-11/12 max-w-md bg-slate-800 border border-slate-600 hover:bg-slate-700 text-cyan-400 font-bold py-3 rounded-lg shadow-md transition-colors duration-200">
+    Ver lista completa
+  </button>
 
-<div class="input-wrapper w-11/12 max-w-md mx-auto mt-4">
-  <span class="input-prefix">LC</span>
-  <input id="numero" type="text" class="input-number" placeholder="01" maxlength="2">
-</div>
+  <div id="resultado" class="w-11/12 max-w-md mx-auto mt-8 text-lg font-semibold text-center"></div>
 
-<button onclick="buscarFabricante()" class="block mx-auto mt-4 w-11/12 max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-md">
-  Buscar
-</button>
-
-<button onclick="mostrarTodos()" class="block mx-auto mt-4 w-11/12 max-w-md bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-md">
-  Ver lista completa
-</button>
-
-<div id="resultado" class="w-11/12 max-w-md mx-auto mt-6 text-lg font-semibold text-gray-800 text-center"></div>
-
-    <div class="mt-8 flex justify-center">
+  <div class="mt-10 flex justify-center">
     <button onclick="window.location.href='index.html'"
-            class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
+            class="w-11/12 max-w-md p-4 bg-slate-800 border-2 border-yellow-500 text-yellow-500 font-bold rounded-lg shadow-md transition-colors duration-200 hover:bg-yellow-500 hover:text-slate-900 tracking-wide">
         MENÚ PRINCIPAL
     </button>
-</div>
+  </div>
 
- <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
-
-<script>
+  <script>
+  // 1. Lógica y Arquitectura (CRÍTICO) - Intacta
   const fabricantes = {
     "LC01": "CARVAJAL (Hasta 2012) MORPHO (2012 a 2018) IDEMIA (Desde 2018)",
     "LC02": "HOGIER GARTNER",
@@ -104,21 +186,23 @@
     const codigo = `LC${num.toUpperCase()}`;
     const resultado = document.getElementById("resultado");
     if (fabricantes[codigo]) {
-      resultado.textContent = `Fabricante: ${fabricantes[codigo]}`;
+      // Clases UI adaptadas al Dark Mode GAD
+      resultado.innerHTML = `<div class="p-4 bg-slate-800 border border-slate-700 rounded-lg shadow-lg text-slate-200">Fabricante:<br><span class="text-cyan-400 font-bold mt-2 inline-block">${fabricantes[codigo]}</span></div>`;
     } else {
-      resultado.textContent = "Código no encontrado. Verifica el número ingresado.";
+      resultado.innerHTML = `<div class="p-4 bg-red-900/30 border border-red-700 rounded-lg shadow-lg text-red-400">Código no encontrado. Verifica el número ingresado.</div>`;
     }
   }
 
   function mostrarTodos() {
     const resultado = document.getElementById("resultado");
+    // Clases UI adaptadas al Dark Mode GAD manteniendo la estructura requerida para la conversión CSS móvil
     let listaHTML = `
-      <div class="mt-4 p-4 bg-white rounded-md shadow-md table-responsive">
-        <table class="w-full text-sm text-left text-gray-500">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+      <div class="mt-4 bg-slate-800 rounded-xl shadow-lg border border-slate-700 table-responsive results-container overflow-hidden">
+        <table class="w-full text-sm text-left text-slate-300">
+          <thead class="text-xs text-cyan-500 uppercase bg-slate-900 border-b border-slate-700">
             <tr>
-              <th scope="col" class="py-3 px-6">Código LC</th>
-              <th scope="col" class="py-3 px-6">Fabricante</th>
+              <th scope="col" class="py-4 px-6 font-black tracking-wider">Código LC</th>
+              <th scope="col" class="py-4 px-6 font-black tracking-wider">Fabricante</th>
             </tr>
           </thead>
           <tbody>
@@ -127,9 +211,9 @@
     for (const codigo in fabricantes) {
       if (fabricantes.hasOwnProperty(codigo)) {
         listaHTML += `
-          <tr class="bg-white border-b">
-            <td class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap">${codigo}</td>
-            <td class="py-4 px-6">${fabricantes[codigo]}</td>
+          <tr class="bg-slate-800 border-b border-slate-700/50 hover:bg-slate-750 transition-colors duration-150">
+            <td class="py-4 px-6 font-bold text-cyan-400 whitespace-nowrap">${codigo}</td>
+            <td class="py-4 px-6 text-slate-200">${fabricantes[codigo]}</td>
           </tr>
         `;
       }
