@@ -194,12 +194,13 @@
     #viewImgArea { width: 100%; display: flex; justify-content: center; background: #0f172a; padding: 10px; border-radius: 8px;}
     #viewImgArea img { max-width: 100%; max-height: 70vh; object-fit: contain; }
     
-    /* AYUDA MEJORADA */
+  /* AYUDA MEJORADA - Fuerza colores claros ignorando las clases que vengan de Firebase */
     .help-panel { background: #1e293b; border: 1px solid #334155; padding: 25px; margin-bottom: 25px; border-radius: 12px; border-left: 6px solid #06b6d4; display: none; }
-    #helpContent { color: #ffffff !important; }
-    #helpContent strong { color: #22d3ee !important; font-weight: 700; }
-    #helpContent p, #helpContent li, #helpContent span { color: #cbd5e1 !important; }
-    #helpContent h4 { color: #06b6d4 !important; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+    #helpContent, #helpContent * { color: #e2e8f0 !important; border-color: #334155 !important; }
+    #helpContent strong, #helpContent b { color: #22d3ee !important; font-weight: 700 !important; }
+    #helpContent h4 { color: #06b6d4 !important; font-weight: 800 !important; border-bottom: 2px solid #334155 !important; padding-bottom: 0.5rem !important; margin-bottom: 1rem !important; background: transparent !important; }
+    #helpContent i.fas { color: #06b6d4 !important; }
+    #helpContent .bg-yellow-900\/20 { background-color: rgba(30, 41, 59, 0.5) !important; } /* Suaviza el panel amarillo */
     .editing-border { border: 2px dashed #06b6d4; padding: 10px; background-color: #0f172a; cursor: text; }
     
     #loading-auth { text-align: center; padding: 20px; font-size: 1.2rem; color: #94a3b8; font-weight: bold; }
@@ -208,9 +209,9 @@
 <body class="flex flex-col min-h-screen">
 
   <header class="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-8 shadow-md sticky top-0 z-[1000]">
+<header class="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-8 shadow-md sticky top-0 z-[1000]">
     <div class="flex items-center gap-6">
-      <img src="../ASSETS/logogad.png" alt="GAD LOGO" class="h-20 w-20 drop-shadow-md" onerror="this.onerror=null; this.style.display='none';">
-      <div class="text-left">
+<img src="logogad.png" alt="GAD LOGO" class="h-20 w-20 drop-shadow-md">      <div class="text-left">
         <h1 class="text-3xl font-black text-white tracking-wider uppercase" id="headerTitle">Documentos Intervenidos</h1>
         <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-sm mt-1">Grupo de Análisis Documental</h2>
       </div>
@@ -249,7 +250,7 @@
             <div id="filtersArea" class="flex items-center"></div>
         </div>
 
-        <div id="helpPanel" class="help-panel">
+  <div id="helpPanel" class="help-panel">
             <div class="flex justify-between items-start mb-6">
                 <h3 class="font-bold text-3xl text-white"><i class="fas fa-info-circle text-cyan-500 mr-2"></i> Guía de Uso</h3>
                 <div class="flex gap-2">
@@ -261,7 +262,44 @@
             </div>
             
             <div id="helpContent">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-200">
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-extrabold text-cyan-400 text-lg border-b-2 border-slate-600 pb-2 mb-3">PROCEDIMIENTOS RÁPIDOS</h4>
+                            <div class="space-y-3 text-sm">
+                                <p><i class="fas fa-plus-circle text-cyan-400"></i> <strong class="text-white">Nuevo:</strong> Rellene los datos. El "DSV" es automático.</p>
+                                <p><i class="fas fa-gavel text-green-400"></i> <strong class="text-white">Judicializar:</strong> Al editar, marque la casilla verde. El documento pasará a la pestaña "Judicializados".</p>
+                                <p><i class="fas fa-sign-out-alt text-red-400"></i> <strong class="text-white">Salida:</strong> Cambie el estado a "Devuelto" o "Entregado". Se pondrá marrón y con aspa roja.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-600">
+                            <h4 class="font-bold text-cyan-400 mb-2"><i class="fas fa-filter mr-2"></i> ¿DÓNDE ESTÁ EL FILTRO?</h4>
+                            <p class="text-sm text-slate-200 mb-2">Está arriba a la derecha, junto al buscador. Cambia según la pestaña:</p>
+                            <ul class="text-xs space-y-1 list-disc pl-4 text-slate-300">
+                                <li><strong class="text-white">En Intervenidos:</strong> Filtra Activos vs Devueltos.</li>
+                                <li><strong class="text-white">En Judicializados:</strong> Filtra por estados (Trámite, Condena, etc.).</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-cyan-400 text-lg border-b-2 border-slate-600 pb-2 mb-3">LEYENDA DE ESTADOS</h4>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-600">
+                                <i class="fas fa-circle text-green-500 text-lg"></i> 
+                                <span><strong class="text-white">Judicializado/Condena:</strong> Activo en juzgado.</span>
+                            </li>
+                            <li class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-600">
+                                <i class="fas fa-circle text-red-500 text-lg"></i> 
+                                <span><strong class="text-white">En Trámite:</strong> Pendiente de resolución.</span>
+                            </li>
+                            <li class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-600">
+                                <i class="fas fa-circle text-yellow-600 text-lg"></i>
+                                <span class="text-slate-200"><strong class="text-white">Entregado/Devuelto:</strong> Color marrón. Ya no está en depósito.</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
+            </div>
         </div>
 
         <div class="results-container">
@@ -275,11 +313,6 @@
     </div>
   </main>
 
-  <footer class="mt-auto text-center py-6 bg-slate-900 border-t border-slate-800 text-slate-400 text-sm">
-    <p class="font-bold text-slate-300">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold text-slate-300">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
 
   <div id="editModal" class="modal-overlay">
     <div class="modal-compact">
