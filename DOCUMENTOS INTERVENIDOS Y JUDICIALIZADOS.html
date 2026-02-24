@@ -12,17 +12,17 @@
   <style>
     :root {
       /* PALETA DARK MODE GAD */
-      --bg-body: #0f172a; /* slate-900 */
-      --text-main: #e2e8f0; /* slate-200 */
-      --color-interv: #1e293b; /* slate-800 */
+      --bg-body: #0f172a; 
+      --text-main: #e2e8f0; 
+      --color-interv: #1e293b; 
       --color-judic: #0f172a; 
       
-      /* Estados Texto adaptados para destacar en fondo oscuro */
+      /* Estados Texto */
       --st-condena: #22c55e;      
       --st-tramite: #ef4444;      
       --st-ordinario: #3b82f6;    
       --st-absolucion: #d946ef;   
-      --st-entregado: #ca8a04; /* Marrón claro/Ámbar */
+      --st-entregado: #ca8a04; 
       --st-disponible: #06b6d4; 
       --st-judicializado: #22c55e; 
     }
@@ -37,7 +37,7 @@
       overflow-y: scroll; 
     }
 
-    /* PESTAÑAS (Adaptadas a oscuro) */
+    /* PESTAÑAS */
     .mode-selector {
         display: flex; justify-content: center; gap: 0; margin: 25px auto 10px auto; max-width: 700px;
         background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 5px;
@@ -55,7 +55,7 @@
     /* MENÚ FLOTANTE */
     .sticky-menu-bar {
         position: sticky;
-        top: 100px; /* Ajustado por la nueva cabecera */
+        top: 100px; 
         z-index: 900;
         margin-bottom: 20px;
         background: #1e293b;
@@ -63,11 +63,11 @@
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
     }
 
-    /* TABLA (Oscura y con overflow visible para que el zoom no se corte) */
+    /* TABLA */
     .results-container {
         margin: 0 auto; max-width: 98%; background: #1e293b; padding: 20px;
         border-radius: 12px; border: 1px solid #334155; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); 
-        overflow: visible !important; /* CRÍTICO: Permite que el zoom salga de la tabla */
+        overflow: visible !important; 
     }
     table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.95rem; }
     th { 
@@ -77,7 +77,7 @@
     td { padding: 10px 16px; border-bottom: 1px solid #334155; vertical-align: middle; }
     tr:hover td { background-color: #334155; }
     
-    /* REPARACIÓN CRÍTICA DEL ZOOM: Forzar a que las celdas no atrapen la imagen */
+    /* REPARACIÓN DEL ZOOM: z-index y position static en celdas */
     td, tr { position: static !important; }
 
     /* FOTOS Y ZOOM */
@@ -92,7 +92,7 @@
         box-shadow: 0 15px 40px rgba(0,0,0,0.9); border-color: #06b6d4;    
     }
 
-    /* ASPA ROJA (Superpuesta) */
+    /* ASPA ROJA */
     .thumb-container { position: relative; display: inline-block; }
     .red-cross-overlay {
         position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -100,7 +100,7 @@
         color: rgba(239, 68, 68, 0.9); font-size: 4rem; text-shadow: 0 0 10px rgba(0,0,0,0.8);
     }
 
-    /* BOTONES ACCIÓN (Tus colores originales exactos) */
+    /* BOTONES ACCIÓN */
     .action-buttons-wrapper { display: flex; gap: 8px; justify-content: flex-end; }
     .action-btn {
         width: 45px; height: 45px; border-radius: 10px; border: none; color: white; cursor: pointer; 
@@ -132,7 +132,7 @@
 
     .row-exit td { color: var(--st-entregado) !important; font-weight: 600; text-decoration: none !important; opacity: 0.8;}
 
-    /* MODALES (Modo Oscuro) */
+    /* MODALES */
     .modal-overlay { 
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
         display: flex; justify-content: center; align-items: center; visibility: hidden; opacity: 0; 
@@ -163,7 +163,7 @@
     .form-grid-compact input:focus, .form-grid-compact select:focus { border-color: #06b6d4; }
     .form-grid-compact textarea { height: 60px; resize: none; background: #0f172a; }
 
-    /* CLASES DE COLOR PARA INPUTS */
+    /* CLASES COLOR INPUTS */
     .input-blue { background-color: rgba(30, 58, 138, 0.3) !important; color: #60a5fa !important; font-weight: 700; border-color: #1e3a8a !important; }
     .input-red { background-color: rgba(153, 27, 27, 0.3) !important; color: #f87171 !important; font-weight: 700; border-color: #7f1d1d !important; }
     .input-soft-blue { background-color: #0f172a !important; color: white !important; font-weight: 600; border-color: #334155 !important; }
@@ -194,7 +194,7 @@
     #viewImgArea { width: 100%; display: flex; justify-content: center; background: #0f172a; padding: 10px; border-radius: 8px;}
     #viewImgArea img { max-width: 100%; max-height: 70vh; object-fit: contain; }
     
-    /* AYUDA EDITABLE Y MEJORADA VISUALMENTE */
+    /* AYUDA MEJORADA */
     .help-panel { background: #1e293b; border: 1px solid #334155; padding: 25px; margin-bottom: 25px; border-radius: 12px; border-left: 6px solid #06b6d4; display: none; }
     #helpContent { color: #ffffff !important; }
     #helpContent strong { color: #22d3ee !important; font-weight: 700; }
@@ -209,7 +209,7 @@
 
   <header class="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-8 shadow-md sticky top-0 z-[1000]">
     <div class="flex items-center gap-6">
-      <img src="../ASSETS/logogad.png" alt="GAD LOGO" class="h-20 w-20 drop-shadow-md">
+      <img src="../ASSETS/logogad.png" alt="GAD LOGO" class="h-20 w-20 drop-shadow-md" onerror="this.onerror=null; this.style.display='none';">
       <div class="text-left">
         <h1 class="text-3xl font-black text-white tracking-wider uppercase" id="headerTitle">Documentos Intervenidos</h1>
         <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-sm mt-1">Grupo de Análisis Documental</h2>
@@ -228,7 +228,7 @@
         </div>
     </div>
 
-    <div id="loading-auth">Conectando con Base de Datos V4...</div>
+    <div id="loading-auth">Verificando sesión...</div>
 
     <div id="main-content" style="display:none;">
         <div class="p-5 rounded-xl mb-8 flex flex-wrap items-center gap-5 justify-between sticky-menu-bar">
@@ -261,44 +261,7 @@
             </div>
             
             <div id="helpContent">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-300">
-                    <div class="space-y-6">
-                        <div>
-                            <h4 class="font-extrabold text-cyan-500 text-lg border-b-2 border-slate-700 pb-2 mb-3">PROCEDIMIENTOS RÁPIDOS</h4>
-                            <div class="space-y-3 text-sm">
-                                <p><i class="fas fa-plus-circle text-cyan-500"></i> <strong>Nuevo:</strong> Rellene los datos. El "DSV" es automático.</p>
-                                <p><i class="fas fa-gavel text-green-500"></i> <strong>Judicializar:</strong> Al editar, marque la casilla verde. El documento pasará a la pestaña "Judicializados".</p>
-                                <p><i class="fas fa-sign-out-alt text-red-500"></i> <strong>Salida:</strong> Cambie el estado a "Devuelto" o "Entregado". Se pondrá marrón y con aspa roja.</p>
-                            </div>
-                        </div>
-                        <div class="bg-yellow-900/20 p-4 rounded-lg border border-yellow-700">
-                            <h4 class="font-bold text-yellow-500 mb-2"><i class="fas fa-filter mr-2"></i> ¿DÓNDE ESTÁ EL FILTRO?</h4>
-                            <p class="text-sm mb-2">Está arriba a la derecha, junto al buscador. Cambia según la pestaña:</p>
-                            <ul class="text-xs space-y-1 list-disc pl-4 text-slate-400">
-                                <li><strong>En Intervenidos:</strong> Filtra Activos vs Devueltos.</li>
-                                <li><strong>En Judicializados:</strong> Filtra por estados (Trámite, Condena, etc.).</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div>
-                        <h4 class="font-extrabold text-cyan-500 text-lg border-b-2 border-slate-700 pb-2 mb-3">LEYENDA DE ESTADOS</h4>
-                        <ul class="space-y-3 text-sm">
-                            <li class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700">
-                                <i class="fas fa-circle text-green-500 text-lg"></i> 
-                                <span><strong class="text-white">Judicializado/Condena:</strong> Activo en juzgado.</span>
-                            </li>
-                            <li class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700">
-                                <i class="fas fa-circle text-red-500 text-lg"></i> 
-                                <span><strong class="text-white">En Trámite:</strong> Pendiente de resolución.</span>
-                            </li>
-                            <li class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700">
-                                <i class="fas fa-circle text-yellow-600 text-lg"></i>
-                                <span class="text-yellow-600"><strong>Entregado/Devuelto:</strong> Color marrón. Ya no está en depósito.</span>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
-            </div>
         </div>
 
         <div class="results-container">
@@ -311,6 +274,12 @@
         </div>
     </div>
   </main>
+
+  <footer class="mt-auto text-center py-6 bg-slate-900 border-t border-slate-800 text-slate-400 text-sm">
+    <p class="font-bold text-slate-300">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+    <p class="font-bold text-slate-300">POLICÍA LOCAL DE ALICANTE</p>
+    <p>&copy; GAD - Todos los derechos reservados</p>
+  </footer>
 
   <div id="editModal" class="modal-overlay">
     <div class="modal-compact">
@@ -420,6 +389,7 @@
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> 
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
   
   <script>
@@ -436,6 +406,7 @@
     
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth(); // Recuperamos Auth
     const mainRef = db.ref('documentos_intervenidos');
     const systemRef = db.ref('configuracion_global/ayuda');
 
@@ -444,14 +415,19 @@
     let intFilter = 'all'; 
     let judFilter = 'ALL';
     let isEditingHelp = false;
-    let isUserAuthenticated = true;
+    let isUserAuthenticated = false;
 
-    // --- 2. SISTEMA DE ACCESO DIRECTO ---
-    window.onload = () => {
-        document.getElementById('loading-auth').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        iniciarAplicacion();
-    };
+    // --- 2. AUTH SILENCIOSO (Detecta que ya te logueaste en el index) ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            isUserAuthenticated = true;
+            document.getElementById('loading-auth').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            iniciarAplicacion();
+        } else {
+            document.getElementById('loading-auth').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Por favor, inicia sesión desde tu panel principal (Index).</span>";
+        }
+    });
 
     function iniciarAplicacion() {
         const jSelect = document.getElementById('juzgado');
@@ -799,17 +775,7 @@
     
     window.toggleHelp = function() { const p=document.getElementById('helpPanel'); p.style.display=(p.style.display==='block')?'none':'block'; };
     window.closeModal = function() { document.getElementById('editModal').classList.remove('open'); };
-    
-    // Función de formateo de fechas a estilo DD/MM/YYYY garantizada
-    function fmt(s) { 
-        if(!s) return ''; 
-        const parts = s.split('-'); 
-        if (parts.length === 3) {
-            const [y,m,d] = parts; 
-            return `${d}/${m}/${y}`; 
-        }
-        return s;
-    }
+    function fmt(s) { if(!s)return''; const[y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
 
   </script>
 </body>
