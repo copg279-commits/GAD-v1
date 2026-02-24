@@ -31,7 +31,7 @@ let menuButtonsData = {};
 let currentMenuPath = [];
 let isEditMode = false;
 let currentUserEmail = "";
-let draggedItem = null; // Guarda temporalmente el botón que estamos arrastrando
+let draggedItem = null; 
 
 // ================= FUNCIONES DE NAVEGACIÓN (UI) =================
 
@@ -103,12 +103,10 @@ function renderMenuButtons() {
         grid.innerHTML = '';
         const parentId = currentMenuPath.length > 0 ? currentMenuPath[currentMenuPath.length - 1] : null;
         
-        // Obtenemos y ordenamos los botones por su propiedad 'order'
         const buttons = Object.entries(menuButtonsData)
             .filter(([k, v]) => v.parent == parentId)
             .sort((a,b) => a[1].order - b[1].order);
 
-        // Botón especial para Añadir (Solo visible en edición)
         if(isEditMode) {
             const addBtn = document.createElement('div'); 
             addBtn.className = 'tech-btn full-width'; 
@@ -128,14 +126,12 @@ function renderMenuButtons() {
             const btn = document.createElement('div'); 
             btn.className = `tech-btn ${isFull ? 'full-width' : ''}`;
             
-            // Colores
             if (v.color === '#ef4444' || v.color === '#dc2626') btn.classList.add('color-alert'); 
             else if (v.color === '#f59e0b') btn.classList.add('color-warning'); 
             else if (v.color === '#10b981' || v.color === '#16a34a') btn.classList.add('color-success');
             
             const editIcon = isEditMode ? `<div class="edit-mode-icon">EDITAR</div>` : '';
             
-            // Estructura limpia sin SVG internos
             btn.innerHTML = `
                 <div class="tech-label">
                     ${v.text}
@@ -143,50 +139,40 @@ function renderMenuButtons() {
                 ${editIcon}
             `;
 
-            // === LÓGICA ARRASTRAR Y SOLTAR (Solo activa en Edición) ===
             if (isEditMode) {
                 btn.setAttribute('draggable', 'true');
                 btn.style.cursor = 'grab';
                 
-                // Empezamos a arrastrar el botón
                 btn.addEventListener('dragstart', function(e) {
                     draggedItem = { key: key, order: v.order };
                     setTimeout(() => this.classList.add('dragging'), 0);
                 });
                 
-                // Soltamos el botón (fuera de zona válida)
                 btn.addEventListener('dragend', function() {
                     this.classList.remove('dragging');
                     draggedItem = null;
                 });
                 
-                // Pasamos por encima de otro botón (se ilumina)
                 btn.addEventListener('dragover', function(e) {
                     e.preventDefault();
                     this.classList.add('drag-over');
                 });
                 
-                // Salimos de encima de otro botón
                 btn.addEventListener('dragleave', function() {
                     this.classList.remove('drag-over');
                 });
                 
-                // SOLTAMOS EL BOTÓN ENCIMA DE OTRO
                 btn.addEventListener('drop', function(e) {
                     e.preventDefault();
                     this.classList.remove('drag-over');
                     
                     if (draggedItem && draggedItem.key !== key) {
-                        // Firebase: Intercambiamos el número de 'order' entre ambos botones
                         db.ref(`${BUTTONS_NODE}/${draggedItem.key}`).update({ order: v.order });
                         db.ref(`${BUTTONS_NODE}/${key}`).update({ order: draggedItem.order });
-                        // Firebase lanzará un evento on('value') automático y re-renderizará la pantalla
                     }
                 });
             }
-            // =========================================================
             
-            // Clic normal
             btn.onclick = (e) => { 
                 if (isEditMode) { 
                     openEditModal(key, v); 
@@ -271,15 +257,16 @@ function renderSidebarTree(parentId, container) {
 }
 
 
-// ================= VISOR DE IFRAME (CON AUTO-RUTAS) =================
+// ================= VISOR DE IFRAME (MODIFICADO: IGNORA HTMLCODE) =================
 
 function showContent(data) {
     const viewer = document.getElementById('iframe-viewer-area'); 
     const iframe = document.getElementById('content-iframe');
     const backBtn = document.getElementById('iframe-back-float');
 
-    if (!data.href && !data.htmlCode) {
-        alert("Este botón no tiene contenido configurado.");
+    // Ahora solo validamos que exista un archivo en href para continuar
+    if (!data.href) {
+        alert("Este botón no tiene un archivo configurado en la casilla 'href'.");
         return;
     }
     
@@ -292,41 +279,27 @@ function showContent(data) {
          if(backBtn) backBtn.style.display = 'block';
     }, 100);
 
-    // PRIORIDAD 1: Si hay Código HTML (como en tu dashboard antiguo)
-    if (data.htmlCode) {
-        const doc = iframe.contentWindow.document;
-        doc.open();
-        doc.write(data.htmlCode);
-        doc.close();
-        return;
-    }
+    // --- BLOQUE DE CÓDIGO HTML ELIMINADO PARA PRIORIZAR SIEMPRE EL ARCHIVO DE GITHUB ---
 
-    // PRIORIDAD 2: Si es un Enlace (URL)
+    // PROCESAMIENTO DEL ENLACE (URL)
     let finalUrl = data.href.trim();
-    finalUrl = finalUrl.replace(/ /g, '%20'); // Corregir espacios para GitHub
+    finalUrl = finalUrl.replace(/ /g, '%20'); 
 
-    // Si NO es un enlace externo (http) y NO tiene ya el salto de carpeta (../)
     if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../')) {
-        // Si empieza por carpeta raíz, quitamos la barra
         if (finalUrl.startsWith('/')) finalUrl = finalUrl.substring(1);
-        
-        // AÑADIMOS EL SALTO: Como index.html está en /DASHBOARD/, 
-        // necesitamos ../ para ir a la carpeta principal de GitHub
         finalUrl = '../' + finalUrl;
     }
 
-    console.log("Cargando recurso en:", finalUrl);
+    console.log("Cargando recurso desde GitHub:", finalUrl);
     iframe.src = finalUrl; 
 }
 
-// ================= GESTIÓN CRUD (LIMPIADO DE HTML) =================
+// ================= GESTIÓN CRUD =================
 
 function openEditModal(key, data) {
     document.getElementById('edit-button-modal').style.display = 'flex';
     document.getElementById('edit-button-id').value = key; 
     document.getElementById('edit-button-text').value = data.text; 
-    
-    // Si tiene href lo ponemos, si no lo dejamos en blanco
     document.getElementById('edit-button-href').value = data.href || ''; 
     document.getElementById('edit-button-size').value = data.size || 'normal';
     
@@ -344,7 +317,6 @@ document.getElementById('save-button-changes').onclick = () => {
     db.ref(`${BUTTONS_NODE}/${id}`).update({ 
         text: document.getElementById('edit-button-text').value, 
         href: document.getElementById('edit-button-href').value, 
-        // Ya no enviamos htmlCode
         size: document.getElementById('edit-button-size').value, 
         color: document.getElementById('edit-button-color-select').value 
     });
@@ -360,8 +332,6 @@ document.getElementById('save-new-button').onclick = async () => {
     }
     
     const parent = currentMenuPath.length ? currentMenuPath[currentMenuPath.length-1] : null;
-    
-    // Obtener la cantidad de botones para asignar el nuevo orden al final
     const snap = await db.ref(BUTTONS_NODE).orderByChild('parent').equalTo(parent).once('value');
     const order = (snap.val() ? Object.keys(snap.val()).length : 0) + 1;
     
@@ -374,7 +344,6 @@ document.getElementById('save-new-button').onclick = async () => {
         color: '#00f0ff'
     });
     
-    // Limpiar input y cerrar modal
     document.getElementById('new-button-text').value = '';
     document.getElementById('add-button-modal').style.display = 'none';
 };
