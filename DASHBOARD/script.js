@@ -13,7 +13,7 @@ const firebaseConfig = {
 const AUTHORIZED_EMAILS = [
     'gadalicante@gmail.com', 'copg279@gmail.com', 'adamus03248@gmail.com', 
     'davidmesi83@gmail.com', 'pamiseseg@gmail.com', 'policia.g496@gmail.com', 
-    'verdeguer279@gmail.com', 'cambiar_nombre6@gmail.com'
+    'verdeguer279@gmail.com', 'test@gad.com'
 ];
 const ADMIN_EMAIL = 'copg279@gmail.com';
 
