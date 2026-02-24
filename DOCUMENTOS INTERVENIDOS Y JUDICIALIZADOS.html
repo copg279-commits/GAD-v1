@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gestión GAD - Sistema Final v26 (Alineación Perfecta)</title>
+  <title>Gestión GAD - Dark Mode Unificado</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,19 +11,19 @@
   
   <style>
     :root {
-      --bg-body: #f3f4f6;
-      --text-main: #1f2937;
-      --color-interv: #1e40af; 
-      --color-judic: #15803d;
+      /* PALETA DARK MODE GAD */
+      --bg-body: #0f172a; /* slate-900 */
+      --text-main: #e2e8f0; /* slate-200 */
+      --color-panel: #1e293b; /* slate-800 */
       
-      /* Estados Texto */
-      --st-condena: #16a34a;      
-      --st-tramite: #dc2626;      
-      --st-ordinario: #2563eb;    
-      --st-absolucion: #800080;   
-      --st-entregado: #8B4513; 
+      /* Estados Texto adaptados para destacar en fondo oscuro */
+      --st-condena: #22c55e;      
+      --st-tramite: #ef4444;      
+      --st-ordinario: #3b82f6;    
+      --st-absolucion: #d946ef;   
+      --st-entregado: #ca8a04; 
       --st-disponible: #06b6d4; 
-      --st-judicializado: #15803d; 
+      --st-judicializado: #22c55e; 
     }
 
     html { font-size: 16px; }
@@ -36,86 +36,63 @@
       overflow-y: scroll; 
     }
 
-    /* HEADER */
-    header {
-      padding: 20px 0; 
-      color: white; 
-      text-align: center; 
-      transition: background-color 0.4s ease;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
-      position: sticky; 
-      top: 0; 
-      z-index: 1000; 
-    }
-    header.mode-interv { background-color: var(--color-interv); }
-    header.mode-judic { background-color: var(--color-judic); }
-    
-    .logo-container { width: 100px; height: 100px; margin: 0 auto 5px auto; transition: transform 0.3s; }
-    .logo-container:hover { transform: scale(1.05); }
-    .logo-container img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
-
     /* PESTAÑAS */
     .mode-selector {
         display: flex; justify-content: center; gap: 0; margin: 25px auto 10px auto; max-width: 700px;
-        background: #e5e7eb; border-radius: 10px; padding: 5px;
+        background: var(--color-panel); border: 1px solid #334155; border-radius: 10px; padding: 5px;
     }
     .mode-tab {
         flex: 1; padding: 14px; text-align: center; cursor: pointer; font-weight: 700;
-        border-radius: 8px; transition: all 0.3s ease; color: #6b7280; text-transform: uppercase;
+        border-radius: 8px; transition: all 0.3s ease; color: #64748b; text-transform: uppercase;
         display: flex; align-items: center; justify-content: center; gap: 10px;
     }
-    .mode-tab:hover { background-color: rgba(255,255,255,0.5); }
-    .mode-tab.active-interv { background: var(--color-interv); color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .mode-tab.active-judic { background: var(--color-judic); color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .mode-tab:hover { background-color: rgba(255,255,255,0.05); }
+    .mode-tab.active-interv, .mode-tab.active-judic { 
+        background: transparent; color: #06b6d4; border: 1px solid #06b6d4; box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+    }
 
     /* MENÚ FLOTANTE */
     .sticky-menu-bar {
         position: sticky;
-        top: 155px; 
+        top: 100px; /* Ajustado por la nueva cabecera h-24 */
         z-index: 900;
         margin-bottom: 20px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(5px);
+        background: var(--color-panel);
+        border: 1px solid #334155;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
     }
 
-    /* TABLA */
+    /* TABLA (Contenedor slate-800, fondo de tabla slate-900) */
     .results-container {
-        margin: 0 auto; max-width: 98%; background: white; padding: 20px;
-        border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); overflow-x: auto;
+        margin: 0 auto; max-width: 98%; background: var(--color-panel); padding: 20px;
+        border-radius: 12px; border: 1px solid #334155; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); 
+        overflow: visible; /* CRÍTICO: Permite que el zoom salga de la tabla */
     }
-    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.95rem; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.95rem; background-color: var(--bg-body); border-radius: 8px; overflow: hidden; }
     th { 
-        background: #f8fafc; padding: 16px; text-align: left; border-bottom: 3px solid #e2e8f0; 
-        color: #475569; white-space: nowrap; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; 
+        background: var(--bg-body); padding: 16px; text-align: left; border-bottom: 3px solid #334155; 
+        color: #94a3b8; white-space: nowrap; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; 
     }
-    td { padding: 10px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-    tr:hover td { background-color: #f8fafc; }
+    td { padding: 10px 16px; border-bottom: 1px solid #334155; vertical-align: middle; background-color: var(--bg-body); }
+    tr:hover td { background-color: #1e293b; /* Efecto hover en fila usando el slate-800 */ }
 
-    /* FOTOS */
+    /* FOTOS Y ZOOM */
     .thumbnail-img {
-        display: block;
-        max-width: 150px;      
-        max-height: 100px;     
-        width: auto;           
-        height: auto;          
-        border-radius: 4px; 
-        cursor: pointer; 
-        transition: transform 0.2s; 
-        margin: 0 auto;        
-        border: 1px solid #ddd;
+        display: block; max-width: 150px; max-height: 100px; width: auto; height: auto;          
+        border-radius: 4px; cursor: pointer; transition: transform 0.2s; margin: 0 auto;        
+        border: 1px solid #475569; background: var(--bg-body);
     }
     .thumbnail-img:hover { 
-        transform: scale(3.5); z-index: 2000; position: relative; 
-        box-shadow: 0 15px 30px rgba(0,0,0,0.3); background: white;     
+        transform: scale(4); z-index: 2000; position: relative; 
+        box-shadow: 0 15px 30px rgba(0,0,0,0.8); border-color: #06b6d4;    
     }
 
     /* ASPA ROJA (Superpuesta) */
     .thumb-container { position: relative; display: inline-block; }
     .red-cross-overlay {
         position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        pointer-events: none; 
-        z-index: 10;
-        color: rgba(220, 38, 38, 0.85); font-size: 4rem; text-shadow: 0 0 5px white;
+        pointer-events: none; z-index: 10;
+        color: rgba(239, 68, 68, 0.9); font-size: 4rem; text-shadow: 0 0 10px rgba(0,0,0,0.8);
     }
 
     /* BOTONES ACCIÓN */
@@ -123,9 +100,9 @@
     .action-btn {
         width: 45px; height: 45px; border-radius: 10px; border: none; color: white; cursor: pointer; 
         display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 1.3rem; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
-    .action-btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
+    .action-btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 4px 6px rgba(0,0,0,0.4); }
     .btn-view { background: #f59e0b; }
     .btn-edit { background: #16a34a; }
     .btn-del { background: #dc2626; }
@@ -138,111 +115,111 @@
     .st-judicializado { color: var(--st-judicializado); font-weight: 800; }
     
     .tag-disponible {
-        display: block; margin-top: 4px; font-size: 0.65rem; background-color: #cffafe;
-        color: #0891b2; border: 1px solid #22d3ee; padding: 2px 6px; border-radius: 4px;
+        display: block; margin-top: 4px; font-size: 0.65rem; background-color: rgba(6, 182, 212, 0.1);
+        color: #22d3ee; border: 1px solid #0891b2; padding: 2px 6px; border-radius: 4px;
         font-weight: 800; text-align: center; width: fit-content; text-transform: uppercase;
     }
     .tag-peritado {
-        display: block; margin-top: 2px; font-size: 0.65rem; background-color: #f3e8ff;
-        color: #7e22ce; border: 1px solid #d8b4fe; padding: 2px 6px; border-radius: 4px;
+        display: block; margin-top: 2px; font-size: 0.65rem; background-color: rgba(168, 85, 247, 0.1);
+        color: #d8b4fe; border: 1px solid #9333ea; padding: 2px 6px; border-radius: 4px;
         font-weight: 800; text-align: center; width: fit-content; text-transform: uppercase;
     }
 
-    .row-exit td { 
-        color: var(--st-entregado) !important; 
-        font-weight: 600;
-        text-decoration: none !important;
-    }
+    .row-exit td { color: var(--st-entregado) !important; font-weight: 600; text-decoration: none !important; opacity: 0.8;}
 
     /* MODALES */
     .modal-overlay { 
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px);
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
         display: flex; justify-content: center; align-items: center; visibility: hidden; opacity: 0; 
-        z-index: 3000; 
-        transition: opacity 0.3s; 
+        z-index: 3000; transition: opacity 0.3s; 
     }
     .modal-overlay.open { visibility: visible; opacity: 1; }
     
     .modal-compact { 
-        background: white; width: 95%; max-width: 1100px; border-radius: 12px; height: auto; max-height: 98vh; 
-        display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+        background: var(--color-panel); width: 95%; max-width: 1100px; border-radius: 12px; border: 1px solid #334155; height: auto; max-height: 98vh; 
+        display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.8); 
     }
-    .modal-header { padding: 12px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header { padding: 12px 20px; background: var(--bg-body); border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; border-radius: 12px 12px 0 0; }
     .modal-body { overflow-y: auto; padding: 15px 25px; }
 
     /* FORMULARIO COMPACTO GRID */
-    .form-grid-compact {
-        display: grid; grid-template-columns: repeat(4, 1fr); 
-        gap: 12px; 
-        align-items: end; 
-    }
+    .form-grid-compact { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: end; }
     .col-span-1 { grid-column: span 1; } .col-span-2 { grid-column: span 2; } .col-span-4 { grid-column: span 4; }
     
-    .form-grid-compact label { font-size: 0.8rem; font-weight: 700; color: #4b5563; margin-bottom: 2px; display: block; }
+    .form-grid-compact label { font-size: 0.8rem; font-weight: 700; color: #94a3b8; margin-bottom: 2px; display: block; }
     
     .form-grid-compact input, 
     .form-grid-compact select, 
     .form-grid-compact textarea { 
-        width: 100%; padding: 6px 10px; 
-        border: 1px solid #cbd5e1; border-radius: 6px; 
-        font-size: 0.9rem; height: 38px;
+        width: 100%; padding: 6px 10px; background: var(--bg-body); color: white;
+        border: 1px solid #334155; border-radius: 6px; 
+        font-size: 0.9rem; height: 38px; outline: none;
     }
-    .form-grid-compact textarea { height: 60px; resize: none; background: #f9fafb; }
+    .form-grid-compact input:focus, .form-grid-compact select:focus { border-color: #06b6d4; }
+    .form-grid-compact textarea { height: 60px; resize: none; background: var(--bg-body); }
 
     /* CLASES DE COLOR PARA INPUTS */
-    .input-blue { background-color: #eff6ff !important; color: #1e3a8a !important; font-weight: 700; border-color: #bfdbfe !important; }
-    .input-red { background-color: #fef2f2 !important; color: #991b1b !important; font-weight: 700; border-color: #fecaca !important; }
-    .input-soft-blue { background-color: #f0f9ff !important; color: #0c4a6e !important; font-weight: 600; border-color: #bae6fd !important; }
+    .input-blue { background-color: rgba(30, 58, 138, 0.3) !important; color: #60a5fa !important; font-weight: 700; border-color: #1e3a8a !important; }
+    .input-red { background-color: rgba(153, 27, 27, 0.3) !important; color: #f87171 !important; font-weight: 700; border-color: #7f1d1d !important; }
+    .input-soft-blue { background-color: var(--bg-body) !important; color: white !important; font-weight: 600; border-color: #334155 !important; }
 
-    /* CHECKS ROW (Columna Izquierda Fila 3) */
+    /* CHECKS ROW */
     .checks-container {
-        grid-column: span 2; /* Ocupa mitad izquierda */
-        display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-        padding: 8px; border: 1px solid #f3f4f6; border-radius: 8px; background: #fff;
-        height: 100%;
+        grid-column: span 2; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        padding: 8px; border: 1px solid #334155; border-radius: 8px; background: var(--bg-body); height: 100%;
     }
     .check-badge {
         display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 12px;
-        font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: transform 0.1s; border: 1px solid transparent;
-        white-space: nowrap;
+        font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: transform 0.1s; border: 1px solid transparent; white-space: nowrap;
     }
     .check-badge:hover { transform: scale(1.02); }
     .check-badge input { width: 14px; height: 14px; margin: 0; }
     
-    .badge-judicial { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
-    .badge-disp { background: #cffafe; color: #155e75; border-color: #a5f3fc; }
-    .badge-perit { background: #f3e8ff; color: #6b21a8; border-color: #d8b4fe; }
+    .badge-judicial { background: rgba(22, 101, 52, 0.3); color: #4ade80; border-color: #166534; }
+    .badge-disp { background: rgba(21, 94, 117, 0.3); color: #22d3ee; border-color: #155e75; }
+    .badge-perit { background: rgba(107, 33, 168, 0.3); color: #d8b4fe; border-color: #6b21a8; }
 
-    /* Panel Judicial Integrado (Horizontal) */
+    /* Panel Judicial Integrado */
     #judicialPanel {
-        grid-column: span 4;
-        display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
-        background: #f0fdf4; padding: 10px; border-radius: 6px; border: 1px solid #bbf7d0;
+        grid-column: span 4; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+        background: rgba(22, 101, 52, 0.1); padding: 10px; border-radius: 6px; border: 1px solid #166534;
     }
 
     /* VISOR IMAGEN */
-    #viewImgArea { width: 100%; display: flex; justify-content: center; }
+    #viewImgArea { width: 100%; display: flex; justify-content: center; background: var(--bg-body); padding: 10px; border-radius: 8px;}
     #viewImgArea img { max-width: 100%; max-height: 70vh; object-fit: contain; }
     
     /* AYUDA EDITABLE */
-    .help-panel { background: #fff; border: 1px solid #e5e7eb; padding: 25px; margin-bottom: 25px; border-radius: 12px; border-left: 6px solid #3b82f6; display: none; }
-    .editing-border { border: 2px dashed #3b82f6; padding: 10px; background-color: #f0f9ff; cursor: text; }
+    .help-panel { background: var(--color-panel); border: 1px solid #334155; padding: 25px; margin-bottom: 25px; border-radius: 12px; border-left: 6px solid #06b6d4; display: none; }
+    .editing-border { border: 2px dashed #06b6d4; padding: 10px; background-color: var(--bg-body); cursor: text; }
     
-    /* MENSAJE DE ESTADO INICIAL */
-    #loading-auth {
-        text-align: center;
-        padding: 20px;
-        font-size: 1.2rem;
-        color: #666;
-        font-weight: bold;
-    }
+    #loading-auth { text-align: center; padding: 20px; font-size: 1.2rem; color: #94a3b8; font-weight: bold; }
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-  <header id="mainHeader" class="mode-interv">
-    <div class="logo-container"><img src="logogad.png" alt="GAD LOGO"></div>
-    <h1 class="text-3xl font-extrabold uppercase tracking-wider text-white drop-shadow-md" id="headerTitle">Documentos Intervenidos</h1>
+  <div id="loginOverlay" class="fixed inset-0 bg-[#0f172a] z-[5000] flex justify-center items-center">
+    <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
+      <img src="../ASSETS/logogad.png" alt="GAD LOGO" class="h-20 w-20 mx-auto mb-4 drop-shadow-lg" onerror="this.onerror=null; this.style.display='none';">
+      <h2 class="text-2xl font-black text-white mb-1">ACCESO RESTRINGIDO</h2>
+      <p class="text-cyan-500 font-bold text-sm mb-6">Grupo de Análisis Documental</p>
+      <form id="loginForm" class="flex flex-col gap-4">
+        <input type="email" id="loginEmail" placeholder="Correo electrónico" class="w-full bg-[#0f172a] border border-slate-700 rounded p-3 text-white focus:border-cyan-500 outline-none" required>
+        <input type="password" id="loginPass" placeholder="Contraseña" class="w-full bg-[#0f172a] border border-slate-700 rounded p-3 text-white focus:border-cyan-500 outline-none" required>
+        <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded transition shadow-lg">INGRESAR</button>
+      </form>
+      <p id="loginError" class="text-red-500 text-sm font-bold mt-4 hidden">Credenciales incorrectas.</p>
+    </div>
+  </div>
+
+  <header class="h-24 bg-[#0f172a] border-b border-slate-800 flex items-center justify-between px-8 shadow-md sticky top-0 z-[1000]">
+    <div class="flex items-center gap-6">
+      <img src="../ASSETS/logogad.png" alt="GAD LOGO" class="h-20 w-20 drop-shadow-md" onerror="this.onerror=null; this.style.display='none';">
+      <div class="text-left">
+        <h1 class="text-3xl font-black text-white tracking-wider uppercase" id="headerTitle">Documentos Intervenidos</h1>
+        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-sm mt-1">Grupo de Análisis Documental</h2>
+      </div>
+    </div>
   </header>
 
   <main class="container mx-auto px-4 pb-12 pt-6 flex-grow">
@@ -259,19 +236,19 @@
     <div id="loading-auth">Conectando con Base de Datos V4...</div>
 
     <div id="main-content" style="display:none;">
-        <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100 mb-8 flex flex-wrap items-center gap-5 justify-between sticky-menu-bar">
+        <div class="p-5 rounded-xl mb-8 flex flex-wrap items-center gap-5 justify-between sticky-menu-bar">
             <div class="flex gap-3">
-                <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5">
+                <button onclick="openModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5 border border-cyan-500">
                     <i class="fas fa-plus-circle mr-2"></i> NUEVO
                 </button>
-                <button onclick="toggleHelp()" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5">
+                <button onclick="toggleHelp()" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg transform transition hover:-translate-y-0.5 border border-slate-600">
                     <i class="fas fa-question-circle mr-2"></i> AYUDA
                 </button>
             </div>
 
             <div class="flex-grow max-w-lg relative">
-                <i class="fas fa-search absolute left-4 top-4 text-gray-400 text-lg"></i>
-                <input type="text" id="searchInput" placeholder="Buscar atestado..." class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500">
+                <i class="fas fa-search absolute left-4 top-4 text-slate-400 text-lg"></i>
+                <input type="text" id="searchInput" placeholder="Buscar atestado..." class="w-full pl-12 pr-4 py-3 border-2 border-slate-700 bg-[#0f172a] text-white rounded-lg focus:border-cyan-500 outline-none">
             </div>
 
             <div id="filtersArea" class="flex items-center"></div>
@@ -279,57 +256,49 @@
 
         <div id="helpPanel" class="help-panel">
             <div class="flex justify-between items-start mb-6">
-                <h3 class="font-bold text-3xl text-gray-800"><i class="fas fa-info-circle text-blue-500 mr-2"></i> Guía de Uso</h3>
+                <h3 class="font-bold text-3xl text-white"><i class="fas fa-info-circle text-cyan-500 mr-2"></i> Guía de Uso</h3>
                 <div class="flex gap-2">
-                    <button id="btnHelpEdit" onclick="toggleHelpEdit()" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded font-bold">
+                    <button id="btnHelpEdit" onclick="toggleHelpEdit()" class="text-sm bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 px-3 py-1 rounded font-bold">
                         <i class="fas fa-edit"></i> Editar Guía
                     </button>
-                    <button onclick="toggleHelp()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-2xl"></i></button>
+                    <button onclick="toggleHelp()" class="text-slate-400 hover:text-red-500"><i class="fas fa-times text-2xl"></i></button>
                 </div>
             </div>
             
             <div id="helpContent">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-300">
                     <div class="space-y-6">
                         <div>
-                            <h4 class="font-extrabold text-blue-800 text-lg border-b-2 border-blue-100 pb-2 mb-3">PROCEDIMIENTOS RÁPIDOS</h4>
-                            <div class="space-y-3 text-sm text-gray-700">
-                                <p><i class="fas fa-plus-circle text-blue-600"></i> <strong>Nuevo:</strong> Rellene los datos. El "DSV" es automático.</p>
-                                <p><i class="fas fa-gavel text-green-600"></i> <strong>Judicializar:</strong> Al editar, marque la casilla verde. El documento pasará a la pestaña "Judicializados".</p>
+                            <h4 class="font-extrabold text-cyan-500 text-lg border-b-2 border-slate-700 pb-2 mb-3">PROCEDIMIENTOS RÁPIDOS</h4>
+                            <div class="space-y-3 text-sm">
+                                <p><i class="fas fa-plus-circle text-cyan-500"></i> <strong>Nuevo:</strong> Rellene los datos. El "DSV" es automático.</p>
+                                <p><i class="fas fa-gavel text-green-500"></i> <strong>Judicializar:</strong> Al editar, marque la casilla verde. El documento pasará a la pestaña "Judicializados".</p>
                                 <p><i class="fas fa-sign-out-alt text-red-500"></i> <strong>Salida:</strong> Cambie el estado a "Devuelto" o "Entregado". Se pondrá marrón y con aspa roja.</p>
                             </div>
                         </div>
-                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                            <h4 class="font-bold text-yellow-800 mb-2"><i class="fas fa-filter mr-2"></i> ¿DÓNDE ESTÁ EL FILTRO?</h4>
-                            <p class="text-sm text-gray-700 mb-2">Está arriba a la derecha, junto al buscador. Cambia según la pestaña:</p>
-                            <ul class="text-xs space-y-1 text-gray-600 list-disc pl-4">
+                        <div class="bg-yellow-900/20 p-4 rounded-lg border border-yellow-700">
+                            <h4 class="font-bold text-yellow-500 mb-2"><i class="fas fa-filter mr-2"></i> ¿DÓNDE ESTÁ EL FILTRO?</h4>
+                            <p class="text-sm mb-2">Está arriba a la derecha, junto al buscador. Cambia según la pestaña:</p>
+                            <ul class="text-xs space-y-1 list-disc pl-4 text-slate-400">
                                 <li><strong>En Intervenidos:</strong> Filtra Activos vs Devueltos.</li>
                                 <li><strong>En Judicializados:</strong> Filtra por estados (Trámite, Condena, etc.).</li>
                             </ul>
                         </div>
                     </div>
                     <div>
-                        <h4 class="font-extrabold text-blue-800 text-lg border-b-2 border-blue-100 pb-2 mb-3">LEYENDA DE ESTADOS</h4>
+                        <h4 class="font-extrabold text-cyan-500 text-lg border-b-2 border-slate-700 pb-2 mb-3">LEYENDA DE ESTADOS</h4>
                         <ul class="space-y-3 text-sm">
-                            <li class="flex items-center gap-2 p-2 rounded bg-gray-50 border border-gray-100">
-                                <i class="fas fa-circle text-green-600 text-lg"></i> 
-                                <span><strong>Judicializado/Condena:</strong> Activo en juzgado.</span>
+                            <li class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700">
+                                <i class="fas fa-circle text-green-500 text-lg"></i> 
+                                <span><strong class="text-white">Judicializado/Condena:</strong> Activo en juzgado.</span>
                             </li>
-                            <li class="flex items-center gap-2 p-2 rounded bg-gray-50 border border-gray-100">
-                                <i class="fas fa-circle text-red-600 text-lg"></i> 
-                                <span><strong>En Trámite:</strong> Pendiente de resolución.</span>
+                            <li class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700">
+                                <i class="fas fa-circle text-red-500 text-lg"></i> 
+                                <span><strong class="text-white">En Trámite:</strong> Pendiente de resolución.</span>
                             </li>
-                            <li class="flex items-center gap-2 p-2 rounded bg-gray-50 border border-gray-100">
-                                <i class="fas fa-circle" style="color: #8B4513;"></i>
-                                <span style="color: #8B4513;"><strong>Entregado/Devuelto:</strong> Color marrón. Ya no está en depósito.</span>
-                            </li>
-                            <li class="flex items-center gap-2 mt-4">
-                                <span class="bg-cyan-100 text-cyan-800 px-2 py-1 rounded font-bold border border-cyan-300 text-xs">DISPONIBLE</span>
-                                <span class="text-gray-600">Material didáctico.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-bold border border-purple-300 text-xs">PERITADO</span>
-                                <span class="text-gray-600">Analizado por GAD.</span>
+                            <li class="flex items-center gap-2 p-2 rounded bg-slate-800 border border-slate-700">
+                                <i class="fas fa-circle text-yellow-600 text-lg"></i>
+                                <span class="text-yellow-600"><strong>Entregado/Devuelto:</strong> Color marrón. Ya no está en depósito.</span>
                             </li>
                         </ul>
                     </div>
@@ -342,29 +311,27 @@
                 <thead id="tableHead"></thead>
                 <tbody id="tableBody"></tbody>
             </table>
-            <div id="loading" class="text-center py-12"><i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i><p class="text-gray-500 text-lg">Cargando...</p></div>
-            <div id="noData" class="hidden text-center py-12"><i class="fas fa-folder-open text-4xl text-gray-300 mb-4"></i><p class="text-gray-400 text-lg">Sin resultados.</p></div>
+            <div id="loading" class="text-center py-12"><i class="fas fa-spinner fa-spin text-4xl text-cyan-500 mb-4"></i><p class="text-slate-400 text-lg">Cargando...</p></div>
+            <div id="noData" class="hidden text-center py-12"><i class="fas fa-folder-open text-4xl text-slate-600 mb-4"></i><p class="text-slate-500 text-lg">Sin resultados.</p></div>
         </div>
     </div>
   </main>
 
-  <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
+  <footer class="mt-auto text-center py-6 bg-[#0f172a] border-t border-slate-800 text-slate-400 text-sm">
+    <p class="font-bold text-slate-300">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+    <p class="font-bold text-slate-300">POLICÍA LOCAL DE ALICANTE</p>
     <p>&copy; GAD - Todos los derechos reservados</p>
   </footer>
 
   <div id="editModal" class="modal-overlay">
     <div class="modal-compact">
         <div class="modal-header">
-            <h3 class="font-bold text-xl text-gray-800 flex items-center gap-2"><i class="fas fa-edit text-blue-600"></i> <span id="modalTitle">Editar</span></h3>
-            <button onclick="closeModal()" class="text-2xl text-gray-400 hover:text-red-500 transition">&times;</button>
+            <h3 class="font-bold text-xl text-white flex items-center gap-2"><i class="fas fa-edit text-cyan-500"></i> <span id="modalTitle">Editar</span></h3>
+            <button onclick="closeModal()" class="text-2xl text-slate-400 hover:text-red-500 transition">&times;</button>
         </div>
         <form id="docForm" class="modal-body">
             <input type="hidden" id="recordKey">
             <div class="form-grid-compact">
-                
                 <div class="col-span-1"><label>Fecha Suceso</label><input type="date" id="fechaSuceso" required></div>
                 <div class="col-span-1"><label>País</label><input type="text" id="pais" list="paisesList" placeholder="País" required><datalist id="paisesList"></datalist></div>
                 
@@ -390,7 +357,7 @@
                     </select>
                 </div>
                 
-                <div class="col-span-1"><label class="text-red-700">F. Devolución</label><input type="date" id="fechaDevolucion" class="input-red"></div>
+                <div class="col-span-1"><label class="text-red-400">F. Devolución</label><input type="date" id="fechaDevolucion" class="input-red"></div>
                 <div class="col-span-2"><label>Enlace Imagen</label><input type="text" id="documentoUrl" placeholder="URL Imagen"></div>
 
                 <div class="checks-container">
@@ -403,14 +370,14 @@
                     <label class="check-badge badge-perit">
                         <input type="checkbox" id="checkPeritado"> PERITADO
                     </label>
-                    <div style="width: 1px; height: 20px; background: #ddd; margin: 0 4px;"></div>
-                    <label class="text-sm font-bold text-gray-600 flex items-center gap-1">
-                         ¿Acta? <select id="tieneActaSelect" onchange="toggleActaUrl()" style="width: auto; height: 26px; padding: 0 5px; border-radius: 4px; border:1px solid #ccc"><option value="No">No</option><option value="Sí">Sí</option></select>
+                    <div style="width: 1px; height: 20px; background: #334155; margin: 0 4px;"></div>
+                    <label class="text-sm font-bold text-slate-400 flex items-center gap-1">
+                         ¿Acta? <select id="tieneActaSelect" onchange="toggleActaUrl()" style="width: auto; height: 26px; padding: 0 5px; border-radius: 4px; border:1px solid #334155"><option value="No">No</option><option value="Sí">Sí</option></select>
                     </label>
                 </div>
                 
                 <div class="col-span-2 flex items-center">
-                    <input type="text" id="actaUrl" placeholder="URL del Acta" class="bg-teal-50 border-teal-200 text-teal-800 hidden w-full">
+                    <input type="text" id="actaUrl" placeholder="URL del Acta" class="bg-cyan-900/30 border-cyan-800 text-cyan-200 hidden w-full">
                 </div>
 
                 <div id="judicialPanel" class="hidden">
@@ -422,9 +389,9 @@
                 <div class="col-span-4"><label>Observaciones</label><textarea id="observaciones"></textarea></div>
             </div>
             
-            <div class="flex justify-end gap-3 mt-4 pt-3 border-t border-gray-100">
-                <button type="button" onclick="closeModal()" class="px-4 py-2 rounded text-gray-700 bg-gray-100 font-bold hover:bg-gray-200">Cancelar</button>
-                <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 shadow">GUARDAR</button>
+            <div class="flex justify-end gap-3 mt-4 pt-3 border-t border-slate-700">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 rounded text-slate-300 bg-slate-700 font-bold hover:bg-slate-600">Cancelar</button>
+                <button type="submit" class="px-6 py-2 bg-cyan-600 text-white font-bold rounded hover:bg-cyan-500 shadow border border-cyan-500">GUARDAR</button>
             </div>
         </form>
     </div>
@@ -432,31 +399,31 @@
 
   <div id="viewModal" class="modal-overlay">
       <div class="modal-compact" style="max-width: 1200px;">
-          <div class="flex justify-between items-center p-5 border-b bg-gray-50 rounded-t-xl">
-              <strong class="text-2xl text-gray-800"><i class="fas fa-eye text-blue-500 mr-2"></i> Detalle</strong>
-              <button onclick="document.getElementById('viewModal').classList.remove('open')" class="text-4xl text-gray-400">&times;</button>
+          <div class="flex justify-between items-center p-5 border-b border-slate-700 bg-slate-900 rounded-t-xl">
+              <strong class="text-2xl text-white"><i class="fas fa-eye text-cyan-500 mr-2"></i> Detalle</strong>
+              <button onclick="document.getElementById('viewModal').classList.remove('open')" class="text-4xl text-slate-400 hover:text-red-500">&times;</button>
           </div>
           <div class="modal-body flex flex-col md:flex-row gap-8">
               <div class="md:w-3/5 flex flex-col items-center">
                   <div id="viewImgArea"></div>
               </div>
               <div class="md:w-2/5 flex flex-col gap-4">
-                  <div class="border-b pb-4 mb-2"><span class="text-xs text-gray-500 font-bold uppercase block mb-1">Atestado</span><span id="v_atestado" class="text-3xl font-extrabold text-blue-900 break-words"></span></div>
+                  <div class="border-b border-slate-700 pb-4 mb-2"><span class="text-xs text-slate-500 font-bold uppercase block mb-1">Atestado</span><span id="v_atestado" class="text-3xl font-extrabold text-cyan-400 break-words"></span></div>
                   <div class="grid grid-cols-2 gap-6">
-                      <div><span class="text-xs text-gray-500 font-bold uppercase block">Fecha</span><span id="v_fecha" class="font-medium text-lg"></span></div>
-                      <div><span class="text-xs text-gray-500 font-bold uppercase block">País</span><span id="v_pais" class="font-medium text-lg"></span></div>
-                      <div><span class="text-xs text-gray-500 font-bold uppercase block">Tipo</span><span id="v_tipo" class="font-medium text-lg"></span></div>
-                      <div><span class="text-xs text-gray-500 font-bold uppercase block">Estado</span><span id="v_estado" class="font-bold text-xl"></span></div>
+                      <div><span class="text-xs text-slate-500 font-bold uppercase block">Fecha</span><span id="v_fecha" class="font-medium text-lg text-white"></span></div>
+                      <div><span class="text-xs text-slate-500 font-bold uppercase block">País</span><span id="v_pais" class="font-medium text-lg text-white"></span></div>
+                      <div><span class="text-xs text-slate-500 font-bold uppercase block">Tipo</span><span id="v_tipo" class="font-medium text-lg text-white"></span></div>
+                      <div><span class="text-xs text-slate-500 font-bold uppercase block">Estado</span><span id="v_estado" class="font-bold text-xl text-white"></span></div>
                   </div>
                   
                   <div id="v_date_exit"></div>
 
-                  <div id="v_jud_info" class="bg-green-50 p-4 rounded-lg border border-green-100 hidden mt-2">
-                      <div class="text-xs font-bold text-green-800 mb-2 uppercase"><i class="fas fa-balance-scale mr-2"></i> Judicial</div>
-                      <div class="text-sm text-gray-800"><span class="font-bold">Juzgado:</span> <span id="v_juzgado"></span> | <span class="font-bold">JR:</span> <span id="v_jr"></span></div>
+                  <div id="v_jud_info" class="bg-green-900/30 p-4 rounded-lg border border-green-800 hidden mt-2">
+                      <div class="text-xs font-bold text-green-400 mb-2 uppercase"><i class="fas fa-balance-scale mr-2"></i> Judicial</div>
+                      <div class="text-sm text-slate-300"><span class="font-bold text-slate-400">Juzgado:</span> <span id="v_juzgado" class="text-white"></span> | <span class="font-bold text-slate-400">JR:</span> <span id="v_jr" class="text-white"></span></div>
                       <div id="v_sent_btn" class="mt-3"></div>
                   </div>
-                  <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100 flex-grow mt-2"><span class="text-xs text-gray-500 font-bold uppercase block mb-1">Observaciones</span><p id="v_obs" class="text-sm text-gray-800 whitespace-pre-wrap"></p></div>
+                  <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 flex-grow mt-2"><span class="text-xs text-slate-500 font-bold uppercase block mb-1">Observaciones</span><p id="v_obs" class="text-sm text-slate-300 whitespace-pre-wrap"></p></div>
                   <div class="flex justify-end gap-3 mt-4" id="v_links"></div>
               </div>
           </div>
@@ -467,7 +434,20 @@
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
   
   <script>
-    // --- 1. CONFIGURACIÓN FIREBASE V4 ---
+    // --- LÓGICA DE LOGIN DE PRUEBAS ---
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPass').value;
+
+        if(email === 'test@gad.com' && pass === '123456') {
+            document.getElementById('loginOverlay').style.display = 'none';
+        } else {
+            document.getElementById('loginError').classList.remove('hidden');
+        }
+    });
+
+    // --- 1. CONFIGURACIÓN FIREBASE V4 (INTACTA) ---
     const firebaseConfig = {
       apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
       authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -491,49 +471,34 @@
     let isEditingHelp = false;
     let isUserAuthenticated = false;
 
-    // --- 2. SISTEMA DE SEGURIDAD ESTRICTA (WAIT FOR AUTH) ---
-    // Este es el "freno de mano" que evita el error de permisos en V4
+    // --- 2. SISTEMA DE SEGURIDAD ESTRICTA (INTACTA) ---
     auth.onAuthStateChanged((user) => {
         if (user) {
             isUserAuthenticated = true;
-            console.log("Usuario V4 Autenticado:", user.email);
-            
             document.getElementById('loading-auth').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
-            
-            // INICIAMOS LA LÓGICA DE DATOS SOLO AHORA
             iniciarAplicacion();
         } else {
-            console.warn("Usuario no autenticado");
-            document.getElementById('loading-auth').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú Principal.</span>";
+            document.getElementById('loading-auth').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado por Firebase.</span>";
         }
     });
 
     function iniciarAplicacion() {
-        // Inicializar selects
         const jSelect = document.getElementById('juzgado');
         for(let i=1; i<=15; i++) jSelect.innerHTML += `<option value="Instrucción ${i}">Instrucción ${i}</option>`;
         for(let i=1; i<=10; i++) jSelect.innerHTML += `<option value="Penal ${i}">Penal ${i}</option>`;
 
-        // Cargar países
         db.ref('paises').on('value', s => {
             document.getElementById('paisesList').innerHTML = (s.val()||[]).map(p=>`<option value="${p}"></option>`).join('');
         });
 
-        // Cargar datos principales
         mainRef.on('value', snapshot => {
             allData = [];
-            snapshot.forEach(child => {
-                allData.push({ ...child.val(), key: child.key });
-            });
+            snapshot.forEach(child => { allData.push({ ...child.val(), key: child.key }); });
             render();
             document.getElementById('loading').classList.add('hidden');
-        }, (error) => {
-            console.error("Error Firebase:", error);
-            alert("Error de conexión: " + error.code);
-        });
+        }, (error) => { console.error("Error Firebase:", error); });
 
-        // Cargar ayuda
         systemRef.on('value', snap => {
             const val = snap.val();
             if(val) document.getElementById('helpContent').innerHTML = val;
@@ -552,7 +517,7 @@
         updateFilters();
     }
 
-    // --- RESTO DE FUNCIONALIDADES UI (Sin tocar lógica interna) ---
+    // --- FUNCIONALIDADES UI ---
     window.toggleHelpEdit = function() {
         if(!isUserAuthenticated) return alert("No autorizado.");
         const content = document.getElementById('helpContent');
@@ -563,15 +528,15 @@
             content.classList.add('editing-border');
             content.focus();
             btn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
-            btn.classList.remove('bg-gray-200');
-            btn.classList.add('bg-green-200', 'text-green-800');
+            btn.classList.remove('bg-slate-700');
+            btn.classList.add('bg-green-700', 'text-white', 'border-green-600');
             isEditingHelp = true;
         } else {
             content.contentEditable = "false";
             content.classList.remove('editing-border');
             btn.innerHTML = '<i class="fas fa-edit"></i> Editar Guía';
-            btn.classList.add('bg-gray-200');
-            btn.classList.remove('bg-green-200', 'text-green-800');
+            btn.classList.add('bg-slate-700');
+            btn.classList.remove('bg-green-700', 'text-white', 'border-green-600');
             
             systemRef.set(content.innerHTML).then(() => {
                 alert("Guía de ayuda actualizada.");
@@ -583,16 +548,13 @@
 
     window.setMode = function(mode) {
         appMode = mode;
-        const header = document.getElementById('mainHeader');
         const title = document.getElementById('headerTitle');
         document.getElementById('tabInterv').className = `mode-tab ${mode === 'INTERVENIDOS' ? 'active-interv' : ''}`;
         document.getElementById('tabJudic').className = `mode-tab ${mode === 'JUDICIALIZADOS' ? 'active-judic' : ''}`;
         
-        if (mode === 'INTERVENIDOS') {
-            header.className = 'mode-interv'; title.textContent = 'DOCUMENTOS INTERVENIDOS';
-        } else {
-            header.className = 'mode-judic'; title.textContent = 'DOCUMENTOS JUDICIALIZADOS';
-        }
+        if (mode === 'INTERVENIDOS') title.textContent = 'DOCUMENTOS INTERVENIDOS';
+        else title.textContent = 'DOCUMENTOS JUDICIALIZADOS';
+        
         updateFilters();
         render();
     };
@@ -601,7 +563,7 @@
         const area = document.getElementById('filtersArea');
         if (appMode === 'INTERVENIDOS') {
             area.innerHTML = `
-                <select onchange="setIntFilter(this.value)" class="pl-4 pr-8 py-2 rounded-lg border border-blue-200 text-blue-900 font-bold bg-blue-50 focus:ring focus:ring-blue-200 shadow-sm">
+                <select onchange="setIntFilter(this.value)" class="pl-4 pr-8 py-2 rounded-lg border border-slate-600 text-cyan-400 font-bold bg-[#0f172a] focus:ring focus:ring-cyan-500 shadow-sm outline-none">
                     <option value="all" selected>Ver Todos</option>
                     <option value="active">Activos (En depósito)</option>
                     <option value="returned">Devueltos (Propietario)</option>
@@ -610,7 +572,7 @@
             `;
         } else {
             area.innerHTML = `
-                <select onchange="setJudFilter(this.value)" class="pl-4 pr-8 py-2 rounded-lg border border-green-200 text-green-900 font-bold bg-green-50 focus:ring focus:ring-green-200 shadow-sm">
+                <select onchange="setJudFilter(this.value)" class="pl-4 pr-8 py-2 rounded-lg border border-slate-600 text-green-400 font-bold bg-[#0f172a] focus:ring focus:ring-green-500 shadow-sm outline-none">
                     <option value="ALL" selected>Ver Todos Judicial</option>
                     <option value="En Trámite">En Trámite</option>
                     <option value="Entregado al Juzgado">Entregados al Juzgado</option>
@@ -689,18 +651,18 @@
 
             const atDisplay = (item.atestadoNumero||'').toUpperCase().startsWith('DSV') ? item.atestadoNumero : `DSV ${item.atestadoNumero||''}`;
             
-            let imgCellContent = '<div class="text-center text-gray-300">-</div>';
+            let imgCellContent = '<div class="text-center text-slate-600">-</div>';
             if (item.documentoUrl) {
                 let crossHtml = isExit ? `<div class="red-cross-overlay"><i class="fas fa-times"></i></div>` : '';
                 imgCellContent = `<div class="thumb-container"><img src="${item.documentoUrl}" class="thumbnail-img" onclick="view('${item.key}')" title="Ver">${crossHtml}</div>`;
             }
 
             if (appMode === 'INTERVENIDOS') {
-                const docStyle = item.esJudicializado ? 'bg-green-100 text-green-800 border-green-300 font-bold' : 'bg-gray-100 text-gray-600 border-gray-200';
+                const docStyle = item.esJudicializado ? 'bg-green-900/40 text-green-400 border-green-700 font-bold' : 'bg-slate-700 text-slate-300 border-slate-600';
                 tr.innerHTML = `
-                    <td>${fmt(item.fechaSuceso)}</td><td class="font-medium">${item.pais}</td>
+                    <td>${fmt(item.fechaSuceso)}</td><td class="font-medium text-white">${item.pais}</td>
                     <td><span class="${docStyle} px-2 py-1 rounded text-xs border">${item.tipoDocumento}</span></td>
-                    <td class="font-bold text-blue-900">${atDisplay}</td>
+                    <td class="font-bold text-cyan-400">${atDisplay}</td>
                     <td>${stHtml}</td><td class="text-center no-strike">${imgCellContent}</td>
                     <td class="text-right no-strike"><div class="action-buttons-wrapper">
                         <button onclick="view('${item.key}')" class="action-btn btn-view"><i class="fas fa-eye"></i></button>
@@ -708,10 +670,10 @@
                         <button onclick="del('${item.key}')" class="action-btn btn-del"><i class="fas fa-trash-alt"></i></button>
                     </div></td>`;
             } else {
-                const sent = item.sentenciaUrl ? `<a href="${item.sentenciaUrl}" target="_blank" class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-200 hover:bg-green-200">SENTENCIA</a>` : '<span class="text-gray-300 text-xs italic">Pendiente</span>';
+                const sent = item.sentenciaUrl ? `<a href="${item.sentenciaUrl}" target="_blank" class="inline-block bg-green-900/50 text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-800 hover:bg-green-800">SENTENCIA</a>` : '<span class="text-slate-500 text-xs italic">Pendiente</span>';
                 tr.innerHTML = `
-                    <td>${fmt(item.fechaSuceso)}</td><td class="font-medium">${item.pais} <span class="text-xs text-gray-400">(${item.tipoDocumento})</span></td>
-                    <td class="font-bold text-green-900">${atDisplay}</td><td>${item.juzgado}</td><td class="text-center">${item.juicioRapido}</td>
+                    <td>${fmt(item.fechaSuceso)}</td><td class="font-medium text-white">${item.pais} <span class="text-xs text-slate-400">(${item.tipoDocumento})</span></td>
+                    <td class="font-bold text-green-500">${atDisplay}</td><td class="text-white">${item.juzgado}</td><td class="text-center text-white">${item.juicioRapido}</td>
                     <td class="text-center no-strike">${sent}</td><td>${stHtml}</td><td class="text-center no-strike">${imgCellContent}</td>
                     <td class="text-right no-strike"><div class="action-buttons-wrapper">
                         <button onclick="view('${item.key}')" class="action-btn btn-view"><i class="fas fa-eye"></i></button>
@@ -827,20 +789,20 @@
         const dateBox = document.getElementById('v_date_exit');
         dateBox.innerHTML = '';
         if (item.resultado === 'Devuelto' && item.fechaDevolucion) {
-            dateBox.innerHTML = `<div class="bg-red-50 p-3 rounded border border-red-200 text-red-800 font-bold mb-2 text-center"><i class="fas fa-sign-out-alt mr-2"></i> Fecha Devolución: ${fmt(item.fechaDevolucion)}</div>`;
+            dateBox.innerHTML = `<div class="bg-red-900/30 p-3 rounded border border-red-800 text-red-400 font-bold mb-2 text-center"><i class="fas fa-sign-out-alt mr-2"></i> Fecha Devolución: ${fmt(item.fechaDevolucion)}</div>`;
         } else if (item.resultado === 'Entregado al Juzgado' && item.fechaDevolucion) {
-            dateBox.innerHTML = `<div class="bg-orange-50 p-3 rounded border border-orange-200 text-orange-800 font-bold mb-2 text-center"><i class="fas fa-university mr-2"></i> Fecha Entrega Juzgado: ${fmt(item.fechaDevolucion)}</div>`;
+            dateBox.innerHTML = `<div class="bg-orange-900/30 p-3 rounded border border-orange-800 text-orange-400 font-bold mb-2 text-center"><i class="fas fa-university mr-2"></i> Fecha Entrega Juzgado: ${fmt(item.fechaDevolucion)}</div>`;
         }
 
         const imgContainer = document.getElementById('viewImgArea');
         if (item.documentoUrl) imgContainer.innerHTML = `<a href="${item.documentoUrl}" target="_blank"><img src="${item.documentoUrl}"></a>`;
-        else imgContainer.innerHTML = '<span class="text-gray-400">Sin Imagen</span>';
+        else imgContainer.innerHTML = '<span class="text-slate-500">Sin Imagen</span>';
         
         if (item.esJudicializado) {
             document.getElementById('v_jud_info').classList.remove('hidden');
             document.getElementById('v_juzgado').textContent = item.juzgado;
             document.getElementById('v_jr').textContent = item.juicioRapido;
-            if (item.sentenciaUrl) document.getElementById('v_sent_btn').innerHTML = `<a href="${item.sentenciaUrl}" target="_blank" class="block w-full text-center bg-green-600 text-white py-2 rounded font-bold">VER SENTENCIA</a>`;
+            if (item.sentenciaUrl) document.getElementById('v_sent_btn').innerHTML = `<a href="${item.sentenciaUrl}" target="_blank" class="block w-full text-center bg-green-700 hover:bg-green-600 text-white py-2 rounded font-bold border border-green-500">VER SENTENCIA</a>`;
             else document.getElementById('v_sent_btn').innerHTML = '';
         } else document.getElementById('v_jud_info').classList.add('hidden');
 
@@ -848,10 +810,10 @@
         
         const linkArea = document.getElementById('v_links');
         linkArea.innerHTML = '';
-        if (item.documentoUrl) linkArea.innerHTML += `<a href="${item.documentoUrl}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded font-bold hover:bg-blue-700">VER DOCUMENTO</a>`;
+        if (item.documentoUrl) linkArea.innerHTML += `<a href="${item.documentoUrl}" target="_blank" class="px-4 py-2 bg-cyan-700 text-white rounded font-bold hover:bg-cyan-600 border border-cyan-500">VER DOCUMENTO</a>`;
         
         if ((item.tieneActa===true || item.tieneActa==='Sí') && item.actaUrl) {
-            linkArea.innerHTML += `<a href="${item.actaUrl}" target="_blank" class="px-4 py-2 bg-teal-600 text-white rounded font-bold hover:bg-teal-700">VER ACTA</a>`;
+            linkArea.innerHTML += `<a href="${item.actaUrl}" target="_blank" class="px-4 py-2 bg-teal-700 text-white rounded font-bold hover:bg-teal-600 border border-teal-500">VER ACTA</a>`;
         }
         
         document.getElementById('viewModal').classList.add('open');
