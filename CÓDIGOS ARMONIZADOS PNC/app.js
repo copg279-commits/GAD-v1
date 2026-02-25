@@ -213,12 +213,12 @@ const codigosNacionales = {
     "IRLANDA DEL NORTE / REINO UNIDO": {}
 };
 
-/* app.js */
-
-/* [!!] IMPORTANTE: Mantén aquí tus diccionarios intactos (codigosArmonizados y codigosNacionales) que estaban al principio del archivo */
+/* [!!] MANTÉN TUS DICCIONARIOS AQUÍ ARRIBA (codigosArmonizados y codigosNacionales) */
 
 function buscarCodigo() {
     const input = document.getElementById('searchInput').value.trim().toUpperCase();
+    if (!input) return; 
+
     const resultadoDiv = document.getElementById('resultado');
     resultadoDiv.innerHTML = '';
     
@@ -246,39 +246,13 @@ function buscarCodigo() {
         }
     }
     
-    if (resultados.length > 0) {
-        resultados.forEach(res => {
-            const box = document.createElement('div');
-            box.className = 'result-box-container';
-
-            const flagDiv = document.createElement('div');
-            const flagClass = `flag-${res.pais.toLowerCase()}`;
-            flagDiv.className = `flag ${flagClass}`;
-            box.appendChild(flagDiv);
-
-            const textP = document.createElement('p');
-            // Adaptado al Dark Mode: Colores cyan y textos slate-200
-            textP.innerHTML = `
-                <p class="font-bold text-cyan-500">Código ${res.codigo} (${res.tipo} - ${res.pais}):</p>
-                <p class="text-slate-200">${res.descripcion}</p>
-            `;
-            box.appendChild(textP);
-            resultadoDiv.appendChild(box);
-        });
-    } else {
-        // Adaptado al Dark Mode: Fondos y bordes oscuros integrados
-        resultadoDiv.innerHTML = `
-            <div class="result-box-container p-4 rounded-lg bg-red-900/30 border border-red-800">
-                <p class="text-red-400 font-bold">
-                    No se encontró ningún significado para el código: ${input}
-                </p>
-            </div>
-        `;
-    }
+    renderizarResultados(resultados, input, "código");
 }
 
 function buscarInverso() {
     const input = document.getElementById('inverseSearchInput').value.trim().toLowerCase();
+    if (!input) return; 
+
     const resultadoDiv = document.getElementById('resultado');
     resultadoDiv.innerHTML = '';
     
@@ -310,10 +284,66 @@ function buscarInverso() {
         }
     }
     
+    renderizarResultados(resultados, input, "concepto");
+}
+
+function mostrarTodos() {
+    const resultadoDiv = document.getElementById('resultado');
+    resultadoDiv.innerHTML = '';
+    
+    let resultadosEspaña = [];
+    let resultadosOtros = [];
+
+    // Extraer todos los de España
+    for (const codigo in codigosArmonizados) {
+        resultadosEspaña.push({
+            codigo: codigo,
+            descripcion: codigosArmonizados[codigo],
+            pais: 'ESPAÑA',
+            tipo: 'Armonizado'
+        });
+    }
+
+    // Extraer todos los demás países
+    for (const pais in codigosNacionales) {
+        for (const codigo in codigosNacionales[pais]) {
+            resultadosOtros.push({
+                codigo: codigo,
+                descripcion: codigosNacionales[pais][codigo],
+                pais: pais,
+                tipo: 'Nacional'
+            });
+        }
+    }
+    
+    // Ordenar lógicamente los códigos (ej: "01" va antes que "10")
+    const ordenarCodigos = (a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true, sensitivity: 'base' });
+
+    // 1. Ordenar España por código
+    resultadosEspaña.sort(ordenarCodigos);
+
+    // 2. Ordenar otros países: primero alfabéticamente por País, luego por código internamente
+    resultadosOtros.sort((a, b) => {
+        if (a.pais === b.pais) {
+            return ordenarCodigos(a, b);
+        }
+        return a.pais.localeCompare(b.pais);
+    });
+
+    // Combinarlos: España siempre primero
+    const todosOrdenados = resultadosEspaña.concat(resultadosOtros);
+    
+    renderizarResultados(todosOrdenados, "todos", "todos");
+}
+
+function renderizarResultados(resultados, busqueda, tipoBusqueda) {
+    const resultadoDiv = document.getElementById('resultado');
+
     if (resultados.length > 0) {
         resultados.forEach(res => {
             const box = document.createElement('div');
-            box.className = 'result-box-container';
+            // Se le añade dinámicamente el borde verde (emerald-500) para encuadrar la respuesta correcta
+            box.className = 'result-box-container border-2 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.15)]';
 
             const flagDiv = document.createElement('div');
             const flagClass = `flag-${res.pais.toLowerCase()}`;
@@ -321,7 +351,6 @@ function buscarInverso() {
             box.appendChild(flagDiv);
 
             const textP = document.createElement('p');
-            // Adaptado al Dark Mode
             textP.innerHTML = `
                 <p class="font-bold text-cyan-500">Código ${res.codigo} (${res.tipo} - ${res.pais}):</p>
                 <p class="text-slate-200">${res.descripcion}</p>
@@ -330,25 +359,40 @@ function buscarInverso() {
             resultadoDiv.appendChild(box);
         });
     } else {
-        // Adaptado al Dark Mode
+        const mensajeError = tipoBusqueda === "código" 
+            ? `No se encontró ningún significado para el código: ${busqueda}`
+            : `No se encontraron códigos para las palabras clave: "${busqueda}"`;
+
         resultadoDiv.innerHTML = `
             <div class="result-box-container p-4 rounded-lg bg-red-900/30 border border-red-800">
-                <p class="text-red-400 font-bold">
-                    No se encontraron códigos para las palabras clave: "${input}"
-                </p>
+                <p class="text-red-400 font-bold">${mensajeError}</p>
             </div>
         `;
     }
 }
 
-// Inicialización de Event Listeners cuando carga el documento
-document.addEventListener('DOMContentLoaded', function() {
+function limpiarCampos() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('inverseSearchInput').value = '';
     
-    // Asignar eventos a los botones de clic
+    // Restaurar el contenedor a su estado base (sin el marco verde)
+    document.getElementById('resultado').innerHTML = `
+        <div class="result-box-container">
+            <p class="text-slate-500 text-center italic">
+                El significado del código o los códigos coincidentes aparecerán aquí.
+            </p>
+        </div>
+    `;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("btnBuscarCodigo").addEventListener("click", buscarCodigo);
     document.getElementById("btnBuscarInverso").addEventListener("click", buscarInverso);
+    document.getElementById("btnVerTodos").addEventListener("click", mostrarTodos);
 
-    // Event Listeners para la tecla Enter
+    document.getElementById("btnLimpiar1").addEventListener("click", limpiarCampos);
+    document.getElementById("btnLimpiar2").addEventListener("click", limpiarCampos);
+
     document.getElementById("searchInput").addEventListener("keydown", function(event) {
         if (event.key === "Enter") {
             event.preventDefault();

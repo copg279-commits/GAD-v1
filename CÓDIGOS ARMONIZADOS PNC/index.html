@@ -36,15 +36,24 @@
             <input 
                 type="text" 
                 id="searchInput" 
-                placeholder="Ej: 01.06 o 106" 
-                class="search-input w-full p-3 text-base bg-slate-800 border border-slate-700 text-slate-200 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner"
+                placeholder="Ej: 01.05 ⏎ (Buscar o Intro)" 
+                autocomplete="off"
+                class="search-input w-full p-3 text-base bg-slate-800 border border-slate-700 text-slate-200 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner placeholder:italic placeholder:text-slate-500"
             >
-            <button 
-                id="btnBuscarCodigo"
-                class="block mx-auto mt-4 w-full bg-cyan-600 text-white font-bold py-3 rounded-md hover:bg-cyan-500 transition border border-cyan-500 shadow-md"
-            >
-                Buscar por Código
-            </button>
+            <div class="flex gap-4 mt-4">
+                <button 
+                    id="btnBuscarCodigo"
+                    class="w-1/2 bg-cyan-600 text-white font-bold py-3 rounded-md hover:bg-cyan-500 transition border border-cyan-500 shadow-md"
+                >
+                    Buscar Código
+                </button>
+                <button 
+                    id="btnLimpiar1"
+                    class="w-1/2 bg-slate-700 text-slate-200 font-bold py-3 rounded-md hover:bg-slate-600 transition border border-slate-600 shadow-md"
+                >
+                    Limpiar
+                </button>
+            </div>
         </div>
 
         <div class="w-11/12 max-w-3xl mt-6">
@@ -54,23 +63,41 @@
             <input 
                 type="text" 
                 id="inverseSearchInput" 
-                placeholder="Ej: gafas de contacto" 
-                class="w-full p-3 text-base bg-slate-800 border border-slate-700 text-slate-200 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner"
+                placeholder="Ej: gafas ⏎ (Buscar o Intro)" 
+                autocomplete="off"
+                class="w-full p-3 text-base bg-slate-800 border border-slate-700 text-slate-200 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner placeholder:italic placeholder:text-slate-500"
             >
-            <button 
-                id="btnBuscarInverso"
-                class="block mx-auto mt-4 w-full bg-slate-700 text-white font-bold py-3 rounded-md hover:bg-slate-600 transition border border-slate-600 shadow-md"
-            >
-                Buscar por Palabras Clave
-            </button>
+            <div class="flex gap-4 mt-4">
+                <button 
+                    id="btnBuscarInverso"
+                    class="w-1/2 bg-slate-700 text-white font-bold py-3 rounded-md hover:bg-slate-600 transition border border-slate-600 shadow-md"
+                >
+                    Buscar Concepto
+                </button>
+                <button 
+                    id="btnLimpiar2"
+                    class="w-1/2 bg-slate-700 text-slate-200 font-bold py-3 rounded-md hover:bg-slate-600 transition border border-slate-600 shadow-md"
+                >
+                    Limpiar
+                </button>
+            </div>
         </div>
 
-        <div id="resultado" class="mt-6 w-11/12 max-w-3xl text-left">
+        <div id="resultado" class="mt-8 w-11/12 max-w-3xl text-left">
             <div class="result-box-container">
-                <p class="text-slate-400 text-center">
+                <p class="text-slate-500 text-center italic">
                     El significado del código o los códigos coincidentes aparecerán aquí.
                 </p>
             </div>
+        </div>
+
+        <div class="w-11/12 max-w-3xl mt-8">
+            <button 
+                id="btnVerTodos"
+                class="w-full bg-indigo-600/50 text-indigo-300 font-bold py-3 rounded-md hover:bg-indigo-600/80 hover:text-white transition border border-indigo-500 shadow-md"
+            >
+                Ver Todos los Códigos Registrados
+            </button>
         </div>
 
         <div class="mt-8 flex justify-center w-11/12 max-w-3xl">
