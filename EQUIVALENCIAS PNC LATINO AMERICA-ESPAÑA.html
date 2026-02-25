@@ -3,39 +3,89 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Licencias de Conducir</title>
+  <title>Licencias de Conducir - Dark Mode GAD</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-        .flag-button-spain {
+    .flag-button-spain {
         background: linear-gradient(to top, #c60b1e 0%, #c60b1e 33%, #ffc400 33%, #ffc400 66%, #c60b1e 66%, #c60b1e 100%);
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
     }
+
+    /* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
+    #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+    #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+    #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+    /* Zoom de miniaturas sin cortes (Solo PC) */
+    td, tr { position: static !important; }
+    .results-container { overflow: visible !important; }
+    @media (hover: hover) and (pointer: fine) { 
+        .thumbnail-img:hover { 
+            transform: scale(4); 
+            z-index: 9999 !important; 
+            position: relative; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+            border-color: #06b6d4; 
+        } 
+    }
+
+    /* Responsive (Móvil) */
+    @media (max-width: 768px) {
+        thead {
+            display: none !important;
+        }
+        tr {
+            display: flex !important;
+            flex-direction: column !important;
+            background: #1e293b !important;
+            border-radius: 12px !important;
+            margin-bottom: 1rem;
+            border: 1px solid #334155;
+            overflow: hidden;
+        }
+        td {
+            border: none !important;
+            padding: 0.75rem !important;
+        }
+        .thumbnail-img {
+            width: 100% !important;
+            height: auto !important;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+        }
+    }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
+<body class="bg-slate-900 min-h-screen flex flex-col pb-16 text-slate-200">
 
-  <header class="bg-blue-600 w-full flex justify-center items-center py-2">
-    <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
-      <img
-        src="logogad.png"
-        alt="Logo GAD"
-        class="w-full h-full object-cover block"
-      >
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+    <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+    
+    <div class="text-center flex-1">
+      <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+        EQUIVALENCIAS PNC<br class="md:hidden"> LATINOAMÉRICA
+      </h1>
+      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+        Grupo de Análisis Documental
+      </h2>
     </div>
+
+    <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
-  <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
+  <h1 class="text-cyan-500 text-center mt-6 text-xl font-bold px-4">
       Tabla de equivalencias<br>Latinoamérica
   </h1>
 
-  <div class="bg-white shadow-md rounded-lg px-14 py-4 mt-4 text-center w-11/12 max-w-md mx-auto">
-    <h2 class="text-lg font-semibold mb-4">Verifique su licencia</h2>
-    <div class="mb-4">
-      <label for="pais" class="block text-center text-sm font-bold text-gray-700 mb-1">País</label>
-      <select id="pais" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+  <div class="bg-slate-800 border border-slate-700 shadow-md rounded-lg px-6 md:px-14 py-6 mt-4 text-center w-11/12 max-w-md mx-auto">
+    <h2 class="text-lg text-cyan-500 font-semibold mb-4">Verifique su licencia</h2>
+    
+    <div class="mb-4 text-left">
+      <label for="pais" class="block text-center text-sm font-bold text-slate-200 mb-1">País</label>
+      <select id="pais" class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
         <option value="">Seleccione un país</option>
         <option value="argentina">Argentina</option>
         <option value="belice">Belice</option>
@@ -58,37 +108,29 @@
         <option value="venezuela">Venezuela</option>
       </select>
     </div>
-    <div class="mb-4">
-      <label for="tipo-permiso" class="block text-center font-bold text-gray-700">Tipo de licencia:</label>
-      <select id="tipo-permiso" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+    
+    <div class="mb-4 text-left">
+      <label for="tipo-permiso" class="block text-center text-sm font-bold text-slate-200 mb-1">Tipo de licencia:</label>
+      <select id="tipo-permiso" class="mt-1 block w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500" required>
         <option value="">Seleccione un tipo de licencia</option>
       </select>
     </div>
-    <div id="resultado" class="mt-4 text-gray-700 text-lg font-medium"></div>
+    
+    <div id="resultado" class="mt-4 text-lg font-medium"></div>
+    
     <div id="enlace-dgt" class="mt-4 text-center hidden">
-        <a href="https://bit.ly/3Uuv38P" target="_blank" rel="noopener noreferrer" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
+        <a href="https://bit.ly/3Uuv38P" target="_blank" rel="noopener noreferrer" class="inline-block bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-bold py-2 px-4 rounded transition-colors duration-200">
             ¿Dudas con las equivalencias?<br>Ver Canje de Notas DGT
         </a>
     </div>
-    <button id="detalle-categorias" type="button" class="hidden mt-4 w-full bg-gray-800 text-white py-2 rounded-md shadow hover:bg-gray-900">Ver todas las categorías</button>
+    
+    <button id="detalle-categorias" type="button" class="hidden mt-4 w-full bg-slate-700 border border-slate-600 text-slate-200 py-2 rounded-md shadow hover:bg-slate-600 transition-colors">Ver todas las categorías</button>
   </div>
-  <div id="detalle-contenedor" class="hidden mt-6 bg-white p-6 rounded shadow-md"></div>
-  <div class="mt-8 flex justify-center">
-    <button onclick="window.location.href='index.html'"
-            class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
-        MENÚ PRINCIPAL
-    </button>
-</div>
- <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
+  
+  <div id="detalle-contenedor" class="hidden mt-6 bg-slate-800 border border-slate-700 text-slate-200 p-6 w-11/12 max-w-md mx-auto rounded-lg shadow-md"></div>
 
   <script>
     const licenciaData = {
-      
       argentina: { a1: "Ciclomotores hasta 50cc, edad mínima 16 años", a21: "Motocicletas, triciclos y cuatriciclos de hasta 150cc, edad mínima 17 años", a22: "Motocicletas, triciclos y cuatriciclos de más de 150cc hasta 300cc, edad mínima 18 años", a3: "Motocicletas, triciclos y cuatriciclos de más de 300cc, edad mínima 18 años", a4: "Ciclomotores, motocicletas, triciclos y cuatriciclos utilizados para transporte de actividad comercial e industrial, edad mínima 18 años", b1: "Automóviles y camionetas hasta 3.500kg, edad mínima 17 años", b2: "Automóviles y camionetas hasta 3.500kg con acoplado hasta 750kg, edad mínima 17 años", c: "Camiones sin acoplado ni semirremolque de más de 3.500kg, edad mínima 21 años", d1: "Automotores de servicio de transporte de pasajeros hasta 8 plazas y los de clase B.1, edad mínima 21 años", d2: "Vehículos del servicio de transporte de más de 8 pasajeros y los de clases C, D y D.1, edad mínima 21 años", e1: "Camiones articulados y/o con acoplado, edad mínima 21 años", e2: "Vehículos afectados al transporte de cargas peligrosas, edad mínima 21 años", e3: "Vehículos afectados al transporte de pasajeros peligrosos, edad mínima 21 años", f: "Vehículos que incluyan adaptaciones especiales para personas con discapacidad, edad mínima según la clase correspondiente", g1: "Tractores agrícolas, edad mínima 17 años", g2: "Maquinaria especial agrícola, edad mínima 17 años" },
       belice: { a: "Automóviles", b: "Motocicletas", c: "Vehículos de servicio público" },
       bolivia: { m: "Motocicletas y cuadriciclos de cualquier cilindrada, edad mínima 18 años", p: "Vehículos livianos de servicio particular hasta 10 ocupantes incluido el conductor, edad mínima 18 años", a: "Vehículos livianos de transporte público hasta 10 pasajeros incluido el conductor. Vehículos de transporte de carga hasta 2.5 toneladas. Vehículos particulares de características similares, edad mínima 21 años", b: "Vehículos de transporte público de hasta 22 pasajeros incluido el conductor. Vehículos de transporte de carga de hasta 6 toneladas. Vehículos particulares de características similares, edad mínima 23 años", c: "Vehículos de transporte público de más de 22 pasajeros. Vehículos de transporte de carga superior a 6 toneladas. Vehículos particulares de características similares, edad mínima 25 años", t: "Maquinaria motorizada pesada, edad mínima 25 años" },
@@ -141,12 +183,12 @@
 
       if (licenciaData[pais] && licenciaData[pais][tipoPermiso]) {
         resultadoDiv.textContent = `PUEDE CONDUCIR: ${licenciaData[pais][tipoPermiso]}`;
-        resultadoDiv.style.color = 'green';
+        resultadoDiv.style.color = '#10b981'; // Ajustado visualmente a verde Tailwind para que contraste mejor en modo oscuro
         detalleBoton.classList.remove('hidden');
         enlaceDGT.classList.remove('hidden');
       } else {
         resultadoDiv.textContent = 'No se encontraron datos para su selección.';
-        resultadoDiv.style.color = 'red';
+        resultadoDiv.style.color = '#ef4444'; // Ajustado visualmente a rojo Tailwind para modo oscuro
         detalleBoton.classList.add('hidden');
         enlaceDGT.classList.add('hidden');
       }
@@ -156,7 +198,7 @@
       const pais = paisSelect.value;
 
       if (licenciaData[pais]) {
-        detalleContenedor.innerHTML = '<h3 class="text-lg font-semibold mb-4">Categorías de licencias:</h3>';
+        detalleContenedor.innerHTML = '<h3 class="text-lg text-cyan-500 font-semibold mb-4">Categorías de licencias:</h3>';
         const ul = document.createElement('ul');
         ul.style.textAlign = 'left';
         ul.classList.add('list-disc', 'pl-6');
@@ -164,7 +206,7 @@
 
         for (const [key, value] of Object.entries(licenciaData[pais])) {
           const li = document.createElement('li');
-          li.textContent = `${key.toUpperCase()}: ${value}`;
+          li.innerHTML = `<span class="font-bold text-cyan-400">${key.toUpperCase()}:</span> ${value}`;
           ul.appendChild(li);
         }
 
