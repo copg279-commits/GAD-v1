@@ -4,17 +4,65 @@
     text-transform: uppercase;
 }
 
+/* Identidad Visual Dark Mode para Contenedores */
 .result-box-container {
     position: relative;
-    background-color: #e0f7fa;
+    background-color: #1e293b; /* bg-slate-800 */
+    border: 1px solid #334155; /* border-slate-700 */
     border-radius: 0.5rem;
     padding: 1.5rem;
     text-align: left;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
     margin-bottom: 1rem;
+    color: #e2e8f0; /* text-slate-200 */
 }
 
-/* Estilos de Banderas */
+/* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
+#helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+#helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+#helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+/* Zoom de miniaturas sin cortes (Solo PC) */
+td, tr { position: static !important; }
+.results-container { overflow: visible !important; }
+@media (hover: hover) and (pointer: fine) { 
+    .thumbnail-img:hover { 
+        transform: scale(4); 
+        z-index: 9999 !important; 
+        position: relative; 
+        box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+        border-color: #06b6d4; 
+    } 
+}
+
+/* Conversión de Tablas a Tarjetas (Responsive Móvil) */
+@media (max-width: 768px) {
+    thead {
+        display: none;
+    }
+    tr {
+        display: flex;
+        flex-direction: column;
+        background: #1e293b;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border: 1px solid #334155;
+    }
+    td {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 0;
+    }
+    .thumbnail-img {
+        width: 100% !important;
+        height: auto;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Estilos de Banderas (Se mantienen intactos pero con borde oscuro) */
 .flag {
     position: absolute;
     top: 10px;
@@ -22,7 +70,7 @@
     width: 40px;
     height: 25px;
     background-size: cover;
-    border: 1px solid #ccc;
+    border: 1px solid #334155; /* border-slate-700 */
     border-radius: 3px;
 }
 

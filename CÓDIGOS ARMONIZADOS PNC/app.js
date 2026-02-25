@@ -213,6 +213,10 @@ const codigosNacionales = {
     "IRLANDA DEL NORTE / REINO UNIDO": {}
 };
 
+/* app.js */
+
+/* [!!] IMPORTANTE: Mantén aquí tus diccionarios intactos (codigosArmonizados y codigosNacionales) que estaban al principio del archivo */
+
 function buscarCodigo() {
     const input = document.getElementById('searchInput').value.trim().toUpperCase();
     const resultadoDiv = document.getElementById('resultado');
@@ -253,17 +257,19 @@ function buscarCodigo() {
             box.appendChild(flagDiv);
 
             const textP = document.createElement('p');
+            // Adaptado al Dark Mode: Colores cyan y textos slate-200
             textP.innerHTML = `
-                <p class="font-bold">Código ${res.codigo} (${res.tipo} - ${res.pais}):</p>
-                <p>${res.descripcion}</p>
+                <p class="font-bold text-cyan-500">Código ${res.codigo} (${res.tipo} - ${res.pais}):</p>
+                <p class="text-slate-200">${res.descripcion}</p>
             `;
             box.appendChild(textP);
             resultadoDiv.appendChild(box);
         });
     } else {
+        // Adaptado al Dark Mode: Fondos y bordes oscuros integrados
         resultadoDiv.innerHTML = `
-            <div class="result-box-container p-4 rounded-lg bg-red-100 border border-red-400">
-                <p class="text-red-700 font-bold">
+            <div class="result-box-container p-4 rounded-lg bg-red-900/30 border border-red-800">
+                <p class="text-red-400 font-bold">
                     No se encontró ningún significado para el código: ${input}
                 </p>
             </div>
@@ -315,17 +321,19 @@ function buscarInverso() {
             box.appendChild(flagDiv);
 
             const textP = document.createElement('p');
+            // Adaptado al Dark Mode
             textP.innerHTML = `
-                <p class="font-bold">Código ${res.codigo} (${res.tipo} - ${res.pais}):</p>
-                <p>${res.descripcion}</p>
+                <p class="font-bold text-cyan-500">Código ${res.codigo} (${res.tipo} - ${res.pais}):</p>
+                <p class="text-slate-200">${res.descripcion}</p>
             `;
             box.appendChild(textP);
             resultadoDiv.appendChild(box);
         });
     } else {
+        // Adaptado al Dark Mode
         resultadoDiv.innerHTML = `
-            <div class="result-box-container p-4 rounded-lg bg-red-100 border border-red-400">
-                <p class="text-red-700 font-bold">
+            <div class="result-box-container p-4 rounded-lg bg-red-900/30 border border-red-800">
+                <p class="text-red-400 font-bold">
                     No se encontraron códigos para las palabras clave: "${input}"
                 </p>
             </div>
