@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>POLICÍA LOCAL ALICANTE - VMP 2026</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* --- ESTILOS PANTALLA DE LOGIN DARK Y BOTONES PREMIUM --- */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #041222 0%, #0a2e52 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
+        .login-card { background: rgba(15, 23, 42, 0.95); padding: 25px 15px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 420px; text-align: center; color: #ffffff; box-sizing: border-box; }
+        .login-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; gap: 10px; }
+        .login-logo-img { height: 45px; width: auto; object-fit: contain; flex-shrink: 0; }
+        .login-titles-col { flex-grow: 1; }
+        .login-title { margin: 0; font-size: 1.25rem; font-weight: 900; }
+        .login-subtitle { margin: 2px 0 0 0; font-size: 0.75rem; color: #aaa; text-transform: uppercase; }
+
+        .help-btn { background: linear-gradient(145deg, #1e3c72, #2a5298); color: white; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .google-btn { background: linear-gradient(145deg, #0d47a1, #1565c0); color: white; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .req-btn { background: linear-gradient(145deg, #8e6d13, #b8860b); color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .help-btn, .google-btn, .req-btn { border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 1rem; text-transform: uppercase; transition: transform 0.2s, box-shadow 0.2s; }
+        .help-btn:active, .google-btn:active, .req-btn:active { transform: scale(0.98); }
+
+        .login-help { background: rgba(25, 118, 210, 0.2); color: #e3f2fd; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 15px; text-align: left; display: none; border-left: 4px solid #1976d2; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #fff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 10px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status-txt { margin-top: 15px; font-size: 0.85rem; font-weight: bold; color: #ddd; }
+        .app-footer-login { margin-top: 30px; color: #fff; font-size: 1.1rem; font-weight: bold; text-align: center; }
+
+        /* Estilos del Panel Admin */
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #0a2e52; font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1rem; }
+        .admin-nav-btns { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn-admin-nav { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; background: #eee; color: #333; transition: 0.3s; }
+        .btn-admin-nav.active { background: #0a2e52; color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="login-header-row">
+                <img src="POLICIA.png" class="login-logo-img">
+                <div class="login-titles-col">
+                    <h1 class="login-title">POLICÍA LOCAL ALICANTE</h1>
+                    <h2 class="login-subtitle">CONTROL ACCESO</h2>
+                </div>
+                <img src="logogad.png" class="login-logo-img">
+            </div>
+
+            <div id="loading-state">
+                <div class="spinner"></div>
+                <p style="color:#aaa; font-size:0.9rem;">Verificando sesión...</p>
+            </div>
+
+            <div id="login-actions" style="display:none;">
+                <button type="button" class="help-btn" onclick="let h=document.getElementById('login-help-box'); h.style.display=(h.style.display==='block')?'none':'block'">
+                    <span>ℹ️</span> AYUDA E INSTRUCCIONES
+                </button>
+               <div id="login-help-box" class="login-help">
+                    1. Pulsa en <b>Acceso al Sistema</b> e identifícate con tu cuenta <b>Gmail</b>.<br>
+                    2. Si es tu primera vez, pulsa en <b>Solicitar Acceso</b> y rellena el formulario con tu TIP y correo Gmail.
+                </div>
+                <button id="btn-login" class="google-btn" type="button"><span>🔑</span> ACCESO AL SISTEMA</button>
+                <button type="button" class="req-btn" onmousedown="var m = document.getElementById('request-modal'); if(m){ m.style.display='flex'; m.style.zIndex='999999'; }"><span>🛡️</span> SOLICITAR ACCESO AL SISTEMA</button>
+            </div>
+            <div id="login-status" class="status-txt"></div>
+        </div>
+    </div>
+
+    <div id="app-content">
+        <header>
+            <img id="head-logo-left" class="header-logo" alt="Judicial" />
+            <div class="header-titles">
+                <h1>POLICÍA LOCAL ALICANTE</h1>
+                <h2>CATEGORIZACIÓN VEHÍCULOS LIGEROS</h2>
+            </div>
+            <img id="head-logo-right" class="header-logo" alt="GAD" />
+        </header>
+
+        <div class="container">
+            <div class="card">
+                
+                <div id="question-area"></div>
+                
+                <div class="bottom-wrapper">
+                    <img src="polipensador.png" alt="Policía pensando" class="thinking-cop-img">
+                    <p class="calculating-text">CALCULANDO CATEGORÍA<span class="dots"></span></p>
+                    <button id="btn-admin-panel">👮 PANEL DE ADMINISTRADOR</button>
+                </div>
+
+                <footer>Grupo Análisis Documental &nbsp;|&nbsp; GAD © 2026</footer>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-modal" class="modal">
+        <div class="modal-content">
+            <div id="modal-header-strip" class="modal-header-strip">DICTAMEN TÉCNICO POLICIAL</div>
+            <div class="modal-body">
+                <div class="result-top-row">
+                    <img id="res-logo-left" class="result-logo-img" alt="Judicial" />
+                    <span id="res-icon" class="result-main-icon"></span>
+                    <img id="res-logo-right" class="result-logo-img" alt="GAD" />
+                </div>
+                <h3 id="res-title" class="result-main-title"></h3>
+                <div class="table-plate-wrapper">
+                    <div class="table-container">
+                        <table class="legal-table">
+                            <tr><th>Permiso</th><td id="res-permiso"></td></tr>
+                            <tr><th>Seguro</th><td id="res-seguro"></td></tr>
+                            <tr><th>Matrícula</th><td id="res-matricula-text"></td></tr>
+                            <tr><th>Casco</th><td id="res-casco"></td></tr>
+                        </table>
+                    </div>
+                    <div id="res-plate-container"></div>
+                </div>
+                <div id="res-legal-box" class="legal-box"></div>
+            </div>
+            <div class="modal-fixed-bottom">
+                <button id="btn-soa" class="btn-soa" onclick="app.showInfractions()"><span>👮</span> VER INFRACCIONES (ADMIN + SOA)</button>
+                <div class="nav-buttons-row">
+                    <button class="btn-modal-back" onclick="app.closeModal()">🔙 Corregir</button>
+                    <button class="btn-modal-new" onclick="app.resetApp()">🔄 Nueva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header-strip header-help">¿CÓMO FUNCIONA?</div>
+            <div class="modal-body">
+                <ul class="help-list" style="font-size: 0.9rem; line-height: 1.4; padding-left: 20px;">
+                    <li style="margin-bottom: 6px;"><strong>Categorización:</strong> Responde a las preguntas. En cada opción, tienes una mano 👈 a la izquierda para volver atrás.</li>
+                    <li style="margin-bottom: 6px;"><strong>Reinicio:</strong> Arriba a la derecha tienes el botón 🔄 para empezar de cero rápidamente.</li>
+                    <li style="margin-bottom: 6px;"><strong>Resultados:</strong> Obtendrás la categoría oficial y requisitos.</li>
+                    <li style="margin-bottom: 6px;"><strong>Infracciones:</strong> Pulsa el botón ROJO para ver el boletín.</li>
+                </ul>
+                <button class="help-toggle-btn" onclick="app.toggleHelpSection('legacy-vmp')"><span>📅 VMP SIN CHAPA IDENTIFICATIVA (ANTES 22-01-2024)</span><span>▼</span></button>
+                <div id="help-legacy-vmp" class="help-toggle-content">
+                    <h4 style="margin:5px 0 10px 0; color:#d32f2f; text-align:center; border-bottom:1px solid #e0e0e0; padding-bottom:5px;">CALENDARIO "DESAPARICIÓN" VMP ANTIGUO</h4>
+                    <p><strong>1. "Antiguos" (< 22/01/2024):</strong><br>Solo pegatina. Legales en 2026. Prohibidos en 2027.</p>
+                    <p><strong>2. "Certificados" (> 22/01/2024):</strong><br>Placa Metálica. Legales indefinidamente.</p>
+                </div>
+                <div class="disclaimer-note" style="margin-top: 20px;">No válido para uso oficial. Pendiente de supervisión.</div>
+            </div>
+            <div class="modal-fixed-bottom">
+                <button class="btn-modal-new" style="width:100%; padding: 12px; background-color: #0a2e52; color: white;" onclick="document.getElementById('help-modal').style.display='none'">ENTENDIDO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="infraction-modal" class="modal">
+        <div class="infraction-box">
+            <div class="infraction-title">BOLETÍN DE DENUNCIAS</div>
+            <div class="inf-toggle-container" id="inf-tabs">
+                <button class="inf-toggle-btn active" id="btn-tab-driver" onclick="app.switchInfractionMode('driver')">CIRCULA (Titular)</button>
+                <button class="inf-toggle-btn" id="btn-tab-owner" onclick="app.switchInfractionMode('owner')">NO CIRCULA (Titular)</button>
+            </div>
+            <div class="inf-content-scroll">
+                <div id="inf-card-admin" class="inf-card">
+                    <div class="inf-card-header header-admin">
+                        <div>AUT. ADMINISTRATIVA</div>
+                        <div id="admin-toggle-wrapper" class="admin-options-container" style="display:none;">
+                            <button id="btn-opt-noreg" class="admin-opt-btn active" onclick="app.setAdminMode('default')">NO REGISTRADO</button>
+                            <button id="btn-opt-noplate" class="admin-opt-btn" onclick="app.setAdminMode('alt')">SIN PLACA</button>
+                        </div>
+                    </div>
+                    <div class="inf-card-body">
+                        <div class="inf-grid-row"><div class="inf-item"><span class="inf-label">Normativa</span><span id="inf-admin-norm" class="inf-val"></span></div><div class="inf-item"><span class="inf-label">Opción</span><span id="inf-admin-opt" class="inf-val"></span></div></div>
+                        <div class="inf-grid-row"><div class="inf-item"><span class="inf-label">Importe</span><span id="inf-admin-amount" class="inf-val red"></span></div><div class="inf-item"><span class="inf-label">Reducido</span><span id="inf-admin-reduced" class="inf-val green"></span></div></div>
+                        <div class="inf-text" id="inf-admin-text"></div>
+                        <div class="measure-box"><span id="inf-admin-action"></span></div>
+                    </div>
+                </div>
+                <div id="inf-card-soa" class="inf-card">
+                    <div class="inf-card-header header-soa">SOA</div>
+                    <div class="inf-card-body">
+                        <div class="inf-grid-row"><div class="inf-item"><span class="inf-label">Normativa</span><span class="inf-val">RD Leg 8/2004</span></div><div class="inf-item"><span class="inf-label">Opción</span><span id="inf-soa-opt" class="inf-val"></span></div></div>
+                        <div class="inf-grid-row"><div class="inf-item"><span class="inf-label">Importe</span><span id="inf-soa-amount" class="inf-val red"></span></div><div class="inf-item"><span class="inf-label">Reducido</span><span id="inf-soa-reduced" class="inf-val green"></span></div></div>
+                        <div class="inf-text" id="inf-soa-text"></div>
+                        <div class="measure-box"><span>MEDIDA: INMOVILIZACIÓN / DEPÓSITO</span></div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-close-inf" onclick="document.getElementById('infraction-modal').style.display='none'">CERRAR</button>
+        </div>
+    </div>
+
+   <div id="request-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header-strip" style="background:#ff9800;">SOLICITAR ACCESO</div>
+            <div class="modal-body">
+              <div class="form-group">
+                    <label>Correo de Google <span style="color:#d32f2f; font-size:0.75rem;">(OBLIGATORIO CUENTA GMAIL)</span></label>
+                    <input type="email" id="req-email" placeholder="tu_correo@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label>Número TIP</label>
+                    <input type="text" id="req-tip" placeholder="Escribe tu número profesional">
+                </div>
+            </div>
+            <div class="modal-fixed-bottom">
+                <button style="width:100%; background:#ff9800; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="window.submitRequest()">ENVIAR SOLICITUD</button>
+                <button style="width:100%; margin-top:10px; padding:10px; background:#ccc; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('request-modal').style.display='none'">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header-strip" style="background-color: #0a2e52;">PANEL DE CONTROL PL ALICANTE</div>
+            <div class="modal-body">
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; border: 1px solid #bbdefb; position: relative;">
+                    <span style="font-size: 0.75rem; font-weight: bold; color: #555; text-transform: uppercase;">Visitas Totales</span>
+                    <span id="total-visitas-count" style="display: block; font-size: 2rem; font-weight: 900; color: #0a2e52;">0</span>
+                    <button onclick="window.resetGlobalVisits()" style="background: none; border: none; color: #d32f2f; font-size: 0.7rem; text-decoration: underline; cursor: pointer; margin-top: 5px;">Resetear Contador Global</button>
+                </div>
+                <div class="admin-nav-btns">
+                    <button id="nav-pending" class="btn-admin-nav" onclick="window.loadAdminPanel()">SOLICITUDES</button>
+                    <button id="nav-ranking" class="btn-admin-nav" onclick="window.loadVisitsRanking()">USUARIOS</button>
+                </div>
+                <div id="admin-list-container" style="max-height: 40vh; overflow-y: auto; border: 1px solid #eee; padding: 5px; border-radius: 5px;"></div>
+            </div>
+            <div class="modal-fixed-bottom">
+                <button style="width:100%; padding: 12px; background:#ccc; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('admin-modal').style.display='none'">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="logs-modal" class="modal">
+        <div class="modal-content" style="max-width: 350px;">
+            <div class="modal-header-strip" style="background-color: #154c79;">DETALLE DE ACCESOS</div>
+            <div id="logs-list-container" class="modal-body" style="max-height: 45vh; overflow-y: auto; padding: 15px; font-size: 0.9rem;"></div>
+            <div class="modal-fixed-bottom">
+                <button id="btn-reset-user" style="width:100%; padding: 10px; background:#fbe9e7; color:#d32f2f; border:1px solid #ffccbc; border-radius:8px; font-weight:bold; cursor:pointer; margin-bottom:10px;">RESET VISITAS USUARIO</button>
+                <button style="width:100%; padding: 10px; background:#ccc; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('logs-modal').style.display='none'">VOLVER</button>
+            </div>
+        </div>
+    </div>
+
+   <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, updateDoc, increment, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAYKu2Gx8MgIk9tYYx6BstERQsitKPQIiU",
+          authDomain: "t4c-gad.firebaseapp.com",
+          projectId: "t4c-gad",
+          storageBucket: "t4c-gad.firebasestorage.app",
+          messagingSenderId: "765902351715",
+          appId: "1:765902351715:web:5be95297e94984ecb07756"
+        };
+
+        const appFirebase = initializeApp(firebaseConfig);
+        const auth = getAuth(appFirebase);
+        const db = getFirestore(appFirebase);
+        const provider = new GoogleAuthProvider();
+
+        const TELEGRAM_TOKEN = "7891665247:AAEeBUbpov56RKqQQBoLKU42ANvULrLFQzY"; 
+        const CHAT_ID = "381018459"; 
+
+        const ui = {
+            loginScreen: document.getElementById('login-screen'),
+            appContent: document.getElementById('app-content'),
+            loading: document.getElementById('loading-state'),
+            actions: document.getElementById('login-actions'),
+            btnLogin: document.getElementById('btn-login'),
+            status: document.getElementById('login-status')
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) { checkUser(user); } 
+            else { ui.loading.style.display = 'none'; ui.actions.style.display = 'block'; }
+        });
+
+        ui.btnLogin.addEventListener('click', () => {
+            ui.actions.style.display = 'none'; ui.loading.style.display = 'block';
+            ui.status.innerText = "Conectando al Sistema...";
+            signInWithPopup(auth, provider).catch(e => {
+                ui.loading.style.display = 'none'; ui.actions.style.display = 'block';
+                if (e.code === 'auth/popup-closed-by-user') { ui.status.innerText = "Operación cancelada."; } 
+                else { ui.status.innerText = "Error: " + e.message; }
+            });
+        });
+
+        async function checkUser(user) {
+            ui.actions.style.display = 'none'; ui.loading.style.display = 'block'; ui.status.innerText = ""; 
+            try {
+                const snap = await getDoc(doc(db, "users_PLAlicante", user.email));
+                if (snap.exists()) {
+                    if (snap.data().autorizado === true) { enterApp(user.email); } 
+                    else {
+                        ui.loading.style.display = 'none';
+                        ui.status.innerHTML = `<span style="color:#ff9800">⚠️ Solicitud pendiente de aprobación.</span><br>Usuario: <b>${user.email}</b>`;
+                        showLogout();
+                    }
+                } else {
+                    ui.loading.style.display = 'none'; ui.actions.style.display = 'block'; 
+                    ui.status.innerHTML = `Usuario no registrado: <b>${user.email}</b><br>Pulsa en SOLICITAR ACCESO.`;
+                    document.getElementById('req-email').value = user.email; 
+                    showLogout();
+                }
+            } catch (e) { console.error(e); ui.loading.style.display = 'none'; ui.status.innerText = "Error de conexión con la BD."; showLogout(); }
+        }
+
+        window.submitRequest = async () => {
+            const email = document.getElementById('req-email').value.trim();
+            const tip = document.getElementById('req-tip').value.trim();
+
+            if(!email || !tip) { 
+                alert("Por favor, rellena TODOS los campos."); 
+                return; 
+            }
+
+            document.getElementById('request-modal').style.display = 'none';
+            ui.actions.style.display = 'none'; ui.loading.style.display = 'block';
+            ui.status.innerText = "Enviando solicitud...";
+
+            try {
+                await setDoc(doc(db, "users_PLAlicante", email), { email: email, tip: tip, autorizado: false, fecha: new Date().toISOString() });
+                
+                const mensaje = `🔵 *NUEVA SOLICITUD PL ALICANTE* 🔵\n\n👮 *TIP:* ${tip}\n📧 *Email:* ${email}`;
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: CHAT_ID, text: mensaje, parse_mode: 'Markdown' })
+                });
+                
+                ui.loading.style.display = 'none';
+                ui.status.innerHTML = `<span style="color:#2e7d32">✅ Solicitud enviada.</span><br>Avisa al administrador.`;
+            } catch (e) { 
+                console.error(e); 
+                ui.loading.style.display = 'none'; 
+                ui.status.innerHTML = `
+                    <span style="color:#ff9800; font-size:0.9rem;">⚠️ Ya dispones de cuenta pero no tienes acceso.</span><br>
+                    <button onclick="window.repairAccess('${email}', '${tip}')" style="margin-top:10px; background:#ff9800; color:white; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">🔧 SOLICITAR REPARAR ACCESO</button>
+                `; 
+            }
+        };
+
+        window.repairAccess = async (email, tip) => {
+            ui.status.innerHTML = "<div class='spinner'></div><p style='color:#aaa; font-size:0.9rem;'>Avisando al administrador...</p>";
+            try {
+                const mensaje = `🔧 *RESTABLECIMIENTO PL ALICANTE* 🔧\n\nUn usuario revocado intenta acceder de nuevo:\n👮 *TIP:* ${tip}\n📧 *Email:* ${email}`;
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: CHAT_ID, text: mensaje, parse_mode: 'Markdown' })
+                });
+                ui.status.innerHTML = `<span style="color:#2e7d32; font-weight:bold;">✅ Aviso enviado con éxito.</span><br><span style="color:#ddd; font-size:0.85rem;">El administrador revisará tu cuenta en breve. Recibirás un correo cuando se active.</span>`;
+            } catch (e) {
+                console.error(e);
+                ui.status.innerHTML = `<span style="color:#d32f2f">❌ Error al enviar el aviso.</span><br>Contacta con copg279@gmail.com`;
+            }
+        };
+
+        async function enterApp(email) {
+            try {
+                await updateDoc(doc(db, "users_PLAlicante", email), { visitas: increment(1) });
+                await setDoc(doc(db, "stats_PLAlicante", "global"), { total: increment(1) }, { merge: true });
+                await addDoc(collection(db, "users_PLAlicante", email, "logs"), { fecha: new Date().toISOString() });
+            } catch (e) { console.error("Error al entrar:", e); }
+
+            setTimeout(() => {
+                ui.loginScreen.style.display = 'none';
+                ui.appContent.style.display = 'flex'; 
+                if (email === "copg279@gmail.com") {
+                    if(!document.getElementById('injected-admin-btn')) {
+                        let btn = document.getElementById('btn-admin-panel');
+                        if(btn) { btn.style.display = 'block'; btn.onclick = window.loadAdminPanel; }
+                    }
+                }
+                window.dispatchEvent(new Event('auth-success')); 
+            }, 800);
+        }
+
+        window.loadAdminPanel = async () => {
+            if(document.getElementById('nav-pending')) document.getElementById('nav-pending').classList.add('active');
+            if(document.getElementById('nav-ranking')) document.getElementById('nav-ranking').classList.remove('active');
+            
+            const modal = document.getElementById('admin-modal');
+            const container = document.getElementById('admin-list-container');
+            modal.style.display = 'flex';
+            container.innerHTML = '<p style="text-align:center;">Cargando solicitudes...</p>';
+
+            try {
+                const statsSnap = await getDoc(doc(db, "stats_PLAlicante", "global"));
+                const totalVisitas = statsSnap.data()?.total || 0;
+                if(document.getElementById('total-visitas-count')) document.getElementById('total-visitas-count').innerText = totalVisitas;
+
+                const q = query(collection(db, "users_PLAlicante"), where("autorizado", "==", false));
+                const querySnapshot = await getDocs(q);
+                
+                container.innerHTML = '';
+                if (querySnapshot.empty) { container.innerHTML = '<p style="text-align:center; padding:10px; color:#666;">No hay solicitudes pendientes.</p>'; return; }
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const div = document.createElement('div');
+                    div.style.cssText = 'background:#f4f4f4; padding:10px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; color:#333;';
+                    div.innerHTML = `
+                        <div style="text-align:left;">
+                            <p style="margin:0;"><strong>TIP: ${data.tip || 'Sin TIP'}</strong></p>
+                            <p style="margin:0; font-size:0.85rem; color:#666;">${data.email}</p>
+                        </div>
+                        <button style="background:#2e7d32; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-weight:bold;" onclick="window.approveUser('${data.email}')">Aprobar</button>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch(e) { console.error("Error en panel:", e); }
+        };
+
+        window.loadVisitsRanking = async () => {
+            if(document.getElementById('nav-pending')) document.getElementById('nav-pending').classList.remove('active');
+            if(document.getElementById('nav-ranking')) document.getElementById('nav-ranking').classList.add('active');
+            
+            const container = document.getElementById('admin-list-container');
+            container.innerHTML = '<p style="text-align:center; padding:20px;">Cargando usuarios...</p>';
+
+            try {
+                const q = query(collection(db, "users_PLAlicante"), where("autorizado", "==", true));
+                const querySnapshot = await getDocs(q);
+                let users = [];
+                querySnapshot.forEach(docSnap => users.push(docSnap.data()));
+                
+                users.sort((a, b) => (b.visitas || 0) - (a.visitas || 0));
+
+                container.innerHTML = '';
+                if (users.length === 0) { container.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">No hay usuarios activos.</p>'; return; }
+
+                users.forEach(u => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:12px 10px; border-bottom:1px solid #eee; color:#333; background: #fff;';
+                    
+                    const leftDiv = document.createElement('div');
+                    leftDiv.style.cssText = 'text-align:left; flex-grow:1; cursor:pointer; padding-right: 10px;';
+                    leftDiv.onclick = () => window.showUserLogs(u.email, u.tip);
+                    
+                    let nombreMostrar = u.tip ? `TIP: ${u.tip}` : u.email;
+                    let infoAbajo = `<span style="color:#0a2e52;">POLICÍA LOCAL ALICANTE</span>`;
+                    
+                    if (u.email === "copg279@gmail.com") {
+                        nombreMostrar = "👑 ADMINISTRADOR";
+                        infoAbajo = "<span style='color:#2e7d32;'>Control Total del Sistema</span>";
+                    }
+
+                    leftDiv.innerHTML = `
+                        <div>
+                            <span style="font-weight:900; font-size:1.05rem; color:#0a2e52;">${nombreMostrar}</span> 
+                        </div>
+                        <div style="margin-top:2px;">
+                            <small style="color:#666; font-weight:600; font-size:0.85rem; text-transform:uppercase;">${infoAbajo}</small>
+                            <span style="font-size:0.8rem; color:#888; display:block; margin-top:2px;">${u.email}</span>
+                        </div>
+                    `;
+
+                    const rightDiv = document.createElement('div');
+                    rightDiv.style.cssText = 'display:flex; align-items:center; gap:12px; flex-shrink:0;';
+                    rightDiv.innerHTML = `<div style="background:#0a2e52; color:white; padding:4px 10px; border-radius:12px; font-size:0.85rem; font-weight:bold; min-width:35px; text-align:center;">${u.visitas || 0}</div>`;
+                    
+                    const btnDelete = document.createElement('button');
+                    btnDelete.innerHTML = '🗑️';
+                    btnDelete.title = 'Revocar acceso';
+                    btnDelete.style.cssText = 'background:#d32f2f; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:1rem; transition: background 0.2s;';
+                    btnDelete.onmouseover = function(){ this.style.background = '#b71c1c' };
+                    btnDelete.onmouseout = function(){ this.style.background = '#d32f2f' };
+                    btnDelete.onclick = (e) => {
+                        e.stopPropagation(); 
+                        window.revokeUser(u.email);
+                    };
+                    
+                    rightDiv.appendChild(btnDelete);
+                    div.appendChild(leftDiv);
+                    div.appendChild(rightDiv);
+                    container.appendChild(div);
+                });
+            } catch(e) { 
+                console.error("Error cargando usuarios:", e);
+                container.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Error al cargar la lista.</p>';
+            }
+        };
+
+        window.revokeUser = async (email) => {
+            if(confirm(`⚠️ ¿Seguro que quieres ELIMINAR el acceso a ${email}? Pasará a estar pendiente de aprobación.`)) {
+                try {
+                    await updateDoc(doc(db, "users_PLAlicante", email), { autorizado: false });
+                    alert(`❌ Acceso revocado a ${email}.`);
+                    window.loadVisitsRanking(); 
+                } catch(e) { alert("Error al eliminar usuario."); console.error(e); }
+            }
+        };
+
+        window.showUserLogs = async (email, tip) => {
+            const modal = document.getElementById('logs-modal');
+            const container = document.getElementById('logs-list-container');
+            modal.style.display = 'flex';
+            const titulo = (tip && tip !== "undefined") ? `TIP: ${tip}` : email;
+            container.innerHTML = `<b>Historial de:</b> ${titulo}<hr style='margin:10px 0; border:0; border-top:1px solid #eee;'>`;
+
+            try {
+                const snap = await getDocs(collection(db, "users_PLAlicante", email, "logs"));
+                let logs = []; let totalVisitasUsuario = 0;
+                snap.forEach(d => { logs.push(d.data()); totalVisitasUsuario++; });
+                logs.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+                logs.forEach(l => {
+                    const f = new Date(l.fecha);
+                    const p = document.createElement('p'); p.style.margin = '5px 0';
+                    p.innerHTML = `📅 ${f.toLocaleDateString()} - ${f.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+                    container.appendChild(p);
+                });
+
+                document.getElementById('btn-reset-user').onclick = async () => {
+                    if(confirm(`⚠️ ¿Borrar TODAS las visitas y fechas de ${titulo}? Se restarán ${totalVisitasUsuario} del total.`)) {
+                        try {
+                            await updateDoc(doc(db, "stats_PLAlicante", "global"), { total: increment(-totalVisitasUsuario) });
+                            await updateDoc(doc(db, "users_PLAlicante", email), { visitas: 0 });
+                            const promesas = [];
+                            snap.forEach(d => promesas.push(deleteDoc(d.ref)));
+                            await Promise.all(promesas);
+                            alert("Usuario reseteado con éxito."); location.reload();
+                        } catch(e) { alert("Error al borrar historial."); }
+                    }
+                };
+            } catch(e) { console.error(e); }
+        };
+
+        window.resetGlobalVisits = async () => {
+            if(confirm("⚠️ ¿BORRADO TOTAL? Se pondrán a cero todos los contadores y se ELIMINARÁN todas las fechas de entrada.")) {
+                try {
+                    await setDoc(doc(db, "stats_PLAlicante", "global"), { total: 0 });
+                    const snap = await getDocs(collection(db, "users_PLAlicante"));
+                    for (const uDoc of snap.docs) {
+                        const email = uDoc.id;
+                        await updateDoc(doc(db, "users_PLAlicante", email), { visitas: 0 });
+                        const logsSnap = await getDocs(collection(db, "users_PLAlicante", email, "logs"));
+                        const borrados = [];
+                        logsSnap.forEach(l => borrados.push(deleteDoc(l.ref)));
+                        await Promise.all(borrados);
+                    }
+                    alert("Sistema reseteado por completo."); location.reload(); 
+                } catch(e) { alert("Error en el reseteo masivo."); console.error(e); }
+            }
+        };
+
+   window.approveUser = async (email) => {
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwh71TCV4pZs--_z3UDlyPPYInkE-ECBT8oFTDULOpVhhvBHJsjuq-QXzbwdCOMveBT/exec"; // Asegúrate de que termina en /exec
+
+            try {
+                // 1. Esto siempre funciona si tienes conexión
+                await updateDoc(doc(db, "users_PLAlicante", email), { autorizado: true, visitas: 0 });
+                
+                // 2. Intentamos mandar el correo
+                try {
+                    await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain' }, 
+                        body: JSON.stringify({ email: email })
+                    });
+                    alert(`✅ Usuario ${email} aprobado y correo enviado.`);
+                } catch (errorCorreo) {
+                    console.error("Fallo al conectar con el Cartero:", errorCorreo);
+                    alert(`⚠️ Usuario aprobado en el sistema, pero el correo NO se pudo enviar. Revisa la URL del script.`);
+                }
+
+                window.loadAdminPanel(); 
+            } catch(e) {
+                alert("Error crítico al acceder a la base de datos.");
+                console.error(e);
+            }
+        };
+
+        function showLogout() {
+            if(!document.getElementById('tmp-logout')) {
+                let btn = document.createElement('button'); btn.id='tmp-logout'; btn.innerText='(Cerrar sesión)';
+                btn.style.cssText='background:none; border:none; color:#ddd; margin-top:20px; text-decoration:underline; cursor:pointer; font-size:0.85rem;';
+                btn.onclick = () => signOut(auth).then(() => location.reload());
+                document.getElementById('login-screen').appendChild(btn);
+            }
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>
