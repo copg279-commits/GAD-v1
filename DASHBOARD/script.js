@@ -278,14 +278,16 @@ function showContent(data) {
          if(backBtn) backBtn.style.display = 'block';
     }, 100);
 
+// PROCESAMIENTO DEL ENLACE (URL)
     let finalUrl = data.href.trim();
     finalUrl = finalUrl.replace(/ /g, '%20'); 
 
     if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../') && !finalUrl.startsWith('./')) {
         if (finalUrl.startsWith('/')) finalUrl = finalUrl.substring(1);
+        // Hemos eliminado la línea del '../' para que respete tu ruta exacta
     }
 
-    console.log("Cargando recurso:", finalUrl);
+    console.log("Cargando recurso desde GitHub:", finalUrl);
     iframe.src = finalUrl; 
 }
 
@@ -331,7 +333,13 @@ document.getElementById('save-new-button').onclick = async () => {
     const snap = await db.ref(BUTTONS_NODE).orderByChild('parent').equalTo(parent).once('value');
     const order = (snap.val() ? Object.keys(snap.val()).length : 0) + 1;
     
-    db.ref(BUTTONS_NODE).push({ 
+    // --- MAGIA: GENERAR ID LEGIBLE BASADO EN EL NOMBRE ---
+    let baseKey = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+    if (!baseKey) baseKey = "modulo"; // Por si alguien pone solo emojis o caracteres raros
+    const uniqueKey = baseKey + "_" + Math.random().toString(36).substr(2, 3);
+    
+    // Guardamos usando .set() en la nueva clave legible en lugar del antiguo .push()
+    db.ref(`${BUTTONS_NODE}/${uniqueKey}`).set({ 
         text: text, 
         type: document.getElementById('new-button-type').value, 
         size: document.getElementById('new-button-size').value, 
@@ -340,12 +348,14 @@ document.getElementById('save-new-button').onclick = async () => {
         color: '#00f0ff',
         href: document.getElementById('new-button-href') ? document.getElementById('new-button-href').value : ''
     });
+    // -----------------------------------------------------
     
     document.getElementById('new-button-text').value = '';
     if(document.getElementById('new-button-href')) {
         document.getElementById('new-button-href').value = '';
     }
     document.getElementById('add-button-modal').style.display = 'none';
+};
 }; // <--- ¡AQUÍ ESTÁ LA LLAVE QUE FALTABA!
 
 window.delBtn = (key) => { 
