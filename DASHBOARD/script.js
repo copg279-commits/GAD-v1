@@ -259,6 +259,8 @@ function renderSidebarTree(parentId, container) {
 
 // ================= VISOR DE IFRAME (MODIFICADO: IGNORA HTMLCODE) =================
 
+// ================= VISOR DE IFRAME (MODIFICADO PARA ESPACIOS) =================
+
 function showContent(data) {
     const viewer = document.getElementById('iframe-viewer-area'); 
     const iframe = document.getElementById('content-iframe');
@@ -278,16 +280,17 @@ function showContent(data) {
          if(backBtn) backBtn.style.display = 'block';
     }, 100);
 
-// PROCESAMIENTO DEL ENLACE (URL)
+    // TRATAMIENTO DE LA URL: Aquí es donde arreglamos los espacios
     let finalUrl = data.href.trim();
+    
+    // Esta línea convierte los espacios en %20 para que GitHub no dé error 404
     finalUrl = finalUrl.replace(/ /g, '%20'); 
 
     if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../') && !finalUrl.startsWith('./')) {
         if (finalUrl.startsWith('/')) finalUrl = finalUrl.substring(1);
-        // Hemos eliminado la línea del '../' para que respete tu ruta exacta
     }
 
-    console.log("Cargando recurso desde GitHub:", finalUrl);
+    console.log("Cargando recurso seguro:", finalUrl);
     iframe.src = finalUrl; 
 }
 
@@ -333,12 +336,12 @@ document.getElementById('save-new-button').onclick = async () => {
     const snap = await db.ref(BUTTONS_NODE).orderByChild('parent').equalTo(parent).once('value');
     const order = (snap.val() ? Object.keys(snap.val()).length : 0) + 1;
     
-    // --- MAGIA: GENERAR ID LEGIBLE BASADO EN EL NOMBRE ---
+    // CREAR ID LEGIBLE (Alfabético)
     let baseKey = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
-    if (!baseKey) baseKey = "modulo"; // Por si alguien pone solo emojis o caracteres raros
+    if (!baseKey) baseKey = "modulo";
     const uniqueKey = baseKey + "_" + Math.random().toString(36).substr(2, 3);
     
-    // Guardamos usando .set() en la nueva clave legible en lugar del antiguo .push()
+    // Guardar con el nombre nuevo en Firebase
     db.ref(`${BUTTONS_NODE}/${uniqueKey}`).set({ 
         text: text, 
         type: document.getElementById('new-button-type').value, 
@@ -348,20 +351,12 @@ document.getElementById('save-new-button').onclick = async () => {
         color: '#00f0ff',
         href: document.getElementById('new-button-href') ? document.getElementById('new-button-href').value : ''
     });
-    // -----------------------------------------------------
     
     document.getElementById('new-button-text').value = '';
     if(document.getElementById('new-button-href')) {
         document.getElementById('new-button-href').value = '';
     }
     document.getElementById('add-button-modal').style.display = 'none';
-};
-
-window.delBtn = (key) => { 
-    if(confirm('ADVERTENCIA: ¿Confirmar eliminación del nodo de datos? Esta acción es irreversible.')) { 
-        db.ref(`${BUTTONS_NODE}/${key}`).remove(); 
-        document.getElementById('edit-button-modal').style.display='none'; 
-    } 
 };
 
 // ================= CONTROLES DE ADMINISTRADOR =================
