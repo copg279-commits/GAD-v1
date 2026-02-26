@@ -257,9 +257,7 @@ function renderSidebarTree(parentId, container) {
 }
 
 
-// ================= VISOR DE IFRAME (MODIFICADO: IGNORA HTMLCODE) =================
-
-// ================= VISOR DE IFRAME (MODIFICADO PARA ESPACIOS) =================
+// ================= VISOR DE IFRAME =================
 
 function showContent(data) {
     const viewer = document.getElementById('iframe-viewer-area'); 
@@ -280,17 +278,13 @@ function showContent(data) {
          if(backBtn) backBtn.style.display = 'block';
     }, 100);
 
-    // TRATAMIENTO DE LA URL: Aquí es donde arreglamos los espacios
+    // --- CÓDIGO LIMPIO: TÚ TIENES EL CONTROL ---
     let finalUrl = data.href.trim();
     
-    // Esta línea convierte los espacios en %20 para que GitHub no dé error 404
-    finalUrl = finalUrl.replace(/ /g, '%20'); 
+    // Solo arreglamos los espacios de forma invisible. NADA DE TOCAR LAS RUTAS.
+    finalUrl = encodeURI(finalUrl); 
 
-    if (!finalUrl.startsWith('http') && !finalUrl.startsWith('../') && !finalUrl.startsWith('./')) {
-        if (finalUrl.startsWith('/')) finalUrl = finalUrl.substring(1);
-    }
-
-    console.log("Cargando recurso seguro:", finalUrl);
+    console.log("Cargando URL:", finalUrl); 
     iframe.src = finalUrl; 
 }
 
@@ -313,7 +307,7 @@ function openEditModal(key, data) {
 
 document.getElementById('save-button-changes').onclick = () => {
     const id = document.getElementById('edit-button-id').value;
-    const hrefValue = document.getElementById('edit-button-href').value || ""; // Asegura que se guarde aunque esté en blanco
+    const hrefValue = document.getElementById('edit-button-href').value || "";
     
     db.ref(`${BUTTONS_NODE}/${id}`).update({ 
         text: document.getElementById('edit-button-text').value, 
@@ -336,12 +330,10 @@ document.getElementById('save-new-button').onclick = async () => {
     const snap = await db.ref(BUTTONS_NODE).orderByChild('parent').equalTo(parent).once('value');
     const order = (snap.val() ? Object.keys(snap.val()).length : 0) + 1;
     
-    // CREAR ID LEGIBLE (Alfabético)
     let baseKey = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
     if (!baseKey) baseKey = "modulo";
     const uniqueKey = baseKey + "_" + Math.random().toString(36).substr(2, 3);
     
-    // Guardar con el nombre nuevo en Firebase
     db.ref(`${BUTTONS_NODE}/${uniqueKey}`).set({ 
         text: text, 
         type: document.getElementById('new-button-type').value, 
@@ -357,6 +349,13 @@ document.getElementById('save-new-button').onclick = async () => {
         document.getElementById('new-button-href').value = '';
     }
     document.getElementById('add-button-modal').style.display = 'none';
+};
+
+window.delBtn = (key) => { 
+    if(confirm('ADVERTENCIA: ¿Confirmar eliminación del nodo de datos?')) { 
+        db.ref(`${BUTTONS_NODE}/${key}`).remove(); 
+        document.getElementById('edit-button-modal').style.display='none'; 
+    } 
 };
 
 // ================= CONTROLES DE ADMINISTRADOR =================
