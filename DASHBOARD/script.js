@@ -356,7 +356,6 @@ document.getElementById('save-new-button').onclick = async () => {
     }
     document.getElementById('add-button-modal').style.display = 'none';
 };
-}; // <--- ¡AQUÍ ESTÁ LA LLAVE QUE FALTABA!
 
 window.delBtn = (key) => { 
     if(confirm('ADVERTENCIA: ¿Confirmar eliminación del nodo de datos? Esta acción es irreversible.')) { 
