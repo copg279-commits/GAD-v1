@@ -131,8 +131,10 @@ function renderMenuButtons() {
             else if (v.color === '#10b981' || v.color === '#16a34a') btn.classList.add('color-success');
             
             const editIcon = isEditMode ? `<div class="edit-mode-icon">EDITAR</div>` : '';
+            const folderIcon = v.type === 'parent' ? `<div class="folder-indicator"><i class="fas fa-folder"></i></div>` : '';
             
             btn.innerHTML = `
+                ${folderIcon}
                 <div class="tech-label">
                     ${v.text}
                 </div>
@@ -144,7 +146,7 @@ function renderMenuButtons() {
                 btn.style.cursor = 'grab';
                 
                 btn.addEventListener('dragstart', function(e) {
-                    draggedItem = { key: key, order: v.order };
+                    draggedItem = { key: key, order: v.order, parent: v.parent };
                     setTimeout(() => this.classList.add('dragging'), 0);
                 });
                 
@@ -155,20 +157,42 @@ function renderMenuButtons() {
                 
                 btn.addEventListener('dragover', function(e) {
                     e.preventDefault();
-                    this.classList.add('drag-over');
+                    if (draggedItem && draggedItem.key === key) return;
+                    
+                    // Calculamos la posición del ratón sobre el botón
+                    const rect = this.getBoundingClientRect();
+                    const y = e.clientY - rect.top;
+                    
+                    // Si el destino es una carpeta y el ratón está en la zona central (del 25% al 75% de la altura), es MODO INSERTAR
+                    const isInsertMode = (v.type === 'parent') && (y > rect.height * 0.25 && y < rect.height * 0.75);
+                    
+                    if (isInsertMode) {
+                        this.classList.add('drag-insert');
+                        this.classList.remove('drag-reorder');
+                    } else {
+                        this.classList.add('drag-reorder');
+                        this.classList.remove('drag-insert');
+                    }
                 });
                 
                 btn.addEventListener('dragleave', function() {
-                    this.classList.remove('drag-over');
+                    this.classList.remove('drag-reorder', 'drag-insert');
                 });
                 
                 btn.addEventListener('drop', function(e) {
                     e.preventDefault();
-                    this.classList.remove('drag-over');
+                    const wasInsert = this.classList.contains('drag-insert');
+                    this.classList.remove('drag-reorder', 'drag-insert');
                     
                     if (draggedItem && draggedItem.key !== key) {
-                        db.ref(`${BUTTONS_NODE}/${draggedItem.key}`).update({ order: v.order });
-                        db.ref(`${BUTTONS_NODE}/${key}`).update({ order: draggedItem.order });
+                        if (wasInsert) {
+                            // Acción: Meter dentro de la carpeta (le asignamos como padre la key de esta carpeta)
+                            db.ref(`${BUTTONS_NODE}/${draggedItem.key}`).update({ parent: key, order: 999 });
+                        } else {
+                            // Acción: Intercambiar el orden visual
+                            db.ref(`${BUTTONS_NODE}/${draggedItem.key}`).update({ order: v.order });
+                            db.ref(`${BUTTONS_NODE}/${key}`).update({ order: draggedItem.order });
+                        }
                     }
                 });
             }
