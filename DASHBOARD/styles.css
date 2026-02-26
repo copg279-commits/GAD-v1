@@ -89,8 +89,8 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 .tech-btn {
     position: relative; 
     height: 115px; /* ALTURA FIJA PARA TODOS LOS BOTONES */
-    background: var(--glass-bg); /* Solo los botones difuminan lo que hay detrás suyo */
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    background: rgba(6, 11, 25, 0.25); /* Fondo mucho más transparente (25% de opacidad) */
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); /* Difuminado suave para ver mejor el fondo de pantalla */
     border: 1px solid var(--glass-border); border-radius: 10px; 
     cursor: pointer; display: flex; align-items: center; justify-content: center;
     padding: 15px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
