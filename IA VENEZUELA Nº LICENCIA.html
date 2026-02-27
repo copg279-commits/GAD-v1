@@ -56,12 +56,15 @@
       
       <div class="flex flex-col gap-4 w-full min-w-0">
           
-          <div class="flex justify-center gap-2">
+          <div class="flex flex-wrap md:flex-nowrap justify-center gap-2">
               <button onclick="toggleSettings()" class="flex-1 bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 rounded-md hover:bg-slate-700 transition shadow flex justify-center items-center gap-1 text-xs md:text-sm">
                   ⚙️ Configurar IA
               </button>
               <button onclick="document.getElementById('fileInput').click()" class="flex-1 bg-cyan-600 text-white font-bold py-2 rounded-md hover:bg-cyan-700 transition shadow flex justify-center items-center gap-1 text-xs md:text-sm">
                   📎 Adjuntar Archivo
+              </button>
+              <button onclick="abrirModalINTT()" class="flex-1 bg-blue-700 text-white font-bold py-2 rounded-md hover:bg-blue-600 transition shadow flex justify-center items-center gap-1 text-xs md:text-sm border border-blue-500">
+                  🌐 Verificar en INTT
               </button>
               <input type="file" id="fileInput" class="hidden" accept=".pdf,image/*" onchange="if(this.files[0]) processFile(this.files[0])">
           </div>
@@ -146,6 +149,13 @@
                   <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-3 text-slate-400 text-xs font-bold underline hover:text-cyan-400">Cerrar panel</button>
               </div>
           </div>
+          <div id="inttPromptBox" class="hidden mt-6 bg-gradient-to-r from-blue-900 to-slate-900 border-2 border-blue-500 rounded-xl shadow-xl overflow-hidden p-5 text-center alert-pulse">
+              <h4 class="text-white font-black text-lg mb-2">🌐 ¿Desea comprobar la licencia en el INTT?</h4>
+              <p class="text-blue-200 text-sm mb-4">Consulta la base de datos oficial del gobierno para verificar este número de forma definitiva.</p>
+              <button onclick="abrirModalINTT()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-colors w-full text-base border border-blue-400">
+                  SÍ, VERIFICAR AHORA
+              </button>
+          </div>
       </div>
 
       <div id="colForense" class="hidden flex-col gap-4 w-full min-w-0">
@@ -207,7 +217,67 @@
           
       </div>
   </div>
+<div id="inttModal" class="hidden fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[2000] flex items-center justify-center p-4 pb-28 md:pb-32">
+      <div class="bg-slate-800 border-2 border-slate-700 rounded-xl shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+          
+          <div class="bg-slate-900 p-4 border-b border-slate-700 flex justify-between items-center">
+              <h3 class="text-lg md:text-xl font-bold text-cyan-400">🌐 Consulta Sistema INTT Oficial</h3>
+              <button onclick="document.getElementById('inttModal').classList.add('hidden')" class="text-slate-400 hover:text-red-400 text-3xl font-bold leading-none">&times;</button>
+          </div>
+          
+          <div class="p-6 overflow-y-auto text-slate-300 flex-1">
+              <div class="bg-slate-900 border border-cyan-800 rounded-lg p-5 mb-6 shadow-inner">
+                  <h4 class="text-cyan-400 font-bold mb-1 text-lg flex items-center gap-2">🔒 Requisito de Acceso Seguro</h4>
+                  <p class="text-xs text-slate-400 mb-4">Para evitar bloqueos de conexión hacia Venezuela, sigue estos 3 pasos rápidos:</p>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div class="bg-slate-800 p-4 rounded border border-slate-700 text-center shadow">
+                          <div class="bg-cyan-600 text-white w-8 h-8 rounded-full mx-auto flex items-center justify-center font-bold mb-2">1</div>
+                          <div class="font-bold text-sm text-white">Instala la extensión</div>
+                          <div class="text-[11px] text-slate-400 mt-1 mb-2">Añade Urban VPN a tu navegador gratis, o utiliza tu propia VPN.</div>
+                          <a href="https://chrome.google.com/webstore/detail/urban-vpn-proxy/eppiocemhmnlbhjplcgkofciiegomcon" target="_blank" class="inline-block bg-orange-600 hover:bg-orange-500 text-white font-bold py-1 px-3 rounded text-xs transition">Descargar extensión</a>
+                      </div>
+                      <div class="bg-slate-800 p-4 rounded border border-slate-700 text-center shadow">
+                          <div class="bg-cyan-600 text-white w-8 h-8 rounded-full mx-auto flex items-center justify-center font-bold mb-2">2</div>
+                          <div class="font-bold text-sm text-white">Elige la ubicación</div>
+                          <div class="text-[11px] text-slate-400 mt-1">Abre la extensión arriba a la derecha y selecciona <b>UK</b> o <b>USA</b>.</div>
+                      </div>
+                      <div class="bg-slate-800 p-4 rounded border border-slate-700 text-center shadow">
+                          <div class="bg-cyan-600 text-white w-8 h-8 rounded-full mx-auto flex items-center justify-center font-bold mb-2">3</div>
+                          <div class="font-bold text-sm text-white">Confirma y Consulta</div>
+                          <div class="text-[11px] text-slate-400 mt-1">Activa la casilla de abajo, mete el número y pulsa consultar.</div>
+                      </div>
+                  </div>
 
+                  <div class="mt-5 text-center border-t border-slate-700 pt-5">
+                      <label id="vpnLabel" class="cursor-pointer inline-flex items-center justify-center gap-2 font-bold text-red-400 hover:text-red-300 transition-colors text-sm md:text-base">
+                          <input type="checkbox" id="vpnToggle" class="w-5 h-5 cursor-pointer accent-cyan-500" onchange="activarBuscadorINTT()">
+                          <span id="vpnText">❌ Aún no he activado la VPN</span>
+                      </label>
+                  </div>
+              </div>
+
+              <div id="panelBuscadorINTT" class="hidden flex-col md:flex-row gap-3 mb-6 bg-slate-800 p-4 rounded-lg border border-slate-600 shadow-md">
+                  <input type="text" id="numLicenciaINTT" placeholder="Introduce Número de Cédula o Licencia..." class="flex-1 bg-slate-900 border border-slate-600 rounded p-3 text-white focus:outline-none focus:border-cyan-500">
+                  <button onclick="ejecutarConsultaINTT()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded shadow transition-colors">CONSULTAR AHORA</button>
+              </div>
+
+              <div id="panelIframeINTT" class="hidden relative w-full h-[500px] border-4 border-cyan-700 rounded-lg overflow-hidden bg-white shadow-inner mt-4">
+                  
+                  <div class="absolute top-0 left-0 w-full bg-red-600 border-b-4 border-red-800 text-white text-center py-2 px-4 z-10 shadow-md">
+                      <p class="font-black tracking-wide text-sm md:text-base uppercase flex items-center justify-center gap-2">
+                          🚨 GUÍA DE VERIFICACIÓN
+                      </p>
+                      <p class="text-xs md:text-sm font-bold mt-1">
+                          Si en la caja blanca de abajo aparece el mensaje <span class="bg-white text-red-600 px-1 rounded">500 SERVER ERROR</span> significa que la LICENCIA ES FALSA (No registrada).
+                      </p>
+                  </div>
+                  
+                  <iframe id="iframeINTT" src="about:blank" class="w-full h-full border-none pt-[70px]"></iframe>
+              </div>
+          </div>
+      </div>
+  </div>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -460,6 +530,7 @@
 
     function mostrarResultadoIA(numero, fecha) {
         const aiBox = document.getElementById('aiResultBox');
+        document.getElementById('inttPromptBox').classList.remove('hidden'); // <-- ESTA LÍNEA NUEVA
         document.getElementById('aiNumero').textContent = numero; document.getElementById('aiFecha').textContent = fecha;
         const chequeo = verificarCongruencia(parseInt(numero), fecha); const aiMsg = document.getElementById('aiValidationMsg'); const aiActions = document.getElementById('aiActions');
         aiBox.classList.remove('border-red-500', 'border-blue-500', 'border-green-500', 'alert-pulse');
@@ -521,6 +592,54 @@
     dz.addEventListener('drop', e => { if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); }, false);
     window.addEventListener('paste', e => { for(let i of e.clipboardData.items) if(i.type.startsWith("image") || i.type === "application/pdf") processFile(i.getAsFile()); });
     document.getElementById("numero").addEventListener("keypress", e => { if (e.key === "Enter") buscarFecha(); });
+// --- LÓGICA DEL VISOR INTT ---
+    function abrirModalINTT() {
+        // 1. Miramos si hay un número en el recuadro principal de la web
+        const numPrincipal = document.getElementById('numero').value;
+        
+        // 2. Si lo hay, lo copiamos directamente al buscador del INTT
+        if (numPrincipal) {
+            document.getElementById('numLicenciaINTT').value = numPrincipal;
+        }
+        
+        // 3. Mostramos la ventana
+        document.getElementById('inttModal').classList.remove('hidden');
+    }
+
+    function activarBuscadorINTT() {
+        const checkbox = document.getElementById('vpnToggle');
+        const label = document.getElementById('vpnLabel');
+        const text = document.getElementById('vpnText');
+        const panelBuscador = document.getElementById('panelBuscadorINTT');
+
+        if (checkbox.checked) {
+            label.classList.remove('text-red-400', 'hover:text-red-300');
+            label.classList.add('text-green-400', 'hover:text-green-300');
+            text.innerText = '✅ VPN Activada y Lista';
+            panelBuscador.classList.remove('hidden');
+            panelBuscador.classList.add('flex');
+        } else {
+            label.classList.remove('text-green-400', 'hover:text-green-300');
+            label.classList.add('text-red-400', 'hover:text-red-300');
+            text.innerText = '❌ Aún no he activado la VPN';
+            panelBuscador.classList.remove('flex');
+            panelBuscador.classList.add('hidden');
+            document.getElementById('panelIframeINTT').classList.add('hidden');
+        }
+    }
+
+    function ejecutarConsultaINTT() {
+        const cedula = document.getElementById('numLicenciaINTT').value.trim();
+        const iframe = document.getElementById('iframeINTT');
+        const panelIframe = document.getElementById('panelIframeINTT');
+        
+        if (cedula) {
+            panelIframe.classList.remove('hidden');
+            iframe.src = "https://lc.intt.gob.ve/" + cedula;
+        } else {
+            alert("Por favor, introduce un número de cédula válido.");
+        }
+    }
   </script>
 </body>
 </html>
