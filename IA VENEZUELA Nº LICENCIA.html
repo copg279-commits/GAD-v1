@@ -268,18 +268,28 @@
                   <button onclick="ejecutarConsultaINTT()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded shadow transition-colors">CONSULTAR AHORA</button>
               </div>
 
-          <div id="panelIframeINTT" class="hidden flex-col w-full h-[600px] border-4 border-cyan-700 rounded-lg overflow-hidden bg-white shadow-inner mt-4">
+          <div id="panelIframeINTT" class="hidden fixed inset-0 z-[3000] bg-slate-900 flex-col w-full h-full">
                   
-                  <div class="w-full bg-red-600 border-b-4 border-red-800 text-white text-center py-3 px-4 shadow-md shrink-0 z-10">
-                      <p class="font-black tracking-wide text-sm md:text-base uppercase flex items-center justify-center gap-2">
-                          🚨 GUÍA DE VERIFICACIÓN
-                      </p>
-                      <p class="text-xs md:text-sm font-bold mt-1">
-                          Si en la caja blanca de abajo aparece el mensaje <span class="bg-white text-red-600 px-1 rounded">500 SERVER ERROR</span> significa que la licencia NO ESTÁ REGISTRADA (Licencia Dubitada).
-                      </p>
+                  <div class="w-full bg-red-600 border-b-4 border-red-800 text-white flex flex-col md:flex-row justify-between items-center py-3 px-4 shadow-xl shrink-0 z-10 gap-3">
+                      <div class="flex-1 hidden md:block"></div> <div class="text-center flex-[2]">
+                          <p class="font-black tracking-wide text-sm md:text-base uppercase flex items-center justify-center gap-2">
+                              🚨 GUÍA DE VERIFICACIÓN
+                          </p>
+                          <p class="text-xs md:text-sm font-bold mt-1">
+                              Si abajo aparece <span class="bg-white text-red-600 px-1 rounded shadow-sm">500 SERVER ERROR</span> la licencia NO ESTÁ REGISTRADA (Dubitada).
+                          </p>
+                      </div>
+                      
+                      <div class="flex-1 flex justify-center md:justify-end w-full md:w-auto">
+                          <button onclick="cerrarResultadoINTT()" class="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white border-2 border-slate-500 rounded-lg px-6 py-2.5 font-bold text-sm shadow-lg transition-colors flex items-center justify-center gap-2">
+                              ❌ Cerrar Resultado
+                          </button>
+                      </div>
                   </div>
                   
-                  <iframe id="iframeINTT" src="about:blank" class="w-full grow border-none"></iframe>
+                  <div class="relative w-full flex-1 bg-white">
+                      <iframe id="iframeINTT" src="about:blank" class="absolute inset-0 w-full h-full border-none"></iframe>
+                  </div>
               </div>
           </div>
       </div>
@@ -641,10 +651,21 @@
         
         if (cedula) {
             panelIframe.classList.remove('hidden');
+            panelIframe.classList.add('flex'); // <-- Esto soluciona el fallo de que no se viera
             iframe.src = "https://lc.intt.gob.ve/" + cedula;
         } else {
             alert("Por favor, introduce un número de cédula válido.");
         }
+    }
+
+    // --- NUEVA FUNCIÓN PARA CERRAR LA PANTALLA COMPLETA ---
+    function cerrarResultadoINTT() {
+        const panelIframe = document.getElementById('panelIframeINTT');
+        const iframe = document.getElementById('iframeINTT');
+        
+        panelIframe.classList.add('hidden');
+        panelIframe.classList.remove('flex');
+        iframe.src = "about:blank"; // Corta la conexión inmediatamente al cerrar
     }
   </script>
 </body>
