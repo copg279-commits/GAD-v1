@@ -26,7 +26,7 @@
     
     /* Zoom de miniaturas sin cortes (Solo PC) */
     td, tr { position: static !important; }
-    .cpi-table-container { overflow: visible !important; }
+    .cpi-table-container { max-height: 500px !important; overflow-y: auto !important; }
     @media (hover: hover) and (pointer: fine) { 
         .thumbnail-img:hover { transform: scale(4); z-index: 9999 !important; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.9); border-color: #06b6d4; } 
     }
@@ -41,7 +41,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col pb-4 relative overflow-x-hidden">
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col pb-32 relative overflow-x-hidden">
 
   <header class="min-h-[5rem] py-3 md:py-4 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-4">
     <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
@@ -52,7 +52,7 @@
     <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
-  <div id="appGrid" class="grid grid-cols-1 gap-4 w-[96%] max-w-3xl mx-auto mt-4 mb-4 transition-all duration-700 ease-in-out items-start">
+  <div id="appGrid" class="grid grid-cols-1 gap-4 w-[96%] max-w-3xl mx-auto mt-4 mb-24 transition-all duration-700 ease-in-out items-start">
       
       <div class="flex flex-col gap-4 w-full min-w-0">
           
@@ -75,9 +75,12 @@
               <button onclick="saveSettings()" class="w-full bg-cyan-600 text-white text-xs py-2 rounded hover:bg-cyan-700 font-bold transition">GUARDAR CONFIGURACIÓN</button>
           </div>
 
-          <h2 class="text-cyan-400 text-center mt-0 px-2 text-sm font-bold">
-              Arrastra PDF/Imagen o escribe el Nº
-          </h2>
+          <div class="flex items-center justify-center gap-2 mt-0 px-2">
+              <h2 class="text-cyan-400 text-center text-sm font-bold">
+                  Arrastra PDF/Imagen o escribe el Nº
+              </h2>
+              <button onclick="document.getElementById('helpModal').classList.remove('hidden')" class="bg-slate-700 hover:bg-cyan-500 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs border border-slate-500 shadow-md transition-colors" title="Ayuda sobre el análisis">?</button>
+          </div>
           
           <div id="mainDropZone" class="drop-zone p-4 md:p-6 bg-slate-800 border border-slate-700 rounded-md shadow-sm">
               <div class="w-full pointer-events-none select-none flex justify-center">
@@ -93,7 +96,7 @@
           <div id="auth-msg" class="text-center text-slate-400 text-sm font-bold">Conectando base de datos V4...</div>
 
           <div id="main-panel" class="bg-slate-800 shadow-md rounded-md border border-slate-700 p-4 w-full" style="display:none;">
-              <h3 class="text-base font-bold mb-3 text-cyan-400 text-center">Gestión BD V4</h3>
+              <h3 class="text-base font-bold mb-3 text-cyan-400 text-center">Gestión BD Venezuela</h3>
               <button id="mostrarFormularioBtn" class="w-full bg-cyan-600 text-white py-2 rounded shadow hover:bg-cyan-700 text-xs font-bold transition">Nuevo Registro</button>
               <button id="mostrarListadoBtn" class="w-full bg-slate-700 text-white py-2 rounded shadow hover:bg-slate-600 mt-2 text-xs font-bold border border-slate-600 transition">Ver Listado</button>
               
@@ -160,6 +163,49 @@
           </div>
       </div>
 
+  </div>
+
+<div id="helpModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[2000] flex items-center justify-center p-4 pb-28 md:pb-32">
+      <div class="bg-slate-800 border-2 border-slate-700 rounded-xl shadow-2xl max-w-5xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+          
+          <div class="bg-slate-900 p-4 border-b border-slate-700 flex justify-between items-center">
+              <h3 class="text-lg md:text-xl font-bold text-cyan-400">ℹ️ Guía de Análisis Forense</h3>
+              <button onclick="document.getElementById('helpModal').classList.add('hidden')" class="text-slate-400 hover:text-red-400 text-3xl font-bold leading-none">&times;</button>
+          </div>
+          
+          <div class="p-6 overflow-y-auto text-slate-300 text-sm md:text-base">
+              <p class="mb-6 text-center text-slate-200">Esta herramienta realiza un análisis integral de las Licencias de Conducir de Venezuela, combinando Inteligencia Artificial, estimación matemática y análisis forense digital.</p>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  
+                  <div>
+                      <h4 class="text-cyan-400 font-bold border-b border-slate-700 pb-1">🤖 1. Extracción con IA (Gemini)</h4>
+                      <p class="mt-2 mb-5">Al arrastrar una imagen o PDF (o usar Ctrl+V), la IA localiza y extrae automáticamente el <b>Nro De Verificación</b> y la <b>F. Expedición</b> del documento.</p>
+
+                      <h4 class="text-cyan-400 font-bold border-b border-slate-700 pb-1 mt-4">📈 2. Lógica de Progresión Aritmética</h4>
+                      <p class="mt-2">El sistema compara el número introducido con nuestra Base de Datos local. Analiza el registro inmediatamente anterior y posterior para calcular una <b>Fecha Estimada</b> matemática. Si la fecha real del documento no cuadra con esta estimación cronológica, el sistema lo marcará con una <span class="text-red-400 font-bold">Alerta de Incongruencia / Posible Falso</span>.</p>
+                  </div>
+
+                  <div>
+                      <h4 class="text-cyan-400 font-bold border-b border-slate-700 pb-1">🔍 3. Análisis de Metadatos (Trazabilidad PDF)</h4>
+                      <ul class="list-disc pl-5 mt-2 mb-5 space-y-1">
+                          <li><b>Editor Gráfico:</b> Detecta si fue guardado con herramientas de manipulación (Word, Photoshop, Canva, Corel, Illustrator...). Si es así, lanza una <span class="text-red-400 font-bold">Alerta de Documento Falso</span>.</li>
+                          <li><b>Fechas Internas:</b> Compara la fecha de creación del archivo con su fecha de modificación. Si difieren, avisa de una posible alteración.</li>
+                          <li><b>Veredicto:</b> Si no hay software comercial ni anomalías en las fechas, lo califica como <span class="text-green-400 font-bold">Documento Indubitado</span>.</li>
+                      </ul>
+
+                      <h4 class="text-cyan-400 font-bold border-b border-slate-700 pb-1 mt-4">📸 4. Extracción Profunda (Render)</h4>
+                      <p class="mt-2">Nuestro servidor lee el código crudo del PDF y extrae <b>las capas y objetos ocultos (XObjects)</b>. Esto nos permite sacar la fotografía del titular, el QR y los fondos sin filtros, indicando sus dimensiones exactas (px) y su peso (KB) para detectar manipulaciones gráficas.</p>
+                  </div>
+
+              </div>
+          </div>
+          
+          <div class="bg-slate-900 p-4 border-t border-slate-700 text-right shrink-0">
+              <button onclick="document.getElementById('helpModal').classList.add('hidden')" class="bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-2.5 rounded shadow transition-colors font-bold text-sm tracking-wide">Entendido</button>
+          </div>
+          
+      </div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -238,7 +284,7 @@
     function renderizarTablaCpi() {
       const cpiListDiv = document.getElementById('cpiList');
       cpiListDiv.innerHTML = '';
-      const datosOrdenados = [...datosCompletos].sort((a, b) => a.numero - b.numero);
+      const datosOrdenados = [...datosCompletos].sort((a, b) => b.numero - a.numero);
       datosOrdenados.forEach(dato => {
         const fila = document.createElement('tr');
         fila.classList.add('bg-slate-800', 'border-b', 'border-slate-700', 'hover:bg-slate-700');
@@ -386,7 +432,7 @@
                 else { modHtml += `<span class="font-bold text-xs uppercase block">⚠️ Modificado</span>`; }
                 modHtml += `</div>`; modDiv.className = "mb-3 p-3 rounded border border-red-500 bg-red-950 shadow-sm min-w-0 text-xs";
             } else {
-                modHtml += `<div class="p-2 bg-green-900/70 border border-green-400 rounded text-green-100 mb-2 shadow-inner break-words min-w-0">✅ Íntegro.</div>`;
+                modHtml += `<div class="p-2 bg-green-900/70 border border-green-400 rounded text-green-100 mb-2 shadow-inner break-words min-w-0">✅ Indubitado.</div>`;
                 modDiv.className = "mb-3 p-3 rounded border border-green-500 bg-slate-800 shadow-sm min-w-0 text-xs";
             }
             modDiv.innerHTML = modHtml + detailsHtml;
