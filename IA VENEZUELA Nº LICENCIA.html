@@ -8,21 +8,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   
   <script>
-    // Configurar worker de PDF.js (Versión Moderna)
+    // Configurar worker de PDF.js
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
   </script>
 
   <style>
-    body { background-color: #0f172a; color: #e2e8f0; }
+    body { background-color: #0f172a; color: #e2e8f0; font-size: 14px; }
     .delete-icon { cursor: pointer; transition: transform 0.2s; color: #ef4444; }
     .delete-icon:hover { transform: scale(1.1); }
-    .cpi-table-container { max-height: 400px; overflow-y: auto; }
+    .cpi-table-container { max-height: 250px; overflow-y: auto; }
     
     .drop-zone { transition: all 0.2s ease; border: 2px solid transparent; }
     .drop-zone.drag-active { background-color: rgba(6, 182, 212, 0.15) !important; border-color: #06b6d4 !important; border-style: dashed; transform: scale(1.02); }
     
     .alert-pulse { animation: alertPulse 2s infinite; }
-    @keyframes alertPulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    @keyframes alertPulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     
     /* Zoom de miniaturas sin cortes (Solo PC) */
     td, tr { position: static !important; }
@@ -35,86 +35,85 @@
     @media (max-width: 768px) {
         table { border: none; }
         thead { display: none; }
-        tbody tr { display: flex; flex-direction: column; background-color: #1e293b !important; border-radius: 12px; margin-bottom: 1rem; padding: 1rem; border: 1px solid #334155 !important; }
-        tbody td { padding: 0.5rem 0 !important; border: none !important; text-align: right; display: flex; justify-content: space-between; align-items: center; }
-        tbody td::before { content: attr(data-label); float: left; font-weight: bold; text-transform: uppercase; color: #06b6d4; font-size: 0.75rem; }
+        tbody tr { display: flex; flex-direction: column; background-color: #1e293b !important; border-radius: 8px; margin-bottom: 0.5rem; padding: 0.75rem; border: 1px solid #334155 !important; }
+        tbody td { padding: 0.25rem 0 !important; border: none !important; text-align: right; display: flex; justify-content: space-between; align-items: center; }
+        tbody td::before { content: attr(data-label); float: left; font-weight: bold; text-transform: uppercase; color: #06b6d4; font-size: 0.7rem; }
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col pb-16 relative overflow-x-hidden">
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col pb-4 relative overflow-x-hidden">
 
-  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
-    <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+  <header class="min-h-[4rem] h-auto md:h-16 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-6 shadow-md sticky top-0 z-[1000] gap-2 py-2 md:py-0">
+    <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[48px] w-[48px] md:h-[56px] md:w-[56px] drop-shadow-md flex-shrink-0">
     <div class="text-center flex-1">
-      <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight">VERIFICACIÓN LICENCIA<br class="md:hidden"> VENEZUELA</h1>
-      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">Grupo de Análisis Documental</h2>
+      <h1 class="text-[13px] md:text-lg font-black text-white tracking-wider uppercase leading-tight">VERIFICACIÓN LICENCIA<br class="md:hidden"> VENEZUELA</h1>
+      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[9px] md:text-xs mt-0.5 leading-tight">Grupo de Análisis Documental</h2>
     </div>
-    <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
+    <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[40px] w-[40px] md:h-[48px] md:w-[48px] drop-shadow-md flex-shrink-0">
   </header>
 
-  <div id="appGrid" class="grid grid-cols-1 gap-6 w-11/12 max-w-3xl mx-auto mt-8 mb-12 transition-all duration-700 ease-in-out items-start">
+  <div id="appGrid" class="grid grid-cols-1 gap-4 w-[96%] max-w-3xl mx-auto mt-4 mb-4 transition-all duration-700 ease-in-out items-start">
       
-      <div class="flex flex-col gap-6 w-full min-w-0">
+      <div class="flex flex-col gap-4 w-full min-w-0">
           
-          <div class="flex justify-center gap-3">
-              <button onclick="toggleSettings()" class="flex-1 bg-slate-800 border border-slate-700 text-slate-300 font-bold py-3 md:py-4 rounded-lg hover:bg-slate-700 transition shadow flex justify-center items-center gap-2 text-sm md:text-base">
+          <div class="flex justify-center gap-2">
+              <button onclick="toggleSettings()" class="flex-1 bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 rounded-md hover:bg-slate-700 transition shadow flex justify-center items-center gap-1 text-xs md:text-sm">
                   ⚙️ Configurar IA
               </button>
-              <button onclick="document.getElementById('fileInput').click()" class="flex-1 bg-cyan-600 text-white font-bold py-3 md:py-4 rounded-lg hover:bg-cyan-700 transition shadow flex justify-center items-center gap-2 text-sm md:text-base">
+              <button onclick="document.getElementById('fileInput').click()" class="flex-1 bg-cyan-600 text-white font-bold py-2 rounded-md hover:bg-cyan-700 transition shadow flex justify-center items-center gap-1 text-xs md:text-sm">
                   📎 Adjuntar Archivo
               </button>
               <input type="file" id="fileInput" class="hidden" accept=".pdf,image/*" onchange="if(this.files[0]) processFile(this.files[0])">
           </div>
 
-          <div id="settingsPanel" class="hidden bg-slate-800 border border-slate-700 shadow-xl rounded-xl p-6 text-slate-200">
-              <div class="text-sm text-slate-400 mb-4 text-center uppercase tracking-wider font-bold">Proveedor: Google Gemini</div>
-              <label class="block text-base font-bold text-slate-300 mb-2">API Key:</label>
-              <input type="password" id="apiKeyInput" class="w-full bg-slate-900 text-slate-200 text-base border border-slate-600 p-3 rounded-lg mb-4 focus:outline-none focus:border-cyan-500" placeholder="Pegar API Key aquí...">
-              <label class="block text-base font-bold text-slate-300 mb-2">Modelo:</label>
-              <input type="text" id="modelInput" class="w-full bg-slate-900 text-slate-200 text-base border border-slate-600 p-3 rounded-lg mb-5 focus:outline-none focus:border-cyan-500" placeholder="gemini-2.5-flash">
-              <button onclick="saveSettings()" class="w-full bg-cyan-600 text-white text-base py-3 rounded-lg hover:bg-cyan-700 font-bold transition">GUARDAR CONFIGURACIÓN</button>
+          <div id="settingsPanel" class="hidden bg-slate-800 border border-slate-700 shadow-md rounded-md p-4 text-slate-200">
+              <div class="text-xs text-slate-400 mb-2 text-center uppercase font-bold">Proveedor: Google Gemini</div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">API Key:</label>
+              <input type="password" id="apiKeyInput" class="w-full bg-slate-900 text-slate-200 text-xs border border-slate-600 p-2 rounded mb-2 focus:outline-none focus:border-cyan-500" placeholder="Pegar API Key aquí...">
+              <label class="block text-xs font-bold text-slate-300 mb-1">Modelo:</label>
+              <input type="text" id="modelInput" class="w-full bg-slate-900 text-slate-200 text-xs border border-slate-600 p-2 rounded mb-3 focus:outline-none focus:border-cyan-500" placeholder="gemini-2.5-flash">
+              <button onclick="saveSettings()" class="w-full bg-cyan-600 text-white text-xs py-2 rounded hover:bg-cyan-700 font-bold transition">GUARDAR CONFIGURACIÓN</button>
           </div>
 
-          <h2 class="text-cyan-400 text-center mt-2 px-4 text-base md:text-lg font-bold tracking-wide">
-              Arrastra el PDF/Imagen de la licencia o escribe el Nº
+          <h2 class="text-cyan-400 text-center mt-0 px-2 text-sm font-bold">
+              Arrastra PDF/Imagen o escribe el Nº
           </h2>
           
-          <div id="mainDropZone" class="drop-zone p-6 md:p-8 bg-slate-800 border border-slate-700 rounded-xl shadow-md">
-              <div class="w-full pointer-events-none select-none flex justify-center px-1 md:px-4">
-                  <img src="logovenezuela.png" alt="Logo Venezuela" class="w-full h-auto object-contain opacity-95 drop-shadow-md transition-all duration-300">
+          <div id="mainDropZone" class="drop-zone p-4 bg-slate-800 border border-slate-700 rounded-md shadow-sm">
+              <div class="w-full pointer-events-none select-none flex justify-center px-2">
+                  <img src="logovenezuela.png" alt="Logo Venezuela" class="w-full h-24 md:h-32 object-contain opacity-95 drop-shadow-md transition-all duration-300">
               </div>
-              <input type="number" id="numero" placeholder="Ingresa el Nro De Verificación" class="block mx-auto mt-8 p-4 md:p-5 text-lg md:text-xl w-full bg-slate-900 border border-slate-600 rounded-lg text-center text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-sm transition" />
+              <input type="number" id="numero" placeholder="Ingresa el Nro De Verificación" class="block mx-auto mt-4 p-2.5 text-sm md:text-base w-full bg-slate-900 border border-slate-600 rounded-md text-center text-slate-200 focus:outline-none focus:ring-1 focus:ring-cyan-500 shadow-inner transition" />
           </div>
 
-          <button onclick="buscarFecha()" class="block mx-auto w-full bg-cyan-600 text-white font-bold py-4 md:py-5 rounded-lg hover:bg-cyan-700 transition shadow-lg text-lg md:text-xl">
+          <button onclick="buscarFecha()" class="block mx-auto w-full bg-cyan-600 text-white font-bold py-2.5 rounded-md hover:bg-cyan-700 transition shadow-md text-sm">
               Consultar Manualmente
           </button>
 
-          <div id="auth-msg" class="text-center text-slate-400 mt-2 font-bold text-lg p-4">Conectando con Base de Datos V4...</div>
+          <div id="auth-msg" class="text-center text-slate-400 text-sm font-bold">Conectando base de datos V4...</div>
 
-          <div id="main-panel" class="bg-slate-800 shadow-xl rounded-xl border border-slate-700 p-6 md:p-8 w-full" style="display:none;">
-              <h3 class="text-xl md:text-2xl font-bold mb-6 text-cyan-400 text-center">Gestión de Datos V4</h3>
-              <button id="mostrarFormularioBtn" class="w-full bg-cyan-600 text-white py-4 rounded-lg shadow hover:bg-cyan-700 text-base md:text-lg font-bold transition">Introduzca nuevo Nro de Verificación</button>
-              <button id="mostrarListadoBtn" class="w-full bg-slate-700 text-white py-4 rounded-lg shadow hover:bg-slate-600 mt-4 text-base md:text-lg font-bold border border-slate-600 transition">Consultar Lista Completa</button>
+          <div id="main-panel" class="bg-slate-800 shadow-md rounded-md border border-slate-700 p-4 w-full" style="display:none;">
+              <h3 class="text-base font-bold mb-3 text-cyan-400 text-center">Gestión BD V4</h3>
+              <button id="mostrarFormularioBtn" class="w-full bg-cyan-600 text-white py-2 rounded shadow hover:bg-cyan-700 text-xs font-bold transition">Nuevo Registro</button>
+              <button id="mostrarListadoBtn" class="w-full bg-slate-700 text-white py-2 rounded shadow hover:bg-slate-600 mt-2 text-xs font-bold border border-slate-600 transition">Ver Listado</button>
               
-              <div id="formularioNuevosDatos" class="mt-6 hidden text-left bg-slate-900 p-6 rounded-xl border border-slate-700 shadow-inner">
-                  <label class="block text-base md:text-lg font-bold text-slate-300 mb-2">Nro De Verificación:</label>
-                  <input type="number" id="nuevoNumero" class="w-full bg-slate-800 text-slate-200 border border-slate-600 rounded-lg px-4 py-4 mb-5 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-lg">
-                  <label class="block text-base md:text-lg font-bold text-slate-300 mb-2">Fecha de Expedición:</label>
-                  <input type="date" id="nuevaFecha" class="w-full bg-slate-800 text-slate-200 border border-slate-600 rounded-lg px-4 py-4 mb-6 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-lg">
-                  <div class="flex space-x-4">
-                      <button onclick="guardarNuevoNumero()" class="w-1/2 bg-cyan-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-cyan-700 transition">Guardar</button>
-                      <button onclick="limpiarCampos()" class="w-1/2 bg-slate-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-slate-500 transition">Limpiar</button>
+              <div id="formularioNuevosDatos" class="mt-3 hidden text-left bg-slate-900 p-3 rounded border border-slate-700 shadow-inner">
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Nro De Verificación:</label>
+                  <input type="number" id="nuevoNumero" class="w-full bg-slate-800 text-slate-200 border border-slate-600 rounded p-2 mb-2 focus:outline-none text-sm">
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Fecha Expedición:</label>
+                  <input type="date" id="nuevaFecha" class="w-full bg-slate-800 text-slate-200 border border-slate-600 rounded p-2 mb-3 focus:outline-none text-sm">
+                  <div class="flex space-x-2">
+                      <button onclick="guardarNuevoNumero()" class="w-1/2 bg-cyan-600 text-white py-1.5 rounded font-bold text-xs hover:bg-cyan-700">Guardar</button>
+                      <button onclick="limpiarCampos()" class="w-1/2 bg-slate-600 text-white py-1.5 rounded font-bold text-xs hover:bg-slate-500">Limpiar</button>
                   </div>
-                  <div id="mensajeGuardado" class="mt-5 text-lg font-bold text-center"></div>
+                  <div id="mensajeGuardado" class="mt-2 text-xs font-bold text-center"></div>
               </div>
 
-              <div id="cpiDataTable" class="mt-6 hidden">
-                  <h3 class="text-xl font-bold mb-4 text-center text-cyan-400">Listado Completo Base de Datos</h3>
-                  <div class="cpi-table-container bg-slate-900 rounded-xl border border-slate-700 overflow-hidden shadow-inner">
-                      <table class="w-full text-base text-left text-slate-300">
-                          <thead class="text-sm md:text-base text-cyan-400 uppercase bg-slate-800 sticky top-0 border-b border-slate-700">
-                              <tr><th class="px-6 py-5">Nro Verificación</th><th class="px-6 py-5">Fecha</th><th class="px-6 py-5 text-right">Acción</th></tr>
+              <div id="cpiDataTable" class="mt-3 hidden">
+                  <div class="cpi-table-container bg-slate-900 rounded border border-slate-700 shadow-inner text-xs">
+                      <table class="w-full text-left text-slate-300">
+                          <thead class="text-cyan-400 uppercase bg-slate-800 sticky top-0 border-b border-slate-700">
+                              <tr><th class="px-3 py-2">Número</th><th class="px-3 py-2">Fecha</th><th class="px-3 py-2 text-right">Acción</th></tr>
                           </thead>
                           <tbody id="cpiList"></tbody>
                       </table>
@@ -123,41 +122,40 @@
           </div>
       </div>
 
-      <div id="colAI" class="hidden flex-col gap-6 w-full min-w-0">
-          
-          <div id="output" class="text-slate-200 text-center w-full text-lg"></div>
+      <div id="colAI" class="hidden flex-col gap-4 w-full min-w-0">
+          <div id="output" class="text-slate-200 text-center w-full"></div>
 
-          <div id="aiResultBox" class="hidden w-full bg-slate-800 border-2 border-slate-700 rounded-xl shadow-xl overflow-hidden transition-colors duration-300">
-              <div id="aiHeader" class="bg-slate-900 p-5 border-b border-slate-700"><h3 class="font-bold text-xl md:text-2xl text-cyan-400" id="aiTitle">🔍 Análisis Completado</h3></div>
-              <div class="p-6">
-                  <div class="grid grid-cols-2 gap-4 text-sm md:text-base text-slate-200 text-left mb-6">
-                      <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 shadow-inner">
-                          <span class="text-xs md:text-sm text-slate-400 block uppercase font-bold mb-1">Nro De Verificación</span>
-                          <span id="aiNumero" class="font-mono font-bold text-white text-xl md:text-2xl break-all"></span>
+          <div id="aiResultBox" class="hidden w-full bg-slate-800 border-2 border-slate-700 rounded-md shadow-md overflow-hidden transition-colors duration-300">
+              <div id="aiHeader" class="bg-slate-900 p-3 border-b border-slate-700"><h3 class="font-bold text-base text-cyan-400" id="aiTitle">🔍 Análisis IA</h3></div>
+              <div class="p-4">
+                  <div class="grid grid-cols-2 gap-2 text-xs text-slate-200 text-left mb-3">
+                      <div class="bg-slate-900 p-2 rounded border border-slate-700 shadow-inner">
+                          <span class="text-[10px] text-slate-400 block uppercase font-bold">Verificación</span>
+                          <span id="aiNumero" class="font-mono font-bold text-white text-base break-all"></span>
                       </div>
-                      <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 shadow-inner">
-                          <span class="text-xs md:text-sm text-slate-400 block uppercase font-bold mb-1">F. Expedición</span>
-                          <span id="aiFecha" class="font-mono font-bold text-white text-xl md:text-2xl"></span>
+                      <div class="bg-slate-900 p-2 rounded border border-slate-700 shadow-inner">
+                          <span class="text-[10px] text-slate-400 block uppercase font-bold">F. Expedición</span>
+                          <span id="aiFecha" class="font-mono font-bold text-white text-base"></span>
                       </div>
                   </div>
-                  <div id="aiValidationMsg" class="mb-5 text-base md:text-lg p-4 rounded-lg border border-slate-700 break-words min-w-0"></div>
+                  <div id="aiValidationMsg" class="mb-3 text-xs p-3 rounded border border-slate-700 break-words min-w-0"></div>
                   <div id="aiActions"></div>
-                  <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-5 text-slate-400 text-sm font-bold underline hover:text-cyan-400">Cerrar panel</button>
+                  <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-3 text-slate-400 text-xs font-bold underline hover:text-cyan-400">Cerrar panel</button>
               </div>
           </div>
       </div>
 
-      <div id="colForense" class="hidden flex-col gap-6 w-full min-w-0">
-          <div id="pdfForensicBox" class="hidden w-full bg-slate-800 border-2 border-slate-700 rounded-xl shadow-xl overflow-hidden h-full">
-              <div class="bg-slate-900 p-5 border-b border-slate-700"><h3 class="font-bold text-xl md:text-2xl text-cyan-400">📊 Análisis Forense Profundo</h3></div>
-              <div class="p-6 text-base text-slate-200 text-left">
-                  <div id="pdfModifications" class="mb-5 text-base md:text-lg break-words min-w-0"></div>
-                  <button onclick="document.getElementById('pdfMetadata').classList.toggle('hidden')" class="w-full bg-slate-900 border border-slate-700 text-center font-bold text-cyan-400 py-3 rounded-lg mb-5 hover:bg-slate-700 hover:text-cyan-300 transition">▶ Ver Metadatos en Bruto</button>
-                  <div id="pdfMetadata" class="hidden mb-6 bg-slate-900 p-5 rounded-lg border border-slate-600 font-mono text-xs md:text-sm overflow-auto max-h-80 text-green-400 shadow-inner break-all"></div>
-                  <div id="pdfUrls" class="mb-6 hidden p-5 rounded-lg border border-slate-600 bg-slate-900 text-base shadow-inner break-all"></div>
+      <div id="colForense" class="hidden flex-col gap-4 w-full min-w-0">
+          <div id="pdfForensicBox" class="hidden w-full bg-slate-800 border-2 border-slate-700 rounded-md shadow-md overflow-hidden h-full">
+              <div class="bg-slate-900 p-3 border-b border-slate-700"><h3 class="font-bold text-base text-cyan-400">📊 Forense Profundo</h3></div>
+              <div class="p-4 text-sm text-slate-200 text-left">
+                  <div id="pdfModifications" class="mb-3 text-xs break-words min-w-0"></div>
+                  <button onclick="document.getElementById('pdfMetadata').classList.toggle('hidden')" class="w-full bg-slate-900 border border-slate-700 text-center font-bold text-cyan-400 py-2 rounded mb-3 text-xs hover:bg-slate-700 transition">▶ Ver Metadatos en Bruto</button>
+                  <div id="pdfMetadata" class="hidden mb-3 bg-slate-900 p-3 rounded border border-slate-600 font-mono text-[10px] overflow-auto max-h-40 text-green-400 shadow-inner break-all"></div>
+                  <div id="pdfUrls" class="mb-3 hidden p-3 rounded border border-slate-600 bg-slate-900 text-xs shadow-inner break-all"></div>
                   
-                  <h4 class="font-bold text-cyan-400 mb-4 mt-2 text-xl border-t border-slate-700 pt-6">📸 Objetos y Capas Recuperadas (Render)</h4>
-                  <div id="pdfImages" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+                  <h4 class="font-bold text-cyan-400 mb-2 mt-1 text-sm border-t border-slate-700 pt-3">📸 Objetos (Render)</h4>
+                  <div id="pdfImages" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
               </div>
           </div>
       </div>
@@ -212,7 +210,6 @@
       });
     }
 
-    // --- LOGICA BOTONES Y BD ---
     document.getElementById('mostrarFormularioBtn').addEventListener('click', () => { document.getElementById('formularioNuevosDatos').classList.toggle('hidden'); document.getElementById('cpiDataTable').classList.add('hidden'); limpiarCampos(); });
     document.getElementById('mostrarListadoBtn').addEventListener('click', () => { document.getElementById('cpiDataTable').classList.toggle('hidden'); document.getElementById('formularioNuevosDatos').classList.add('hidden'); limpiarCampos(); });
 
@@ -245,14 +242,12 @@
       datosOrdenados.forEach(dato => {
         const fila = document.createElement('tr');
         fila.classList.add('bg-slate-800', 'border-b', 'border-slate-700', 'hover:bg-slate-700');
-        
-        const celdaNumero = document.createElement('td'); celdaNumero.classList.add('px-6', 'py-4', 'font-medium', 'text-slate-200', 'whitespace-nowrap'); celdaNumero.setAttribute('data-label', 'Nro Verificación'); celdaNumero.textContent = dato.numero;
-        const celdaFecha = document.createElement('td'); celdaFecha.classList.add('px-6', 'py-4', 'text-slate-300'); celdaFecha.setAttribute('data-label', 'Fecha'); celdaFecha.textContent = dato.fecha;
-        const celdaAccion = document.createElement('td'); celdaAccion.classList.add('px-6', 'py-4', 'text-right'); celdaAccion.setAttribute('data-label', 'Acción');
+        const celdaNumero = document.createElement('td'); celdaNumero.classList.add('px-3', 'py-2', 'font-medium', 'text-slate-200'); celdaNumero.setAttribute('data-label', 'Nro Verificación'); celdaNumero.textContent = dato.numero;
+        const celdaFecha = document.createElement('td'); celdaFecha.classList.add('px-3', 'py-2', 'text-slate-300'); celdaFecha.setAttribute('data-label', 'Fecha'); celdaFecha.textContent = dato.fecha;
+        const celdaAccion = document.createElement('td'); celdaAccion.classList.add('px-3', 'py-2', 'text-right'); celdaAccion.setAttribute('data-label', 'Acción');
         const deleteIcon = document.createElement('span');
-        deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 delete-icon inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>`;
+        deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500 delete-icon inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>`;
         deleteIcon.onclick = () => confirmarEliminarCpi(dato.key, dato.numero);
-        
         celdaAccion.appendChild(deleteIcon); fila.appendChild(celdaNumero); fila.appendChild(celdaFecha); fila.appendChild(celdaAccion); cpiListDiv.appendChild(fila);
       });
     }
@@ -262,7 +257,6 @@
       if (confirm(`¿Eliminar registro ${numero}?`)) licenciasNuevasRef.child(key).remove();
     }
 
-    // --- CONFIGURACIÓN IA GEMINI (Defecto 2.5-flash) ---
     let geminiApiKey = localStorage.getItem('ai_api_key') || '';
     let geminiModelName = localStorage.getItem('gemini_model_name') || 'gemini-2.5-flash';
 
@@ -290,303 +284,188 @@
         } catch (error) { console.warn(`Error IA:`, error); return null; }
     }
 
-    // --- FUNCIÓN DE DISEÑO DINÁMICO (Expande a 3 columnas en Desktop) ---
     function showResultsLayout() {
         const appGrid = document.getElementById('appGrid');
         const colAI = document.getElementById('colAI');
         const colForense = document.getElementById('colForense');
         if(appGrid && colAI && colForense) {
             appGrid.classList.remove('max-w-3xl');
-            // 3 columnas en pantallas grandes (xl), 2 en portátiles (lg), 1 en móvil
-            appGrid.classList.add('max-w-[120rem]', 'lg:grid-cols-2', 'xl:grid-cols-3');
-            colAI.classList.remove('hidden');
-            colAI.classList.add('flex');
-            colForense.classList.remove('hidden');
-            colForense.classList.add('flex');
+            appGrid.classList.add('max-w-[110rem]', 'lg:grid-cols-2', 'xl:grid-cols-3');
+            colAI.classList.remove('hidden'); colAI.classList.add('flex');
+            colForense.classList.remove('hidden'); colForense.classList.add('flex');
         }
     }
 
-    // --- INTEGRACIÓN: GEMINI + METADATOS LOCALES + API RENDER ---
     async function processFile(file) {
         showResultsLayout(); 
-        
         const forensicBox = document.getElementById('pdfForensicBox');
         const imgDiv = document.getElementById('pdfImages');
         const aiBox = document.getElementById('aiResultBox');
         
         aiBox.classList.remove('hidden', 'border-red-500', 'border-blue-500', 'border-green-500', 'alert-pulse');
-        document.getElementById('aiTitle').innerHTML = "<span class='animate-pulse text-cyan-400'>⏳ IA Analizando Datos...</span>";
-        document.getElementById('aiValidationMsg').innerHTML = "";
-        document.getElementById('aiActions').innerHTML = "";
-        document.getElementById('aiNumero').textContent = "...";
-        document.getElementById('aiFecha').textContent = "...";
+        document.getElementById('aiTitle').innerHTML = "<span class='animate-pulse text-cyan-400'>⏳ Analizando...</span>";
+        document.getElementById('aiValidationMsg').innerHTML = ""; document.getElementById('aiActions').innerHTML = "";
+        document.getElementById('aiNumero').textContent = "..."; document.getElementById('aiFecha').textContent = "...";
 
         if (forensicBox) forensicBox.classList.remove('hidden');
-        if (imgDiv) imgDiv.innerHTML = `
-            <div class="col-span-full text-center p-6 bg-slate-900 border border-slate-700 rounded-lg">
-                <p class='text-cyan-400 font-bold mb-2 animate-pulse text-lg'>⏳ Servidor Extrayendo Imágenes...</p>
-                <p class='text-slate-400 text-sm'>Examen exhaustivo profundo en proceso (puede tardar <b>hasta 60 segundos</b>).</p>
-            </div>`;
+        if (imgDiv) imgDiv.innerHTML = `<div class="col-span-full text-center p-4 bg-slate-900 border border-slate-700 rounded text-xs"><p class='text-cyan-400 font-bold mb-1 animate-pulse'>⏳ Extrayendo Imágenes...</p><p class='text-slate-400'>Puede tardar <b>hasta 60s</b> el primer uso.</p></div>`;
 
         try {
-            let base64Image = "";
-            let isPdf = file.type === "application/pdf";
-
-            if (isPdf) { 
-                analyzePdfForensics(file); 
-                extraerImagenesRender(file); 
-                base64Image = await convertPdfToImage(file); 
-            } else if (file.type.startsWith("image/")) { 
+            let base64Image = ""; let isPdf = file.type === "application/pdf";
+            if (isPdf) { analyzePdfForensics(file); extraerImagenesRender(file); base64Image = await convertPdfToImage(file); } 
+            else if (file.type.startsWith("image/")) { 
                 base64Image = await new Promise((resolve) => { const reader = new FileReader(); reader.onload = (e) => resolve(e.target.result.split(',')[1]); reader.readAsDataURL(file); }); 
-                document.getElementById('pdfModifications').innerHTML = "⚠️ Análisis forense avanzado no disponible para imágenes simples. Sube el PDF original.";
-                document.getElementById('pdfModifications').className = "mb-4 p-5 rounded-xl border-2 border-orange-500 bg-slate-800 text-orange-300 shadow-lg break-words min-w-0";
-                if (imgDiv) imgDiv.innerHTML = `<p class="text-slate-400 col-span-full text-center text-sm">Extracción profunda solo aplica a documentos PDF.</p>`;
+                document.getElementById('pdfModifications').innerHTML = "⚠️ Análisis avanzado no disponible para imágenes. Sube el PDF original.";
+                document.getElementById('pdfModifications').className = "mb-3 p-3 rounded border border-orange-500 bg-slate-800 text-orange-300 shadow-sm text-xs break-words min-w-0";
+                if (imgDiv) imgDiv.innerHTML = `<p class="text-slate-400 col-span-full text-center text-xs">Extracción profunda solo aplica a PDFs.</p>`;
             } else { throw new Error("Formato no soportado."); }
 
             const result = await callGemini(base64Image);
-
             if (result && result.numero) {
-                const numLimpio = result.numero.replace(/\D/g, ''); 
-                const fechaLimpia = formatoFechaIA(result.fecha);
-                document.getElementById('numero').value = numLimpio;
-                buscarFecha(); 
-                mostrarResultadoIA(numLimpio, fechaLimpia);
+                const numLimpio = result.numero.replace(/\D/g, ''); const fechaLimpia = formatoFechaIA(result.fecha);
+                document.getElementById('numero').value = numLimpio; buscarFecha(); mostrarResultadoIA(numLimpio, fechaLimpia);
             } else if (!geminiApiKey) {
                 document.getElementById('aiTitle').innerHTML = "⚠️ IA Inactiva";
-                document.getElementById('aiValidationMsg').innerHTML = "Falta la API Key de Gemini. Revisa los resultados forenses abajo.";
-                document.getElementById('aiValidationMsg').className = "bg-orange-900/40 text-orange-300 p-4 rounded-lg border border-orange-800 text-left break-words min-w-0";
+                document.getElementById('aiValidationMsg').innerHTML = "Falta API Key Gemini.";
+                document.getElementById('aiValidationMsg').className = "bg-orange-900/40 text-orange-300 p-3 rounded border border-orange-800 text-left text-xs";
             } else {
-                document.getElementById('aiTitle').innerHTML = "❌ Error de Lectura";
-                document.getElementById('aiValidationMsg').innerHTML = "La IA no pudo extraer los datos de este documento.";
+                document.getElementById('aiTitle').innerHTML = "❌ Error"; document.getElementById('aiValidationMsg').innerHTML = "No se pudieron extraer los datos.";
             }
-        } catch (error) { 
-            document.getElementById('aiTitle').innerHTML = "❌ Error del Sistema";
-            document.getElementById('aiValidationMsg').innerHTML = error.message;
-        }
+        } catch (error) { document.getElementById('aiTitle').innerHTML = "❌ Error"; document.getElementById('aiValidationMsg').innerHTML = error.message; }
     }
 
-    // --- NUEVA FUNCIÓN: EXTRACCIÓN CON SERVIDOR PYTHON (RENDER) ---
     async function extraerImagenesRender(file) {
         const API_URL = "https://api-forense-pdf.onrender.com/extraer";
         const imgDiv = document.getElementById('pdfImages');
-        const formData = new FormData();
-        formData.append("pdf", file);
-
+        const formData = new FormData(); formData.append("pdf", file);
         try {
             const response = await fetch(API_URL, { method: 'POST', body: formData });
-            const data = await response.json();
-            imgDiv.innerHTML = ""; 
-
-            if (data.error) {
-                imgDiv.innerHTML = `<p class="text-red-500 col-span-full text-center text-sm font-bold">❌ Error servidor: ${data.error}</p>`;
-            } else if (data.imagenes && data.imagenes.length > 0) {
+            const data = await response.json(); imgDiv.innerHTML = ""; 
+            if (data.error) { imgDiv.innerHTML = `<p class="text-red-500 col-span-full text-center text-xs font-bold">❌ Error servidor: ${data.error}</p>`; } 
+            else if (data.imagenes && data.imagenes.length > 0) {
                 data.imagenes.forEach((imgBase64, index) => {
-                    let base64Puro = imgBase64.split(',')[1] || imgBase64;
-                    let sizeKB = (Math.round(base64Puro.length * 0.75) / 1024).toFixed(1);
-                    let uniqueId = 'ext_img_' + Date.now() + '_' + index;
-
+                    let base64Puro = imgBase64.split(',')[1] || imgBase64; let sizeKB = (Math.round(base64Puro.length * 0.75) / 1024).toFixed(1); let uniqueId = 'ext_img_' + Date.now() + '_' + index;
                     imgDiv.innerHTML += `
-                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 flex flex-col items-center justify-between transition hover:border-cyan-400">
-                            <img src="${imgBase64}" class="max-w-full h-auto rounded shadow-md" onload="document.getElementById('dims_${uniqueId}').innerText = this.naturalWidth + ' x ' + this.naturalHeight + ' px';">
-                            <div class="text-[15px] text-green-400 text-center font-mono font-bold leading-snug mt-3 border-t border-slate-700 pt-3 w-full">
-                                OBJETO EXT: ${index + 1}<br>
-                                <span id="dims_${uniqueId}" class="text-slate-300 text-[13px] font-bold tracking-widest">Calculando...</span><br>
-                                <span class="text-cyan-300 text-[14px]">${sizeKB} KB</span>
+                        <div class="bg-slate-900 p-2 rounded border border-slate-700 flex flex-col items-center justify-between transition hover:border-cyan-400">
+                            <img src="${imgBase64}" class="max-w-full h-auto rounded shadow-sm" onload="document.getElementById('dims_${uniqueId}').innerText = this.naturalWidth + 'x' + this.naturalHeight + 'px';">
+                            <div class="text-xs text-green-400 text-center font-mono font-bold leading-tight mt-2 border-t border-slate-700 pt-2 w-full">
+                                OBJ: ${index + 1}<br><span id="dims_${uniqueId}" class="text-slate-300 text-[10px]">Calculando...</span><br><span class="text-cyan-300">${sizeKB} KB</span>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
-            } else {
-                imgDiv.innerHTML = `<p class="text-slate-400 col-span-full text-center text-sm">No se encontraron imágenes extraíbles en este PDF.</p>`;
-            }
-        } catch (error) {
-            imgDiv.innerHTML = `<p class="text-red-500 col-span-full text-center text-sm font-bold">❌ Error de conexión con el Servidor Python en Render.</p>`;
-            console.error(error);
-        }
+            } else { imgDiv.innerHTML = `<p class="text-slate-400 col-span-full text-center text-xs">No hay imágenes.</p>`; }
+        } catch (error) { imgDiv.innerHTML = `<p class="text-red-500 col-span-full text-center text-xs font-bold">❌ Error de conexión Python.</p>`; }
     }
 
-    // --- FUNCIÓN DE AYUDA PARA LEER FECHAS DE PDF ---
     function formatoFechaPDF(pdfDate) {
-        if (!pdfDate) return "Desconocida";
-        let str = pdfDate.replace('D:', '').replace(/'/g, '');
-        if (str.length >= 14) return `${str.substring(6,8)}/${str.substring(4,6)}/${str.substring(0,4)} ${str.substring(8,10)}:${str.substring(10,12)}:${str.substring(12,14)}`;
-        return pdfDate;
+        if (!pdfDate) return "Desc."; let str = pdfDate.replace('D:', '').replace(/'/g, '');
+        if (str.length >= 14) return `${str.substring(6,8)}/${str.substring(4,6)}/${str.substring(0,4)} ${str.substring(8,10)}:${str.substring(10,12)}`; return pdfDate;
     }
 
-    // --- FORENSE LOCAL: METADATOS Y ALERTAS ---
     async function analyzePdfForensics(file) {
         try {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-            
-            const metadata = await pdf.getMetadata();
-            const metaInfo = metadata.info || {};
-            
-            const modDiv = document.getElementById('pdfModifications');
-            let isModified = false;
-            let isSuspiciousApp = false;
+            const arrayBuffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+            const metadata = await pdf.getMetadata(); const metaInfo = metadata.info || {}; const modDiv = document.getElementById('pdfModifications');
+            let isModified = false; let isSuspiciousApp = false;
             const suspiciousRegex = /photoshop|canva|illustrator|corel|gimp|inkscape|photo|edit|designer|word/i;
             const creatorStr = (metaInfo.Creator || "") + " " + (metaInfo.Producer || "");
-            
             if (suspiciousRegex.test(creatorStr)) isSuspiciousApp = true;
             if (metaInfo.ModDate && metaInfo.ModDate !== metaInfo.CreationDate) isModified = true;
 
-            let detailsHtml = `<ul class="list-disc pl-5 mt-3 space-y-1 text-sm md:text-base text-slate-300 break-words">`;
-            detailsHtml += `<li><b>Creador:</b> ${metaInfo.Creator || "Desconocido"}</li>`;
-            detailsHtml += `<li><b>Productor (Editor):</b> ${metaInfo.Producer || "Desconocido"}</li>`;
-            detailsHtml += `<li><b>F. Creación:</b> ${formatoFechaPDF(metaInfo.CreationDate)}</li>`;
-            if (metaInfo.ModDate) detailsHtml += `<li><b>F. Modificación:</b> ${formatoFechaPDF(metaInfo.ModDate)}</li>`;
-            if (metaInfo.Title) detailsHtml += `<li><b>Título:</b> ${metaInfo.Title}</li>`;
-            if (metaInfo.Author) detailsHtml += `<li><b>Autor:</b> ${metaInfo.Author}</li>`;
-            detailsHtml += `<li><b>Páginas del Doc:</b> ${pdf.numPages}</li>`;
-            detailsHtml += `</ul>`;
+            let detailsHtml = `<ul class="list-disc pl-4 mt-2 space-y-0.5 text-xs text-slate-300 break-words">
+                <li><b>Creador:</b> ${metaInfo.Creator || "Desc."}</li>
+                <li><b>Editor:</b> ${metaInfo.Producer || "Desc."}</li>
+                <li><b>Creado:</b> ${formatoFechaPDF(metaInfo.CreationDate)}</li>`;
+            if (metaInfo.ModDate) detailsHtml += `<li><b>Modificado:</b> ${formatoFechaPDF(metaInfo.ModDate)}</li>`;
+            detailsHtml += `<li><b>Páginas:</b> ${pdf.numPages}</li></ul>`;
 
-            let modHtml = "<h4 class='font-bold text-xl mb-4 text-white'>🔍 Trazabilidad del Documento</h4>";
-
+            let modHtml = "<h4 class='font-bold text-sm mb-2 text-white'>🔍 Trazabilidad</h4>";
             if (isSuspiciousApp || isModified) {
-                modHtml += `<div class="p-4 bg-red-900/70 border border-red-400 rounded-lg text-red-100 mb-4 shadow-inner break-words min-w-0">`;
-                if (isSuspiciousApp) {
-                    modHtml += `<span class="font-black text-lg uppercase tracking-wider alert-pulse block mb-2">🚨 Posible Documento Falso</span>`;
-                    modHtml += `⚠️ Software de edición gráfica o procesador de texto (Word) detectado en los metadatos.`;
-                } else {
-                    modHtml += `<span class="font-black text-lg uppercase tracking-wider block mb-2">⚠️ Documento Modificado</span>`;
-                    modHtml += `⚠️ La fecha de modificación no coincide con la original. Posible alteración.`;
-                }
-                modHtml += `</div>`;
-                modDiv.className = "mb-4 p-5 rounded-xl border-2 border-red-500 bg-red-950 shadow-lg min-w-0";
+                modHtml += `<div class="p-2 bg-red-900/70 border border-red-400 rounded text-red-100 mb-2 shadow-inner break-words min-w-0">`;
+                if (isSuspiciousApp) { modHtml += `<span class="font-bold text-xs uppercase alert-pulse block">🚨 App Sospechosa</span>`; } 
+                else { modHtml += `<span class="font-bold text-xs uppercase block">⚠️ Modificado</span>`; }
+                modHtml += `</div>`; modDiv.className = "mb-3 p-3 rounded border border-red-500 bg-red-950 shadow-sm min-w-0 text-xs";
             } else {
-                modHtml += `<div class="p-4 bg-green-900/70 border border-green-400 rounded-lg text-green-100 mb-4 shadow-inner break-words min-w-0">`;
-                modHtml += `✅ <b>Documento Íntegro:</b> Creador estándar. Las fechas no presentan alteraciones evidentes.`;
-                modHtml += `</div>`;
-                modDiv.className = "mb-4 p-5 rounded-xl border-2 border-green-500 bg-slate-800 shadow-lg min-w-0";
+                modHtml += `<div class="p-2 bg-green-900/70 border border-green-400 rounded text-green-100 mb-2 shadow-inner break-words min-w-0">✅ Íntegro.</div>`;
+                modDiv.className = "mb-3 p-3 rounded border border-green-500 bg-slate-800 shadow-sm min-w-0 text-xs";
             }
+            modDiv.innerHTML = modHtml + detailsHtml;
             
-            modHtml += detailsHtml;
-            modDiv.innerHTML = modHtml;
-            
-            const metaDiv = document.getElementById('pdfMetadata');
-            let metaHtml = "";
-            for (let [key, value] of Object.entries(metaInfo)) metaHtml += `<strong>${key}:</strong> ${value}<br>`;
-            metaDiv.innerHTML = metaHtml || "Sin metadatos.";
+            const metaDiv = document.getElementById('pdfMetadata'); let metaHtml = "";
+            for (let [key, value] of Object.entries(metaInfo)) metaHtml += `<strong>${key}:</strong> ${value}<br>`; metaDiv.innerHTML = metaHtml || "Sin metadatos.";
 
             const urls = [];
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const annotations = await page.getAnnotations();
-                annotations.forEach(ann => { if (ann.url) urls.push(ann.url); if (ann.action && ann.action.url) urls.push(ann.action.url); });
-            }
+            for (let i = 1; i <= pdf.numPages; i++) { const page = await pdf.getPage(i); const annotations = await page.getAnnotations(); annotations.forEach(ann => { if (ann.url) urls.push(ann.url); if (ann.action && ann.action.url) urls.push(ann.action.url); }); }
             const urlDiv = document.getElementById('pdfUrls');
-            if (urls.length > 0) { urlDiv.style.display = 'block'; urlDiv.innerHTML = `<strong class="text-cyan-400">URLs referenciadas:</strong><br>${urls.join('<br>')}`; } else { urlDiv.style.display = 'none'; }
-        } catch (error) { console.error("Error en lectura local:", error); }
+            if (urls.length > 0) { urlDiv.style.display = 'block'; urlDiv.innerHTML = `<strong class="text-cyan-400">URLs:</strong><br>${urls.join('<br>')}`; } else { urlDiv.style.display = 'none'; }
+        } catch (error) {}
     }
 
     async function convertPdfToImage(file) {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        const page = await pdf.getPage(1); 
-        const viewport = page.getViewport({ scale: 2.5 }); 
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+        const arrayBuffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const page = await pdf.getPage(1); const viewport = page.getViewport({ scale: 2.0 }); 
+        const canvas = document.createElement('canvas'); const context = canvas.getContext('2d');
+        canvas.height = viewport.height; canvas.width = viewport.width;
         await page.render({ canvasContext: context, viewport: viewport }).promise;
-        return canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+        return canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
     }
 
     function formatoFechaIA(fechaStr) { return fechaStr ? fechaStr.replace(/\./g, '/').replace(/-/g, '/') : ""; }
 
     function mostrarResultadoIA(numero, fecha) {
         const aiBox = document.getElementById('aiResultBox');
-        document.getElementById('aiNumero').textContent = numero;
-        document.getElementById('aiFecha').textContent = fecha;
-
-        const chequeo = verificarCongruencia(parseInt(numero), fecha);
-        const aiMsg = document.getElementById('aiValidationMsg');
-        const aiActions = document.getElementById('aiActions');
-
+        document.getElementById('aiNumero').textContent = numero; document.getElementById('aiFecha').textContent = fecha;
+        const chequeo = verificarCongruencia(parseInt(numero), fecha); const aiMsg = document.getElementById('aiValidationMsg'); const aiActions = document.getElementById('aiActions');
         aiBox.classList.remove('border-red-500', 'border-blue-500', 'border-green-500', 'alert-pulse');
 
         if (chequeo.esFraude) {
-            aiBox.classList.add('border-red-500', 'alert-pulse');
-            document.getElementById('aiTitle').textContent = "⚠️ POSIBLE DOCUMENTO FALSO";
-            // EL FIX APLICADO AQUÍ (break-words min-w-0)
-            aiMsg.className = "bg-red-900/40 text-red-300 p-4 rounded-lg font-bold border border-red-800 text-left break-words min-w-0";
-            aiMsg.innerHTML = chequeo.mensaje;
-            aiActions.innerHTML = ""; 
+            aiBox.classList.add('border-red-500', 'alert-pulse'); document.getElementById('aiTitle').textContent = "⚠️ FALSO";
+            aiMsg.className = "bg-red-900/40 text-red-300 p-3 rounded font-bold border border-red-800 text-left break-words min-w-0 text-xs"; aiMsg.innerHTML = chequeo.mensaje; aiActions.innerHTML = ""; 
         } else if (chequeo.existe) {
-            aiBox.classList.add('border-blue-500');
-            document.getElementById('aiTitle').textContent = "ℹ️ Documento ya registrado";
-            aiMsg.className = "bg-blue-900/40 text-blue-300 p-4 rounded-lg border border-blue-800 text-left break-words min-w-0";
-            aiMsg.innerHTML = "Este 'Nro De Verificación' ya existe exactamente en la base de datos.";
-            aiActions.innerHTML = "";
+            aiBox.classList.add('border-blue-500'); document.getElementById('aiTitle').textContent = "ℹ️ Ya Registrado";
+            aiMsg.className = "bg-blue-900/40 text-blue-300 p-3 rounded border border-blue-800 text-left break-words min-w-0 text-xs"; aiMsg.innerHTML = "Existe en BD."; aiActions.innerHTML = "";
         } else {
-            aiBox.classList.add('border-green-500');
-            document.getElementById('aiTitle').textContent = "✅ Documento Coherente";
-            aiMsg.className = "bg-green-900/40 text-green-300 p-4 rounded-lg border border-green-800 text-left break-words min-w-0";
-            aiMsg.innerHTML = "La numeración y fecha siguen la progresión aritmética lógica de Venezuela.";
+            aiBox.classList.add('border-green-500'); document.getElementById('aiTitle').textContent = "✅ Coherente";
+            aiMsg.className = "bg-green-900/40 text-green-300 p-3 rounded border border-green-800 text-left break-words min-w-0 text-xs"; aiMsg.innerHTML = "Progresión lógica.";
             window.tempAiData = { numero: parseInt(numero), fecha: fecha };
-            aiActions.innerHTML = `<button onclick="guardarDesdeAI()" class="w-full bg-cyan-600 text-white font-bold py-4 rounded-lg hover:bg-cyan-700 transition flex justify-center items-center gap-2 shadow-lg transform active:scale-95 text-lg mt-2">AÑADIR A BASE DE DATOS</button>`;
+            aiActions.innerHTML = `<button onclick="guardarDesdeAI()" class="w-full bg-cyan-600 text-white font-bold py-2 rounded hover:bg-cyan-700 transition flex justify-center text-xs mt-2">GUARDAR EN BD</button>`;
         }
     }
 
     function verificarCongruencia(nuevoNumero, nuevaFechaStr) {
-        if (!nuevaFechaStr || nuevaFechaStr.length < 8) return { esFraude: false, existe: false, mensaje: "Fecha no válida detectada." };
-        const [d, m, y] = nuevaFechaStr.split('/').map(Number);
-        const fechaNueva = new Date(y, m - 1, d);
-        const exacto = datosCompletos.find(d => d.numero === nuevoNumero);
-        if (exacto) return { esFraude: false, existe: true, mensaje: "" };
-
+        if (!nuevaFechaStr || nuevaFechaStr.length < 8) return { esFraude: false, existe: false, mensaje: "Fecha no válida." };
+        const [d, m, y] = nuevaFechaStr.split('/').map(Number); const fechaNueva = new Date(y, m - 1, d);
+        const exacto = datosCompletos.find(d => d.numero === nuevoNumero); if (exacto) return { esFraude: false, existe: true, mensaje: "" };
         const antes = datosCompletos.filter(d => d.numero <= nuevoNumero).sort((a, b) => b.numero - a.numero)[0];
         const despues = datosCompletos.find(d => d.numero > nuevoNumero);
-        
         let mensajeError = ""; let esFraude = false;
-
-        if (antes) {
-            const [da, ma, ya] = antes.fecha.split('/').map(Number);
-            if (fechaNueva < new Date(ya, ma-1, da)) { esFraude = true; mensajeError += `⛔ <strong>INCONGRUENCIA:</strong><br>El Nº ${nuevoNumero} es posterior al Nº ${antes.numero}, pero su fecha (${nuevaFechaStr}) es ANTERIOR a la registrada (${antes.fecha}).<br><br>`; }
-        }
-        if (despues) {
-            const [dd, md, yd] = despues.fecha.split('/').map(Number);
-            if (fechaNueva > new Date(yd, md-1, dd)) { esFraude = true; mensajeError += `⛔ <strong>INCONGRUENCIA:</strong><br>El Nº ${nuevoNumero} es anterior al Nº ${despues.numero}, pero su fecha (${nuevaFechaStr}) es POSTERIOR a la registrada (${despues.fecha}).`; }
-        }
+        if (antes) { const [da, ma, ya] = antes.fecha.split('/').map(Number); if (fechaNueva < new Date(ya, ma-1, da)) { esFraude = true; mensajeError += `⛔ El Nº ${nuevoNumero} es posterior al ${antes.numero}, pero su fecha (${nuevaFechaStr}) es ANTERIOR a ${antes.fecha}.<br>`; } }
+        if (despues) { const [dd, md, yd] = despues.fecha.split('/').map(Number); if (fechaNueva > new Date(yd, md-1, dd)) { esFraude = true; mensajeError += `⛔ El Nº ${nuevoNumero} es anterior al ${despues.numero}, pero su fecha (${nuevaFechaStr}) es POSTERIOR a ${despues.fecha}.`; } }
         return { esFraude: esFraude, existe: false, mensaje: esFraude ? mensajeError : "" };
     }
 
     function guardarDesdeAI() {
         if (!window.tempAiData || !isUserAuthenticated) return alert("No autorizado.");
         const { numero, fecha } = window.tempAiData;
-        licenciasNuevasRef.child(String(numero)).set({ numero: numero, fecha: fecha }).then(() => {
-                alert(`✅ Guardado.`); document.getElementById('aiResultBox').classList.add('hidden'); window.tempAiData = null;
-            }).catch(error => alert('Error: ' + error.message));
+        licenciasNuevasRef.child(String(numero)).set({ numero: numero, fecha: fecha }).then(() => { alert(`✅ Guardado.`); document.getElementById('aiResultBox').classList.add('hidden'); window.tempAiData = null; }).catch(error => alert('Error: ' + error.message));
     }
 
     function buscarFecha() {
       showResultsLayout(); 
-      
-      const numero = parseInt(document.getElementById("numero").value);
-      const output = document.getElementById("output");
-      if (isNaN(numero)) { output.innerHTML = "<p class='text-red-500 font-bold p-4 bg-slate-900 rounded-lg'>Ingresa un Nro De Verificación válido.</p>"; return; }
-      if(datosCompletos.length === 0 && !isUserAuthenticated) { output.innerHTML = "<p class='text-orange-500 font-bold p-4 bg-slate-900 rounded-lg'>Conectando... (Verifica sesión)</p>"; return; }
-      
+      const numero = parseInt(document.getElementById("numero").value); const output = document.getElementById("output");
+      if (isNaN(numero)) { output.innerHTML = "<p class='text-red-500 font-bold p-3 bg-slate-900 rounded text-sm'>Nro inválido.</p>"; return; }
+      if(datosCompletos.length === 0 && !isUserAuthenticated) { output.innerHTML = "<p class='text-orange-500 font-bold p-3 bg-slate-900 rounded text-sm'>Conectando...</p>"; return; }
       const exacto = datosCompletos.find(d => d.numero === numero);
-      if (exacto) { output.innerHTML = `<div class="bg-green-900/40 p-5 rounded-xl border border-green-500 shadow-lg break-words min-w-0"><p class='text-green-400 font-black text-xl mb-2'>✅ REGISTRO EXACTO ENCONTRADO</p><p class="text-lg">Nro: ${exacto.numero}</p><p class='font-bold text-xl'>Fecha: ${exacto.fecha}</p></div>`; return; }
-      
-      const datosOrd = [...datosCompletos].sort((a,b) => a.numero - b.numero);
-      const antes = datosOrd.filter(d => d.numero <= numero).pop();
-      const despues = datosOrd.find(d => d.numero > numero);
-
-      if (!antes) { output.innerHTML = "<p class='text-red-500 font-bold p-4 bg-slate-900 rounded-lg'>NÚMERO SIN REFERENCIA PREVIA</p>"; return; }
-      if (!despues) { output.innerHTML = `<div class="bg-orange-900/40 p-5 rounded-xl border border-orange-500 shadow-lg break-words min-w-0"><p class='text-orange-400 font-black text-xl mb-2'>⚠️ NÚMERO POSTERIOR AL ÚLTIMO</p><p class="text-lg">Último: ${antes.numero} (${antes.fecha})</p></div>`; return; }
-
+      if (exacto) { output.innerHTML = `<div class="bg-green-900/40 p-3 rounded border border-green-500 shadow text-sm break-words min-w-0"><p class='text-green-400 font-bold'>✅ REGISTRO EXACTO</p><p>Nro: ${exacto.numero} | Fecha: ${exacto.fecha}</p></div>`; return; }
+      const datosOrd = [...datosCompletos].sort((a,b) => a.numero - b.numero); const antes = datosOrd.filter(d => d.numero <= numero).pop(); const despues = datosOrd.find(d => d.numero > numero);
+      if (!antes) { output.innerHTML = "<p class='text-red-500 font-bold p-3 bg-slate-900 rounded text-sm'>SIN REFERENCIA PREVIA</p>"; return; }
+      if (!despues) { output.innerHTML = `<div class="bg-orange-900/40 p-3 rounded border border-orange-500 shadow text-sm break-words min-w-0"><p class='text-orange-400 font-bold'>⚠️ NÚMERO POSTERIOR AL ÚLTIMO</p><p>Último: ${antes.numero} (${antes.fecha})</p></div>`; return; }
       const prop = (numero - antes.numero) / (despues.numero - antes.numero);
-      const [d1, m1, y1] = antes.fecha.split("/").map(Number);
-      const [d2, m2, y2] = despues.fecha.split("/").map(Number);
-      const f1 = new Date(y1, m1-1, d1).getTime();
-      const f2 = new Date(y2, m2-1, d2).getTime();
-      if (f1 > f2) { output.innerHTML = "<p class='text-red-500 font-bold'>¡ERROR CRÍTICO EN BD! FECHAS INCOHERENTES</p>"; return; }
-
+      const [d1, m1, y1] = antes.fecha.split("/").map(Number); const [d2, m2, y2] = despues.fecha.split("/").map(Number);
+      const f1 = new Date(y1, m1-1, d1).getTime(); const f2 = new Date(y2, m2-1, d2).getTime();
+      if (f1 > f2) { output.innerHTML = "<p class='text-red-500 font-bold text-sm'>¡ERROR FECHAS BD!</p>"; return; }
       const fEst = new Date(f1 + prop * (f2 - f1));
-      output.innerHTML = `<div class="bg-blue-900/40 p-6 rounded-xl border border-blue-500 shadow-lg break-words min-w-0"><p class='text-blue-400 font-black text-xl mb-3'>ESTIMACIÓN ARITMÉTICA</p><p class="text-base text-slate-300">Rango referencial: <br><strong>${antes.fecha}</strong> y <strong>${despues.fecha}</strong></p><p class='text-cyan-400 font-black text-2xl mt-4 bg-slate-900/50 p-3 rounded-lg'>Fecha Estimada: ${fEst.toLocaleDateString("es-ES")}</p></div>`;
+      output.innerHTML = `<div class="bg-blue-900/40 p-4 rounded border border-blue-500 shadow text-sm break-words min-w-0"><p class='text-blue-400 font-bold mb-1'>ESTIMACIÓN</p><p class="text-xs text-slate-300">Rango: ${antes.fecha} y ${despues.fecha}</p><p class='text-cyan-400 font-bold text-base mt-2 bg-slate-900/50 p-2 rounded'>F. Estimada: ${fEst.toLocaleDateString("es-ES")}</p></div>`;
     }
 
     const dz = document.getElementById('mainDropZone');
