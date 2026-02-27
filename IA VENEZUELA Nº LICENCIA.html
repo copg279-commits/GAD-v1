@@ -8,250 +8,160 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   
   <script>
-    // Configurar worker de PDF.js (Versión Moderna para Forense)
+    // Configurar worker de PDF.js (Versión Moderna)
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
   </script>
 
   <style>
-    /* Estilos visuales Dark Mode */
     body { background-color: #0f172a; color: #e2e8f0; }
     .delete-icon { cursor: pointer; transition: transform 0.2s; color: #ef4444; }
     .delete-icon:hover { transform: scale(1.1); }
-    .listado-container { max-height: 300px; overflow-y: auto; }
     .cpi-table-container { max-height: 400px; overflow-y: auto; }
     
-    /* Drop Zone y Animaciones */
-    .drop-zone {
-        transition: all 0.2s ease;
-        border: 2px solid transparent;
-        border-radius: 0.5rem;
-        position: relative;
-    }
-    .drop-zone.drag-active {
-        background-color: rgba(6, 182, 212, 0.15) !important; 
-        border-color: #06b6d4 !important;
-        border-style: dashed;
-        transform: scale(1.02);
-        z-index: 50;
-    }
-    .loading-overlay {
-        position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); 
-        z-index: 50; display: flex; flex-direction: column; 
-        align-items: center; justify-content: center;
-    }
-    .spinner {
-        width: 50px; height: 50px; border: 5px solid #334155; 
-        border-top: 5px solid #06b6d4; border-radius: 50%; 
-        animation: spin 1s linear infinite; margin-bottom: 15px;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .drop-zone { transition: all 0.2s ease; border: 2px solid transparent; }
+    .drop-zone.drag-active { background-color: rgba(6, 182, 212, 0.15) !important; border-color: #06b6d4 !important; border-style: dashed; transform: scale(1.02); }
     
-    #aiResultBox { animation: slideDown 0.5s ease-out; }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     .alert-pulse { animation: alertPulse 2s infinite; }
     @keyframes alertPulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     
-    /* Mensaje Auth */
-    #auth-msg { text-align: center; color: #94a3b8; margin-top: 20px; font-weight: bold; }
-
-    /* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
-    #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
-    #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
-    #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
-
     /* Zoom de miniaturas sin cortes (Solo PC) */
     td, tr { position: static !important; }
-    .results-container { overflow: visible !important; }
+    .cpi-table-container { overflow: visible !important; }
     @media (hover: hover) and (pointer: fine) { 
-        .thumbnail-img:hover { 
-            transform: scale(4); 
-            z-index: 9999 !important; 
-            position: relative; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
-            border-color: #06b6d4; 
-        } 
+        .thumbnail-img:hover { transform: scale(4); z-index: 9999 !important; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.9); border-color: #06b6d4; } 
     }
 
     /* Tabla a tarjetas en móvil */
     @media (max-width: 768px) {
         table { border: none; }
         thead { display: none; }
-        tbody tr {
-            display: flex;
-            flex-direction: column;
-            background-color: #1e293b !important;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-            border: 1px solid #334155 !important;
-        }
-        tbody td {
-            padding: 0.5rem 0 !important;
-            border: none !important;
-            text-align: right;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        tbody td::before {
-            content: attr(data-label);
-            float: left;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: #06b6d4;
-            font-size: 0.75rem;
-        }
+        tbody tr { display: flex; flex-direction: column; background-color: #1e293b !important; border-radius: 12px; margin-bottom: 1rem; padding: 1rem; border: 1px solid #334155 !important; }
+        tbody td { padding: 0.5rem 0 !important; border: none !important; text-align: right; display: flex; justify-content: space-between; align-items: center; }
+        tbody td::before { content: attr(data-label); float: left; font-weight: bold; text-transform: uppercase; color: #06b6d4; font-size: 0.75rem; }
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col pb-16 relative">
-
-  <div id="loadingOverlay" class="loading-overlay hidden">
-      <div class="spinner"></div>
-      <h3 class="text-cyan-500 font-bold text-lg animate-pulse">Analizando Documento...</h3>
-      <p id="loadingText" class="text-slate-400 text-sm mt-2">IA extrayendo datos y Forense escaneando capas</p>
-  </div>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col pb-16 relative overflow-x-hidden">
 
   <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
     <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
-    
     <div class="text-center flex-1">
-      <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
-        VERIFICACIÓN LICENCIA<br class="md:hidden"> VENEZUELA
-      </h1>
-      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
-        Grupo de Análisis Documental
-      </h2>
+      <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight">VERIFICACIÓN LICENCIA<br class="md:hidden"> VENEZUELA</h1>
+      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">Grupo de Análisis Documental</h2>
     </div>
-
     <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
-  <button onclick="toggleSettings()" class="block mx-auto mt-6 w-11/12 max-w-md bg-slate-800 border border-slate-700 text-slate-300 font-semibold py-2 rounded-md hover:bg-slate-700 transition shadow flex justify-center items-center gap-2 text-sm">
-      ⚙️ Configurar IA
-  </button>
-
-  <div id="settingsPanel" class="hidden mt-3 w-11/12 max-w-md mx-auto bg-slate-800 border border-slate-700 shadow-xl rounded-lg p-4 text-slate-200">
-      <div class="text-xs text-slate-400 mb-3 text-center uppercase tracking-wider font-bold">Proveedor: Google Gemini</div>
-      <label class="block text-sm font-bold text-slate-300 mb-1">API Key:</label>
-      <input type="password" id="apiKeyInput" class="w-full bg-slate-900 text-slate-200 text-sm border border-slate-700 p-2 rounded mb-3 focus:outline-none focus:border-cyan-500" placeholder="Pegar API Key aquí...">
-      <label class="block text-sm font-bold text-slate-300 mb-1">Modelo:</label>
-      <input type="text" id="modelInput" class="w-full bg-slate-900 text-slate-200 text-sm border border-slate-700 p-2 rounded mb-4 focus:outline-none focus:border-cyan-500" placeholder="gemini-1.5-flash">
-      <button onclick="saveSettings()" class="w-full bg-cyan-600 text-white text-sm py-2 rounded hover:bg-cyan-700 font-bold transition">GUARDAR CONFIGURACIÓN</button>
-  </div>
-
-  <h2 class="text-cyan-400 text-center mt-4 px-4 text-sm font-semibold">
-    Arrastra el PDF/Imagen de la licencia o escribe el Nº
-  </h2>
-  
-  <div id="mainDropZone" class="drop-zone w-11/12 max-w-md mx-auto mt-4 p-2 bg-slate-800 border border-slate-700 rounded shadow-sm">
-    <div class="w-full pointer-events-none select-none">
-      <img src="logovenezuela.png" alt="Logo Venezuela" class="w-full opacity-80">
-    </div>
-
-    <input 
-      type="number" 
-      id="numero" 
-      placeholder="Ingresa el Nro De Verificación manualmente" 
-      class="block mx-auto mt-4 p-3 text-base w-full bg-slate-900 border border-slate-700 rounded-md text-center text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-sm"
-    />
-  </div>
-
-  <button 
-    onclick="buscarFecha()" 
-    class="block mx-auto mt-4 w-11/12 max-w-md bg-cyan-600 text-white font-bold py-3 rounded-md hover:bg-cyan-700 transition shadow-lg"
-  >
-    Consultar Manualmente
-  </button>
-
-  <div id="output" class="mt-6 text-slate-200 text-center w-11/12 max-w-md mx-auto"></div>
-
-  <div id="aiResultBox" class="hidden mt-4 w-11/12 max-w-md mx-auto bg-slate-800 border-2 border-slate-700 rounded-lg p-0 text-center shadow-xl overflow-hidden">
-      <div id="aiHeader" class="bg-slate-900 p-3 border-b border-slate-700">
-          <h3 class="font-bold text-lg text-cyan-400" id="aiTitle">🔍 Análisis Completado</h3>
-      </div>
-      <div class="p-4">
-          <div class="grid grid-cols-2 gap-2 text-sm text-slate-200 text-left mb-4">
-              <div class="bg-slate-900 p-2 rounded border border-slate-700">
-                  <span class="text-xs text-slate-400 block uppercase">Nro De Verificación</span>
-                  <span id="aiNumero" class="font-mono font-bold text-white text-lg break-all"></span>
-              </div>
-              <div class="bg-slate-900 p-2 rounded border border-slate-700">
-                  <span class="text-xs text-slate-400 block uppercase">F. Expedición</span>
-                  <span id="aiFecha" class="font-mono font-bold text-white text-lg"></span>
-              </div>
+  <div id="appGrid" class="grid grid-cols-1 gap-6 w-11/12 max-w-3xl mx-auto mt-8 mb-12 transition-all duration-700 ease-in-out items-start">
+      
+      <div class="flex flex-col gap-6 w-full min-w-0">
+          
+          <div class="flex justify-center gap-3">
+              <button onclick="toggleSettings()" class="flex-1 bg-slate-800 border border-slate-700 text-slate-300 font-bold py-3 md:py-4 rounded-lg hover:bg-slate-700 transition shadow flex justify-center items-center gap-2 text-sm md:text-base">
+                  ⚙️ Configurar IA
+              </button>
+              <button onclick="document.getElementById('fileInput').click()" class="flex-1 bg-cyan-600 text-white font-bold py-3 md:py-4 rounded-lg hover:bg-cyan-700 transition shadow flex justify-center items-center gap-2 text-sm md:text-base">
+                  📎 Adjuntar Archivo
+              </button>
+              <input type="file" id="fileInput" class="hidden" accept=".pdf,image/*" onchange="if(this.files[0]) processFile(this.files[0])">
           </div>
 
-          <div id="aiValidationMsg" class="mb-4 text-sm p-2 rounded border"></div>
+          <div id="settingsPanel" class="hidden bg-slate-800 border border-slate-700 shadow-xl rounded-xl p-6 text-slate-200">
+              <div class="text-sm text-slate-400 mb-4 text-center uppercase tracking-wider font-bold">Proveedor: Google Gemini</div>
+              <label class="block text-base font-bold text-slate-300 mb-2">API Key:</label>
+              <input type="password" id="apiKeyInput" class="w-full bg-slate-900 text-slate-200 text-base border border-slate-600 p-3 rounded-lg mb-4 focus:outline-none focus:border-cyan-500" placeholder="Pegar API Key aquí...">
+              <label class="block text-base font-bold text-slate-300 mb-2">Modelo:</label>
+              <input type="text" id="modelInput" class="w-full bg-slate-900 text-slate-200 text-base border border-slate-600 p-3 rounded-lg mb-5 focus:outline-none focus:border-cyan-500" placeholder="gemini-2.5-flash">
+              <button onclick="saveSettings()" class="w-full bg-cyan-600 text-white text-base py-3 rounded-lg hover:bg-cyan-700 font-bold transition">GUARDAR CONFIGURACIÓN</button>
+          </div>
+
+          <h2 class="text-cyan-400 text-center mt-2 px-4 text-base md:text-lg font-bold tracking-wide">
+              Arrastra el PDF/Imagen de la licencia o escribe el Nº
+          </h2>
           
-          <div id="aiActions"></div>
-          
-          <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-3 text-slate-400 text-xs underline hover:text-cyan-400">
-              Cerrar panel
+          <div id="mainDropZone" class="drop-zone p-6 bg-slate-800 border border-slate-700 rounded-xl shadow-md">
+              <div class="w-full pointer-events-none select-none flex justify-center">
+                  <img src="logovenezuela.png" alt="Logo Venezuela" class="w-3/4 md:w-1/2 opacity-80 object-contain">
+              </div>
+              <input type="number" id="numero" placeholder="Ingresa el Nro De Verificación" class="block mx-auto mt-8 p-4 md:p-5 text-lg md:text-xl w-full bg-slate-900 border border-slate-600 rounded-lg text-center text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-sm transition" />
+          </div>
+
+          <button onclick="buscarFecha()" class="block mx-auto w-full bg-cyan-600 text-white font-bold py-4 md:py-5 rounded-lg hover:bg-cyan-700 transition shadow-lg text-lg md:text-xl">
+              Consultar Manualmente
           </button>
-      </div>
-  </div>
 
-  <div id="pdfForensicBox" class="hidden mt-4 w-11/12 max-w-md mx-auto bg-slate-800 border-2 border-slate-700 rounded-lg shadow-xl overflow-hidden">
-      <div class="bg-slate-900 p-3 border-b border-slate-700">
-          <h3 class="font-bold text-lg text-cyan-400">📊 Análisis Forense PDF</h3>
-      </div>
-      <div class="p-4 text-sm text-slate-200 text-left">
-          <div id="pdfModifications" class="mb-3 p-3 rounded border"></div>
-          
-          <button onclick="document.getElementById('pdfMetadata').classList.toggle('hidden')" class="w-full text-left font-bold text-cyan-400 mb-2 hover:text-cyan-300">▶ Ver Metadatos Completos</button>
-          <div id="pdfMetadata" class="hidden mb-3 bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs overflow-auto max-h-40 text-green-400"></div>
-          
-          <div id="pdfUrls" class="mb-3 hidden p-3 rounded border border-slate-700 bg-slate-900"></div>
-          
-          <h4 class="font-bold text-cyan-400 mb-2 mt-3">📸 Objetos e Imágenes Recuperadas (Render):</h4>
-          <div id="pdfImages" class="grid grid-cols-2 gap-2"></div>
-      </div>
-  </div>
-  
-  <div id="auth-msg">Conectando con base de datos V4...</div>
+          <div id="auth-msg" class="text-center text-slate-400 mt-2 font-bold text-lg p-4">Conectando con Base de Datos V4...</div>
 
-  <div id="main-panel" class="bg-slate-800 shadow-md rounded-lg border border-slate-700 p-6 mt-4 text-center w-11/12 max-w-md mx-auto" style="display:none;">
-    <h3 class="text-lg font-semibold mb-4 text-cyan-400">Gestión de Datos</h3>
-    <button id="mostrarFormularioBtn" class="w-full bg-cyan-600 text-white py-2 rounded-md shadow hover:bg-cyan-700 text-sm">
-      Introduzca nuevo Nro de Verificación
-    </button>
-    <button id="mostrarListadoBtn" class="w-full bg-slate-700 text-white py-2 rounded-md shadow hover:bg-slate-600 mt-2 text-sm border border-slate-600">
-      Consultar Lista Completa
-    </button>
-    
-    <div id="formularioNuevosDatos" class="mt-4 hidden text-left">
-      <div class="mb-4">
-        <label for="nuevoNumero" class="block text-sm font-bold text-slate-300 mb-1">Nro De Verificación:</label>
-        <input type="number" id="nuevoNumero" placeholder="Ej: 210205080686" class="w-full bg-slate-900 text-slate-200 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-      </div>
-      <div class="mb-4">
-        <label for="nuevaFecha" class="block text-sm font-bold text-slate-300 mb-1">Fecha de Expedición:</label>
-        <input type="date" id="nuevaFecha" class="w-full bg-slate-900 text-slate-200 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-      </div>
-      <div class="flex space-x-2">
-        <button onclick="guardarNuevoNumero()" class="w-1/2 bg-cyan-600 text-white py-2 rounded-md shadow hover:bg-cyan-700">Guardar</button>
-        <button onclick="limpiarCampos()" class="w-1/2 bg-slate-600 text-white py-2 rounded-md shadow hover:bg-slate-500">Limpiar</button>
-      </div>
-      <div id="mensajeGuardado" class="mt-4 text-sm font-medium text-center"></div>
-    </div>
+          <div id="main-panel" class="bg-slate-800 shadow-xl rounded-xl border border-slate-700 p-6 md:p-8 w-full" style="display:none;">
+              <h3 class="text-xl md:text-2xl font-bold mb-6 text-cyan-400 text-center">Gestión de Datos V4</h3>
+              <button id="mostrarFormularioBtn" class="w-full bg-cyan-600 text-white py-4 rounded-lg shadow hover:bg-cyan-700 text-base md:text-lg font-bold transition">Introduzca nuevo Nro de Verificación</button>
+              <button id="mostrarListadoBtn" class="w-full bg-slate-700 text-white py-4 rounded-lg shadow hover:bg-slate-600 mt-4 text-base md:text-lg font-bold border border-slate-600 transition">Consultar Lista Completa</button>
+              
+              <div id="formularioNuevosDatos" class="mt-6 hidden text-left bg-slate-900 p-6 rounded-xl border border-slate-700 shadow-inner">
+                  <label class="block text-base md:text-lg font-bold text-slate-300 mb-2">Nro De Verificación:</label>
+                  <input type="number" id="nuevoNumero" class="w-full bg-slate-800 text-slate-200 border border-slate-600 rounded-lg px-4 py-4 mb-5 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-lg">
+                  <label class="block text-base md:text-lg font-bold text-slate-300 mb-2">Fecha de Expedición:</label>
+                  <input type="date" id="nuevaFecha" class="w-full bg-slate-800 text-slate-200 border border-slate-600 rounded-lg px-4 py-4 mb-6 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-lg">
+                  <div class="flex space-x-4">
+                      <button onclick="guardarNuevoNumero()" class="w-1/2 bg-cyan-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-cyan-700 transition">Guardar</button>
+                      <button onclick="limpiarCampos()" class="w-1/2 bg-slate-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-slate-500 transition">Limpiar</button>
+                  </div>
+                  <div id="mensajeGuardado" class="mt-5 text-lg font-bold text-center"></div>
+              </div>
 
-    <div id="cpiDataTable" class="mt-4 hidden">
-        <h3 class="text-lg font-semibold mb-4 text-center text-cyan-400">Listado Completo</h3>
-        <div class="cpi-table-container">
-            <table class="w-full text-sm text-left text-slate-300">
-                <thead class="text-xs text-cyan-400 uppercase bg-slate-900 sticky top-0 border-b border-slate-700">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">Nro Verificación</th>
-                        <th scope="col" class="px-6 py-3">Fecha</th>
-                        <th scope="col" class="px-6 py-3"></th>
-                    </tr>
-                </thead>
-                <tbody id="cpiList"></tbody>
-            </table>
-        </div>
-    </div>
+              <div id="cpiDataTable" class="mt-6 hidden">
+                  <h3 class="text-xl font-bold mb-4 text-center text-cyan-400">Listado Completo Base de Datos</h3>
+                  <div class="cpi-table-container bg-slate-900 rounded-xl border border-slate-700 overflow-hidden shadow-inner">
+                      <table class="w-full text-base text-left text-slate-300">
+                          <thead class="text-sm md:text-base text-cyan-400 uppercase bg-slate-800 sticky top-0 border-b border-slate-700">
+                              <tr><th class="px-6 py-5">Nro Verificación</th><th class="px-6 py-5">Fecha</th><th class="px-6 py-5 text-right">Acción</th></tr>
+                          </thead>
+                          <tbody id="cpiList"></tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <div id="colAI" class="hidden flex-col gap-6 w-full min-w-0">
+          
+          <div id="output" class="text-slate-200 text-center w-full text-lg"></div>
+
+          <div id="aiResultBox" class="hidden w-full bg-slate-800 border-2 border-slate-700 rounded-xl shadow-xl overflow-hidden transition-colors duration-300">
+              <div id="aiHeader" class="bg-slate-900 p-5 border-b border-slate-700"><h3 class="font-bold text-xl md:text-2xl text-cyan-400" id="aiTitle">🔍 Análisis Completado</h3></div>
+              <div class="p-6">
+                  <div class="grid grid-cols-2 gap-4 text-sm md:text-base text-slate-200 text-left mb-6">
+                      <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 shadow-inner">
+                          <span class="text-xs md:text-sm text-slate-400 block uppercase font-bold mb-1">Nro De Verificación</span>
+                          <span id="aiNumero" class="font-mono font-bold text-white text-xl md:text-2xl break-all"></span>
+                      </div>
+                      <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 shadow-inner">
+                          <span class="text-xs md:text-sm text-slate-400 block uppercase font-bold mb-1">F. Expedición</span>
+                          <span id="aiFecha" class="font-mono font-bold text-white text-xl md:text-2xl"></span>
+                      </div>
+                  </div>
+                  <div id="aiValidationMsg" class="mb-5 text-base md:text-lg p-4 rounded-lg border border-slate-700 break-words min-w-0"></div>
+                  <div id="aiActions"></div>
+                  <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-5 text-slate-400 text-sm font-bold underline hover:text-cyan-400">Cerrar panel</button>
+              </div>
+          </div>
+      </div>
+
+      <div id="colForense" class="hidden flex-col gap-6 w-full min-w-0">
+          <div id="pdfForensicBox" class="hidden w-full bg-slate-800 border-2 border-slate-700 rounded-xl shadow-xl overflow-hidden h-full">
+              <div class="bg-slate-900 p-5 border-b border-slate-700"><h3 class="font-bold text-xl md:text-2xl text-cyan-400">📊 Análisis Forense Profundo</h3></div>
+              <div class="p-6 text-base text-slate-200 text-left">
+                  <div id="pdfModifications" class="mb-5 text-base md:text-lg break-words min-w-0"></div>
+                  <button onclick="document.getElementById('pdfMetadata').classList.toggle('hidden')" class="w-full bg-slate-900 border border-slate-700 text-center font-bold text-cyan-400 py-3 rounded-lg mb-5 hover:bg-slate-700 hover:text-cyan-300 transition">▶ Ver Metadatos en Bruto</button>
+                  <div id="pdfMetadata" class="hidden mb-6 bg-slate-900 p-5 rounded-lg border border-slate-600 font-mono text-xs md:text-sm overflow-auto max-h-80 text-green-400 shadow-inner break-all"></div>
+                  <div id="pdfUrls" class="mb-6 hidden p-5 rounded-lg border border-slate-600 bg-slate-900 text-base shadow-inner break-all"></div>
+                  
+                  <h4 class="font-bold text-cyan-400 mb-4 mt-2 text-xl border-t border-slate-700 pt-6">📸 Objetos y Capas Recuperadas (Render)</h4>
+                  <div id="pdfImages" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+              </div>
+          </div>
+      </div>
+
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -277,7 +187,6 @@
     let datosCompletos = [];
     let isUserAuthenticated = false;
     
-    // --- 2. SEGURIDAD V4 ---
     auth.onAuthStateChanged((user) => {
         if (user) {
             isUserAuthenticated = true;
@@ -300,20 +209,12 @@
         });
         datosCompletos.sort((a, b) => a.numero - b.numero);
         renderizarTablaCpi();
-      }, (error) => {
-          document.getElementById('auth-msg').style.display = 'block';
-          document.getElementById('auth-msg').innerHTML = "<span class='text-red-500'>Error de Permisos V4: " + error.code + "</span>";
       });
     }
-    
-    // --- LOGICA BOTONES Y BD ---
-    const mostrarFormularioBtn = document.getElementById('mostrarFormularioBtn');
-    const formularioNuevosDatos = document.getElementById('formularioNuevosDatos');
-    const cpiDataTable = document.getElementById('cpiDataTable');
-    const cpiListDiv = document.getElementById('cpiList');
 
-    mostrarFormularioBtn.addEventListener('click', () => { formularioNuevosDatos.classList.toggle('hidden'); cpiDataTable.classList.add('hidden'); limpiarCampos(); });
-    document.getElementById('mostrarListadoBtn').addEventListener('click', () => { cpiDataTable.classList.toggle('hidden'); formularioNuevosDatos.classList.add('hidden'); limpiarCampos(); });
+    // --- LOGICA BOTONES Y BD ---
+    document.getElementById('mostrarFormularioBtn').addEventListener('click', () => { document.getElementById('formularioNuevosDatos').classList.toggle('hidden'); document.getElementById('cpiDataTable').classList.add('hidden'); limpiarCampos(); });
+    document.getElementById('mostrarListadoBtn').addEventListener('click', () => { document.getElementById('cpiDataTable').classList.toggle('hidden'); document.getElementById('formularioNuevosDatos').classList.add('hidden'); limpiarCampos(); });
 
     function limpiarCampos() { document.getElementById('nuevoNumero').value = ''; document.getElementById('nuevaFecha').value = ''; const m = document.getElementById('mensajeGuardado'); m.textContent = ''; m.style.color = ''; }
 
@@ -333,11 +234,12 @@
         licenciasNuevasRef.child(String(nuevoNumero)).set({ numero: nuevoNumero, fecha: `${day}/${month}/${year}` })
             .then(() => {
                 mensajeGuardadoDiv.textContent = 'Guardado con éxito.'; mensajeGuardadoDiv.style.color = '#22c55e';
-                setTimeout(() => { limpiarCampos(); formularioNuevosDatos.classList.add('hidden'); }, 2000);
+                setTimeout(() => { limpiarCampos(); document.getElementById('formularioNuevosDatos').classList.add('hidden'); }, 2000);
             }).catch(error => { mensajeGuardadoDiv.textContent = 'Error: ' + error.message; mensajeGuardadoDiv.style.color = '#ef4444'; });
     }
 
     function renderizarTablaCpi() {
+      const cpiListDiv = document.getElementById('cpiList');
       cpiListDiv.innerHTML = '';
       const datosOrdenados = [...datosCompletos].sort((a, b) => a.numero - b.numero);
       datosOrdenados.forEach(dato => {
@@ -346,7 +248,7 @@
         
         const celdaNumero = document.createElement('td'); celdaNumero.classList.add('px-6', 'py-4', 'font-medium', 'text-slate-200', 'whitespace-nowrap'); celdaNumero.setAttribute('data-label', 'Nro Verificación'); celdaNumero.textContent = dato.numero;
         const celdaFecha = document.createElement('td'); celdaFecha.classList.add('px-6', 'py-4', 'text-slate-300'); celdaFecha.setAttribute('data-label', 'Fecha'); celdaFecha.textContent = dato.fecha;
-        const celdaAccion = document.createElement('td'); celdaAccion.classList.add('px-6', 'py-4', 'text-right'); celdaAccion.setAttribute('data-label', 'Acciones');
+        const celdaAccion = document.createElement('td'); celdaAccion.classList.add('px-6', 'py-4', 'text-right'); celdaAccion.setAttribute('data-label', 'Acción');
         const deleteIcon = document.createElement('span');
         deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 delete-icon inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>`;
         deleteIcon.onclick = () => confirmarEliminarCpi(dato.key, dato.numero);
@@ -360,9 +262,9 @@
       if (confirm(`¿Eliminar registro ${numero}?`)) licenciasNuevasRef.child(key).remove();
     }
 
-    // --- CONFIGURACIÓN IA GEMINI ---
+    // --- CONFIGURACIÓN IA GEMINI (Defecto 2.5-flash) ---
     let geminiApiKey = localStorage.getItem('ai_api_key') || '';
-    let geminiModelName = localStorage.getItem('gemini_model_name') || 'gemini-1.5-flash';
+    let geminiModelName = localStorage.getItem('gemini_model_name') || 'gemini-2.5-flash';
 
     function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('hidden'); document.getElementById('apiKeyInput').value = geminiApiKey; document.getElementById('modelInput').value = geminiModelName; }
     function saveSettings() {
@@ -388,20 +290,42 @@
         } catch (error) { console.warn(`Error IA:`, error); return null; }
     }
 
+    // --- FUNCIÓN DE DISEÑO DINÁMICO (Expande a 3 columnas en Desktop) ---
+    function showResultsLayout() {
+        const appGrid = document.getElementById('appGrid');
+        const colAI = document.getElementById('colAI');
+        const colForense = document.getElementById('colForense');
+        if(appGrid && colAI && colForense) {
+            appGrid.classList.remove('max-w-3xl');
+            // 3 columnas en pantallas grandes (xl), 2 en portátiles (lg), 1 en móvil
+            appGrid.classList.add('max-w-[120rem]', 'lg:grid-cols-2', 'xl:grid-cols-3');
+            colAI.classList.remove('hidden');
+            colAI.classList.add('flex');
+            colForense.classList.remove('hidden');
+            colForense.classList.add('flex');
+        }
+    }
+
     // --- INTEGRACIÓN: GEMINI + METADATOS LOCALES + API RENDER ---
     async function processFile(file) {
-        const overlay = document.getElementById('loadingOverlay');
-        overlay.classList.remove('hidden');
+        showResultsLayout(); 
         
         const forensicBox = document.getElementById('pdfForensicBox');
         const imgDiv = document.getElementById('pdfImages');
-        if (forensicBox) forensicBox.classList.add('hidden');
+        const aiBox = document.getElementById('aiResultBox');
         
-        // Mensaje de espera detallado para el retraso del servidor gratuito de Render
+        aiBox.classList.remove('hidden', 'border-red-500', 'border-blue-500', 'border-green-500', 'alert-pulse');
+        document.getElementById('aiTitle').innerHTML = "<span class='animate-pulse text-cyan-400'>⏳ IA Analizando Datos...</span>";
+        document.getElementById('aiValidationMsg').innerHTML = "";
+        document.getElementById('aiActions').innerHTML = "";
+        document.getElementById('aiNumero').textContent = "...";
+        document.getElementById('aiFecha').textContent = "...";
+
+        if (forensicBox) forensicBox.classList.remove('hidden');
         if (imgDiv) imgDiv.innerHTML = `
-            <div class="col-span-2 text-center p-4 bg-slate-900 border border-slate-700 rounded-lg">
-                <p class='text-cyan-400 font-bold mb-2 animate-pulse'>⏳ Despertando Servidor Forense y Extrayendo imágenes...</p>
-                <p class='text-slate-400 text-xs'>Como usas un servidor gratuito, el primer documento puede tardar <b>hasta 60 segundos</b> en cargar mientras el servidor arranca. Los siguientes serán inmediatos.</p>
+            <div class="col-span-full text-center p-6 bg-slate-900 border border-slate-700 rounded-lg">
+                <p class='text-cyan-400 font-bold mb-2 animate-pulse text-lg'>⏳ Servidor Extrayendo Imágenes...</p>
+                <p class='text-slate-400 text-sm'>Examen exhaustivo profundo en proceso (puede tardar <b>hasta 60 segundos</b>).</p>
             </div>`;
 
         try {
@@ -409,17 +333,17 @@
             let isPdf = file.type === "application/pdf";
 
             if (isPdf) { 
-                base64Image = await convertPdfToImage(file); 
-                // Ejecutamos en paralelo para no bloquear
                 analyzePdfForensics(file); 
                 extraerImagenesRender(file); 
-            } 
-            else if (file.type.startsWith("image/")) { 
+                base64Image = await convertPdfToImage(file); 
+            } else if (file.type.startsWith("image/")) { 
                 base64Image = await new Promise((resolve) => { const reader = new FileReader(); reader.onload = (e) => resolve(e.target.result.split(',')[1]); reader.readAsDataURL(file); }); 
+                document.getElementById('pdfModifications').innerHTML = "⚠️ Análisis forense avanzado no disponible para imágenes simples. Sube el PDF original.";
+                document.getElementById('pdfModifications').className = "mb-4 p-5 rounded-xl border-2 border-orange-500 bg-slate-800 text-orange-300 shadow-lg break-words min-w-0";
+                if (imgDiv) imgDiv.innerHTML = `<p class="text-slate-400 col-span-full text-center text-sm">Extracción profunda solo aplica a documentos PDF.</p>`;
             } else { throw new Error("Formato no soportado."); }
 
             const result = await callGemini(base64Image);
-            overlay.classList.add('hidden');
 
             if (result && result.numero) {
                 const numLimpio = result.numero.replace(/\D/g, ''); 
@@ -428,9 +352,17 @@
                 buscarFecha(); 
                 mostrarResultadoIA(numLimpio, fechaLimpia);
             } else if (!geminiApiKey) {
-                alert("⚠️ Documento enviado al Análisis Forense (Abajo). La IA de texto no se ejecutó porque falta la API Key.");
+                document.getElementById('aiTitle').innerHTML = "⚠️ IA Inactiva";
+                document.getElementById('aiValidationMsg').innerHTML = "Falta la API Key de Gemini. Revisa los resultados forenses abajo.";
+                document.getElementById('aiValidationMsg').className = "bg-orange-900/40 text-orange-300 p-4 rounded-lg border border-orange-800 text-left break-words min-w-0";
+            } else {
+                document.getElementById('aiTitle').innerHTML = "❌ Error de Lectura";
+                document.getElementById('aiValidationMsg').innerHTML = "La IA no pudo extraer los datos de este documento.";
             }
-        } catch (error) { overlay.classList.add('hidden'); alert(error.message); }
+        } catch (error) { 
+            document.getElementById('aiTitle').innerHTML = "❌ Error del Sistema";
+            document.getElementById('aiValidationMsg').innerHTML = error.message;
+        }
     }
 
     // --- NUEVA FUNCIÓN: EXTRACCIÓN CON SERVIDOR PYTHON (RENDER) ---
@@ -443,32 +375,45 @@
         try {
             const response = await fetch(API_URL, { method: 'POST', body: formData });
             const data = await response.json();
-
             imgDiv.innerHTML = ""; 
 
             if (data.error) {
-                imgDiv.innerHTML = `<p class="text-red-500 col-span-2 text-center text-xs font-bold">❌ Error servidor: ${data.error}</p>`;
+                imgDiv.innerHTML = `<p class="text-red-500 col-span-full text-center text-sm font-bold">❌ Error servidor: ${data.error}</p>`;
             } else if (data.imagenes && data.imagenes.length > 0) {
                 data.imagenes.forEach((imgBase64, index) => {
+                    let base64Puro = imgBase64.split(',')[1] || imgBase64;
+                    let sizeKB = (Math.round(base64Puro.length * 0.75) / 1024).toFixed(1);
+                    let uniqueId = 'ext_img_' + Date.now() + '_' + index;
+
                     imgDiv.innerHTML += `
-                        <div class="bg-slate-900 p-2 rounded border border-slate-700 flex flex-col items-center justify-between transition hover:border-cyan-400">
-                            <img src="${imgBase64}" class="max-w-full h-auto rounded mb-2 shadow-md">
-                            <div class="text-[14px] text-green-400 text-center font-mono font-bold leading-snug mt-1 border-t border-slate-700 pt-2 w-full">
-                                OBJETO EXT: ${index + 1}
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 flex flex-col items-center justify-between transition hover:border-cyan-400">
+                            <img src="${imgBase64}" class="max-w-full h-auto rounded shadow-md" onload="document.getElementById('dims_${uniqueId}').innerText = this.naturalWidth + ' x ' + this.naturalHeight + ' px';">
+                            <div class="text-[15px] text-green-400 text-center font-mono font-bold leading-snug mt-3 border-t border-slate-700 pt-3 w-full">
+                                OBJETO EXT: ${index + 1}<br>
+                                <span id="dims_${uniqueId}" class="text-slate-300 text-[13px] font-bold tracking-widest">Calculando...</span><br>
+                                <span class="text-cyan-300 text-[14px]">${sizeKB} KB</span>
                             </div>
                         </div>
                     `;
                 });
             } else {
-                imgDiv.innerHTML = `<p class="text-slate-400 col-span-2 text-center text-xs">No se encontraron imágenes extraíbles en este PDF.</p>`;
+                imgDiv.innerHTML = `<p class="text-slate-400 col-span-full text-center text-sm">No se encontraron imágenes extraíbles en este PDF.</p>`;
             }
         } catch (error) {
-            imgDiv.innerHTML = `<p class="text-red-500 col-span-2 text-center text-xs font-bold">❌ Error de conexión con el Servidor Python en Render. Asegúrate de que no haya problemas de CORS.</p>`;
+            imgDiv.innerHTML = `<p class="text-red-500 col-span-full text-center text-sm font-bold">❌ Error de conexión con el Servidor Python en Render.</p>`;
             console.error(error);
         }
     }
 
-    // --- FORENSE LOCAL: METADATOS Y ALERTAS (Sin extraer imágenes) ---
+    // --- FUNCIÓN DE AYUDA PARA LEER FECHAS DE PDF ---
+    function formatoFechaPDF(pdfDate) {
+        if (!pdfDate) return "Desconocida";
+        let str = pdfDate.replace('D:', '').replace(/'/g, '');
+        if (str.length >= 14) return `${str.substring(6,8)}/${str.substring(4,6)}/${str.substring(0,4)} ${str.substring(8,10)}:${str.substring(10,12)}:${str.substring(12,14)}`;
+        return pdfDate;
+    }
+
+    // --- FORENSE LOCAL: METADATOS Y ALERTAS ---
     async function analyzePdfForensics(file) {
         try {
             const arrayBuffer = await file.arrayBuffer();
@@ -478,29 +423,46 @@
             const metaInfo = metadata.info || {};
             
             const modDiv = document.getElementById('pdfModifications');
-            let modHtml = "<strong>🔍 Trazabilidad del Documento:</strong><br>";
             let isModified = false;
             let isSuspiciousApp = false;
-            const suspiciousRegex = /photoshop|canva|illustrator|corel|gimp|inkscape|photo|edit|designer/i;
+            const suspiciousRegex = /photoshop|canva|illustrator|corel|gimp|inkscape|photo|edit|designer|word/i;
             const creatorStr = (metaInfo.Creator || "") + " " + (metaInfo.Producer || "");
             
             if (suspiciousRegex.test(creatorStr)) isSuspiciousApp = true;
+            if (metaInfo.ModDate && metaInfo.ModDate !== metaInfo.CreationDate) isModified = true;
 
-            if (isSuspiciousApp) {
-                isModified = true;
-                modHtml += `<br><span class="text-red-500 font-black text-lg uppercase tracking-wider alert-pulse">🚨 Posible Documento Manipulado</span><br>`;
-                modHtml += `⚠️ Se detectó software de edición gráfica: <b class="text-white">${metaInfo.Creator || metaInfo.Producer}</b><br>`;
-            } else if (metaInfo.ModDate && metaInfo.ModDate !== metaInfo.CreationDate) {
-                isModified = true;
-                modHtml += `<br>⚠️ <strong>DOCUMENTO MODIFICADO</strong><br>`;
-                modHtml += `📅 Fecha mod.: ${metaInfo.ModDate}<br>`;
-                if (metaInfo.Producer) modHtml += `🔧 Posible app: ${metaInfo.Producer}<br>`;
+            let detailsHtml = `<ul class="list-disc pl-5 mt-3 space-y-1 text-sm md:text-base text-slate-300 break-words">`;
+            detailsHtml += `<li><b>Creador:</b> ${metaInfo.Creator || "Desconocido"}</li>`;
+            detailsHtml += `<li><b>Productor (Editor):</b> ${metaInfo.Producer || "Desconocido"}</li>`;
+            detailsHtml += `<li><b>F. Creación:</b> ${formatoFechaPDF(metaInfo.CreationDate)}</li>`;
+            if (metaInfo.ModDate) detailsHtml += `<li><b>F. Modificación:</b> ${formatoFechaPDF(metaInfo.ModDate)}</li>`;
+            if (metaInfo.Title) detailsHtml += `<li><b>Título:</b> ${metaInfo.Title}</li>`;
+            if (metaInfo.Author) detailsHtml += `<li><b>Autor:</b> ${metaInfo.Author}</li>`;
+            detailsHtml += `<li><b>Páginas del Doc:</b> ${pdf.numPages}</li>`;
+            detailsHtml += `</ul>`;
+
+            let modHtml = "<h4 class='font-bold text-xl mb-4 text-white'>🔍 Trazabilidad del Documento</h4>";
+
+            if (isSuspiciousApp || isModified) {
+                modHtml += `<div class="p-4 bg-red-900/70 border border-red-400 rounded-lg text-red-100 mb-4 shadow-inner break-words min-w-0">`;
+                if (isSuspiciousApp) {
+                    modHtml += `<span class="font-black text-lg uppercase tracking-wider alert-pulse block mb-2">🚨 Posible Documento Falso</span>`;
+                    modHtml += `⚠️ Software de edición gráfica o procesador de texto (Word) detectado en los metadatos.`;
+                } else {
+                    modHtml += `<span class="font-black text-lg uppercase tracking-wider block mb-2">⚠️ Documento Modificado</span>`;
+                    modHtml += `⚠️ La fecha de modificación no coincide con la original. Posible alteración.`;
+                }
+                modHtml += `</div>`;
+                modDiv.className = "mb-4 p-5 rounded-xl border-2 border-red-500 bg-red-950 shadow-lg min-w-0";
             } else {
-                modHtml += `<br>✅ Documento original. Sin modificaciones detectadas.<br>`;
+                modHtml += `<div class="p-4 bg-green-900/70 border border-green-400 rounded-lg text-green-100 mb-4 shadow-inner break-words min-w-0">`;
+                modHtml += `✅ <b>Documento Íntegro:</b> Creador estándar. Las fechas no presentan alteraciones evidentes.`;
+                modHtml += `</div>`;
+                modDiv.className = "mb-4 p-5 rounded-xl border-2 border-green-500 bg-slate-800 shadow-lg min-w-0";
             }
             
+            modHtml += detailsHtml;
             modDiv.innerHTML = modHtml;
-            modDiv.className = isSuspiciousApp ? "mb-3 p-3 rounded border-2 border-red-600 bg-red-900/30 text-red-300" : (isModified ? "mb-3 p-3 rounded border border-orange-800 bg-orange-900/40 text-orange-300" : "mb-3 p-3 rounded border border-green-800 bg-green-900/40 text-green-300");
             
             const metaDiv = document.getElementById('pdfMetadata');
             let metaHtml = "";
@@ -515,9 +477,7 @@
             }
             const urlDiv = document.getElementById('pdfUrls');
             if (urls.length > 0) { urlDiv.style.display = 'block'; urlDiv.innerHTML = `<strong class="text-cyan-400">URLs referenciadas:</strong><br>${urls.join('<br>')}`; } else { urlDiv.style.display = 'none'; }
-
-            document.getElementById('pdfForensicBox').classList.remove('hidden');
-        } catch (error) { console.error("Error en lectura local de metadatos:", error); }
+        } catch (error) { console.error("Error en lectura local:", error); }
     }
 
     async function convertPdfToImage(file) {
@@ -539,29 +499,33 @@
         const aiBox = document.getElementById('aiResultBox');
         document.getElementById('aiNumero').textContent = numero;
         document.getElementById('aiFecha').textContent = fecha;
-        aiBox.classList.remove('hidden');
 
         const chequeo = verificarCongruencia(parseInt(numero), fecha);
         const aiMsg = document.getElementById('aiValidationMsg');
         const aiActions = document.getElementById('aiActions');
 
+        aiBox.classList.remove('border-red-500', 'border-blue-500', 'border-green-500', 'alert-pulse');
+
         if (chequeo.esFraude) {
-            aiBox.className = "mt-4 w-11/12 max-w-md mx-auto bg-slate-800 border-2 rounded-lg shadow-xl overflow-hidden border-red-500 alert-pulse";
+            aiBox.classList.add('border-red-500', 'alert-pulse');
             document.getElementById('aiTitle').textContent = "⚠️ POSIBLE DOCUMENTO FALSO";
-            aiMsg.className = "bg-red-900/40 text-red-300 p-3 rounded font-bold border border-red-800 text-left";
-            aiMsg.innerHTML = chequeo.mensaje; aiActions.innerHTML = ""; 
+            // EL FIX APLICADO AQUÍ (break-words min-w-0)
+            aiMsg.className = "bg-red-900/40 text-red-300 p-4 rounded-lg font-bold border border-red-800 text-left break-words min-w-0";
+            aiMsg.innerHTML = chequeo.mensaje;
+            aiActions.innerHTML = ""; 
         } else if (chequeo.existe) {
-            aiBox.className = "mt-4 w-11/12 max-w-md mx-auto bg-slate-800 border-2 rounded-lg shadow-xl overflow-hidden border-blue-500";
+            aiBox.classList.add('border-blue-500');
             document.getElementById('aiTitle').textContent = "ℹ️ Documento ya registrado";
-            aiMsg.className = "bg-blue-900/40 text-blue-300 p-3 rounded border border-blue-800 text-left";
-            aiMsg.innerHTML = "Este 'Nro De Verificación' ya existe exactamente en la base de datos."; aiActions.innerHTML = "";
+            aiMsg.className = "bg-blue-900/40 text-blue-300 p-4 rounded-lg border border-blue-800 text-left break-words min-w-0";
+            aiMsg.innerHTML = "Este 'Nro De Verificación' ya existe exactamente en la base de datos.";
+            aiActions.innerHTML = "";
         } else {
-            aiBox.className = "mt-4 w-11/12 max-w-md mx-auto bg-slate-800 border-2 rounded-lg shadow-xl overflow-hidden border-green-500";
+            aiBox.classList.add('border-green-500');
             document.getElementById('aiTitle').textContent = "✅ Documento Coherente";
-            aiMsg.className = "bg-green-900/40 text-green-300 p-3 rounded border border-green-800 text-left";
+            aiMsg.className = "bg-green-900/40 text-green-300 p-4 rounded-lg border border-green-800 text-left break-words min-w-0";
             aiMsg.innerHTML = "La numeración y fecha siguen la progresión aritmética lógica de Venezuela.";
             window.tempAiData = { numero: parseInt(numero), fecha: fecha };
-            aiActions.innerHTML = `<button onclick="guardarDesdeAI()" class="w-full bg-cyan-600 text-white font-bold py-3 rounded hover:bg-cyan-700 transition flex justify-center items-center gap-2 shadow-lg transform active:scale-95">AÑADIR A BASE DE DATOS</button>`;
+            aiActions.innerHTML = `<button onclick="guardarDesdeAI()" class="w-full bg-cyan-600 text-white font-bold py-4 rounded-lg hover:bg-cyan-700 transition flex justify-center items-center gap-2 shadow-lg transform active:scale-95 text-lg mt-2">AÑADIR A BASE DE DATOS</button>`;
         }
     }
 
@@ -597,31 +561,32 @@
     }
 
     function buscarFecha() {
+      showResultsLayout(); 
+      
       const numero = parseInt(document.getElementById("numero").value);
       const output = document.getElementById("output");
-      if (isNaN(numero)) { output.innerHTML = "<p class='text-red-500 font-semibold'>Ingresa un Nro De Verificación válido.</p>"; return; }
-      if(datosCompletos.length === 0 && !isUserAuthenticated) { output.innerHTML = "<p class='text-amber-500'>Conectando... (Verifica sesión)</p>"; return; }
+      if (isNaN(numero)) { output.innerHTML = "<p class='text-red-500 font-bold p-4 bg-slate-900 rounded-lg'>Ingresa un Nro De Verificación válido.</p>"; return; }
+      if(datosCompletos.length === 0 && !isUserAuthenticated) { output.innerHTML = "<p class='text-orange-500 font-bold p-4 bg-slate-900 rounded-lg'>Conectando... (Verifica sesión)</p>"; return; }
       
       const exacto = datosCompletos.find(d => d.numero === numero);
-      if (exacto) { output.innerHTML = `<div class="bg-green-900/40 p-4 rounded border border-green-800"><p class='text-green-400 font-bold'>✅ REGISTRO EXACTO ENCONTRADO</p><p>Nro: ${exacto.numero}</p><p class='font-bold'>Fecha: ${exacto.fecha}</p></div>`; return; }
+      if (exacto) { output.innerHTML = `<div class="bg-green-900/40 p-5 rounded-xl border border-green-500 shadow-lg break-words min-w-0"><p class='text-green-400 font-black text-xl mb-2'>✅ REGISTRO EXACTO ENCONTRADO</p><p class="text-lg">Nro: ${exacto.numero}</p><p class='font-bold text-xl'>Fecha: ${exacto.fecha}</p></div>`; return; }
       
       const datosOrd = [...datosCompletos].sort((a,b) => a.numero - b.numero);
       const antes = datosOrd.filter(d => d.numero <= numero).pop();
       const despues = datosOrd.find(d => d.numero > numero);
 
-      if (!antes) { output.innerHTML = "<p class='text-red-500 font-bold'>NÚMERO SIN REFERENCIA PREVIA</p>"; return; }
-      if (!despues) { output.innerHTML = `<div class="bg-orange-900/40 p-4 rounded border border-orange-800"><p class='text-orange-400 font-bold'>⚠️ NÚMERO POSTERIOR AL ÚLTIMO</p><p>Último: ${antes.numero} (${antes.fecha})</p></div>`; return; }
+      if (!antes) { output.innerHTML = "<p class='text-red-500 font-bold p-4 bg-slate-900 rounded-lg'>NÚMERO SIN REFERENCIA PREVIA</p>"; return; }
+      if (!despues) { output.innerHTML = `<div class="bg-orange-900/40 p-5 rounded-xl border border-orange-500 shadow-lg break-words min-w-0"><p class='text-orange-400 font-black text-xl mb-2'>⚠️ NÚMERO POSTERIOR AL ÚLTIMO</p><p class="text-lg">Último: ${antes.numero} (${antes.fecha})</p></div>`; return; }
 
       const prop = (numero - antes.numero) / (despues.numero - antes.numero);
       const [d1, m1, y1] = antes.fecha.split("/").map(Number);
       const [d2, m2, y2] = despues.fecha.split("/").map(Number);
       const f1 = new Date(y1, m1-1, d1).getTime();
       const f2 = new Date(y2, m2-1, d2).getTime();
-      
       if (f1 > f2) { output.innerHTML = "<p class='text-red-500 font-bold'>¡ERROR CRÍTICO EN BD! FECHAS INCOHERENTES</p>"; return; }
 
       const fEst = new Date(f1 + prop * (f2 - f1));
-      output.innerHTML = `<div class="bg-blue-900/40 p-4 rounded border border-blue-800"><p class='text-blue-400 font-bold mb-2'>ESTIMACIÓN ARITMÉTICA</p><p class="text-sm text-slate-300">Rango: <strong>${antes.fecha}</strong> y <strong>${despues.fecha}</strong></p><p class='text-cyan-400 font-bold text-xl mt-2'>Fecha Estimada: ${fEst.toLocaleDateString("es-ES")}</p></div>`;
+      output.innerHTML = `<div class="bg-blue-900/40 p-6 rounded-xl border border-blue-500 shadow-lg break-words min-w-0"><p class='text-blue-400 font-black text-xl mb-3'>ESTIMACIÓN ARITMÉTICA</p><p class="text-base text-slate-300">Rango referencial: <br><strong>${antes.fecha}</strong> y <strong>${despues.fecha}</strong></p><p class='text-cyan-400 font-black text-2xl mt-4 bg-slate-900/50 p-3 rounded-lg'>Fecha Estimada: ${fEst.toLocaleDateString("es-ES")}</p></div>`;
     }
 
     const dz = document.getElementById('mainDropZone');
@@ -629,7 +594,7 @@
     ['dragenter', 'dragover'].forEach(e => dz.addEventListener(e, () => dz.classList.add('drag-active'), false));
     ['dragleave', 'drop'].forEach(e => dz.addEventListener(e, () => dz.classList.remove('drag-active'), false));
     dz.addEventListener('drop', e => { if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); }, false);
-    window.addEventListener('paste', e => { for(let i of e.clipboardData.items) if(i.type.startsWith("image")) processFile(i.getAsFile()); });
+    window.addEventListener('paste', e => { for(let i of e.clipboardData.items) if(i.type.startsWith("image") || i.type === "application/pdf") processFile(i.getAsFile()); });
     document.getElementById("numero").addEventListener("keypress", e => { if (e.key === "Enter") buscarFecha(); });
   </script>
 </body>
