@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decodificador PNC Colombia - GAD</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    
+    <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+</head>
+<body class="bg-slate-900">
+
+    <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+      <img src="../ASSETS/logogad.png" onerror="this.onerror=null; this.src='https://via.placeholder.com/112?text=GAD';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+      
+      <div class="text-center flex-1">
+        <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+          PNC COLOMBIA<br class="md:hidden"> DECODER
+        </h1>
+        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+          Grupo de Análisis Documental
+        </h2>
+      </div>
+
+      <img src="../ASSETS/t4c.png" onerror="this.onerror=null; this.src='https://via.placeholder.com/96?text=T4C';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
+    </header>
+
+    <div class="container mx-auto mt-4">
+        
+        <div id="status">Esperando acción...</div>
+
+        <button id="clearBtn" style="background-color: #e74c3c; color: white; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; border: none; margin-bottom: 10px; display: none;">
+            🗑️ Limpiar / Detener
+        </button>
+
+        <div id="mainButtons" class="controls">
+            <button id="startCamera" class="btn-cam">📸 USAR CÁMARA</button>
+            <label class="file-upload-label btn-img">
+                🖼️ SUBIR IMAGEN PARA RECORTAR
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </label>
+            <button id="showAppMenuBtn" class="btn-app">📱 USAR APP ESCÁNER EXTERNA</button>
+            <button id="smartPasteBtn" class="btn-paste">📋 PEGAR CÓDIGO COPIADO Y LEER</button>
+        </div>
+
+        <div class="video-wrapper" id="videoWrapper" style="display: none;">
+            <video id="video" autoplay playsinline></video>
+            <div class="scanner-guide" id="scannerGuide"></div>
+        </div>
+
+        <div id="cropperContainer" class="cropper-container" style="display: none;">
+            <div class="img-container"><img id="imageToCrop" src="" alt="Imagen a recortar"></div>
+            <button id="cropAndReadBtn" class="action-btn">✂️ Confirmar Recorte y Leer</button>
+        </div>
+
+        <div id="cameraControls" class="camera-controls" style="display: none;">
+            <div class="control-group">
+                <label>↔️ Ancho del marco:</label>
+                <input type="range" id="guideWidth" min="20" max="95" value="95">
+            </div>
+            <div class="control-group">
+                <label>↕️ Alto del marco:</label>
+                <input type="range" id="guideHeight" min="10" max="95" value="95">
+            </div>
+            <div class="control-group">
+                <label>🔍 Zoom de cámara:</label>
+                <input type="range" id="zoomSlider" min="1" max="4" step="0.1" value="1">
+            </div>
+            <button id="manualCaptureBtn" class="action-btn">📸 Capturar y Leer Manualmente</button>
+        </div>
+
+        <div class="result-box" id="resultBox" style="display: none;">
+            
+            <div class="dl-card-container flex-col gap-4 items-center">
+                <div class="dl-card col-card" id="cardFront">
+                    <div class="col-header">
+                        <div class="col-title">
+                            REPÚBLICA DE COLOMBIA<br>
+                            MINISTERIO DE TRANSPORTE<br>
+                            <span class="col-subtitle">LICENCIA DE CONDUCCIÓN</span>
+                        </div>
+                    </div>
+                    <div class="dl-body mt-2">
+                        <div class="dl-photo flex items-center justify-center bg-gray-200">
+                            <svg viewBox="0 0 24 24" fill="#999" width="60%" height="60%"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <div class="dl-details">
+                            <div class="dl-field"><span>N° Licencia:</span> <strong id="f_licencia"></strong></div>
+                            <div class="dl-field"><span>Tipo Doc:</span> <strong id="f_tipo_doc"></strong></div>
+                            <div class="dl-field"><span>Documento:</span> <strong id="f_documento"></strong></div>
+                            <div class="dl-field"><span>Nombres:</span> <strong id="f_nombres"></strong></div>
+                            <div class="dl-field"><span>Apellidos:</span> <strong id="f_apellidos"></strong></div>
+                            <div class="dl-row mt-1">
+                                <div class="dl-field"><span>F. Nac:</span> <strong id="f_nacimiento"></strong></div>
+                                <div class="dl-field"><span>GS-RH:</span> <strong id="f_rh" class="text-red-600"></strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dl-card col-card" id="cardBack">
+                    <div class="col-back-header">CATEGORÍAS AUTORIZADAS</div>
+                    <table class="col-table w-full text-sm mb-2">
+                        <thead>
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Fecha Expedición</th>
+                                <th>Fecha Vencimiento</th>
+                            </tr>
+                        </thead>
+                        <tbody id="b_categories_body">
+                            <tr><td id="b_cat1"></td><td id="b_exp1"></td><td id="b_ven1"></td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="dl-details" style="border-top: 1px solid #ccc; padding-top: 8px;">
+                        <div class="dl-field"><span>Restricciones:</span> <strong id="b_restricciones"></strong></div>
+                        <div class="dl-field"><span>Organismo Tránsito:</span> <strong id="b_organismo"></strong></div>
+                    </div>
+                    
+                    <div class="validation-badge valid" id="badgeValid">✅ Datos Leídos</div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <div class="data-label text-cyan-400">Código Crudo (Raw Text):</div>
+                <div class="data-content" id="rawOutput" style="font-size: 0.8rem;">-</div>
+            </div>
+            
+            <button id="copyBtn" class="copy-btn mt-4">Copiar Código Crudo</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

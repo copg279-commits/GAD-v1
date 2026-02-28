@@ -1,0 +1,243 @@
+:root {
+    --bg-color: #0f172a; /* Slate 900 */
+    --surface-color: #1e293b; /* Slate 800 */
+    --text-color: #e2e8f0; /* Slate 200 */
+    --highlight-color: #06b6d4; /* Cyan 500 */
+    --border-color: #334155; /* Slate 700 */
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding-bottom: 30px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+#status {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: var(--highlight-color);
+    background: var(--surface-color);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+/* ========================================== */
+/* CONTROLES PRINCIPALES (BOTONES VERTICALES) */
+/* ========================================== */
+.controls {
+    display: flex;
+    flex-direction: column; /* Alineación vertical estricta */
+    gap: 15px; /* Espacio grande entre botones */
+    margin-bottom: 25px;
+}
+
+/* Estilo base para todos los botones grandes del menú */
+.controls button, .controls label.btn-img {
+    width: 100%;
+    padding: 18px; /* Botones más altos */
+    border: none;
+    border-radius: 16px; /* Bordes más redondeados */
+    font-size: 1.1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+    transition: transform 0.2s, filter 0.2s;
+    text-align: center;
+    display: flex; /* Flex para centrar icono y texto si hubiese */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Efecto al presionar */
+.controls button:active, .controls label.btn-img:active {
+    transform: scale(0.97);
+    filter: brightness(1.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Colores específicos para cada botón */
+.btn-cam {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); /* Azul vibrante */
+}
+
+.btn-img {
+    background: linear-gradient(135deg, #10b981, #047857); /* Verde esmeralda */
+}
+
+.btn-app {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9); /* Violeta */
+}
+
+.btn-paste {
+    background: linear-gradient(135deg, #f59e0b, #b45309); /* Naranja ámbar */
+}
+
+/* ========================================== */
+/* ÁREA DE VIDEO Y CÁMARA                     */
+/* ========================================== */
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 3px solid var(--highlight-color);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+    background: #000;
+    margin-bottom: 20px;
+}
+
+#video {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.scanner-guide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(255, 0, 0, 0.7);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    width: 95%; /* Valor inicial */
+    height: 40%; /* Valor inicial más estrecho para PDF417 */
+}
+
+.camera-controls {
+    background: var(--surface-color);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.control-group label { flex: 1; }
+.control-group input[type=range] { flex: 2; }
+
+/* Botones de acción secundaria (Captura manual, confirmar recorte) */
+.action-btn {
+    background: #34495e; /* Gris azulado oscuro */
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1rem;
+    width: 100%;
+    margin-top: 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+/* ========================================== */
+/* ÁREA DE RECORTE (CROPPER)                  */
+/* ========================================== */
+.cropper-container {
+    margin-bottom: 20px;
+    background: var(--surface-color);
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.img-container {
+    width: 100%;
+    max-height: 500px; /* Altura máxima para el área de recorte */
+    overflow: hidden;
+}
+
+#imageToCrop {
+    max-width: 100%;
+    display: block;
+}
+
+
+/* ========================================== */
+/* RESULTADOS Y TARJETA (ESTILO COLOMBIA)     */
+/* ========================================== */
+/* Esta sección es la misma que te envié en la respuesta anterior,
+   asegurando que la visualización de la licencia se mantenga. */
+
+.result-box { background: var(--bg-color); padding: 15px 8px; border-radius: 8px; border: 1px solid var(--border-color); flex-grow: 1; display: block; margin-top: 20px;}
+.data-label { font-size: 0.85rem; color: var(--text-color); margin-top: 15px; margin-bottom: 5px; }
+.data-content { background: var(--surface-color); padding: 12px; border-radius: 6px; font-family: monospace; word-break: break-all; border: 1px solid var(--border-color); color: var(--text-color); }
+.copy-btn { background-color: var(--highlight-color); color: #000; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+
+.dl-card-container { display: flex; justify-content: center; margin-bottom: 5px; width: 100%; }
+
+/* Tarjeta Base Colombiana */
+.col-card { 
+    background: #fdfbf7; /* Tono crema claro simulando el material */
+    border-radius: 12px; 
+    width: 100%; 
+    max-width: 500px; 
+    padding: 0 0 15px 0; 
+    color: #222; 
+    font-family: Arial, sans-serif; 
+    position: relative; 
+    border: 1px solid #d1c8b8; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+/* Cabecera Anverso */
+.col-header {
+    background: linear-gradient(180deg, #fcd34d 0%, #fbbf24 100%); /* Amarillo Colombia */
+    padding: 10px;
+    text-align: center;
+    border-bottom: 2px solid #b45309;
+}
+.col-title { color: #111; font-size: 0.85rem; font-weight: 900; line-height: 1.2; }
+.col-subtitle { color: #b45309; font-size: 0.95rem; font-weight: 900; letter-spacing: 1px; }
+
+/* Cabecera Reverso */
+.col-back-header {
+    background: #e5e7eb;
+    color: #374151;
+    font-weight: bold;
+    text-align: center;
+    padding: 6px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.dl-body { display: flex; gap: 12px; align-items: stretch; padding: 0 15px; }
+.dl-photo { width: 70px; height: 95px; background: #fff; border-radius: 6px; border: 1px solid #aaa; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 0 5px rgba(0,0,0,0.1); }
+.dl-details { flex: 1; display: flex; flex-direction: column; gap: 4px; overflow: hidden; padding: 0 10px; }
+
+.dl-field { font-size: 0.85rem; line-height: 1.2; display: flex; flex-direction: column; gap: 1px; }
+.dl-field span { color: #666; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; }
+.dl-field strong { color: #111; font-size: 0.95rem; word-break: break-word; }
+
+.dl-row { display: flex; gap: 20px; }
+.dl-row .dl-field { white-space: nowrap; }
+
+/* Tabla de Categorías (Reverso) */
+.col-table { border-collapse: collapse; margin: 0 10px; width: calc(100% - 20px); }
+.col-table th { background: #f3f4f6; color: #555; font-size: 0.65rem; text-transform: uppercase; padding: 4px; border: 1px solid #ccc; text-align: center; }
+.col-table td { border: 1px solid #ccc; padding: 4px; font-size: 0.85rem; text-align: center; font-weight: bold; }
+
+.validation-badge { position: absolute; bottom: 5px; right: 10px; font-weight: bold; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; background: rgba(46, 204, 113, 0.2); color: #27ae60; border: 1px solid #2ecc71; }
