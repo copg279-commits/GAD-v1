@@ -3,87 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protocolo de Actuación - GAD</title>
+    <title>Protocolo de Actuación DSV - GAD</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    
+   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; padding-bottom: 50px; }
-        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .btn { padding: 10px 16px; border-radius: 5px; font-size: 14px; cursor: pointer; }
-        .btn-primary { background-color: #3b82f6; color: white; }
-        .btn-back { background-color: #90EE90; color: #333; }
-        .result-box { margin-top: 20px; padding: 15px; border-radius: 5px; border: 1px solid; }
-        .result-box.delito { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
-        .result-box.infraccion { background-color: #ffeeba; border-color: #ffc720; color: #664d03; }
-        .result-box.ok { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
-        .hidden { display: none; }
-        /* Estilo para el editor de texto enriquecido */
-        #edit-actuacion {
-            min-height: 200px;
-            border: 1px solid #ccc;
-            padding: 8px;
-            border-radius: 5px;
-            outline: none;
-            overflow: visible; /* Asegura que no haya scroll */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+        /* --- GENERAL DARK MODE --- */
+        body { 
+            font-family: 'Inter', Arial, sans-serif; 
+            line-height: 1.6; 
+            background-color: #0f172a; 
+            color: #e2e8f0;
         }
+
+        /* --- SCROLLBAR FORZADA DARK MODE --- */
+        html, body, aside, main, div, .overflow-y-auto, #edit-actuacion {
+            scrollbar-width: thin !important;
+            scrollbar-color: #334155 #0f172a !important;
+        }
+        ::-webkit-scrollbar { width: 8px !important; height: 8px !important; background-color: #0f172a !important; }
+        ::-webkit-scrollbar-track { background-color: #0f172a !important; border-radius: 8px !important; }
+        ::-webkit-scrollbar-thumb { background-color: #334155 !important; border-radius: 8px !important; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #06b6d4 !important; }
+
+        /* --- CONTENEDORES --- */
+        .container { 
+            background-color: #1e293b; 
+            border: 1px solid #334155; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); 
+            padding: 24px;
+        }
+
+        /* --- BOTONES (Sobreescribiendo las clases inyectadas por JS) --- */
+        .btn { padding: 12px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; }
+        
+        .btn-primary { 
+            background-color: #0f172a !important; 
+            color: #06b6d4 !important; 
+            border: 1px solid #0891b2 !important; 
+            font-weight: 900; 
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-primary:hover { 
+            background-color: #06b6d4 !important; 
+            color: #0f172a !important; 
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-back { 
+            background-color: #334155 !important; 
+            color: #e2e8f0 !important; 
+            border: 1px solid #475569 !important; 
+            font-weight: 800;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background-color: #475569 !important; border-color: #94a3b8 !important; }
+
+        /* Icono de edición (Pencil) en botones primarios */
+        .fa-pencil-alt { color: #06b6d4 !important; transition: all 0.2s; font-size: 16px; }
+        .btn-primary:hover + .fa-pencil-alt { color: #0f172a !important; }
+
+        /* Botón de Editar Resultado de Firebase (JS le pone amarillo, lo adaptamos a Dark Mode) */
+        button.bg-yellow-400.text-black {
+            background-color: #d97706 !important;
+            color: #ffffff !important;
+            border: none !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        button.bg-yellow-400.text-black:hover { background-color: #b45309 !important; }
+
+        /* --- RESULTADOS DE PROTOCOLO --- */
+        .result-box { margin-top: 24px; padding: 20px; border-radius: 12px; border: 2px solid; }
+        .result-box.delito { background-color: rgba(239, 68, 68, 0.05); border-color: #ef4444; color: #fca5a5; }
+        .result-box.infraccion { background-color: rgba(234, 179, 8, 0.05); border-color: #eab308; color: #fde047; }
+        .result-box.ok { background-color: rgba(34, 197, 94, 0.05); border-color: #22c55e; color: #86efac; }
+        
+        .result-box h2 { 
+            color: #e2e8f0; 
+            text-transform: uppercase; 
+            font-weight: 900; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+            padding-bottom: 10px; 
+            margin-bottom: 16px; 
+            letter-spacing: 0.05em;
+        }
+        #detalle-caso div { margin-bottom: 10px; }
+        #detalle-caso strong { color: #06b6d4; text-transform: uppercase; font-size: 12px; letter-spacing: 0.05em; display: inline-block; margin-bottom: 2px; }
+
+        .hidden { display: none !important; }
+        
+        /* Modificadores extra para las preguntas generadas */
+        #question-container p { color: #06b6d4; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; font-size: 13px; text-align: center; margin-bottom: 15px; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
+<body class="bg-slate-900 min-h-screen flex flex-col pb-16 text-slate-200">
 
-    <header class="bg-blue-600 w-full flex justify-center items-center py-2">
-        <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
-            <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
-        </div>
+    <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+      <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+      
+      <div class="text-center flex-1">
+        <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+          PROTOCOLO<br class="md:hidden"> PERMISOS DSV
+        </h1>
+        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+          Grupo de Análisis Documental
+        </h2>
+      </div>
+
+      <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
     </header>
 
-    <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
-        PROTOCOLO PERMISOS DSV
-    </h1>
-
-    <div class="w-11/12 max-w-md mx-auto mt-4 bg-white p-4 rounded-lg shadow-md container">
-        <p class="text-gray-700 font-bold uppercase">SELECCIONE EL SUPUESTO PARA COMENZAR:</p>
-        <div id="supuestos-container" class="mt-4 flex flex-col gap-2"></div>
-
-        <div id="question-container" class="mt-6"></div>
+    <div class="w-11/12 max-w-md mx-auto mt-8 bg-slate-800 p-6 rounded-2xl shadow-2xl container border border-slate-700">
+        <p class="text-cyan-500 font-black uppercase tracking-wider text-center text-sm mb-4 border-b border-slate-700 pb-4">
+            SELECCIONE EL SUPUESTO PARA COMENZAR:
+        </p>
+        
+        <div id="supuestos-container" class="mt-4 flex flex-col gap-3"></div>
+        <div id="question-container" class="mt-6 flex flex-col gap-2"></div>
 
         <div id="resultado" class="hidden result-box mt-6">
             <h2 class="text-lg font-bold mb-2">Detalles del Caso</h2>
-            <div id="detalle-caso"></div>
+            <div id="detalle-caso" class="text-sm"></div>
         </div>
-
-        <button onclick="window.location.href='index.html'" class="w-full p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md mt-6 transition hover:bg-yellow-200">
-            <i class="fas fa-arrow-left"></i> VOLVER AL MENÚ PRINCIPAL
-        </button>
     </div>
 
-    <footer class="mt-auto text-center py-6 bg-gray-200">
-        <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-        <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-        <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-        <p>&copy; GAD - Todos los derechos reservados</p>
-    </footer>
-
-    <div id="edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-96 shadow-lg rounded-md bg-white">
-            <h3 class="text-lg font-bold mb-4">Editar Resultado</h3>
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black/80 overflow-y-auto h-full w-full z-[2000]">
+        <div class="relative top-20 mx-auto p-6 border border-slate-700 w-11/12 max-w-lg shadow-2xl rounded-2xl bg-slate-800">
+            <h3 class="text-lg font-black text-cyan-500 uppercase tracking-widest mb-6 border-b border-slate-700 pb-3">Editar Resultado</h3>
             <form id="edit-form" class="space-y-4">
                 <div>
-                    <label for="edit-hecho" class="block text-sm font-medium text-gray-700">Hecho:</label>
-                    <input type="text" id="edit-hecho" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <label for="edit-hecho" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Hecho:</label>
+                    <input type="text" id="edit-hecho" class="block w-full rounded-lg border-slate-600 bg-slate-900 text-slate-200 shadow-sm focus:border-cyan-500 focus:ring focus:ring-cyan-500/30 p-2.5 outline-none transition-all">
                 </div>
                 <div>
-                    <label for="edit-resumen" class="block text-sm font-medium text-gray-700">Resumen:</label>
-                    <input type="text" id="edit-resumen" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <label for="edit-resumen" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Resumen:</label>
+                    <input type="text" id="edit-resumen" class="block w-full rounded-lg border-slate-600 bg-slate-900 text-slate-200 shadow-sm focus:border-cyan-500 focus:ring focus:ring-cyan-500/30 p-2.5 outline-none transition-all">
                 </div>
                 <div>
-                    <label for="edit-actuacion" class="block text-sm font-medium text-gray-700">Actuación:</label>
-                    <div id="edit-actuacion" contenteditable="true" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></div>
+                    <label for="edit-actuacion" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Actuación:</label>
+                    <div id="edit-actuacion" contenteditable="true" class="block w-full rounded-lg border border-slate-600 bg-slate-900 text-slate-200 shadow-sm focus:border-cyan-500 focus:ring focus:ring-cyan-500/30 p-3 min-h-[200px] outline-none transition-all"></div>
                 </div>
-                <div class="flex justify-end space-x-4 mt-4">
-                    <button type="button" id="save-edit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Guardar</button>
-                    <button type="button" id="cancel-edit" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Cancelar</button>
+                <div class="flex justify-end space-x-3 mt-8">
+                    <button type="button" id="cancel-edit" class="px-5 py-2.5 bg-slate-700 text-slate-200 font-bold rounded-lg hover:bg-slate-600 transition-all uppercase text-xs">Cancelar</button>
+                    <button type="button" id="save-edit" class="px-5 py-2.5 bg-cyan-600 text-slate-900 font-black rounded-lg hover:bg-cyan-500 transition-all uppercase text-xs shadow-[0_0_15px_rgba(6,182,212,0.4)]">Guardar</button>
                 </div>
             </form>
         </div>
@@ -91,15 +165,15 @@
 
     <script>
         // --- Firebase Config ---
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
+        const firebaseConfig = {
+          apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+          authDomain: "gad-alicante-v4.firebaseapp.com",
+          databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "gad-alicante-v4",
+          storageBucket: "gad-alicante-v4.firebasestorage.app",
+          messagingSenderId: "119727545224",
+          appId: "1:119727545224:web:36880c50d196c456cdb83d"
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -312,33 +386,44 @@ const firebaseConfig = {
             }
         }
 
-        function showResult(optionKey) {
+      function showResult(optionKey) {
             const resultDiv = document.getElementById("resultado");
             const detailDiv = document.getElementById("detalle-caso");
             const container = document.getElementById("question-container");
             const parentKey = findCaseParent(optionKey);
+
             if (!parentKey) {
                 detailDiv.innerHTML = "Error: No se encontró la categoría para este caso.";
                 resultDiv.className = `result-box delito`;
                 resultDiv.classList.remove("hidden");
+                // Botón volver en caso de error temprano
+                const backBtn = document.createElement("button");
+                backBtn.className = "btn btn-back w-full mt-4";
+                backBtn.textContent = "VOLVER ATRÁS";
+                backBtn.onclick = goBack;
+                container.appendChild(backBtn);
                 return;
             }
+
             currentCaseKey = optionKey;
             container.innerHTML = "";
             detailDiv.innerHTML = "Cargando...";
-            db.ref(`protocolo/${parentKey}/options/${optionKey}`).once('value', (snapshot) => {
+
+            db.ref(`protocolo/${parentKey}/options/${optionKey}`).once('value').then((snapshot) => {
                 const info = snapshot.val();
                 if (info) {
                     let hecho = info.hecho.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     let resumen = info.resumen.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     let actuacion = info.actuacion.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     detailDiv.innerHTML = `
-                        <div><strong>Hecho:</strong> ${hecho}</div>
-                        <div><strong>Resumen:</strong> ${resumen}</div>
-                        <div><strong>Actuación:</strong> ${actuacion}</div>
+                        <div><strong>Hecho:</strong> <br>${hecho}</div>
+                        <div><strong>Resumen:</strong> <br>${resumen}</div>
+                        <div><strong>Actuación:</strong> <br>${actuacion}</div>
                     `;
                     resultDiv.className = `result-box ${info.tipo}`;
                     resultDiv.classList.remove("hidden");
+                    
+                    // Solo mostramos el botón Editar si la carga fue exitosa
                     const editBtn = document.createElement("button");
                     editBtn.className = "btn btn-back w-full mt-4 bg-yellow-400 text-black";
                     editBtn.textContent = "EDITAR RESULTADO";
@@ -349,15 +434,18 @@ const firebaseConfig = {
                     resultDiv.className = `result-box ok`;
                     resultDiv.classList.remove("hidden");
                 }
+            }).catch(error => {
+                // Si hay un error de permisos u otro, lo muestra sin colgar la app
+                detailDiv.innerHTML = "Error al cargar los datos: " + error.message;
+                resultDiv.className = `result-box delito`;
+                resultDiv.classList.remove("hidden");
+            }).finally(() => {
+                // ESTO ES CLAVE: El botón "Volver atrás" se crea SIEMPRE, pase lo que pase.
                 const backBtn = document.createElement("button");
                 backBtn.className = "btn btn-back w-full mt-4";
                 backBtn.textContent = "VOLVER ATRÁS";
                 backBtn.onclick = goBack;
                 container.appendChild(backBtn);
-            }).catch(error => {
-                detailDiv.innerHTML = "Error al cargar los datos: " + error.message;
-                resultDiv.className = `result-box delito`;
-                resultDiv.classList.remove("hidden");
             });
         }
 
