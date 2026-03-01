@@ -73,69 +73,70 @@
 
         .hidden { display: none !important; }
 
-        /* --- REGLAS DE COMPRESIÓN EXTREMA PARA MÓVIL --- */
-  @media (max-width: 768px) {
-            /* Comprimir título modal */
-            #result-modal h2 { font-size: 1rem !important; margin-bottom: 8px !important; padding-bottom: 4px !important; }
-            .container { padding: 16px; margin-top: 16px; }
-        }
-
-        /* --- ELIMINAR FONDOS ROSAS DE FIREBASE --- */
-        #modal-detalle-caso [style*="background"],
-        #edit-actuacion [style*="background"] { background-color: transparent !important; }
-        #modal-detalle-caso [style*="color"],
-        #edit-actuacion [style*="color"] { color: inherit !important; }
-        /* --- MEJORAS VISUALES MÓVIL Y PC --- */
-/* --- REGLAS DE COMPRESIÓN Y DISEÑO PC/MÓVIL --- */
-    /* --- REGLAS DE AJUSTE AUTOMÁTICO (SIN SCROLL) --- */
-        @media (max-width: 768px) {
+ /* --- AJUSTE ELÁSTICO SIN CORTES LATERALES --- */
+        @media (max-width: 1023px) {
+            /* Modo un solo contenedor (Móvil y Tablet vertical) */
             #result-modal { 
                 padding: 0 !important; 
+                top: 5rem !important; 
+                bottom: 65px !important; 
+                display: flex !important;
+                justify-content: center !important;
                 align-items: flex-start !important;
-                height: calc(100vh - 5rem) !important; /* Altura exacta bajo cabecera */
             }
             #result-modal > div { 
-                padding: 8px !important; 
-                margin: 4px auto !important; 
-                width: 99vw !important; 
-                max-width: 99vw !important;
-                border-width: 2px !important;
+                width: 98% !important; /* Pequeño margen para que no toque el borde del cristal */
+                margin: 4px auto !important;
+                background: #1e293b !important;
+                padding: 12px !important;
+                border-radius: 12px !important;
             }
-            /* Optimizamos textos para evitar desbordes verticales */
-            .actuacion-text { font-size: 14px !important; line-height: 1.3 !important; }
-            #modal-detalle-caso .mb-5 { margin-bottom: 6px !important; }
+            .result-card {
+                width: 100% !important;
+                border-width: 3px !important;
+            }
         }
 
         @media (min-width: 1024px) {
-            /* Pantalla dividida en PC */
+            /* Modo pantalla dividida (PC y Tablet horizontal) */
             body:has(#result-modal:not(.hidden)) .container {
-                margin-left: 3% !important;
-                margin-right: auto !important;
-                max-width: 30% !important;
-                transition: all 0.4s ease;
+                margin-left: 2% !important;
+                margin-right: 0 !important;
+                width: 30% !important; /* Ancho fijo para las preguntas */
+                max-width: 400px !important;
+                transition: all 0.3s ease;
             }
             #result-modal:not(.hidden) {
-                width: 65% !important;
-                left: auto !important;
+                /* El resultado ocupa el resto del espacio disponible de forma elástica */
+                left: calc(2% + 30% + 2%) !important; 
                 right: 2% !important;
+                width: auto !important;
+                top: 7.5rem !important;
+                bottom: 4rem !important;
                 background: transparent !important;
-                height: calc(100vh - 8rem) !important; /* Evita que choque con el fondo */
-                overflow: hidden !important; /* Prohibido el scroll */
                 display: flex !important;
-                align-items: center;
+                align-items: center; 
+                overflow: hidden !important;
                 pointer-events: none;
             }
             #result-modal > div { 
-                pointer-events: auto; 
-                margin-bottom: 0 !important; /* Eliminamos el margen que causaba el scroll */
+                pointer-events: auto;
+                width: 100% !important;
+                background-color: #1e293b !important;
+                padding: 16px !important;
+                border-radius: 16px !important;
+                box-sizing: border-box !important;
             }
         }
 
-        /* --- ELIMINAR FONDOS ROSAS Y ESTILOS INLINE DE FIREBASE --- */
-        #modal-detalle-caso [style*="background"],
-        #edit-actuacion [style*="background"] { background-color: transparent !important; }
-        #modal-detalle-caso [style*="color"],
-        #edit-actuacion [style*="color"] { color: inherit !important; }
+        /* Bloqueo total de scrollbars */
+        #result-modal, #result-modal *, #modal-detalle-caso {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        #result-modal::-webkit-scrollbar, #result-modal *::-webkit-scrollbar {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen flex flex-col text-slate-200">
@@ -405,14 +406,12 @@
             document.getElementById("result-modal").classList.add("hidden");
         }
 
-       function showResult(optionKey) {
+    function showResult(optionKey) {
             const modal = document.getElementById("result-modal");
             const detailDiv = document.getElementById("modal-detalle-caso");
-            const actionsDiv = document.getElementById("modal-actions");
             const parentKey = findCaseParent(optionKey);
 
             currentCaseKey = optionKey;
-            actionsDiv.innerHTML = ""; 
             detailDiv.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-4xl text-cyan-500"></i></div>';
             modal.classList.remove("hidden");
 
@@ -421,64 +420,54 @@
             db.ref(`protocolo/${parentKey}/options/${optionKey}`).once('value').then((snapshot) => {
                 const info = snapshot.val();
                 if (info) {
-                    let hecho = info.hecho.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
-                    let resumen = info.resumen.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
-                    let actuacionRaw = info.actuacion;
+                    const hecho = info.hecho.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
+                    const resumen = info.resumen.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     
-                    let tipoClass = info.tipo === 'delito' ? "border-red-500 bg-red-500/10 text-red-200" : 
+                    const tipoClass = info.tipo === 'delito' ? "border-red-500 bg-red-500/10 text-red-200" : 
                                     (info.tipo === 'infraccion' ? "border-yellow-500 bg-yellow-500/10 text-yellow-200" : "border-green-500 bg-green-500/10 text-green-200");
 
-                    // Construcción del contenido
+                    // Botón Editar: Solo aparece en PC (ancho >= 768px)
+                    const btnHtml = (window.innerWidth >= 768) ? 
+                        `<button onclick="closeResultModal(); openEditModal(${JSON.stringify(info).replace(/"/g, '&quot;')})" class="w-full mt-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-lg uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-xs">
+                            <i class="fas fa-edit"></i> Editar Resultado
+                        </button>` : '';
+
+                    // EL BOTÓN EDITAR QUEDA FUERA DEL DIV result-card (MARCO ROJO)
                     detailDiv.innerHTML = `
-                        <div class="p-3 md:p-5 rounded-xl border-2 ${tipoClass} shadow-inner flex flex-col gap-2 md:gap-4">
+                        <div class="result-card p-3 md:p-4 rounded-xl border-2 ${tipoClass} shadow-inner flex flex-col gap-2 box-border">
                             <div>
-                                <strong class="text-cyan-500 text-[10px] md:text-xs tracking-widest uppercase block">Hecho:</strong>
-                                <span class="block text-[14px] md:text-base leading-tight">${hecho}</span>
+                                <strong class="text-cyan-500 text-[9px] md:text-xs uppercase block">Hecho:</strong>
+                                <span class="block text-[13px] md:text-[15px] leading-tight">${hecho}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[10px] md:text-xs tracking-widest uppercase block">Resumen:</strong>
-                                <span class="font-bold block text-[14px] md:text-base leading-tight">${resumen}</span>
+                                <strong class="text-cyan-500 text-[9px] md:text-xs uppercase block">Resumen:</strong>
+                                <span class="font-bold block text-[13px] md:text-[15px] leading-tight">${resumen}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[10px] md:text-xs tracking-widest uppercase block">Actuación:</strong>
-                                <div class="actuacion-text bg-slate-900/80 p-3 md:p-4 rounded border border-slate-700 mt-1 text-slate-300 shadow-sm text-[15px] md:text-base leading-snug">
-                                    ${actuacionRaw}
+                                <strong class="text-cyan-500 text-[9px] md:text-xs uppercase block">Actuación:</strong>
+                                <div class="actuacion-text bg-slate-900/80 p-2 md:p-3 rounded border border-slate-700 mt-0.5 text-slate-300 shadow-sm text-[14px] md:text-[15px] leading-tight">
+                                    ${info.actuacion}
                                 </div>
                             </div>
                         </div>
+                        ${btnHtml}
                     `;
-                    
-                    // BOTÓN EDITAR: Forzamos visualización en PC y ocultación en móvil mediante estilo directo
-                    const editBtn = document.createElement("button");
-                    editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Resultado';
-                    editBtn.className = "w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-sm";
-                    
-                    // Si es móvil (ancho menor a 768px), lo ocultamos. Si es PC, se ve.
-                    if (window.innerWidth < 768) {
-                        editBtn.style.display = "none";
-                    } else {
-                        editBtn.style.display = "flex";
-                    }
-                    
-                    editBtn.onclick = () => { closeResultModal(); openEditModal(info); };
-                    actionsDiv.appendChild(editBtn);
 
-                    // LÓGICA DOBLE TAP PARA MÓVIL (Double Tap en la tarjeta para editar)
+                    // Lógica Double Tap para móvil
                     let lastTap = 0;
-                    const card = detailDiv.querySelector('.rounded-xl');
+                    const card = detailDiv.querySelector('.result-card');
                     card.addEventListener('touchend', function (e) {
-                        let currentTime = new Date().getTime();
-                        let tapLength = currentTime - lastTap;
-                        if (tapLength < 500 && tapLength > 0) {
+                        const currentTime = new Date().getTime();
+                        if (currentTime - lastTap < 500 && currentTime - lastTap > 0) {
                             closeResultModal();
                             openEditModal(info);
+                            e.preventDefault();
                         }
                         lastTap = currentTime;
                     });
                 }
             });
         }
-
         function openEditModal(data) {
             const modal = document.getElementById("edit-modal");
             document.getElementById("edit-hecho").value = data.hecho || "";
