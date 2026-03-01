@@ -75,16 +75,21 @@
 
         /* --- REGLAS DE COMPRESIÓN EXTREMA PARA MÓVIL --- */
         @media (max-width: 768px) {
-            #result-modal { 
-                padding: 10px 10px 120px 10px !important; /* Espacio gigante abajo para burlar el footer */
-                align-items: flex-start !important; 
-            }
-            #result-modal > div { 
-                padding: 12px !important; 
-                margin-top: 0 !important; 
-                max-width: 100% !important; 
-                width: 100% !important;
-            }
+    #result-modal { 
+        padding: 8px 8px 100px 8px !important; 
+    }
+    #result-modal > div { 
+        padding: 16px !important; 
+        max-width: 95% !important; 
+    }
+    /* Subimos un punto el tamaño como pediste */
+    #modal-detalle-caso { font-size: 0.95rem; } 
+    #modal-detalle-caso strong { font-size: 12px !important; }
+    #modal-detalle-caso span { font-size: 14px !important; }
+    
+    /* Título un poco más visible */
+    #result-modal h2 { font-size: 1.2rem !important; margin-bottom: 14px !important; }
+}
             /* Comprimir título modal */
             #result-modal h2 { font-size: 1rem !important; margin-bottom: 8px !important; padding-bottom: 4px !important; }
             .container { padding: 16px; margin-top: 16px; }
@@ -95,6 +100,35 @@
         #edit-actuacion [style*="background"] { background-color: transparent !important; }
         #modal-detalle-caso [style*="color"],
         #edit-actuacion [style*="color"] { color: inherit !important; }
+        /* --- MEJORAS VISUALES MÓVIL Y PC --- */
+@media (max-width: 768px) {
+    #result-modal { padding: 8px 8px 120px 8px !important; }
+    #result-modal > div { padding: 18px !important; width: 100% !important; }
+    
+    /* Letra más grande en móvil */
+    #modal-detalle-caso { font-size: 1.05rem !important; } 
+    #modal-detalle-caso strong { font-size: 13px !important; }
+    #modal-detalle-caso span { font-size: 15px !important; }
+    #result-modal h2 { font-size: 1.3rem !important; }
+}
+
+@media (min-width: 1024px) {
+    /* Pantalla dividida en PC: Preguntas izquierda, Resultado derecha */
+    body:has(#result-modal:not(.hidden)) .container {
+        margin-left: 5% !important;
+        margin-right: auto !important;
+        max-width: 35% !important;
+        transition: all 0.4s ease;
+    }
+    #result-modal:not(.hidden) {
+        width: 55% !important;
+        left: auto !important;
+        right: 5% !important;
+        background: transparent !important;
+        pointer-events: none; /* Permite clickear lo de atrás si fuera necesario */
+    }
+    #result-modal > div { pointer-events: auto; } /* Pero el resultado sí recibe clicks */
+}
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen flex flex-col text-slate-200">
@@ -435,9 +469,10 @@
                         </div>
                     `;
                     
-                    const editBtn = document.createElement("button");
-                    editBtn.className = "w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-lg uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-[11px] md:text-sm";
-                    editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Resultado';
+                    // Busca esta línea y cámbiala por esta:
+const editBtn = document.createElement("button");
+editBtn.className = "hidden md:flex w-full py-2.5 md:py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-md transition-all items-center justify-center gap-2 text-xs md:text-sm";
+editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Resultado';
                     editBtn.onclick = () => {
                         closeResultModal();
                         openEditModal(info);
