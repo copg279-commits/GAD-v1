@@ -13,6 +13,26 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
         
         /* --- GENERAL --- */
+        /* --- SCROLLBAR PERSONALIZADA DARK MODE --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; /* Mismo fondo oscuro que el panel */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; /* Gris pizarra oscuro */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4; /* Acento cyan al pasar el ratón */
+        }
+        /* Compatibilidad para Firefox */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #334155 #0f172a;
+        }
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #0f172a; 
