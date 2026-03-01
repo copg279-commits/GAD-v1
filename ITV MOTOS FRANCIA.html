@@ -3,83 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculador ITV Motos Francia</title>
+    <title>Calculador ITV Motos Francia - GAD</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        body {
+            background-color: #0f172a !important;
+            color: #e2e8f0 !important;
+            font-family: 'Inter', sans-serif;
+        }
+        
         .flag {
-            /* Eliminamos 'position: absolute' aquí para que fluya con el texto */
-            display: inline-block; /* Permite que el div de la bandera se alinee con el texto */
-            vertical-align: middle; /* Alinea la bandera verticalmente con el texto */
-            margin-left: 10px; /* Pequeño margen entre el texto y la bandera */
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
             width: 40px;
             height: 25px;
-            background-size: cover;
-            border: 1px solid #ccc;
+            background: linear-gradient(to right, #003399 0%, #003399 33%, #fff 33%, #fff 66%, #d00 66%, #d00 100%);
+            border: 1px solid #334155;
             border-radius: 3px;
         }
-        .flag-francia {
-            background: linear-gradient(to right, #003399 0%, #003399 33%, #fff 33%, #fff 66%, #d00 66%, #d00 100%);
-        }
+
         .result-text-container {
             min-height: 5rem;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 1rem;
+            background-color: #0f172a;
+            border-radius: 0.5rem;
+            border: 1px solid #334155;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: #1e293b;
+            margin: 5% auto;
+            padding: 2rem;
+            border: 1px solid #334155;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 1rem;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col pb-16">
 
-    <header class="bg-blue-600 w-full flex justify-center items-center py-2">
-        <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
-            <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
-        </div>
+    <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+      <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] flex-shrink-0">
+      <div class="text-center flex-1">
+        <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight">
+          ITV MOTOS<br class="md:hidden"> FRANCIA
+        </h1>
+        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1">
+          Grupo de Análisis Documental
+        </h2>
+      </div>
+      <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] flex-shrink-0">
     </header>
 
-    <h1 class="text-black text-center mt-6 text-xl font-bold px-4 flex items-center justify-center">
-        Calculador ITV Motos Francia
-        <div class="flag flag-francia"></div>
-    </h1>
-    
-    <div class="mt-4 p-4 bg-white shadow rounded-lg w-11/12 max-w-md mx-auto relative">
-        <p class="text-center mb-2">
-            Calcula la primera ITV de una motocicleta francesa:
-        </p>
-        <p class="text-center mb-2 font-bold">
-            Introduce fecha 1ª matriculación:
-        </p>
-        <input 
-            type="date" 
-            id="fechaMatriculacionMotoFrancia" 
-            class="w-full p-3 text-base border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-        <button 
-            onclick="calcularItvMotosFrancia()" 
-            class="block mx-auto mt-4 w-full bg-green-600 text-white font-bold py-3 rounded-md hover:bg-green-700 transition"
-        >
-            Calcular 1ª ITV Moto Francia
-        </button>
-        <div id="resultado" class="mt-4 text-center font-bold result-text-container">
-            <p class="text-gray-500">
-                El resultado aparecerá aquí.
+    <main class="flex-grow flex flex-col items-center justify-start pt-8">
+        <h2 class="text-slate-100 text-center text-xl font-bold px-4 flex items-center justify-center mb-6">
+            Calculador Primera Inspección
+            <div class="flag"></div>
+        </h2>
+        
+        <div class="w-11/12 max-w-md bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700 relative">
+            <p class="text-center mb-4 text-slate-400 text-xs uppercase tracking-widest font-semibold">
+                Categoría L (L3e a L7e)
             </p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="fechaMatriculacionMotoFrancia" class="block text-center text-cyan-500 font-bold mb-3">
+                        Introduce fecha 1ª matriculación:
+                    </label>
+                    <input type="date" id="fechaMatriculacionMotoFrancia" 
+                        class="w-full p-4 bg-slate-900 border border-slate-600 rounded-lg text-slate-100 text-center focus:ring-2 focus:ring-cyan-500 outline-none font-mono text-lg">
+                </div>
+
+                <button onclick="calcularItvMotosFrancia()" 
+                    class="w-full bg-cyan-600 text-white font-black py-4 rounded-lg hover:bg-cyan-500 transition shadow-lg uppercase tracking-widest">
+                    <i class="fas fa-calculator mr-2"></i> Calcular 1ª ITV
+                </button>
+            </div>
+
+            <div id="resultado" class="mt-6 text-center font-bold result-text-container">
+                <p class="text-slate-500 italic text-sm">El resultado aparecerá aquí</p>
+            </div>
+
+            <button onclick="toggleModal(true)" class="mt-4 w-full bg-slate-700/50 border border-slate-600 text-slate-300 font-bold py-2 rounded-lg hover:bg-slate-600 transition text-sm">
+                <i class="fas fa-question-circle mr-2"></i> AYUDA: Normativa y Lógica
+            </button>
+        </div>
+    </main>
+
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-4">
+                <h3 class="text-cyan-500 font-black uppercase tracking-tighter text-lg">Normativa ITV Francia (Moto)</h3>
+                <button onclick="toggleModal(false)" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <div class="space-y-4 text-sm leading-relaxed text-slate-300">
+                <p>El sistema de inspección técnica para vehículos de categoría L (motos, triciclos y cuadriciclos) en Francia se introdujo mediante el <strong>Décret n° 2023-974</strong>.</p>
+                
+                <h4 class="text-white font-bold border-l-4 border-cyan-500 pl-2">La Lógica del Escalonamiento</h4>
+                <p>Para evitar el colapso de los centros de inspección (más de 4 millones de vehículos afectados), el gobierno francés no aplica una regla única de "5 años" para los vehículos antiguos, sino un <strong>calendario de despliegue progresivo</strong>:</p>
+                
+                <ul class="space-y-2 list-disc pl-5">
+                    <li><strong class="text-cyan-400">Matriculadas antes de 2017:</strong> La primera inspección debía realizarse en <strong>2024</strong>. El plazo máximo fue el 31 de diciembre de 2024.</li>
+                    <li><strong class="text-cyan-400">Matriculadas entre 2017 y 2019:</strong> La normativa les asigna su primera inspección en <strong>2025</strong>.</li>
+                    <li><strong class="text-cyan-400">Matriculadas entre 2020 y 2021:</strong> Se les asigna el año <strong>2026</strong> para su primer control.</li>
+                    <li><strong class="text-cyan-400">Matriculadas a partir de 2022:</strong> Entran ya en el ciclo normal de <strong>5 años</strong> tras la primera matriculación.</li>
+                </ul>
+
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 mt-4">
+                    <p class="text-xs italic"><strong>Nota importante:</strong> Una vez pasada esta primera inspección "escalonada", las siguientes revisiones se realizarán cada <strong>3 años</strong> (regla 5-3-3), a diferencia de los coches que siguen el ciclo 4-2-2.</p>
+                </div>
+            </div>
+
+            <button onclick="toggleModal(false)" class="mt-6 w-full bg-cyan-600 text-white font-bold py-3 rounded-lg uppercase">Entendido</button>
         </div>
     </div>
-
-    <div class="mt-8 flex justify-center">
-        <button onclick="window.location.href='index.html'"
-            class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
-            MENÚ PRINCIPAL
-        </button>
-    </div>
-
- <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
 
     <script>
         function calcularItvMotosFrancia() {
@@ -87,61 +152,70 @@
             const resultadoDiv = document.getElementById('resultado');
 
             if (!inputFecha) {
-                resultadoDiv.innerHTML = "<p style='color: red;'>Por favor, introduce una fecha de matriculación.</p>";
+                resultadoDiv.innerHTML = "<p class='text-red-400'>Introduce una fecha válida.</p>";
                 return;
             }
 
-            const fechaMatriculacion = new Date(inputFecha);
-            const anioMatriculacion = fechaMatriculacion.getFullYear();
-            const fechaActual = new Date();
+            const fechaMat = new Date(inputFecha);
+            const anioMat = fechaMat.getFullYear();
+            const mesMat = fechaMat.getMonth();
+            const diaMat = fechaMat.getDate();
+            const hoy = new Date();
             
-            let fechaLimiteItv;
+            let fechaLimite;
 
-            if (anioMatriculacion < 2017) {
-                fechaLimiteItv = new Date('2024-12-31');
-            } else if (anioMatriculacion >= 2017 && anioMatriculacion <= 2019) {
-                fechaLimiteItv = new Date(anioMatriculacion + 8, fechaMatriculacion.getMonth(), fechaMatriculacion.getDate());
-                // Ajuste para añadir 4 meses, si la fecha original ya era después de mayo
-                if (fechaMatriculacion.getMonth() > 4) { // Si la matriculación es después de mayo (mes 4 es mayo)
-                    fechaLimiteItv.setMonth(fechaLimiteItv.getMonth() + 4);
-                } else { // Si es de enero a mayo, la primera ITV será en los 4 meses siguientes al final del año 8
-                    fechaLimiteItv = new Date(anioMatriculacion + 8, 4, 1); // 1 de mayo del 8º año
-                }
-            } else if (anioMatriculacion >= 2020 && anioMatriculacion <= 2021) {
-                fechaLimiteItv = new Date(anioMatriculacion + 6, fechaMatriculacion.getMonth(), fechaMatriculacion.getDate());
-                 // Ajuste para añadir 4 meses, si la fecha original ya era después de mayo
-                if (fechaMatriculacion.getMonth() > 4) { // Si la matriculación es después de mayo (mes 4 es mayo)
-                    fechaLimiteItv.setMonth(fechaLimiteItv.getMonth() + 4);
-                } else { // Si es de enero a mayo, la primera ITV será en los 4 meses siguientes al final del año 6
-                    fechaLimiteItv = new Date(anioMatriculacion + 6, 4, 1); // 1 de mayo del 6º año
-                }
-            } else { // a partir de 2022
-                fechaLimiteItv = new Date(anioMatriculacion + 5, fechaMatriculacion.getMonth(), fechaMatriculacion.getDate());
+            // APLICACIÓN DE LA LÓGICA DE PROGRESIÓN OFICIAL
+            if (anioMat < 2017) {
+                // Límite final para las más antiguas fue finales de 2024
+                fechaLimite = new Date(2024, 11, 31);
+            } 
+            else if (anioMat >= 2017 && anioMat <= 2019) {
+                // Tramo 2025
+                fechaLimite = new Date(2025, mesMat, diaMat);
+            } 
+            else if (anioMat >= 2020 && anioMat <= 2021) {
+                // Tramo 2026
+                fechaLimite = new Date(2026, mesMat, diaMat);
+            } 
+            else { 
+                // Régimen general: 5 años
+                fechaLimite = new Date(anioMat + 5, mesMat, diaMat);
             }
             
-            // Si el día y el mes de la fecha límite superan el 31 de diciembre del año límite,
-            // se ajusta al último día de ese año.
-            if (fechaLimiteItv.getFullYear() < anioMatriculacion + 5 && anioMatriculacion >= 2022) {
-                fechaLimiteItv.setFullYear(anioMatriculacion + 5);
-                fechaLimiteItv.setMonth(11); // Diciembre
-                fechaLimiteItv.setDate(31);
-            }
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const fechaTxt = fechaLimite.toLocaleDateString('es-ES', options);
             
-            const fechaFormateada = fechaLimiteItv.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-            
-            if (fechaLimiteItv < fechaActual) {
-                resultadoDiv.innerHTML = `<p style="color: red;">ITV caducada el <span style="font-weight: bold;">${fechaFormateada}</span>.</p>`;
+            if (fechaLimite < hoy) {
+                resultadoDiv.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <span class="text-red-500 text-[10px] uppercase mb-1">Inspección Vencida</span>
+                        <p class="text-red-400">Límite: <span class="font-black underline">${fechaTxt}</span></p>
+                    </div>`;
             } else {
-                resultadoDiv.innerHTML = `<p>La primera ITV de la motocicleta francesa deberá pasarse antes del <span style="color: green; font-weight: bold;">${fechaFormateada}</span>.</p>`;
+                resultadoDiv.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <span class="text-cyan-500 text-[10px] uppercase mb-1">Fecha Límite 1ª ITV</span>
+                        <p class="text-slate-100">Antes del <span class="text-green-400 font-black">${fechaTxt}</span></p>
+                    </div>`;
             }
         }
-        
-        // Habilitar la tecla Intro en el campo de input de fecha
-        document.getElementById("fechaMatriculacionMotoFrancia").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                calcularItvMotosFrancia();
-            }
-        });
+
+        function toggleModal(show) {
+            document.getElementById('helpModal').style.display = show ? 'block' : 'none';
+        }
+
+        // Cerrar modal si se hace clic fuera
+        window.onclick = function(event) {
+            let modal = document.getElementById('helpModal');
+            if (event.target == modal) modal.style.display = "none";
+        }
+        // Permite ejecutar el cálculo al presionar la tecla "Enter"
+document.getElementById("fechaMatriculacionMotoFrancia").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // Evita comportamientos por defecto del formulario
+        calcularItvMotosFrancia();
+    }
+});
     </script>
 </body>
 </html>
