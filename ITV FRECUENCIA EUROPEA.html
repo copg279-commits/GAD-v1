@@ -6,7 +6,12 @@
     <title>Buscador Frecuencia ITV Europa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Estilos de banderas existentes y nuevos */
+        body {
+            background-color: #0f172a !important; /* bg-slate-900 */
+            color: #e2e8f0 !important; /* text-slate-200 */
+        }
+        
+        /* Estilos de banderas existentes */
         .flag {
             position: absolute;
             top: 10px;
@@ -14,7 +19,7 @@
             width: 40px;
             height: 25px;
             background-size: cover;
-            border: 1px solid #ccc;
+            border: 1px solid #334155;
             border-radius: 3px;
         }
         .flag-españa {
@@ -98,91 +103,88 @@
         .flag-suecia {
             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10'%3E%3Crect width='16' height='10' fill='%23006aa7'/%3E%3Crect x='5' width='2' height='10' fill='%23fecc00'/%3E%3Crect y='4' width='16' height='2' fill='%23fecc00'/%E3%83%83%3C/svg%3E") no-repeat center center / cover;
         }
-        /* ESTILO AÑADIDO PARA EL BOTÓN MENÚ PRINCIPAL */
-        .flag-button-spain {
-            background: linear-gradient(to top, #c60b1e 0%, #c60b1e 33%, #ffc400 33%, #ffc400 66%, #c60b1e 66%, #c60b1e 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        /* --- CÓDIGO NUEVO PARA EL LOGO RESPONSIVE (V4) --- */
-        .logo-container {
-            width: 96px;  /* Tamaño pequeño para MÓVIL */
-            height: 96px;
-            border-radius: 50%;
-            overflow: hidden;
-            background-color: #1e40af;
-            display: flex;
-            align-items: center; 
-            justify-content: center;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+
+        /* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
+        #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+        #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+        #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+        /* Zoom de miniaturas sin cortes (Solo PC) */
+        td, tr { position: static !important; }
+        .results-container { overflow: visible !important; }
+        @media (hover: hover) and (pointer: fine) { 
+            .thumbnail-img:hover { 
+                transform: scale(4); 
+                z-index: 9999 !important; 
+                position: relative; 
+                box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+                border-color: #06b6d4; 
+            } 
         }
 
-        /* Regla para Pantallas Grandes (PC): Crece a 160px */
-        @media (min-width: 768px) {
-            .logo-container {
-                width: 160px;
-                height: 160px;
+        /* Responsive Móvil Estricto (De tabla a tarjetas) */
+        @media (max-width: 768px) {
+            thead { display: none; }
+            tr { 
+                display: flex; 
+                flex-direction: column; 
+                background: #1e293b !important; 
+                border-radius: 12px; 
+                margin-bottom: 1rem;
+                border: 1px solid #334155;
+                overflow: hidden;
             }
+            td { display: block; width: 100%; border: none !important; padding: 0.75rem !important; }
+            .thumbnail-img { width: 100% !important; height: auto !important; max-width: none !important; border-radius: 0 !important; }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col pb-16">
 
-    <header class="bg-blue-600 w-full flex justify-center items-center py-2">
-<div class="logo-container">
-    <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
-</div>
+    <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+      <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+      
+      <div class="text-center flex-1">
+        <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+          BUSCADOR FRECUENCIA<br class="md:hidden"> ITV EUROPA
+        </h1>
+        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+          Grupo de Análisis Documental
+        </h2>
+      </div>
+
+      <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
     </header>
 
-    <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
-        Buscador Frecuencia ITV Europa
-    </h1>
-
-    <div class="w-11/12 max-w-md mx-auto mt-4 text-left">
-        <p class="mb-2">
+    <div class="w-11/12 max-w-md mx-auto mt-8 text-left">
+        <p class="mb-2 text-slate-400 font-bold uppercase text-xs tracking-wider">
             Selecciona un país de la UE para ver la frecuencia de la ITV:
         </p>
         <select 
             id="countrySelect" 
             onchange="buscarPais()" 
-            class="w-full p-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full p-3 text-base bg-slate-900 border border-slate-600 text-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
         >
             <option value="">-- Selecciona un país --</option>
         </select>
     </div>
 
-    <div id="resultado" class="mt-6 p-4 bg-white shadow rounded-lg w-11/12 max-w-md mx-auto text-left relative">
-        <p class="text-gray-500" id="resultText">
+    <div id="resultado" class="mt-6 p-4 bg-slate-800 shadow-lg rounded-lg border border-slate-700 w-11/12 max-w-md mx-auto text-left relative transition-colors duration-300">
+        <p class="text-slate-400" id="resultText">
             La frecuencia de la ITV para el país seleccionado aparecerá aquí.
         </p>
     </div>
     
-    <div id="directiva" class="mt-2 p-2 w-11/12 max-w-md mx-auto text-center font-bold" style="display: none;">
+    <div id="directiva" class="mt-2 p-2 w-11/12 max-w-md mx-auto text-center font-bold text-cyan-500 text-sm tracking-widest uppercase" style="display: none;">
         DIRECTIVA 2014/45/UE
     </div>
 
     <div class="mt-8 flex justify-center">
-        <button onclick="window.location.href='index.html'"
-            class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
-            MENÚ PRINCIPAL
-        </button>
-    </div>
-
-    <div class="mt-4 flex justify-center">
         <button onclick="window.location.href='https://road-safety.transport.ec.europa.eu/road-safety-member-states/roadworthiness-certificate-and-proof-test_en'"
-                class="w-11/12 max-w-md p-4 bg-blue-600 text-white font-bold rounded-lg shadow-md transition hover:bg-blue-700">
-            FRECUENCIA ITV EUROPA
+                class="w-11/12 max-w-md p-4 bg-slate-800 border border-slate-600 text-cyan-500 font-bold rounded-lg shadow-md transition hover:bg-slate-700 uppercase tracking-widest text-sm">
+            Frecuencia ITV Europa (Oficial)
         </button>
     </div>
-
-    <footer class="mt-auto text-center py-6 bg-gray-200">
-        <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-        <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-        <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-        <p>&copy; GAD - Todos los derechos reservados</p>
-    </footer>
 
     <script>
         const itvFrequencies = {
@@ -337,8 +339,15 @@
             const directivaDiv = document.getElementById('directiva');
             
             resultadoText.innerHTML = html;
-            resultadoDiv.classList.toggle('bg-red-200', esError);
-            resultadoDiv.classList.toggle('bg-white', !esError);
+            
+            // Reemplazo de las clases de Tailwind directo para mantener la lógica intacta pero aplicar Dark Mode
+            resultadoDiv.classList.toggle('bg-red-900', esError);
+            resultadoDiv.classList.toggle('border-red-500', esError);
+            resultadoDiv.classList.toggle('text-red-300', esError);
+
+            resultadoDiv.classList.toggle('bg-slate-800', !esError);
+            resultadoDiv.classList.toggle('border-slate-700', !esError);
+            
             resultadoText.classList.toggle('text-center', esError);
             resultadoText.classList.toggle('text-left', !esError);
 
@@ -383,9 +392,9 @@
             if (paisData) {
                 let html = `
                     <div class="mb-2">
-                        <p><span class="font-bold text-lg">${input.toUpperCase()}:</span></p>
-                        <p><span class="font-bold">Turismos:</span> ${paisData.turismos}</p>
-                        <p><span class="font-bold">Motocicletas:</span> ${paisData.motos}</p>
+                        <p><span class="font-bold text-lg text-cyan-400">${input.toUpperCase()}:</span></p>
+                        <p class="mt-2"><span class="font-bold text-slate-300">Turismos:</span> <span class="text-slate-200">${paisData.turismos}</span></p>
+                        <p class="mt-1"><span class="font-bold text-slate-300">Motocicletas:</span> <span class="text-slate-200">${paisData.motos}</span></p>
                     </div>
                 `;
                 
@@ -404,7 +413,7 @@
                     button.id = 'botonFrancia';
                     button.textContent = 'CALCULADORA ITV MOTOS FRANCIA';
                     button.onclick = () => window.location.href = 'ITV MOTOS FRANCIA.html';
-                    button.className = 'block mx-auto mt-4 w-full bg-blue-600 text-white font-bold py-3 rounded-md hover:bg-blue-700 transition';
+                    button.className = 'block mx-auto mt-4 w-full bg-cyan-600 text-white font-bold py-3 rounded-md hover:bg-cyan-500 transition shadow-md tracking-wider text-sm';
                     resultadoDiv.appendChild(button);
                 }
                 
@@ -414,7 +423,7 @@
                     button.id = 'botonAlemania';
                     button.textContent = 'VERIFICADOR PEGATINA TÜV';
                     button.onclick = () => window.location.href = 'ITV ALEMANIA.html';
-                    button.className = 'block mx-auto mt-4 w-full bg-blue-600 text-white font-bold py-3 rounded-md hover:bg-blue-700 transition';
+                    button.className = 'block mx-auto mt-4 w-full bg-cyan-600 text-white font-bold py-3 rounded-md hover:bg-cyan-500 transition shadow-md tracking-wider text-sm';
                     resultadoDiv.appendChild(button);
                 }
 
