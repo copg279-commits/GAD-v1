@@ -129,8 +129,9 @@ function renderMenuButtons() {
 
         buttons.forEach(([key, v]) => {
             const isFull = v.size === 'full-width'; 
+            const isMedium = v.size === 'medium';
             const btn = document.createElement('div'); 
-            btn.className = `tech-btn ${isFull ? 'full-width' : ''}`;
+            btn.className = `tech-btn ${isFull ? 'full-width' : ''} ${isMedium ? 'size-medium' : ''}`;
             
             if (v.color === '#ef4444' || v.color === '#dc2626') btn.classList.add('color-alert'); 
             else if (v.color === '#f59e0b') btn.classList.add('color-warning'); 

@@ -80,8 +80,13 @@ h1, h2, h3, .tech-label, .counter-number, .sidebar-header, .cyber-button {
 }
 
 /* --- GRID DE BOTONES --- */
-#main-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-bottom: 10px; }
-.full-width { grid-column: 1 / -1; }
+/* ESTRUCTURA BASE (ORDENADOR) - GRID DE 6 COLUMNAS */
+#main-menu-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; padding-bottom: 10px; grid-auto-flow: dense; }
+
+/* TAMAÑOS DE BOTONES EN ORDENADOR */
+.tech-btn { grid-column: span 2; } /* Normal: 1/3 de la pantalla */
+.size-medium { grid-column: span 3; } /* Mediano: 1/2 de la pantalla (1.5 botones normales) */
+.full-width { grid-column: 1 / -1; } /* Largo: Ancho completo */
 
 .tech-btn svg, .tech-btn .energy-beam { display: none !important; }
 
@@ -243,9 +248,15 @@ footer {
 @media (max-width: 900px) {
     .title-container h1 { font-size: 1.7rem; margin: 10px 20px; }
     #user-info-display { font-size: 0.9rem; }
-    #main-menu-grid { gap: 15px; }
-    .tech-btn { height: 105px; padding: 15px 10px; }
+    
+    /* REGLAS DEL GRID Y TAMAÑOS PARA MÓVIL */
+    #main-menu-grid { grid-template-columns: 1fr 1fr; gap: 15px; grid-auto-flow: dense; }
+    .tech-btn { height: 105px; padding: 15px 10px; grid-column: span 1; }
     .tech-label { font-size: 0.95rem; }
+    
+    /* LA MAGIA: El mediano pasa a ocupar 1 hueco, el grande sigue ocupando todo */
+    .size-medium { grid-column: span 1; } 
+    .full-width { grid-column: 1 / -1; } 
 }
 
 @media (max-width: 600px) {
