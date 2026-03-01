@@ -75,27 +75,29 @@
 
         /* --- REGLAS DE COMPRESIÓN EXTREMA PARA MÓVIL --- */
         @media (max-width: 768px) {
-            .result-box { margin-top: 8px !important; padding: 12px !important; }
-            #modal-detalle-caso { font-size: 0.85rem; }
-            #modal-detalle-caso strong { font-size: 11px !important; margin-bottom: 0px !important; }
-            #modal-detalle-caso [class*="text-cyan-500"] { font-size: 11px !important; }
-            #modal-detalle-caso span { font-size: 13px !important; }
-            #edit-actuacion { font-size: 0.85rem; min-height: 150px !important; }
-            #result-modal { padding: 8px !important; align-items: flex-start !important; }
-            #result-modal > div { padding: 16px !important; margin-top: 0 !important; max-width: 100% !important; width: 100% !important;}
-            #modal-detalle-caso .mb-5 { margin-bottom: 8px !important; }
-            #result-modal h2 { font-size: 1.1rem !important; margin-bottom: 12px !important; padding-bottom: 6px !important; }
+            #result-modal { 
+                padding: 10px 10px 120px 10px !important; /* Espacio gigante abajo para burlar el footer */
+                align-items: flex-start !important; 
+            }
+            #result-modal > div { 
+                padding: 12px !important; 
+                margin-top: 0 !important; 
+                max-width: 100% !important; 
+                width: 100% !important;
+            }
+            /* Comprimir título modal */
+            #result-modal h2 { font-size: 1rem !important; margin-bottom: 8px !important; padding-bottom: 4px !important; }
             .container { padding: 16px; margin-top: 16px; }
         }
 
-        /* --- ELIMINAR FONDOS ROSAS Y ESTILOS INLINE DE FIREBASE --- */
+        /* --- ELIMINAR FONDOS ROSAS DE FIREBASE --- */
         #modal-detalle-caso [style*="background"],
         #edit-actuacion [style*="background"] { background-color: transparent !important; }
         #modal-detalle-caso [style*="color"],
         #edit-actuacion [style*="color"] { color: inherit !important; }
     </style>
 </head>
-<body class="bg-slate-900 min-h-screen flex flex-col pb-16 text-slate-200">
+<body class="bg-slate-900 min-h-screen flex flex-col text-slate-200">
 
     <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
       <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
@@ -121,18 +123,20 @@
         <div id="question-container" class="mt-6 flex flex-col"></div>
     </div>
 
-    <div id="result-modal" class="hidden fixed top-[5rem] md:top-[7rem] left-0 right-0 bottom-0 bg-slate-900/95 backdrop-blur-md z-[950] overflow-y-auto p-4 md:p-8 flex justify-center items-start">
-        <div class="w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 md:p-8 relative mt-2 mb-10">
+    <div id="result-modal" class="hidden fixed top-[5rem] md:top-[7rem] left-0 right-0 bottom-0 bg-slate-900/95 backdrop-blur-md z-[9999] overflow-y-auto p-4 md:p-8 flex justify-center items-start pb-[100px] md:pb-[120px]">
+        <div class="w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 md:p-8 relative mt-2">
             <button onclick="closeResultModal()" class="absolute top-3 right-3 md:top-4 md:right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md z-10">
                 <i class="fas fa-times"></i>
             </button>
-            <h2 class="text-xl md:text-2xl font-black text-cyan-500 uppercase tracking-widest mb-4 md:mb-6 border-b border-slate-700 pb-2 md:pb-3"><i class="fas fa-file-contract mr-2"></i> Detalles del Caso</h2>
-            <div id="modal-detalle-caso" class="text-sm md:text-base space-y-3 md:space-y-4"></div>
-            <div id="modal-actions" class="mt-4 md:mt-8 flex flex-col md:flex-row gap-3"></div>
+            <h2 class="text-xl md:text-2xl font-black text-cyan-500 uppercase tracking-widest mb-2 md:mb-6 border-b border-slate-700 pb-2 md:pb-3"><i class="fas fa-file-contract mr-2"></i> Detalles del Caso</h2>
+            
+            <div id="modal-detalle-caso" class="text-sm md:text-base"></div>
+            
+            <div id="modal-actions" class="mt-3 md:mt-6 flex flex-col md:flex-row gap-3"></div>
         </div>
     </div>
 
-    <div id="edit-modal" class="hidden fixed inset-0 bg-black/80 overflow-y-auto h-full w-full z-[2000]">
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black/80 overflow-y-auto h-full w-full z-[9999]">
         <div class="relative top-10 md:top-20 mx-auto p-6 border border-slate-700 w-11/12 max-w-lg shadow-2xl rounded-2xl bg-slate-800 mb-10">
             <h3 class="text-lg font-black text-cyan-500 uppercase tracking-widest mb-6 border-b border-slate-700 pb-3">Editar Resultado</h3>
             <form id="edit-form" class="space-y-4">
@@ -157,7 +161,6 @@
     </div>
 
     <script>
-        // --- Firebase Config ---
         const firebaseConfig = {
           apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
           authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -170,7 +173,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- Árboles de decisiones ---
         const decisionTrees = {
             "perdida-vigencia-por-puntos": {
                 question: "¿EN QUÉ SITUACIÓN ESTÁ CONDUCIENDO?",
@@ -233,7 +235,7 @@
         };
 
         let history = [];
-        let breadcrumbs = []; // NUEVO: Historial de "migas de pan"
+        let breadcrumbs = [];
         let currentSection = null;
         let currentCaseKey = null;
 
@@ -263,7 +265,6 @@
                 const btn = document.createElement("button");
                 btn.className = "btn btn-primary w-full";
                 btn.textContent = key.replace(/-/g, " ").toUpperCase();
-                // Al pulsar el menú principal, le pasamos el nombre que mostrará la "miga de pan"
                 btn.onclick = () => startQuestions(key, btn.textContent);
                 btnContainer.appendChild(btn);
                 container.appendChild(btnContainer);
@@ -280,7 +281,6 @@
             supuestosTitle.classList.add("hidden");
 
             history = [];
-            // Iniciamos la ruta de navegación con el primer botón que se pulsó
             breadcrumbs = [sectionText];
             currentSection = sectionKey;
             
@@ -294,16 +294,12 @@
             const container = document.getElementById("question-container");
             container.innerHTML = "";
             
-            // --- DIBUJAR RUTA DE NAVEGACIÓN (Migas de pan) ---
             if (breadcrumbs.length > 0) {
                 const bcDiv = document.createElement("div");
                 bcDiv.className = "mb-4 p-2 md:p-3 bg-slate-900/60 rounded-xl border border-slate-700/50 flex flex-wrap items-center justify-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-wider text-center shadow-inner";
-                
                 let bcHtml = "";
                 breadcrumbs.forEach((crumb, index) => {
                     if (index > 0) bcHtml += `<i class="fas fa-chevron-right text-slate-600 text-[8px] md:text-[10px]"></i>`;
-                    
-                    // Si es el último paso dado, destacarlo en color Ámbar. Si es antiguo, en gris.
                     if (index === breadcrumbs.length - 1) {
                         bcHtml += `<span class="text-amber-500">${crumb}</span>`;
                     } else {
@@ -314,23 +310,18 @@
                 container.appendChild(bcDiv);
             }
 
-            // --- DIBUJAR LA PREGUNTA ---
             const qP = document.createElement("p");
             qP.className = "font-black text-cyan-500 mb-4 uppercase tracking-widest text-sm md:text-base text-center";
             qP.textContent = node.question;
             container.appendChild(qP);
 
-            // --- DIBUJAR LOS BOTONES DE RESPUESTA ---
             for (let key in node.options) {
                 const btnContainer = document.createElement("div");
                 btnContainer.className = "relative w-full mb-2";
                 const btn = document.createElement("button");
                 btn.className = "btn btn-primary w-full";
                 btn.textContent = key.toUpperCase();
-                
-                // Le pasamos al handleAnswer también el texto del botón que acaba de pulsar
                 btn.onclick = () => handleAnswer(node.options[key], btn.textContent);
-                
                 btnContainer.appendChild(btn);
                 container.appendChild(btnContainer);
             }
@@ -346,7 +337,6 @@
             if (typeof nextNode === "string") {
                 showResult(nextNode);
             } else {
-                // Al responder y pasar a otra pregunta, guardamos el botón pulsado en la ruta
                 breadcrumbs.push(answerText);
                 history.push(nextNode);
                 showQuestion(nextNode);
@@ -359,15 +349,14 @@
             
             if (history.length > 1) {
                 history.pop();
-                breadcrumbs.pop(); // Borramos el último paso de la ruta de navegación
+                breadcrumbs.pop();
                 showQuestion(history[history.length - 1]);
             } else {
-                // Volvemos al menú principal
                 document.getElementById("question-container").innerHTML = "";
                 supuestosContainer.classList.remove("hidden");
                 supuestosTitle.classList.remove("hidden");
                 currentSection = null;
-                breadcrumbs = []; // Reseteamos la ruta
+                breadcrumbs = []; 
             }
         }
 
@@ -384,49 +373,70 @@
             currentCaseKey = optionKey;
             
             actionsDiv.innerHTML = ""; 
-            detailDiv.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-4xl text-cyan-500"></i><p class="mt-4 font-bold text-slate-300">Conectando con base de datos...</p></div>';
+            detailDiv.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-4xl text-cyan-500"></i></div>';
             modal.classList.remove("hidden");
 
-            if (!parentKey) {
-                detailDiv.innerHTML = '<div class="p-4 bg-red-900/30 border border-red-500 rounded-lg text-red-400 font-bold text-center">Error: No se encontró la categoría para este caso.</div>';
-                return;
-            }
+            if (!parentKey) return;
 
             db.ref(`protocolo/${parentKey}/options/${optionKey}`).once('value').then((snapshot) => {
                 const info = snapshot.val();
                 if (info) {
                     let hecho = info.hecho.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     let resumen = info.resumen.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
-                    let actuacion = info.actuacion.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     
                     let tipoClass = "";
-                    if (info.tipo === 'delito') {
-                        tipoClass = "border-red-500 bg-red-500/10 text-red-200";
-                    } else if (info.tipo === 'infraccion') {
-                        tipoClass = "border-yellow-500 bg-yellow-500/10 text-yellow-200";
-                    } else {
-                        tipoClass = "border-green-500 bg-green-500/10 text-green-200";
+                    if (info.tipo === 'delito') tipoClass = "border-red-500 bg-red-500/10 text-red-200";
+                    else if (info.tipo === 'infraccion') tipoClass = "border-yellow-500 bg-yellow-500/10 text-yellow-200";
+                    else tipoClass = "border-green-500 bg-green-500/10 text-green-200";
+
+                    // LOGICA DE COMPRESIÓN DINÁMICA: Separamos la actuación del código basura de la Prohibición de Firebase
+                    let actuacionRaw = info.actuacion;
+                    let prohibicionHtml = "";
+
+                    if (actuacionRaw.includes("Prohibición de Conducir")) {
+                        let parts = actuacionRaw.split(/<div[^>]*>.*Prohibición de Conducir/is);
+                        if(parts.length > 1) {
+                            actuacionRaw = parts[0].replace(/(<br\s*\/?>\s*)+$/, ''); 
+                            
+                            prohibicionHtml = `
+                                <div class='mt-1 p-2 md:p-3 bg-slate-900/90 rounded border border-slate-700 shadow flex flex-col gap-1'>
+                                    <div class='flex items-center gap-1'>
+                                        <i class='fas fa-ban text-red-500 text-xs md:text-base'></i>
+                                        <b class='text-red-400 text-[10px] md:text-xs tracking-wide uppercase truncate'>Prohibición de Conducir</b>
+                                    </div>
+                                    <hr class='border-slate-700 my-0'>
+                                    <div class='flex items-start gap-1 leading-tight'>
+                                        <i class='fas fa-truck-pickup text-cyan-500 text-[10px] md:text-sm mt-0.5'></i>
+                                        <span class='text-[10px] md:text-xs'><b class='text-cyan-400'>Art. 87.5 LSV:</b> Si no acredita residencia, inmovilizar por caución.</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
                     }
 
+                    // CONSTRUCCIÓN ULTRA-COMPACTA TODO DENTRO DEL RECUADRO
                     detailDiv.innerHTML = `
-                        <div class="p-4 md:p-5 rounded-xl border ${tipoClass} shadow-inner">
-                            <div class="mb-3 md:mb-5">
-                                <strong class="text-cyan-500 text-[11px] md:text-xs tracking-widest uppercase block mb-1">Hecho:</strong>
-                                <span class="block text-[13px] md:text-base">${hecho}</span>
-                            </div>
-                            <div class="mb-3 md:mb-5">
-                                <strong class="text-cyan-500 text-[11px] md:text-xs tracking-widest uppercase block mb-1">Resumen:</strong>
-                                <span class="font-bold block text-[13px] md:text-base">${resumen}</span>
+                        <div class="p-2.5 md:p-5 rounded-xl border ${tipoClass} shadow-inner flex flex-col gap-1.5 md:gap-4">
+                            <div>
+                                <strong class="text-cyan-500 text-[9px] md:text-xs tracking-widest uppercase block mb-0">Hecho:</strong>
+                                <span class="block text-[11px] md:text-base leading-tight">${hecho}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[11px] md:text-xs tracking-widest uppercase block mb-1">Actuación:</strong>
-                                <span class="block bg-slate-900/80 p-3 md:p-4 rounded-lg border border-slate-700 mt-2 text-slate-300 shadow-md text-[13px] md:text-base">${actuacion}</span>
+                                <strong class="text-cyan-500 text-[9px] md:text-xs tracking-widest uppercase block mb-0">Resumen:</strong>
+                                <span class="font-bold block text-[11px] md:text-base leading-tight">${resumen}</span>
                             </div>
+                            <div>
+                                <strong class="text-cyan-500 text-[9px] md:text-xs tracking-widest uppercase block mb-0">Actuación:</strong>
+                                <div class="bg-slate-900/80 p-2 md:p-4 rounded border border-slate-700 mt-0.5 text-slate-300 shadow-sm text-[11px] md:text-base leading-snug">
+                                    ${actuacionRaw}
+                                </div>
+                            </div>
+                            ${prohibicionHtml}
                         </div>
                     `;
                     
                     const editBtn = document.createElement("button");
-                    editBtn.className = "w-full py-2.5 md:py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center justify-center gap-2 text-xs md:text-sm";
+                    editBtn.className = "w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-lg uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-[11px] md:text-sm";
                     editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Resultado';
                     editBtn.onclick = () => {
                         closeResultModal();
@@ -435,10 +445,10 @@
                     actionsDiv.appendChild(editBtn);
 
                 } else {
-                    detailDiv.innerHTML = '<div class="p-4 bg-slate-900 border border-slate-700 rounded-lg text-slate-400 font-bold text-center">⚠️ No se encontraron datos para este caso. Puede editar para crearlos.</div>';
+                    detailDiv.innerHTML = '<div class="p-4 bg-slate-900 border border-slate-700 rounded-lg text-slate-400 font-bold text-center">⚠️ No se encontraron datos para este caso.</div>';
                 }
             }).catch(error => {
-                detailDiv.innerHTML = `<div class="p-4 bg-red-900/30 border border-red-500 rounded-lg text-red-400 font-bold text-center">Error al cargar los datos: ${error.message}</div>`;
+                detailDiv.innerHTML = `<div class="p-4 bg-red-900/30 border border-red-500 rounded-lg text-red-400 font-bold text-center">Error: ${error.message}</div>`;
             });
         }
 
@@ -452,10 +462,7 @@
 
         document.getElementById("save-edit").onclick = () => {
             const parentKey = findCaseParent(currentCaseKey);
-            if (!parentKey) {
-                alert("Error: No se pudo encontrar la categoría del caso.");
-                return;
-            }
+            if (!parentKey) return;
             const updatedData = {
                 hecho: document.getElementById("edit-hecho").value,
                 resumen: document.getElementById("edit-resumen").value,
@@ -466,10 +473,6 @@
                     .then(() => {
                         document.getElementById("edit-modal").classList.add("hidden");
                         showResult(currentCaseKey);
-                    })
-                    .catch((error) => {
-                        console.error("Error al guardar:", error);
-                        alert("Hubo un error al guardar los cambios.");
                     });
             }
         };
