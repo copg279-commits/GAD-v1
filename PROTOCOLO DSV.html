@@ -74,22 +74,7 @@
         .hidden { display: none !important; }
 
         /* --- REGLAS DE COMPRESIÓN EXTREMA PARA MÓVIL --- */
-        @media (max-width: 768px) {
-    #result-modal { 
-        padding: 8px 8px 100px 8px !important; 
-    }
-    #result-modal > div { 
-        padding: 16px !important; 
-        max-width: 95% !important; 
-    }
-    /* Subimos un punto el tamaño como pediste */
-    #modal-detalle-caso { font-size: 0.95rem; } 
-    #modal-detalle-caso strong { font-size: 12px !important; }
-    #modal-detalle-caso span { font-size: 14px !important; }
-    
-    /* Título un poco más visible */
-    #result-modal h2 { font-size: 1.2rem !important; margin-bottom: 14px !important; }
-}
+  @media (max-width: 768px) {
             /* Comprimir título modal */
             #result-modal h2 { font-size: 1rem !important; margin-bottom: 8px !important; padding-bottom: 4px !important; }
             .container { padding: 16px; margin-top: 16px; }
@@ -101,34 +86,56 @@
         #modal-detalle-caso [style*="color"],
         #edit-actuacion [style*="color"] { color: inherit !important; }
         /* --- MEJORAS VISUALES MÓVIL Y PC --- */
-@media (max-width: 768px) {
-    #result-modal { padding: 8px 8px 120px 8px !important; }
-    #result-modal > div { padding: 18px !important; width: 100% !important; }
-    
-    /* Letra más grande en móvil */
-    #modal-detalle-caso { font-size: 1.05rem !important; } 
-    #modal-detalle-caso strong { font-size: 13px !important; }
-    #modal-detalle-caso span { font-size: 15px !important; }
-    #result-modal h2 { font-size: 1.3rem !important; }
-}
+/* --- REGLAS DE COMPRESIÓN Y DISEÑO PC/MÓVIL --- */
+    /* --- REGLAS DE AJUSTE AUTOMÁTICO (SIN SCROLL) --- */
+        @media (max-width: 768px) {
+            #result-modal { 
+                padding: 0 !important; 
+                align-items: flex-start !important;
+                height: calc(100vh - 5rem) !important; /* Altura exacta bajo cabecera */
+            }
+            #result-modal > div { 
+                padding: 8px !important; 
+                margin: 4px auto !important; 
+                width: 99vw !important; 
+                max-width: 99vw !important;
+                border-width: 2px !important;
+            }
+            /* Optimizamos textos para evitar desbordes verticales */
+            .actuacion-text { font-size: 14px !important; line-height: 1.3 !important; }
+            #modal-detalle-caso .mb-5 { margin-bottom: 6px !important; }
+        }
 
-@media (min-width: 1024px) {
-    /* Pantalla dividida en PC: Preguntas izquierda, Resultado derecha */
-    body:has(#result-modal:not(.hidden)) .container {
-        margin-left: 5% !important;
-        margin-right: auto !important;
-        max-width: 35% !important;
-        transition: all 0.4s ease;
-    }
-    #result-modal:not(.hidden) {
-        width: 55% !important;
-        left: auto !important;
-        right: 5% !important;
-        background: transparent !important;
-        pointer-events: none; /* Permite clickear lo de atrás si fuera necesario */
-    }
-    #result-modal > div { pointer-events: auto; } /* Pero el resultado sí recibe clicks */
-}
+        @media (min-width: 1024px) {
+            /* Pantalla dividida en PC */
+            body:has(#result-modal:not(.hidden)) .container {
+                margin-left: 3% !important;
+                margin-right: auto !important;
+                max-width: 30% !important;
+                transition: all 0.4s ease;
+            }
+            #result-modal:not(.hidden) {
+                width: 65% !important;
+                left: auto !important;
+                right: 2% !important;
+                background: transparent !important;
+                height: calc(100vh - 8rem) !important; /* Evita que choque con el fondo */
+                overflow: hidden !important; /* Prohibido el scroll */
+                display: flex !important;
+                align-items: center;
+                pointer-events: none;
+            }
+            #result-modal > div { 
+                pointer-events: auto; 
+                margin-bottom: 0 !important; /* Eliminamos el margen que causaba el scroll */
+            }
+        }
+
+        /* --- ELIMINAR FONDOS ROSAS Y ESTILOS INLINE DE FIREBASE --- */
+        #modal-detalle-caso [style*="background"],
+        #edit-actuacion [style*="background"] { background-color: transparent !important; }
+        #modal-detalle-caso [style*="color"],
+        #edit-actuacion [style*="color"] { color: inherit !important; }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen flex flex-col text-slate-200">
@@ -398,14 +405,13 @@
             document.getElementById("result-modal").classList.add("hidden");
         }
 
-        function showResult(optionKey) {
+       function showResult(optionKey) {
             const modal = document.getElementById("result-modal");
             const detailDiv = document.getElementById("modal-detalle-caso");
             const actionsDiv = document.getElementById("modal-actions");
             const parentKey = findCaseParent(optionKey);
 
             currentCaseKey = optionKey;
-            
             actionsDiv.innerHTML = ""; 
             detailDiv.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-4xl text-cyan-500"></i></div>';
             modal.classList.remove("hidden");
@@ -417,73 +423,59 @@
                 if (info) {
                     let hecho = info.hecho.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     let resumen = info.resumen.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
-                    
-                    let tipoClass = "";
-                    if (info.tipo === 'delito') tipoClass = "border-red-500 bg-red-500/10 text-red-200";
-                    else if (info.tipo === 'infraccion') tipoClass = "border-yellow-500 bg-yellow-500/10 text-yellow-200";
-                    else tipoClass = "border-green-500 bg-green-500/10 text-green-200";
-
-                    // LOGICA DE COMPRESIÓN DINÁMICA: Separamos la actuación del código basura de la Prohibición de Firebase
                     let actuacionRaw = info.actuacion;
-                    let prohibicionHtml = "";
+                    
+                    let tipoClass = info.tipo === 'delito' ? "border-red-500 bg-red-500/10 text-red-200" : 
+                                    (info.tipo === 'infraccion' ? "border-yellow-500 bg-yellow-500/10 text-yellow-200" : "border-green-500 bg-green-500/10 text-green-200");
 
-                    if (actuacionRaw.includes("Prohibición de Conducir")) {
-                        let parts = actuacionRaw.split(/<div[^>]*>.*Prohibición de Conducir/is);
-                        if(parts.length > 1) {
-                            actuacionRaw = parts[0].replace(/(<br\s*\/?>\s*)+$/, ''); 
-                            
-                            prohibicionHtml = `
-                                <div class='mt-1 p-2 md:p-3 bg-slate-900/90 rounded border border-slate-700 shadow flex flex-col gap-1'>
-                                    <div class='flex items-center gap-1'>
-                                        <i class='fas fa-ban text-red-500 text-xs md:text-base'></i>
-                                        <b class='text-red-400 text-[10px] md:text-xs tracking-wide uppercase truncate'>Prohibición de Conducir</b>
-                                    </div>
-                                    <hr class='border-slate-700 my-0'>
-                                    <div class='flex items-start gap-1 leading-tight'>
-                                        <i class='fas fa-truck-pickup text-cyan-500 text-[10px] md:text-sm mt-0.5'></i>
-                                        <span class='text-[10px] md:text-xs'><b class='text-cyan-400'>Art. 87.5 LSV:</b> Si no acredita residencia, inmovilizar por caución.</span>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    }
-
-                    // CONSTRUCCIÓN ULTRA-COMPACTA TODO DENTRO DEL RECUADRO
+                    // Construcción del contenido
                     detailDiv.innerHTML = `
-                        <div class="p-2.5 md:p-5 rounded-xl border ${tipoClass} shadow-inner flex flex-col gap-1.5 md:gap-4">
+                        <div class="p-3 md:p-5 rounded-xl border-2 ${tipoClass} shadow-inner flex flex-col gap-2 md:gap-4">
                             <div>
-                                <strong class="text-cyan-500 text-[9px] md:text-xs tracking-widest uppercase block mb-0">Hecho:</strong>
-                                <span class="block text-[11px] md:text-base leading-tight">${hecho}</span>
+                                <strong class="text-cyan-500 text-[10px] md:text-xs tracking-widest uppercase block">Hecho:</strong>
+                                <span class="block text-[14px] md:text-base leading-tight">${hecho}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[9px] md:text-xs tracking-widest uppercase block mb-0">Resumen:</strong>
-                                <span class="font-bold block text-[11px] md:text-base leading-tight">${resumen}</span>
+                                <strong class="text-cyan-500 text-[10px] md:text-xs tracking-widest uppercase block">Resumen:</strong>
+                                <span class="font-bold block text-[14px] md:text-base leading-tight">${resumen}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[9px] md:text-xs tracking-widest uppercase block mb-0">Actuación:</strong>
-                                <div class="bg-slate-900/80 p-2 md:p-4 rounded border border-slate-700 mt-0.5 text-slate-300 shadow-sm text-[11px] md:text-base leading-snug">
+                                <strong class="text-cyan-500 text-[10px] md:text-xs tracking-widest uppercase block">Actuación:</strong>
+                                <div class="actuacion-text bg-slate-900/80 p-3 md:p-4 rounded border border-slate-700 mt-1 text-slate-300 shadow-sm text-[15px] md:text-base leading-snug">
                                     ${actuacionRaw}
                                 </div>
                             </div>
-                            ${prohibicionHtml}
                         </div>
                     `;
                     
-                    // Busca esta línea y cámbiala por esta:
-const editBtn = document.createElement("button");
-editBtn.className = "hidden md:flex w-full py-2.5 md:py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-md transition-all items-center justify-center gap-2 text-xs md:text-sm";
-editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Resultado';
-                    editBtn.onclick = () => {
-                        closeResultModal();
-                        openEditModal(info);
-                    };
+                    // BOTÓN EDITAR: Forzamos visualización en PC y ocultación en móvil mediante estilo directo
+                    const editBtn = document.createElement("button");
+                    editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Resultado';
+                    editBtn.className = "w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-sm";
+                    
+                    // Si es móvil (ancho menor a 768px), lo ocultamos. Si es PC, se ve.
+                    if (window.innerWidth < 768) {
+                        editBtn.style.display = "none";
+                    } else {
+                        editBtn.style.display = "flex";
+                    }
+                    
+                    editBtn.onclick = () => { closeResultModal(); openEditModal(info); };
                     actionsDiv.appendChild(editBtn);
 
-                } else {
-                    detailDiv.innerHTML = '<div class="p-4 bg-slate-900 border border-slate-700 rounded-lg text-slate-400 font-bold text-center">⚠️ No se encontraron datos para este caso.</div>';
+                    // LÓGICA DOBLE TAP PARA MÓVIL (Double Tap en la tarjeta para editar)
+                    let lastTap = 0;
+                    const card = detailDiv.querySelector('.rounded-xl');
+                    card.addEventListener('touchend', function (e) {
+                        let currentTime = new Date().getTime();
+                        let tapLength = currentTime - lastTap;
+                        if (tapLength < 500 && tapLength > 0) {
+                            closeResultModal();
+                            openEditModal(info);
+                        }
+                        lastTap = currentTime;
+                    });
                 }
-            }).catch(error => {
-                detailDiv.innerHTML = `<div class="p-4 bg-red-900/30 border border-red-500 rounded-lg text-red-400 font-bold text-center">Error: ${error.message}</div>`;
             });
         }
 
