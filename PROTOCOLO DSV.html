@@ -71,22 +71,28 @@
         }
         .btn-back:hover { background-color: #475569 !important; border-color: #94a3b8 !important; }
 
-        .fa-pencil-alt { color: #06b6d4 !important; transition: all 0.2s; font-size: 16px; }
-        .btn-primary:hover + .fa-pencil-alt { color: #0f172a !important; }
-
         .hidden { display: none !important; }
-        
-        #question-container p { color: #06b6d4; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; font-size: 13px; text-align: center; margin-bottom: 15px; }
+
+        /* --- REGLAS DE COMPRESIÓN EXTREMA PARA MÓVIL --- */
+        @media (max-width: 768px) {
+            .result-box { margin-top: 8px !important; padding: 12px !important; }
+            #modal-detalle-caso { font-size: 0.85rem; }
+            #modal-detalle-caso strong { font-size: 11px !important; margin-bottom: 0px !important; }
+            #modal-detalle-caso [class*="text-cyan-500"] { font-size: 11px !important; }
+            #modal-detalle-caso span { font-size: 13px !important; }
+            #edit-actuacion { font-size: 0.85rem; min-height: 150px !important; }
+            #result-modal { padding: 8px !important; align-items: flex-start !important; }
+            #result-modal > div { padding: 16px !important; margin-top: 0 !important; max-width: 100% !important; width: 100% !important;}
+            #modal-detalle-caso .mb-5 { margin-bottom: 8px !important; }
+            #result-modal h2 { font-size: 1.1rem !important; margin-bottom: 12px !important; padding-bottom: 6px !important; }
+            .container { padding: 16px; margin-top: 16px; }
+        }
+
         /* --- ELIMINAR FONDOS ROSAS Y ESTILOS INLINE DE FIREBASE --- */
         #modal-detalle-caso [style*="background"],
-        #edit-actuacion [style*="background"] {
-            background-color: transparent !important;
-        }
-        
+        #edit-actuacion [style*="background"] { background-color: transparent !important; }
         #modal-detalle-caso [style*="color"],
-        #edit-actuacion [style*="color"] {
-            color: inherit !important;
-        }
+        #edit-actuacion [style*="color"] { color: inherit !important; }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen flex flex-col pb-16 text-slate-200">
@@ -107,31 +113,27 @@
     </header>
 
     <div class="w-11/12 max-w-md mx-auto mt-8 bg-slate-800 p-6 rounded-2xl shadow-2xl container border border-slate-700">
-        <p class="text-cyan-500 font-black uppercase tracking-wider text-center text-sm mb-4 border-b border-slate-700 pb-4">
+        <p id="supuestos-title" class="text-cyan-500 font-black uppercase tracking-wider text-center text-sm mb-4 border-b border-slate-700 pb-4">
             SELECCIONE EL SUPUESTO PARA COMENZAR:
         </p>
         
         <div id="supuestos-container" class="mt-4 flex flex-col gap-3"></div>
-        <div id="question-container" class="mt-6 flex flex-col gap-2"></div>
+        <div id="question-container" class="mt-6 flex flex-col"></div>
     </div>
 
     <div id="result-modal" class="hidden fixed top-[5rem] md:top-[7rem] left-0 right-0 bottom-0 bg-slate-900/95 backdrop-blur-md z-[950] overflow-y-auto p-4 md:p-8 flex justify-center items-start">
         <div class="w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 md:p-8 relative mt-2 mb-10">
-            <button onclick="closeResultModal()" class="absolute top-4 right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md">
+            <button onclick="closeResultModal()" class="absolute top-3 right-3 md:top-4 md:right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md z-10">
                 <i class="fas fa-times"></i>
             </button>
-            
-            <h2 class="text-xl md:text-2xl font-black text-cyan-500 uppercase tracking-widest mb-6 border-b border-slate-700 pb-3"><i class="fas fa-file-contract mr-2"></i> Detalles del Caso</h2>
-            
-            <div id="modal-detalle-caso" class="text-sm md:text-base space-y-4"></div>
-            
-            <div id="modal-actions" class="mt-8 flex flex-col md:flex-row gap-3">
-                </div>
+            <h2 class="text-xl md:text-2xl font-black text-cyan-500 uppercase tracking-widest mb-4 md:mb-6 border-b border-slate-700 pb-2 md:pb-3"><i class="fas fa-file-contract mr-2"></i> Detalles del Caso</h2>
+            <div id="modal-detalle-caso" class="text-sm md:text-base space-y-3 md:space-y-4"></div>
+            <div id="modal-actions" class="mt-4 md:mt-8 flex flex-col md:flex-row gap-3"></div>
         </div>
     </div>
 
     <div id="edit-modal" class="hidden fixed inset-0 bg-black/80 overflow-y-auto h-full w-full z-[2000]">
-        <div class="relative top-20 mx-auto p-6 border border-slate-700 w-11/12 max-w-lg shadow-2xl rounded-2xl bg-slate-800">
+        <div class="relative top-10 md:top-20 mx-auto p-6 border border-slate-700 w-11/12 max-w-lg shadow-2xl rounded-2xl bg-slate-800 mb-10">
             <h3 class="text-lg font-black text-cyan-500 uppercase tracking-widest mb-6 border-b border-slate-700 pb-3">Editar Resultado</h3>
             <form id="edit-form" class="space-y-4">
                 <div>
@@ -171,9 +173,9 @@
         // --- Árboles de decisiones ---
         const decisionTrees = {
             "perdida-vigencia-por-puntos": {
-                question: "¿CUÁL ES LA SITUACIÓN ACTUAL DEL CONDUCTOR?",
+                question: "¿EN QUÉ SITUACIÓN ESTÁ CONDUCIENDO?",
                 options: {
-                    "DURANTE PERIODO DE PÉRDIDA": "conduce-durante",
+                    "DURANTE EL PERIODO DE PÉRDIDA DE VIGENCIA": "conduce-durante",
                     "PÉRDIDA DE VIGENCIA EDICTAL": {
                         question: "¿TIENE CONOCIMIENTO FEHACIENTE DE LA PÉRDIDA EDICTAL?",
                         options: {
@@ -181,7 +183,7 @@
                             "NO TIENE CONOCIMIENTO": "no-conocimiento"
                         }
                     },
-                    "PERIODO FINALIZADO": {
+                    "PERIODO PÉRDIDA VIGENCIA FINALIZADO": {
                         question: "SELECCIONE EL ESTADO DE LOS CURSOS/EXÁMENES:",
                         options: {
                             "FINALIZADO SIN CURSO NI EXAMEN": "finalizado-no-curso-examen",
@@ -189,8 +191,8 @@
                             "FINALIZADO CON CURSO Y EXAMEN APTO": "finalizado-si-examen"
                         }
                     },
-                    "EN RECURSO DE ALZADA": "incidencias-recurso",
-                    "PENDIENTE DE RECURSO": "incidencias-pendiente"
+                    "RECURSO DE ALZADA PRESENTADO": "incidencias-recurso",
+                    "PENDIENTE DE RECURSO DE ALZADA": "incidencias-pendiente"
                 }
             },
             "suspension-judicial": {
@@ -199,17 +201,17 @@
                     "NO": {
                         question: "¿CUÁNDO CONDUCE?",
                         options: {
-                            "DENTRO": "dentro-condena-menor",
-                            "FINALIZADO SIN CURSO": "finalizado-condena-menor-no-curso",
-                            "FINALIZADO CON CURSO": "finalizado-condena-menor-si-curso"
+                            "DENTRO DEL PERIODO DE SUSPENSIÓN": "dentro-condena-menor",
+                            "PERIODO FINALIZADO SIN CURSO": "finalizado-condena-menor-no-curso",
+                            "PERIODO FINALIZADO CON CURSO": "finalizado-condena-menor-si-curso"
                         }
                     },
                     "SI": {
                         question: "¿CUÁNDO CONDUCE?",
                         options: {
-                            "DENTRO": "dentro-condena-mayor",
-                            "FINALIZADO SIN CURSO NI EXAMEN": "finalizado-condena-mayor-no-curso-examen",
-                            "FINALIZADO CON CURSO Y EXAMEN": "finalizado-condena-mayor-si-curso-examen"
+                            "DENTRO DEL PERIODO DE SUSPENSIÓN": "dentro-condena-mayor",
+                            "FINALIZADO PERIODO SIN CURSO NI EXAMEN": "finalizado-condena-mayor-no-curso-examen",
+                            "FINALIZADO PERIODO CON CURSO Y EXAMEN": "finalizado-condena-mayor-si-curso-examen"
                         }
                     }
                 }
@@ -221,16 +223,17 @@
                     "TIENE PERMISO DE OTRO TIPO/PAÍS": "carecer-permiso"
                 }
             },
-            "psicofisicas": {
+            "condiciones-psicofisicas": {
                 question: "¿ES PÉRDIDA DE VIGENCIA O FALTA DE REQUISITOS?",
                 options: {
                     "PÉRDIDA DE VIGENCIA": "perdida-psicofisicas",
-                    "SIN REQUISITOS EXIGIDOS": "sin-requisitos"
+                    "NO CUMPLE REQUISITOS EXIGIDOS": "sin-requisitos"
                 }
             }
         };
 
         let history = [];
+        let breadcrumbs = []; // NUEVO: Historial de "migas de pan"
         let currentSection = null;
         let currentCaseKey = null;
 
@@ -239,14 +242,10 @@
                 if (typeof decisionTrees[section].options === 'object') {
                     for (const option in decisionTrees[section].options) {
                         const nextNode = decisionTrees[section].options[option];
-                        if (typeof nextNode === 'string' && nextNode === caseKey) {
-                            return section;
-                        }
+                        if (typeof nextNode === 'string' && nextNode === caseKey) return section;
                         if (typeof nextNode === 'object') {
                             for (const nestedOption in nextNode.options) {
-                                if (nextNode.options[nestedOption] === caseKey) {
-                                    return section;
-                                }
+                                if (nextNode.options[nestedOption] === caseKey) return section;
                             }
                         }
                     }
@@ -264,24 +263,27 @@
                 const btn = document.createElement("button");
                 btn.className = "btn btn-primary w-full";
                 btn.textContent = key.replace(/-/g, " ").toUpperCase();
-                btn.onclick = () => startQuestions(key);
-                const editIcon = document.createElement("i");
-                editIcon.className = "fas fa-pencil-alt absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer z-10 text-white";
-                editIcon.onclick = (e) => {
-                    e.stopPropagation();
-                    editButtonText(btn, key.replace(/-/g, " ").toUpperCase(), 'supuesto');
-                };
+                // Al pulsar el menú principal, le pasamos el nombre que mostrará la "miga de pan"
+                btn.onclick = () => startQuestions(key, btn.textContent);
                 btnContainer.appendChild(btn);
-                btnContainer.appendChild(editIcon);
                 container.appendChild(btnContainer);
             }
         }
 
-        function startQuestions(sectionKey) {
+        function startQuestions(sectionKey, sectionText) {
+            const supuestosContainer = document.getElementById("supuestos-container");
+            const supuestosTitle = document.getElementById("supuestos-title");
             const container = document.getElementById("question-container");
             container.innerHTML = "";
+            
+            supuestosContainer.classList.add("hidden");
+            supuestosTitle.classList.add("hidden");
+
             history = [];
+            // Iniciamos la ruta de navegación con el primer botón que se pulsó
+            breadcrumbs = [sectionText];
             currentSection = sectionKey;
+            
             if (!sectionKey) return;
             const tree = decisionTrees[sectionKey];
             history.push(tree);
@@ -290,92 +292,82 @@
 
         function showQuestion(node) {
             const container = document.getElementById("question-container");
-            container.innerHTML = `<p class=\"font-bold mb-2\">${node.question}</p>`;
+            container.innerHTML = "";
+            
+            // --- DIBUJAR RUTA DE NAVEGACIÓN (Migas de pan) ---
+            if (breadcrumbs.length > 0) {
+                const bcDiv = document.createElement("div");
+                bcDiv.className = "mb-4 p-2 md:p-3 bg-slate-900/60 rounded-xl border border-slate-700/50 flex flex-wrap items-center justify-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-wider text-center shadow-inner";
+                
+                let bcHtml = "";
+                breadcrumbs.forEach((crumb, index) => {
+                    if (index > 0) bcHtml += `<i class="fas fa-chevron-right text-slate-600 text-[8px] md:text-[10px]"></i>`;
+                    
+                    // Si es el último paso dado, destacarlo en color Ámbar. Si es antiguo, en gris.
+                    if (index === breadcrumbs.length - 1) {
+                        bcHtml += `<span class="text-amber-500">${crumb}</span>`;
+                    } else {
+                        bcHtml += `<span class="text-slate-400">${crumb}</span>`;
+                    }
+                });
+                bcDiv.innerHTML = bcHtml;
+                container.appendChild(bcDiv);
+            }
+
+            // --- DIBUJAR LA PREGUNTA ---
+            const qP = document.createElement("p");
+            qP.className = "font-black text-cyan-500 mb-4 uppercase tracking-widest text-sm md:text-base text-center";
+            qP.textContent = node.question;
+            container.appendChild(qP);
+
+            // --- DIBUJAR LOS BOTONES DE RESPUESTA ---
             for (let key in node.options) {
                 const btnContainer = document.createElement("div");
-                btnContainer.className = "relative w-full";
+                btnContainer.className = "relative w-full mb-2";
                 const btn = document.createElement("button");
-                btn.className = "btn btn-primary w-full mt-2";
+                btn.className = "btn btn-primary w-full";
                 btn.textContent = key.toUpperCase();
-                btn.onclick = () => handleAnswer(node.options[key]);
-                const editIcon = document.createElement("i");
-                editIcon.className = "fas fa-pencil-alt absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer z-10 text-white";
-                editIcon.onclick = (e) => {
-                    e.stopPropagation();
-                    editButtonText(btn, key, node.options[key]);
-                };
+                
+                // Le pasamos al handleAnswer también el texto del botón que acaba de pulsar
+                btn.onclick = () => handleAnswer(node.options[key], btn.textContent);
+                
                 btnContainer.appendChild(btn);
-                btnContainer.appendChild(editIcon);
                 container.appendChild(btnContainer);
             }
+            
             const backBtn = document.createElement("button");
             backBtn.className = "btn btn-back w-full mt-4";
-            backBtn.textContent = "VOLVER ATRÁS";
+            backBtn.innerHTML = "<i class='fas fa-arrow-left mr-2'></i> VOLVER ATRÁS";
             backBtn.onclick = goBack;
             container.appendChild(backBtn);
         }
 
-        function editButtonText(buttonElement, oldText, caseValue) {
-            const newText = prompt("Introduce el nuevo texto para el botón:", buttonElement.textContent);
-            if (newText === null || newText.trim() === "") return;
-            if (confirm(`¿Estás seguro de que deseas cambiar el texto a "${newText}"?`)) {
-                function updateDecisionTree(node, oldKey, newKey) {
-                    if (typeof node === 'object' && node.options) {
-                        const newOptions = {};
-                        let changed = false;
-                        for (const key in node.options) {
-                            if (key.toUpperCase() === oldKey.toUpperCase()) {
-                                newOptions[newKey] = node.options[key];
-                                changed = true;
-                            } else {
-                                newOptions[key] = node.options[key];
-                            }
-                        }
-                        if (changed) {
-                            node.options = newOptions;
-                            return true;
-                        }
-                        for (const key in node.options) {
-                            if (updateDecisionTree(node.options[key], oldKey, newKey)) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                }
-                if (caseValue === 'supuesto') {
-                    const newKey = newText.toLowerCase().replace(/ /g, "-");
-                    const oldKey = oldText.toLowerCase().replace(/ /g, "-");
-                    if (decisionTrees[oldKey]) {
-                        decisionTrees[newKey] = decisionTrees[oldKey];
-                        delete decisionTrees[oldKey];
-                        buttonElement.textContent = newText.toUpperCase();
-                        currentSection = newKey;
-                    }
-                } else {
-                    const currentPath = history[history.length - 1];
-                    updateDecisionTree(currentPath, oldText, newText.toUpperCase());
-                    buttonElement.textContent = newText.toUpperCase();
-                }
-            }
-        }
-
-        function handleAnswer(nextNode) {
+        function handleAnswer(nextNode, answerText) {
             if (typeof nextNode === "string") {
                 showResult(nextNode);
             } else {
+                // Al responder y pasar a otra pregunta, guardamos el botón pulsado en la ruta
+                breadcrumbs.push(answerText);
                 history.push(nextNode);
                 showQuestion(nextNode);
             }
         }
 
         function goBack() {
+            const supuestosContainer = document.getElementById("supuestos-container");
+            const supuestosTitle = document.getElementById("supuestos-title");
+            
             if (history.length > 1) {
                 history.pop();
+                breadcrumbs.pop(); // Borramos el último paso de la ruta de navegación
                 showQuestion(history[history.length - 1]);
             } else {
+                // Volvemos al menú principal
                 document.getElementById("question-container").innerHTML = "";
+                supuestosContainer.classList.remove("hidden");
+                supuestosTitle.classList.remove("hidden");
                 currentSection = null;
+                breadcrumbs = []; // Reseteamos la ruta
             }
         }
 
@@ -391,11 +383,8 @@
 
             currentCaseKey = optionKey;
             
-            // Limpiar modal e inyectar estado de carga
             actionsDiv.innerHTML = ""; 
             detailDiv.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-4xl text-cyan-500"></i><p class="mt-4 font-bold text-slate-300">Conectando con base de datos...</p></div>';
-            
-            // Mostrar modal
             modal.classList.remove("hidden");
 
             if (!parentKey) {
@@ -403,7 +392,6 @@
                 return;
             }
 
-            // Llamada a Firebase
             db.ref(`protocolo/${parentKey}/options/${optionKey}`).once('value').then((snapshot) => {
                 const info = snapshot.val();
                 if (info) {
@@ -411,7 +399,6 @@
                     let resumen = info.resumen.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     let actuacion = info.actuacion.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     
-                    // Asignar colores de la caja en función de Infracción / Delito
                     let tipoClass = "";
                     if (info.tipo === 'delito') {
                         tipoClass = "border-red-500 bg-red-500/10 text-red-200";
@@ -422,25 +409,24 @@
                     }
 
                     detailDiv.innerHTML = `
-                        <div class="p-5 rounded-xl border ${tipoClass} shadow-inner">
-                            <div class="mb-5">
-                                <strong class="text-cyan-500 text-xs tracking-widest uppercase block mb-1">Hecho:</strong>
-                                <span class="block">${hecho}</span>
+                        <div class="p-4 md:p-5 rounded-xl border ${tipoClass} shadow-inner">
+                            <div class="mb-3 md:mb-5">
+                                <strong class="text-cyan-500 text-[11px] md:text-xs tracking-widest uppercase block mb-1">Hecho:</strong>
+                                <span class="block text-[13px] md:text-base">${hecho}</span>
                             </div>
-                            <div class="mb-5">
-                                <strong class="text-cyan-500 text-xs tracking-widest uppercase block mb-1">Resumen:</strong>
-                                <span class="font-bold block">${resumen}</span>
+                            <div class="mb-3 md:mb-5">
+                                <strong class="text-cyan-500 text-[11px] md:text-xs tracking-widest uppercase block mb-1">Resumen:</strong>
+                                <span class="font-bold block text-[13px] md:text-base">${resumen}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-xs tracking-widest uppercase block mb-1">Actuación:</strong>
-                                <span class="block bg-slate-900/80 p-4 rounded-lg border border-slate-700 mt-2 text-slate-300 shadow-md">${actuacion}</span>
+                                <strong class="text-cyan-500 text-[11px] md:text-xs tracking-widest uppercase block mb-1">Actuación:</strong>
+                                <span class="block bg-slate-900/80 p-3 md:p-4 rounded-lg border border-slate-700 mt-2 text-slate-300 shadow-md text-[13px] md:text-base">${actuacion}</span>
                             </div>
                         </div>
                     `;
                     
-                    // Inyectar botón de edición en el modal
                     const editBtn = document.createElement("button");
-                    editBtn.className = "w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center justify-center gap-2";
+                    editBtn.className = "w-full py-2.5 md:py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center justify-center gap-2 text-xs md:text-sm";
                     editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Resultado';
                     editBtn.onclick = () => {
                         closeResultModal();
@@ -479,7 +465,6 @@
                 db.ref(`protocolo/${parentKey}/options/${currentCaseKey}`).update(updatedData)
                     .then(() => {
                         document.getElementById("edit-modal").classList.add("hidden");
-                        // Volvemos a abrir el modal de resultado para ver los cambios aplicados
                         showResult(currentCaseKey);
                     })
                     .catch((error) => {
@@ -491,7 +476,6 @@
 
         document.getElementById("cancel-edit").onclick = () => {
             document.getElementById("edit-modal").classList.add("hidden");
-            // Si cancela, le volvemos a mostrar el modal de resultado como estaba
             if(currentCaseKey) showResult(currentCaseKey);
         };
 
