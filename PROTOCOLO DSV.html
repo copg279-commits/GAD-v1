@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -42,7 +42,7 @@
             padding: 24px;
         }
 
-        /* --- BOTONES (Sobreescribiendo las clases inyectadas por JS) --- */
+        /* --- BOTONES --- */
         .btn { padding: 12px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; }
         
         .btn-primary { 
@@ -71,41 +71,22 @@
         }
         .btn-back:hover { background-color: #475569 !important; border-color: #94a3b8 !important; }
 
-        /* Icono de edición (Pencil) en botones primarios */
         .fa-pencil-alt { color: #06b6d4 !important; transition: all 0.2s; font-size: 16px; }
         .btn-primary:hover + .fa-pencil-alt { color: #0f172a !important; }
 
-        /* Botón de Editar Resultado de Firebase (JS le pone amarillo, lo adaptamos a Dark Mode) */
-        button.bg-yellow-400.text-black {
-            background-color: #d97706 !important;
-            color: #ffffff !important;
-            border: none !important;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        }
-        button.bg-yellow-400.text-black:hover { background-color: #b45309 !important; }
-
-        /* --- RESULTADOS DE PROTOCOLO --- */
-        .result-box { margin-top: 24px; padding: 20px; border-radius: 12px; border: 2px solid; }
-        .result-box.delito { background-color: rgba(239, 68, 68, 0.05); border-color: #ef4444; color: #fca5a5; }
-        .result-box.infraccion { background-color: rgba(234, 179, 8, 0.05); border-color: #eab308; color: #fde047; }
-        .result-box.ok { background-color: rgba(34, 197, 94, 0.05); border-color: #22c55e; color: #86efac; }
-        
-        .result-box h2 { 
-            color: #e2e8f0; 
-            text-transform: uppercase; 
-            font-weight: 900; 
-            border-bottom: 1px solid rgba(255,255,255,0.1); 
-            padding-bottom: 10px; 
-            margin-bottom: 16px; 
-            letter-spacing: 0.05em;
-        }
-        #detalle-caso div { margin-bottom: 10px; }
-        #detalle-caso strong { color: #06b6d4; text-transform: uppercase; font-size: 12px; letter-spacing: 0.05em; display: inline-block; margin-bottom: 2px; }
-
         .hidden { display: none !important; }
         
-        /* Modificadores extra para las preguntas generadas */
         #question-container p { color: #06b6d4; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; font-size: 13px; text-align: center; margin-bottom: 15px; }
+        /* --- ELIMINAR FONDOS ROSAS Y ESTILOS INLINE DE FIREBASE --- */
+        #modal-detalle-caso [style*="background"],
+        #edit-actuacion [style*="background"] {
+            background-color: transparent !important;
+        }
+        
+        #modal-detalle-caso [style*="color"],
+        #edit-actuacion [style*="color"] {
+            color: inherit !important;
+        }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen flex flex-col pb-16 text-slate-200">
@@ -132,10 +113,20 @@
         
         <div id="supuestos-container" class="mt-4 flex flex-col gap-3"></div>
         <div id="question-container" class="mt-6 flex flex-col gap-2"></div>
+    </div>
 
-        <div id="resultado" class="hidden result-box mt-6">
-            <h2 class="text-lg font-bold mb-2">Detalles del Caso</h2>
-            <div id="detalle-caso" class="text-sm"></div>
+    <div id="result-modal" class="hidden fixed top-[5rem] md:top-[7rem] left-0 right-0 bottom-0 bg-slate-900/95 backdrop-blur-md z-[950] overflow-y-auto p-4 md:p-8 flex justify-center items-start">
+        <div class="w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 md:p-8 relative mt-2 mb-10">
+            <button onclick="closeResultModal()" class="absolute top-4 right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h2 class="text-xl md:text-2xl font-black text-cyan-500 uppercase tracking-widest mb-6 border-b border-slate-700 pb-3"><i class="fas fa-file-contract mr-2"></i> Detalles del Caso</h2>
+            
+            <div id="modal-detalle-caso" class="text-sm md:text-base space-y-4"></div>
+            
+            <div id="modal-actions" class="mt-8 flex flex-col md:flex-row gap-3">
+                </div>
         </div>
     </div>
 
@@ -179,14 +170,25 @@
 
         // --- Árboles de decisiones ---
         const decisionTrees = {
-            "perdida-puntos": {
-                question: "¿CONDUCE DURANTE EL PERIODO DE PÉRDIDA DE VIGENCIA?",
+            "perdida-vigencia-por-puntos": {
+                question: "¿CUÁL ES LA SITUACIÓN ACTUAL DEL CONDUCTOR?",
                 options: {
-                    "SI (Solo permisos españoles)": "conduce-durante",
-                    "FINALIZADO SIN CURSO NI EXAMEN": "finalizado-no-curso-examen",
-                    "FINALIZADO CON CURSO SIN EXAMEN": "finalizado-no-examen",
-                    "FINALIZADO CON CURSO Y EXAMEN": "finalizado-si-examen",
-                    "NO TIENE CONOCIMIENTO EDICTAL": "no-conocimiento",
+                    "DURANTE PERIODO DE PÉRDIDA": "conduce-durante",
+                    "PÉRDIDA DE VIGENCIA EDICTAL": {
+                        question: "¿TIENE CONOCIMIENTO FEHACIENTE DE LA PÉRDIDA EDICTAL?",
+                        options: {
+                            "SÍ, TIENE CONOCIMIENTO": "si-conocimiento",
+                            "NO TIENE CONOCIMIENTO": "no-conocimiento"
+                        }
+                    },
+                    "PERIODO FINALIZADO": {
+                        question: "SELECCIONE EL ESTADO DE LOS CURSOS/EXÁMENES:",
+                        options: {
+                            "FINALIZADO SIN CURSO NI EXAMEN": "finalizado-no-curso-examen",
+                            "FINALIZADO CON CURSO, PERO SIN EXAMEN": "finalizado-no-examen",
+                            "FINALIZADO CON CURSO Y EXAMEN APTO": "finalizado-si-examen"
+                        }
+                    },
                     "EN RECURSO DE ALZADA": "incidencias-recurso",
                     "PENDIENTE DE RECURSO": "incidencias-pendiente"
                 }
@@ -277,9 +279,7 @@
 
         function startQuestions(sectionKey) {
             const container = document.getElementById("question-container");
-            const resultDiv = document.getElementById("resultado");
             container.innerHTML = "";
-            resultDiv.classList.add("hidden");
             history = [];
             currentSection = sectionKey;
             if (!sectionKey) return;
@@ -370,13 +370,6 @@
         }
 
         function goBack() {
-            const resultDiv = document.getElementById("resultado");
-            if (!resultDiv.classList.contains("hidden")) {
-                resultDiv.classList.add("hidden");
-                history = [];
-                showQuestion(decisionTrees[currentSection]);
-                return;
-            }
             if (history.length > 1) {
                 history.pop();
                 showQuestion(history[history.length - 1]);
@@ -386,74 +379,88 @@
             }
         }
 
-      function showResult(optionKey) {
-            const resultDiv = document.getElementById("resultado");
-            const detailDiv = document.getElementById("detalle-caso");
-            const container = document.getElementById("question-container");
+        function closeResultModal() {
+            document.getElementById("result-modal").classList.add("hidden");
+        }
+
+        function showResult(optionKey) {
+            const modal = document.getElementById("result-modal");
+            const detailDiv = document.getElementById("modal-detalle-caso");
+            const actionsDiv = document.getElementById("modal-actions");
             const parentKey = findCaseParent(optionKey);
 
+            currentCaseKey = optionKey;
+            
+            // Limpiar modal e inyectar estado de carga
+            actionsDiv.innerHTML = ""; 
+            detailDiv.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-4xl text-cyan-500"></i><p class="mt-4 font-bold text-slate-300">Conectando con base de datos...</p></div>';
+            
+            // Mostrar modal
+            modal.classList.remove("hidden");
+
             if (!parentKey) {
-                detailDiv.innerHTML = "Error: No se encontró la categoría para este caso.";
-                resultDiv.className = `result-box delito`;
-                resultDiv.classList.remove("hidden");
-                // Botón volver en caso de error temprano
-                const backBtn = document.createElement("button");
-                backBtn.className = "btn btn-back w-full mt-4";
-                backBtn.textContent = "VOLVER ATRÁS";
-                backBtn.onclick = goBack;
-                container.appendChild(backBtn);
+                detailDiv.innerHTML = '<div class="p-4 bg-red-900/30 border border-red-500 rounded-lg text-red-400 font-bold text-center">Error: No se encontró la categoría para este caso.</div>';
                 return;
             }
 
-            currentCaseKey = optionKey;
-            container.innerHTML = "";
-            detailDiv.innerHTML = "Cargando...";
-
+            // Llamada a Firebase
             db.ref(`protocolo/${parentKey}/options/${optionKey}`).once('value').then((snapshot) => {
                 const info = snapshot.val();
                 if (info) {
                     let hecho = info.hecho.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     let resumen = info.resumen.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     let actuacion = info.actuacion.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
-                    detailDiv.innerHTML = `
-                        <div><strong>Hecho:</strong> <br>${hecho}</div>
-                        <div><strong>Resumen:</strong> <br>${resumen}</div>
-                        <div><strong>Actuación:</strong> <br>${actuacion}</div>
-                    `;
-                    resultDiv.className = `result-box ${info.tipo}`;
-                    resultDiv.classList.remove("hidden");
                     
-                    // Solo mostramos el botón Editar si la carga fue exitosa
+                    // Asignar colores de la caja en función de Infracción / Delito
+                    let tipoClass = "";
+                    if (info.tipo === 'delito') {
+                        tipoClass = "border-red-500 bg-red-500/10 text-red-200";
+                    } else if (info.tipo === 'infraccion') {
+                        tipoClass = "border-yellow-500 bg-yellow-500/10 text-yellow-200";
+                    } else {
+                        tipoClass = "border-green-500 bg-green-500/10 text-green-200";
+                    }
+
+                    detailDiv.innerHTML = `
+                        <div class="p-5 rounded-xl border ${tipoClass} shadow-inner">
+                            <div class="mb-5">
+                                <strong class="text-cyan-500 text-xs tracking-widest uppercase block mb-1">Hecho:</strong>
+                                <span class="block">${hecho}</span>
+                            </div>
+                            <div class="mb-5">
+                                <strong class="text-cyan-500 text-xs tracking-widest uppercase block mb-1">Resumen:</strong>
+                                <span class="font-bold block">${resumen}</span>
+                            </div>
+                            <div>
+                                <strong class="text-cyan-500 text-xs tracking-widest uppercase block mb-1">Actuación:</strong>
+                                <span class="block bg-slate-900/80 p-4 rounded-lg border border-slate-700 mt-2 text-slate-300 shadow-md">${actuacion}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Inyectar botón de edición en el modal
                     const editBtn = document.createElement("button");
-                    editBtn.className = "btn btn-back w-full mt-4 bg-yellow-400 text-black";
-                    editBtn.textContent = "EDITAR RESULTADO";
-                    editBtn.onclick = () => openEditModal(info);
-                    container.appendChild(editBtn);
+                    editBtn.className = "w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center justify-center gap-2";
+                    editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Resultado';
+                    editBtn.onclick = () => {
+                        closeResultModal();
+                        openEditModal(info);
+                    };
+                    actionsDiv.appendChild(editBtn);
+
                 } else {
-                    detailDiv.innerHTML = "No se encontraron datos para este caso. Revise su base de datos de Firebase.";
-                    resultDiv.className = `result-box ok`;
-                    resultDiv.classList.remove("hidden");
+                    detailDiv.innerHTML = '<div class="p-4 bg-slate-900 border border-slate-700 rounded-lg text-slate-400 font-bold text-center">⚠️ No se encontraron datos para este caso. Puede editar para crearlos.</div>';
                 }
             }).catch(error => {
-                // Si hay un error de permisos u otro, lo muestra sin colgar la app
-                detailDiv.innerHTML = "Error al cargar los datos: " + error.message;
-                resultDiv.className = `result-box delito`;
-                resultDiv.classList.remove("hidden");
-            }).finally(() => {
-                // ESTO ES CLAVE: El botón "Volver atrás" se crea SIEMPRE, pase lo que pase.
-                const backBtn = document.createElement("button");
-                backBtn.className = "btn btn-back w-full mt-4";
-                backBtn.textContent = "VOLVER ATRÁS";
-                backBtn.onclick = goBack;
-                container.appendChild(backBtn);
+                detailDiv.innerHTML = `<div class="p-4 bg-red-900/30 border border-red-500 rounded-lg text-red-400 font-bold text-center">Error al cargar los datos: ${error.message}</div>`;
             });
         }
 
         function openEditModal(data) {
             const modal = document.getElementById("edit-modal");
-            document.getElementById("edit-hecho").value = data.hecho;
-            document.getElementById("edit-resumen").value = data.resumen;
-            document.getElementById("edit-actuacion").innerHTML = data.actuacion;
+            document.getElementById("edit-hecho").value = data.hecho || "";
+            document.getElementById("edit-resumen").value = data.resumen || "";
+            document.getElementById("edit-actuacion").innerHTML = data.actuacion || "";
             modal.classList.remove("hidden");
         }
 
@@ -471,21 +478,21 @@
             if (currentCaseKey) {
                 db.ref(`protocolo/${parentKey}/options/${currentCaseKey}`).update(updatedData)
                     .then(() => {
-                        console.log("Cambios guardados con éxito.");
                         document.getElementById("edit-modal").classList.add("hidden");
+                        // Volvemos a abrir el modal de resultado para ver los cambios aplicados
                         showResult(currentCaseKey);
                     })
                     .catch((error) => {
-                        console.error("Error al guardar los cambios:", error);
+                        console.error("Error al guardar:", error);
                         alert("Hubo un error al guardar los cambios.");
                     });
-            } else {
-                alert("No se pudo guardar: no hay un caso seleccionado.");
             }
         };
 
         document.getElementById("cancel-edit").onclick = () => {
             document.getElementById("edit-modal").classList.add("hidden");
+            // Si cancela, le volvemos a mostrar el modal de resultado como estaba
+            if(currentCaseKey) showResult(currentCaseKey);
         };
 
         document.addEventListener("DOMContentLoaded", initSupuestos);
