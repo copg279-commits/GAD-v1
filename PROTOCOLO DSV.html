@@ -15,192 +15,175 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
 
-        /* --- GENERAL DARK MODE --- */
+        /* --- CONFIGURACIÓN GLOBAL --- */
         body { 
             font-family: 'Inter', Arial, sans-serif; 
             line-height: 1.6; 
             background-color: #0f172a; 
             color: #e2e8f0;
+            overflow-x: hidden; /* Prohibido desborde lateral siempre */
         }
 
-        /* --- SCROLLBAR FORZADA DARK MODE --- */
-        html, body, aside, main, div, .overflow-y-auto, #edit-actuacion {
-            scrollbar-width: thin !important;
-            scrollbar-color: #334155 #0f172a !important;
+        /* --- DESTRUCCIÓN ABSOLUTA DE LAS BARRAS DE SCROLL --- */
+        /* Oculta las barras pero permite hacer scroll con la rueda/dedo si fuera necesario */
+        html, body, #result-modal, #result-modal *, .overflow-y-auto {
+            scrollbar-width: none !important; /* Firefox */
+            -ms-overflow-style: none !important; /* IE y Edge */
         }
-        ::-webkit-scrollbar { width: 8px !important; height: 8px !important; background-color: #0f172a !important; }
-        ::-webkit-scrollbar-track { background-color: #0f172a !important; border-radius: 8px !important; }
-        ::-webkit-scrollbar-thumb { background-color: #334155 !important; border-radius: 8px !important; }
-        ::-webkit-scrollbar-thumb:hover { background-color: #06b6d4 !important; }
+        ::-webkit-scrollbar, *::-webkit-scrollbar { 
+            display: none !important; /* Chrome, Safari, Opera */
+        }
 
-        /* --- CONTENEDORES --- */
+        /* --- CONTENEDOR DE PREGUNTAS --- */
         .container { 
             background-color: #1e293b; 
             border: 1px solid #334155; 
             border-radius: 16px; 
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); 
             padding: 24px;
+            box-sizing: border-box;
         }
 
         /* --- BOTONES --- */
         .btn { padding: 12px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; }
-        
         .btn-primary { 
-            background-color: #0f172a !important; 
-            color: #06b6d4 !important; 
-            border: 1px solid #0891b2 !important; 
-            font-weight: 900; 
-            text-transform: uppercase;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease-in-out;
+            background-color: #0f172a !important; color: #06b6d4 !important; border: 1px solid #0891b2 !important; 
+            font-weight: 900; text-transform: uppercase; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); transition: all 0.2s;
         }
-        .btn-primary:hover { 
-            background-color: #06b6d4 !important; 
-            color: #0f172a !important; 
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .btn-back { 
-            background-color: #334155 !important; 
-            color: #e2e8f0 !important; 
-            border: 1px solid #475569 !important; 
-            font-weight: 800;
-            text-transform: uppercase;
-            transition: all 0.2s;
-        }
+        .btn-primary:hover { background-color: #06b6d4 !important; color: #0f172a !important; box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); transform: translateY(-2px); }
+        .btn-back { background-color: #334155 !important; color: #e2e8f0 !important; border: 1px solid #475569 !important; font-weight: 800; text-transform: uppercase; }
         .btn-back:hover { background-color: #475569 !important; border-color: #94a3b8 !important; }
 
-        .hidden { display: none !important; }
-
- /* --- AJUSTE DE LÓGICA Y VISIBILIDAD (SÓLO SE MUESTRA SI NO ESTÁ OCULTO) --- */
+        /* --- DISEÑO RESPONSIVO (MÓVIL Y TABLET VERTICAL) --- */
         @media (max-width: 1023px) {
-            /* IMPORTANTE: :not(.hidden) evita que aparezca al cargar la página */
             #result-modal:not(.hidden) { 
                 display: flex !important;
-                padding: 0 !important; 
+                padding: 10px !important; 
                 top: 5rem !important; 
-                bottom: 65px !important; 
+                bottom: 60px !important; /* Salva el footer */
                 justify-content: center !important;
-                align-items: flex-start !important;
-                z-index: 9999 !important; /* Asegura que esté sobre la cabecera */
+                align-items: flex-start !important; /* Evita que la cabecera se corte por arriba */
+                z-index: 99999 !important; /* Por encima de todo, el botón cerrar siempre funcionará */
+                overflow-y: auto !important; 
             }
             #result-modal > div { 
-                width: 98% !important; 
-                margin: 4px auto !important;
-                background: #1e293b !important;
-                padding: 12px !important;
+                width: 100% !important; 
+                max-width: 600px !important;
+                margin: 0 auto !important;
+                background-color: #1e293b !important; /* Contenedor gris */
+                padding: 16px !important;
+                border: 1px solid #334155 !important;
                 border-radius: 12px !important;
                 position: relative;
+                pointer-events: auto !important;
+                box-sizing: border-box !important;
             }
             .result-card {
                 width: 100% !important;
-                border-width: 3px !important;
-            }
-            /* Botón cerrar más accesible en móvil */
-            #result-modal button[onclick="closeResultModal()"] {
-                z-index: 10000 !important;
-                pointer-events: auto !important;
+                border-width: 2px !important;
+                box-sizing: border-box !important; /* Impide que el borde rojo se salga del gris */
             }
         }
 
+        /* --- DISEÑO PANTALLA DIVIDIDA (PC) --- */
         @media (min-width: 1024px) {
             body:has(#result-modal:not(.hidden)) .container {
-                margin-left: 2% !important;
-                max-width: 30% !important;
+                margin-left: 3% !important;
+                margin-right: 0 !important;
+                width: 30% !important;
+                min-width: 350px !important;
                 transition: all 0.3s ease;
             }
-            /* Solo se activa la pantalla dividida si NO está oculto */
             #result-modal:not(.hidden) {
-                left: calc(2% + 30% + 2%) !important; 
-                right: 2% !important;
+                left: calc(3% + 30% + 3%) !important; /* Se coloca justo a la derecha del menú */
+                right: 3% !important;
                 width: auto !important;
-                top: 7.5rem !important;
-                bottom: 4rem !important;
+                top: 8rem !important; 
+                bottom: 3rem !important; 
                 background: transparent !important;
                 display: flex !important;
-                align-items: center; 
-                overflow: hidden !important;
+                align-items: flex-start !important; /* Para que el título Detalles del Caso no se esconda arriba */
+                overflow-y: auto !important;
                 pointer-events: none;
-                z-index: 950 !important;
+                z-index: 99999 !important;
             }
             #result-modal > div { 
                 pointer-events: auto;
                 width: 100% !important;
-                background-color: #1e293b !important;
-                padding: 16px !important;
+                background-color: #1e293b !important; /* Contenedor gris */
+                padding: 24px !important;
+                border: 1px solid #334155 !important;
                 border-radius: 16px !important;
+                box-sizing: border-box !important;
+            }
+            .result-card {
                 box-sizing: border-box !important;
             }
         }
 
-        /* Bloqueo total de scrollbars residuales */
-        #result-modal, #result-modal *, #modal-detalle-caso {
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-        }
-        #result-modal::-webkit-scrollbar, #result-modal *::-webkit-scrollbar {
-            display: none !important;
-        }
+        /* Limpieza para Firebase */
+        #modal-detalle-caso [style*="background"] { background-color: transparent !important; }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen flex flex-col text-slate-200">
 
     <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
       <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
-      
       <div class="text-center flex-1">
-        <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+        <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight">
           PROTOCOLO<br class="md:hidden"> PERMISOS DSV
         </h1>
         <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
           Grupo de Análisis Documental
         </h2>
       </div>
-
       <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
     </header>
 
-    <div class="w-11/12 max-w-md mx-auto mt-8 bg-slate-800 p-6 rounded-2xl shadow-2xl container border border-slate-700">
+    <div class="w-11/12 max-w-md mx-auto mt-8 bg-slate-800 p-6 rounded-2xl shadow-2xl container border border-slate-700 relative z-10">
         <p id="supuestos-title" class="text-cyan-500 font-black uppercase tracking-wider text-center text-sm mb-4 border-b border-slate-700 pb-4">
             SELECCIONE EL SUPUESTO PARA COMENZAR:
         </p>
-        
         <div id="supuestos-container" class="mt-4 flex flex-col gap-3"></div>
         <div id="question-container" class="mt-6 flex flex-col"></div>
     </div>
 
-    <div id="result-modal" class="hidden fixed top-[5rem] md:top-[7rem] left-0 right-0 bottom-0 bg-slate-900/95 backdrop-blur-md z-[9999] overflow-y-auto p-4 md:p-8 flex justify-center items-start pb-[100px] md:pb-[120px]">
-        <div class="w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 md:p-8 relative mt-2">
-            <button onclick="closeResultModal()" class="absolute top-3 right-3 md:top-4 md:right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md z-10">
+    <div id="result-modal" class="hidden fixed bg-black/80 md:bg-transparent backdrop-blur-sm md:backdrop-blur-0">
+        <div class="shadow-2xl relative">
+            <button onclick="closeResultModal()" class="absolute top-3 right-3 md:top-4 md:right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md z-[100000]">
                 <i class="fas fa-times"></i>
             </button>
-            <h2 class="text-xl md:text-2xl font-black text-cyan-500 uppercase tracking-widest mb-2 md:mb-6 border-b border-slate-700 pb-2 md:pb-3"><i class="fas fa-file-contract mr-2"></i> Detalles del Caso</h2>
             
-            <div id="modal-detalle-caso" class="text-sm md:text-base"></div>
+            <h2 class="text-xl md:text-2xl font-black text-cyan-500 uppercase tracking-widest mb-4 border-b border-slate-700 pb-3 pr-10">
+                <i class="fas fa-file-contract mr-2"></i> Detalles del Caso
+            </h2>
             
-            <div id="modal-actions" class="mt-3 md:mt-6 flex flex-col md:flex-row gap-3"></div>
+            <div id="modal-detalle-caso"></div>
         </div>
     </div>
 
-    <div id="edit-modal" class="hidden fixed inset-0 bg-black/80 overflow-y-auto h-full w-full z-[9999]">
-        <div class="relative top-10 md:top-20 mx-auto p-6 border border-slate-700 w-11/12 max-w-lg shadow-2xl rounded-2xl bg-slate-800 mb-10">
-            <h3 class="text-lg font-black text-cyan-500 uppercase tracking-widest mb-6 border-b border-slate-700 pb-3">Editar Resultado</h3>
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black/80 h-full w-full z-[999999] flex justify-center items-start pt-10 md:pt-20 overflow-y-auto">
+        <div class="relative p-6 border border-slate-700 w-11/12 max-w-lg shadow-2xl rounded-2xl bg-slate-800 mb-10">
+            <button onclick="document.getElementById('edit-modal').classList.add('hidden')" class="absolute top-4 right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md z-10">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h3 class="text-lg font-black text-cyan-500 uppercase tracking-widest mb-6 border-b border-slate-700 pb-3 pr-8">Editar Resultado</h3>
             <form id="edit-form" class="space-y-4">
                 <div>
-                    <label for="edit-hecho" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Hecho:</label>
-                    <input type="text" id="edit-hecho" class="block w-full rounded-lg border-slate-600 bg-slate-900 text-slate-200 shadow-sm focus:border-cyan-500 focus:ring focus:ring-cyan-500/30 p-2.5 outline-none transition-all">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Hecho:</label>
+                    <input type="text" id="edit-hecho" class="block w-full rounded-lg border-slate-600 bg-slate-900 text-slate-200 shadow-sm focus:border-cyan-500 focus:ring focus:ring-cyan-500/30 p-2.5 outline-none">
                 </div>
                 <div>
-                    <label for="edit-resumen" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Resumen:</label>
-                    <input type="text" id="edit-resumen" class="block w-full rounded-lg border-slate-600 bg-slate-900 text-slate-200 shadow-sm focus:border-cyan-500 focus:ring focus:ring-cyan-500/30 p-2.5 outline-none transition-all">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Resumen:</label>
+                    <input type="text" id="edit-resumen" class="block w-full rounded-lg border-slate-600 bg-slate-900 text-slate-200 shadow-sm focus:border-cyan-500 focus:ring focus:ring-cyan-500/30 p-2.5 outline-none">
                 </div>
                 <div>
-                    <label for="edit-actuacion" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Actuación:</label>
-                    <div id="edit-actuacion" contenteditable="true" class="block w-full rounded-lg border border-slate-600 bg-slate-900 text-slate-200 shadow-sm focus:border-cyan-500 focus:ring focus:ring-cyan-500/30 p-3 min-h-[200px] outline-none transition-all"></div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Actuación:</label>
+                    <div id="edit-actuacion" contenteditable="true" class="block w-full rounded-lg border border-slate-600 bg-slate-900 text-slate-200 shadow-sm focus:border-cyan-500 focus:ring focus:ring-cyan-500/30 p-3 min-h-[200px] outline-none"></div>
                 </div>
                 <div class="flex justify-end space-x-3 mt-8">
-                    <button type="button" id="cancel-edit" class="px-5 py-2.5 bg-slate-700 text-slate-200 font-bold rounded-lg hover:bg-slate-600 transition-all uppercase text-xs">Cancelar</button>
+                    <button type="button" onclick="document.getElementById('edit-modal').classList.add('hidden')" class="px-5 py-2.5 bg-slate-700 text-slate-200 font-bold rounded-lg hover:bg-slate-600 transition-all uppercase text-xs">Cancelar</button>
                     <button type="button" id="save-edit" class="px-5 py-2.5 bg-cyan-600 text-slate-900 font-black rounded-lg hover:bg-cyan-500 transition-all uppercase text-xs shadow-[0_0_15px_rgba(6,182,212,0.4)]">Guardar</button>
                 </div>
             </form>
@@ -208,6 +191,7 @@
     </div>
 
     <script>
+        // CONFIGURACIÓN FIREBASE
         const firebaseConfig = {
           apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
           authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -217,9 +201,10 @@
           messagingSenderId: "119727545224",
           appId: "1:119727545224:web:36880c50d196c456cdb83d"
         };
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
+        // ÁRBOLES DE DECISIÓN (Con los textos actualizados)
         const decisionTrees = {
             "perdida-vigencia-por-puntos": {
                 question: "¿EN QUÉ SITUACIÓN ESTÁ CONDUCIENDO?",
@@ -308,7 +293,6 @@
             container.innerHTML = "";
             for (let key in decisionTrees) {
                 const btnContainer = document.createElement("div");
-                btnContainer.className = "relative w-full";
                 const btn = document.createElement("button");
                 btn.className = "btn btn-primary w-full";
                 btn.textContent = key.replace(/-/g, " ").toUpperCase();
@@ -319,19 +303,12 @@
         }
 
         function startQuestions(sectionKey, sectionText) {
-            const supuestosContainer = document.getElementById("supuestos-container");
-            const supuestosTitle = document.getElementById("supuestos-title");
-            const container = document.getElementById("question-container");
-            container.innerHTML = "";
+            document.getElementById("supuestos-container").classList.add("hidden");
+            document.getElementById("supuestos-title").classList.add("hidden");
             
-            supuestosContainer.classList.add("hidden");
-            supuestosTitle.classList.add("hidden");
-
             history = [];
             breadcrumbs = [sectionText];
             currentSection = sectionKey;
-            
-            if (!sectionKey) return;
             const tree = decisionTrees[sectionKey];
             history.push(tree);
             showQuestion(tree);
@@ -343,15 +320,11 @@
             
             if (breadcrumbs.length > 0) {
                 const bcDiv = document.createElement("div");
-                bcDiv.className = "mb-4 p-2 md:p-3 bg-slate-900/60 rounded-xl border border-slate-700/50 flex flex-wrap items-center justify-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-wider text-center shadow-inner";
+                bcDiv.className = "mb-4 p-2 md:p-3 bg-slate-900/60 rounded-xl border border-slate-700/50 flex flex-wrap items-center justify-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-wider text-center";
                 let bcHtml = "";
                 breadcrumbs.forEach((crumb, index) => {
                     if (index > 0) bcHtml += `<i class="fas fa-chevron-right text-slate-600 text-[8px] md:text-[10px]"></i>`;
-                    if (index === breadcrumbs.length - 1) {
-                        bcHtml += `<span class="text-amber-500">${crumb}</span>`;
-                    } else {
-                        bcHtml += `<span class="text-slate-400">${crumb}</span>`;
-                    }
+                    bcHtml += `<span class="${index === breadcrumbs.length - 1 ? 'text-amber-500' : 'text-slate-400'}">${crumb}</span>`;
                 });
                 bcDiv.innerHTML = bcHtml;
                 container.appendChild(bcDiv);
@@ -363,14 +336,11 @@
             container.appendChild(qP);
 
             for (let key in node.options) {
-                const btnContainer = document.createElement("div");
-                btnContainer.className = "relative w-full mb-2";
                 const btn = document.createElement("button");
-                btn.className = "btn btn-primary w-full";
+                btn.className = "btn btn-primary w-full mb-2";
                 btn.textContent = key.toUpperCase();
                 btn.onclick = () => handleAnswer(node.options[key], btn.textContent);
-                btnContainer.appendChild(btn);
-                container.appendChild(btnContainer);
+                container.appendChild(btn);
             }
             
             const backBtn = document.createElement("button");
@@ -391,19 +361,15 @@
         }
 
         function goBack() {
-            const supuestosContainer = document.getElementById("supuestos-container");
-            const supuestosTitle = document.getElementById("supuestos-title");
-            
             if (history.length > 1) {
                 history.pop();
                 breadcrumbs.pop();
                 showQuestion(history[history.length - 1]);
             } else {
                 document.getElementById("question-container").innerHTML = "";
-                supuestosContainer.classList.remove("hidden");
-                supuestosTitle.classList.remove("hidden");
-                currentSection = null;
-                breadcrumbs = []; 
+                document.getElementById("supuestos-container").classList.remove("hidden");
+                document.getElementById("supuestos-title").classList.remove("hidden");
+                closeResultModal();
             }
         }
 
@@ -411,12 +377,15 @@
             document.getElementById("result-modal").classList.add("hidden");
         }
 
-    function showResult(optionKey) {
+        // --- LA FUNCIÓN MAESTRA DE RESULTADOS ---
+        function showResult(optionKey) {
             const modal = document.getElementById("result-modal");
             const detailDiv = document.getElementById("modal-detalle-caso");
             const parentKey = findCaseParent(optionKey);
 
             currentCaseKey = optionKey;
+            
+            // Limpia antes de mostrar para evitar fallos visuales
             detailDiv.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-4xl text-cyan-500"></i></div>';
             modal.classList.remove("hidden");
 
@@ -427,41 +396,63 @@
                 if (info) {
                     const hecho = info.hecho.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     const resumen = info.resumen.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
+                    let actuacionRaw = info.actuacion;
                     
                     const tipoClass = info.tipo === 'delito' ? "border-red-500 bg-red-500/10 text-red-200" : 
                                     (info.tipo === 'infraccion' ? "border-yellow-500 bg-yellow-500/10 text-yellow-200" : "border-green-500 bg-green-500/10 text-green-200");
 
-                    // Botón Editar: Solo se genera si es PC (>= 768px)
+                    // Comprimimos la "Prohibición de Conducir" si existe para ahorrar espacio
+                    let prohibicionHtml = "";
+                    if (actuacionRaw.includes("Prohibición de Conducir")) {
+                        let parts = actuacionRaw.split(/<div[^>]*>.*Prohibición de Conducir/is);
+                        if(parts.length > 1) {
+                            actuacionRaw = parts[0].replace(/(<br\s*\/?>\s*)+$/, ''); 
+                            prohibicionHtml = `
+                                <div class='mt-1 p-2 bg-slate-900/90 rounded border border-slate-700 flex flex-col gap-0.5'>
+                                    <div class='flex items-center gap-1'>
+                                        <i class='fas fa-ban text-red-500 text-[10px] md:text-sm'></i>
+                                        <b class='text-red-400 text-[9px] md:text-xs uppercase'>Prohibición</b>
+                                    </div>
+                                    <div class='flex items-start gap-1 leading-tight border-t border-slate-700 pt-1'>
+                                        <i class='fas fa-truck-pickup text-cyan-500 text-[10px] md:text-xs mt-0.5'></i>
+                                        <span class='text-[10px] md:text-sm'><b class='text-cyan-400'>87.5 LSV:</b> Inmovilizar si no hay residencia.</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    // El botón Editar SOLO se genera si la pantalla es de Tablet/PC (>= 768px). 
+                    // Se coloca FUERA de la 'result-card' (marco rojo) pero DENTRO de 'detailDiv' (marco gris).
                     const btnHtml = (window.innerWidth >= 768) ? 
-                        `<button onclick="closeResultModal(); openEditModal(${JSON.stringify(info).replace(/"/g, '&quot;')})" class="w-full mt-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-sm">
+                        `<button onclick="closeResultModal(); openEditModal(${JSON.stringify(info).replace(/"/g, '&quot;')})" class="w-full mt-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-lg uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-sm">
                             <i class="fas fa-edit"></i> Editar Resultado
                         </button>` : '';
 
-                    // EL BOTÓN QUEDA FUERA DEL DIV DE LA CLASE "result-card" (MARCO ROJO)
                     detailDiv.innerHTML = `
-                        <div class="result-card p-4 md:p-6 rounded-xl border-2 ${tipoClass} shadow-inner flex flex-col gap-2 md:gap-4 box-border">
+                        <div class="result-card p-3 md:p-5 rounded-xl border-2 ${tipoClass} shadow-inner flex flex-col gap-2 md:gap-3 box-border">
                             <div>
-                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block mb-1">Hecho:</strong>
-                                <span class="block text-[14px] md:text-base leading-tight">${hecho}</span>
+                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block">Hecho:</strong>
+                                <span class="block text-[13px] md:text-base leading-tight">${hecho}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block mb-1">Resumen:</strong>
-                                <span class="font-bold block text-[14px] md:text-base leading-tight">${resumen}</span>
+                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block">Resumen:</strong>
+                                <span class="font-bold block text-[13px] md:text-base leading-tight">${resumen}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block mb-1">Actuación:</strong>
-                                <div class="actuacion-text bg-slate-900/80 p-3 md:p-4 rounded border border-slate-700 mt-1 text-slate-300 shadow-sm text-[15px] md:text-base leading-snug">
-                                    ${info.actuacion}
+                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block">Actuación:</strong>
+                                <div class="actuacion-text bg-slate-900/80 p-2 md:p-4 rounded border border-slate-700 mt-0.5 text-slate-300 shadow-sm text-[14px] md:text-base leading-snug">
+                                    ${actuacionRaw}
                                 </div>
                             </div>
+                            ${prohibicionHtml}
                         </div>
                         ${btnHtml}
                     `;
 
-                    // Lógica Double Tap para móvil (Mantenemos la edición oculta para seguridad)
+                    // Lógica Double Tap para edición en móvil
                     let lastTap = 0;
-                    const card = detailDiv.querySelector('.result-card');
-                    card.addEventListener('touchend', function (e) {
+                    detailDiv.addEventListener('touchend', function (e) {
                         const currentTime = new Date().getTime();
                         if (currentTime - lastTap < 500 && currentTime - lastTap > 0) {
                             closeResultModal();
@@ -473,6 +464,8 @@
                 }
             });
         }
+
+        // --- FUNCIONES DE EDICIÓN ---
         function openEditModal(data) {
             const modal = document.getElementById("edit-modal");
             document.getElementById("edit-hecho").value = data.hecho || "";
@@ -493,14 +486,9 @@
                 db.ref(`protocolo/${parentKey}/options/${currentCaseKey}`).update(updatedData)
                     .then(() => {
                         document.getElementById("edit-modal").classList.add("hidden");
-                        showResult(currentCaseKey);
+                        showResult(currentCaseKey); // Recarga el resultado actualizado
                     });
             }
-        };
-
-        document.getElementById("cancel-edit").onclick = () => {
-            document.getElementById("edit-modal").classList.add("hidden");
-            if(currentCaseKey) showResult(currentCaseKey);
         };
 
         document.addEventListener("DOMContentLoaded", initSupuestos);
