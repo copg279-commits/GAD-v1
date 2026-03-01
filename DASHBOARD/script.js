@@ -78,15 +78,21 @@ function navigateToFolder(key) {
 
 function closeContent() {
     const iframeArea = document.getElementById('iframe-viewer-area');
-    const iframe = document.getElementById('content-iframe');
+    const oldIframe = document.getElementById('content-iframe');
     const backBtn = document.getElementById('iframe-back-float');
     
-    iframe.style.opacity = '0';
+    oldIframe.style.opacity = '0';
     
     setTimeout(() => {
         iframeArea.style.display = 'none'; 
         document.getElementById('main-scroll-area').style.display = 'block'; 
-        iframe.src = "about:blank"; 
+        
+        // EL TRUCO: Destruimos el iframe viejo y creamos uno nuevo limpio.
+        // Esto evita que el navegador guarde historiales fantasma.
+        const newIframe = document.createElement('iframe');
+        newIframe.id = 'content-iframe';
+        oldIframe.replaceWith(newIframe);
+        
         if(backBtn) backBtn.style.display = 'none';
     }, 300);
 }
@@ -226,9 +232,11 @@ function updateTitle(parentId) {
     titleEl.style.opacity = 0;
     setTimeout(() => {
         if (!parentId) { 
-            titleEl.innerText = 'UNIDAD GAD: INTERFAZ DE MANDO'; 
-            if(subTitleEl) subTitleEl.innerText = `OPERADOR ACTIVO: ${currentUserEmail.split('@')[0].toUpperCase()}`;
-        } else { 
+            // Usamos innerHTML en vez de innerText para que pille los colores y minúsculas
+            titleEl.innerHTML = 'PROYECTO V<span style="text-transform: none;">ig</span><span style="color: white; font-weight: bold;">ÍA</span>'; 
+            // Añadimos - UNIDAD GAD al final
+            if(subTitleEl) subTitleEl.innerText = `OPERADOR ACTIVO: ${currentUserEmail.split('@')[0].toUpperCase()} - UNIDAD GAD`;
+        } else {
             const folderName = menuButtonsData[parentId]?.text || 'SUBDIRECTORIO';
             titleEl.innerText = folderName; 
             if(subTitleEl) subTitleEl.innerText = `NIVEL DE ACCESO: SUBDIRECTORIO`;
@@ -293,6 +301,7 @@ function showContent(data) {
         return;
     }
     
+    // Este es nuestro único paso en el historial real
     history.pushState({ page: 'content' }, '', '');
     document.getElementById('main-scroll-area').style.display = 'none'; 
     viewer.style.display = 'block'; 
@@ -302,14 +311,13 @@ function showContent(data) {
          if(backBtn) backBtn.style.display = 'block';
     }, 100);
 
-    // --- CÓDIGO LIMPIO: TÚ TIENES EL CONTROL ---
     let finalUrl = data.href.trim();
-    
-    // Solo arreglamos los espacios de forma invisible. NADA DE TOCAR LAS RUTAS.
     finalUrl = encodeURI(finalUrl); 
 
     console.log("Cargando URL:", finalUrl); 
-    iframe.src = finalUrl; 
+    
+    // Usamos replace para cargar la URL sin sumar pasos extra al historial
+    iframe.contentWindow.location.replace(finalUrl); 
 }
 
 // ================= GESTIÓN CRUD =================
