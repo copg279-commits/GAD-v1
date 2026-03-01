@@ -3,63 +3,100 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CALCULADORA DE MATRICULACIÓN DE VEHÍCULOS UCRANIANOS</title>
+  <title>CALCULADORA UCRANIA - GAD</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-        .flag-button-spain {
-        background: linear-gradient(to top, #c60b1e 0%, #c60b1e 33%, #ffc400 33%, #ffc400 66%, #c60b1e 66%, #c60b1e 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
+    /* Adaptación de Textos de Ayuda al Dark Mode GAD */
+    #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+    #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; text-align: justify; }
+    #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+    /* Estilos del Modal */
+    .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.95); overflow-y: auto; }
+    .modal-content { background-color: #1e293b; margin: 2% auto; padding: 24px; border: 1px solid #334155; width: 95%; max-width: 800px; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+
+    /* Estilos de inputs */
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+    
+    .text-justify { text-align: justify; text-justify: inter-word; }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
 
-  <header class="bg-blue-600 w-full flex justify-center items-center py-2">
-    <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
-      <img
-        src="logogad.png"
-        alt="Logo GAD"
-        class="w-full h-full object-cover block"
-      >
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+    <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+    <div class="text-center flex-1">
+      <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+        MATRICULACIÓN VEHÍCULOS<br class="md:hidden"> UCRANIANOS (213 DÍAS)
+      </h1>
+      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+        Grupo de Análisis Documental
+      </h2>
     </div>
+    <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
-  <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
-      CALCULADORA DE MATRICULACIÓN DE VEHÍCULOS UCRANIANOS
-  </h1>
+  <main class="flex-grow flex flex-col items-center px-4">
+    <div class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 mt-8">
+        <h3 class="text-cyan-500 font-bold text-center mb-6 uppercase tracking-wider">Cálculo de Plazos y Obligaciones</h3>
+        
+        <form class="space-y-6" id="dateForm">
+          <div class="text-left">
+            <label class="block text-slate-300 font-medium mb-2" for="expeditionDate">
+              Fecha de expedición de la Residencia (TIE):
+            </label>
+            <input type="date" id="expeditionDate" name="expeditionDate" required
+              class="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all" />
+          </div>
+          
+          <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition duration-300 transform active:scale-95 shadow-lg">
+            CALCULAR ESTADO LEGAL
+          </button>
+        </form>
 
-  <form class="space-y-4 w-11/12 max-w-md mx-auto mt-4" id="dateForm">
-    <div class="text-left">
-      <label class="block text-gray-700 font-medium mb-2" for="expeditionDate">
-        Fecha de expedición de la Tarjeta de Residencia:
-      </label>
-      <input type="date" id="expeditionDate" name="expeditionDate" required
-        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div id="result" class="mt-8 text-center text-base font-medium"></div>
+        
+        <button onclick="document.getElementById('helpModal').style.display='block'" 
+                class="mt-6 w-full py-3 border border-slate-600 text-slate-400 hover:text-cyan-400 hover:border-cyan-400 rounded-lg text-sm transition flex items-center justify-center gap-2 font-bold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            VER FUNDAMENTOS JURÍDICOS
+        </button>
     </div>
-    <button type="submit"
-      class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-      Calcular
-    </button>
-  </form>
+  </main>
 
-  <div id="result" class="mt-4 text-center text-base font-medium w-11/12 max-w-md mx-auto"></div>
+  <div id="helpModal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-4">
+        <h2 class="text-cyan-500 font-bold text-lg uppercase">Dictamen Técnico y Normativo</h2>
+        <button onclick="document.getElementById('helpModal').style.display='none'" class="text-slate-500 hover:text-white font-bold text-2xl">&times;</button>
+      </div>
+      
+      <div id="helpContent" class="space-y-6 text-justify">
+        <section>
+          <h4 class="text-cyan-400 font-bold mb-2 uppercase text-xs tracking-widest">1. El Plazo de 213 Días (DGT)</h4>
+          <p>Este plazo excepcional nace de la <strong>Instrucción/Nota Informativa de la DGT NI 28/2022</strong>. Se concede para facilitar la transición de los ciudadanos ucranianos al estatus de residentes legales. Combina los 183 días (6 meses) de estancia máxima como turista/importación temporal con los 30 días de cortesía para iniciar la matriculación definitiva tras obtener la residencia.</p>
+        </section>
 
-    <div class="mt-8 flex justify-center">
-    <button onclick="window.location.href='index.html'"
-            class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
-        MENÚ PRINCIPAL
-    </button>
-</div>
+        <section>
+          <h4 class="text-cyan-400 font-bold mb-2 uppercase text-xs tracking-widest">2. Residencia Consolidada vs. Adquisición Posterior</h4>
+          <p>Es un error común creer que el plazo de 213 días se reinicia con cada coche. Si el titular <strong>ya es residente legal en España</strong> (por ejemplo, lleva 1 año con TIE) y decide traer o comprar un vehículo con matrícula ucraniana hoy, el plazo de "gracia" de la DGT no es aplicable de la misma forma. Según el <strong>Art. 65.1.d de la Ley 38/1992</strong>, los residentes en España tienen la obligación de matricular sus vehículos en un plazo de <strong>30 días</strong> desde su introducción en territorio nacional. La Ley de Impuestos Especiales prevalece sobre instrucciones informativas cuando la residencia ya está consolidada.</p>
+        </section>
 
- <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
+        <section>
+          <h4 class="text-cyan-400 font-bold mb-2 uppercase text-xs tracking-widest">3. Vehículos en Leasing o Renting</h4>
+          <p>En los contratos de <strong>Leasing o Renting</strong> extranjeros, el titular del vehículo suele ser una entidad financiera, no el conductor. Sin embargo, la normativa española establece que la obligación de matriculación recae sobre el <strong>usuario residente</strong> si el vehículo circula de forma habitual en España.</p>
+          <p class="mt-2 italic"><strong>Advertencia:</strong> Para beneficiarse de la exención de impuestos por traslado de residencia, el titular debe ser propietario pleno (o tener un contrato de leasing con opción de compra obligatoria y haberlo poseído fuera de España 6 meses antes de su llegada). Si el vehículo es un renting puro donde no hay opción de propiedad, Hacienda suele denegar la exención del IEDMT, obligando al pago del impuesto basado en el valor de mercado del coche.</p>
+        </section>
+
+        <section class="bg-slate-900/50 p-4 rounded-lg border border-red-900/30">
+          <h4 class="text-red-400 font-bold mb-2 uppercase text-xs">Riesgo de Inmovilización</h4>
+          <p>La superación de estos plazos permite a la Fuerza actuante (Policía Local/Guardia Civil) la <strong>inmovilización inmediata</strong> del vehículo por carecer de matriculación válida en España siendo su titular residente. La sanción de la Agencia Tributaria por no liquidar el Impuesto de Matriculación puede ascender hasta el 150% de la cuota debida.</p>
+        </section>
+      </div>
+      
+      <button onclick="document.getElementById('helpModal').style.display='none'" class="mt-8 w-full bg-cyan-700 py-3 rounded-xl font-bold hover:bg-cyan-600 transition shadow-lg">ENTENDIDO</button>
+    </div>
+  </div>
 
   <script>
     document.getElementById('dateForm').addEventListener('submit', function(event) {
@@ -69,7 +106,7 @@
       const resultDiv = document.getElementById('result');
 
       if (isNaN(expeditionDate)) {
-        resultDiv.innerHTML = '<p class="text-red-500 font-medium">Por favor, introduce una fecha válida.</p>';
+        resultDiv.innerHTML = '<p class="text-red-400 font-medium">Fecha no válida.</p>';
         return;
       }
 
@@ -78,23 +115,42 @@
       dueDate.setDate(dueDate.getDate() + daysToAdd);
 
       const today = new Date();
+      today.setHours(0,0,0,0);
+      
       const formattedDueDate = dueDate.toLocaleDateString('es-ES', {
         year: 'numeric', month: 'long', day: 'numeric'
       });
 
       if (today < dueDate) {
         resultDiv.innerHTML = `
-          <p class="text-green-500 font-medium">
-            Todavía no tiene obligación de matricular.<br>
-            Puede circular con matrícula ucraniana hasta <strong>${formattedDueDate}</strong>.
-          </p>`;
+          <div class="p-5 bg-green-500/10 border border-green-500/50 rounded-xl">
+            <p class="text-green-400 font-black mb-1 text-sm tracking-tighter">ESTADO: DENTRO DE PLAZO ORDINARIO</p>
+            <p class="text-slate-200">
+              Puede circular con placas de Ucrania hasta el:<br>
+              <span class="text-cyan-400 text-2xl font-black">${formattedDueDate}</span>
+            </p>
+            <p class="text-[10px] text-slate-500 mt-2 uppercase">Sujeto a que el vehículo fuera propiedad del titular antes de la residencia.</p>
+          </div>`;
       } else {
         resultDiv.innerHTML = `
-          <p class="text-red-500 font-medium">
-            Tiene obligación de matricular en España según la Nota Informativa de la DGT <strong>NI 28/2022</strong>.
-          </p>`;
+          <div class="p-5 bg-red-500/10 border border-red-500/50 rounded-xl border-l-4">
+            <p class="text-red-400 font-black mb-1 text-sm tracking-tighter">ESTADO: OBLIGACIÓN VENCIDA</p>
+            <p class="text-slate-200">
+              El plazo máximo de 213 días finalizó el:<br>
+              <span class="text-red-500 text-2xl font-black">${formattedDueDate}</span>
+            </p>
+            <hr class="border-red-500/20 my-3">
+            <p class="text-xs text-slate-300 font-bold">
+              ATENCIÓN: Si el titular ya era residente y adquirió el vehículo después, el plazo fue de solo 30 días desde la compra/entrada.
+            </p>
+          </div>`;
       }
     });
+
+    window.onclick = function(event) {
+      let modal = document.getElementById('helpModal');
+      if (event.target == modal) { modal.style.display = "none"; }
+    }
   </script>
 </body>
 </html>
