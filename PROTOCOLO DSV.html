@@ -15,113 +15,137 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
 
-        /* --- CONFIGURACIÓN GLOBAL --- */
+        /* --- 1. CONFIGURACIÓN GLOBAL ESTRICTA --- */
+        * { box-sizing: border-box !important; }
         body { 
             font-family: 'Inter', Arial, sans-serif; 
             line-height: 1.6; 
             background-color: #0f172a; 
             color: #e2e8f0;
-            overflow-x: hidden; /* Prohibido desborde lateral siempre */
+            overflow-x: hidden; /* Prohibido desborde lateral */
         }
 
-        /* --- DESTRUCCIÓN ABSOLUTA DE LAS BARRAS DE SCROLL --- */
-        /* Oculta las barras pero permite hacer scroll con la rueda/dedo si fuera necesario */
-        html, body, #result-modal, #result-modal *, .overflow-y-auto {
+        /* --- 2. DESTRUCCIÓN DE BARRAS DE SCROLL --- */
+        html, body, #result-modal, #result-modal > div, .result-card, .overflow-y-auto {
             scrollbar-width: none !important; /* Firefox */
             -ms-overflow-style: none !important; /* IE y Edge */
         }
         ::-webkit-scrollbar, *::-webkit-scrollbar { 
-            display: none !important; /* Chrome, Safari, Opera */
+            display: none !important; /* Chrome y Safari */
         }
 
-        /* --- CONTENEDOR DE PREGUNTAS --- */
-        .container { 
-            background-color: #1e293b; 
-            border: 1px solid #334155; 
-            border-radius: 16px; 
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); 
-            padding: 24px;
-            box-sizing: border-box;
-        }
-
-        /* --- BOTONES --- */
+        /* --- 3. BOTONES --- */
         .btn { padding: 12px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; }
-        .btn-primary { 
-            background-color: #0f172a !important; color: #06b6d4 !important; border: 1px solid #0891b2 !important; 
-            font-weight: 900; text-transform: uppercase; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); transition: all 0.2s;
-        }
+        .btn-primary { background-color: #0f172a !important; color: #06b6d4 !important; border: 1px solid #0891b2 !important; font-weight: 900; text-transform: uppercase; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); transition: all 0.2s; }
         .btn-primary:hover { background-color: #06b6d4 !important; color: #0f172a !important; box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); transform: translateY(-2px); }
         .btn-back { background-color: #334155 !important; color: #e2e8f0 !important; border: 1px solid #475569 !important; font-weight: 800; text-transform: uppercase; }
         .btn-back:hover { background-color: #475569 !important; border-color: #94a3b8 !important; }
 
-        /* --- DISEÑO RESPONSIVO (MÓVIL Y TABLET VERTICAL) --- */
+        /* Clase dinámica para mostrar/ocultar el botón de editar */
+        .btn-edit-desktop { display: flex !important; }
+
+        /* --- 4. DISEÑO RESPONSIVO (MÓVIL Y TABLET VERTICAL) --- */
         @media (max-width: 1023px) {
+            .container { 
+                background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; 
+                padding: 20px; margin-left: auto; margin-right: auto;
+            }
+
+            /* Modal Centrado en un solo bloque */
             #result-modal:not(.hidden) { 
                 display: flex !important;
-                padding: 10px !important; 
+                padding: 12px !important; /* Margen de seguridad para que se vean los bordes */
                 top: 5rem !important; 
                 bottom: 60px !important; /* Salva el footer */
                 justify-content: center !important;
-                align-items: flex-start !important; /* Evita que la cabecera se corte por arriba */
-                z-index: 99999 !important; /* Por encima de todo, el botón cerrar siempre funcionará */
+                align-items: flex-start !important; 
+                z-index: 99999 !important; 
                 overflow-y: auto !important; 
             }
+            
+            /* Contenedor Gris */
             #result-modal > div { 
                 width: 100% !important; 
-                max-width: 600px !important;
+                max-width: 600px !important; /* Límite para que no se estire demasiado en tablet */
                 margin: 0 auto !important;
-                background-color: #1e293b !important; /* Contenedor gris */
+                background-color: #1e293b !important; 
                 padding: 16px !important;
                 border: 1px solid #334155 !important;
-                border-radius: 12px !important;
+                border-radius: 16px !important;
                 position: relative;
                 pointer-events: auto !important;
-                box-sizing: border-box !important;
             }
+
+            /* MARCO DE COLOR: Ahora sí mantiene todos sus bordes */
             .result-card {
                 width: 100% !important;
                 border-width: 2px !important;
-                box-sizing: border-box !important; /* Impide que el borde rojo se salga del gris */
+                border-radius: 12px !important; /* Esquinas redondeadas restauradas */
+            }
+
+            #result-modal h2 { padding-right: 40px !important; }
+
+            /* Ocultamos el botón en móviles puros */
+            @media (max-width: 767px) {
+                .btn-edit-desktop { display: none !important; }
+                #result-modal { padding: 8px !important; }
+                #result-modal > div { padding: 12px !important; }
+                .actuacion-text { font-size: 14px !important; line-height: 1.3 !important; }
             }
         }
 
-        /* --- DISEÑO PANTALLA DIVIDIDA (PC) --- */
+        /* --- 5. DISEÑO PANTALLA DIVIDIDA (PC / >1024px) --- */
         @media (min-width: 1024px) {
+            /* Menú izquierdo blindado a 360px de ancho */
             body:has(#result-modal:not(.hidden)) .container {
-                margin-left: 3% !important;
-                margin-right: 0 !important;
-                width: 30% !important;
-                min-width: 350px !important;
-                transition: all 0.3s ease;
-            }
-            #result-modal:not(.hidden) {
-                left: calc(3% + 30% + 3%) !important; /* Se coloca justo a la derecha del menú */
-                right: 3% !important;
-                width: auto !important;
+                position: fixed !important;
                 top: 8rem !important; 
-                bottom: 3rem !important; 
+                left: 2vw !important;
+                width: 360px !important;
+                max-width: 360px !important;
+                margin: 0 !important;
+                height: calc(100vh - 10rem) !important;
+                overflow-y: auto !important;
+                z-index: 10;
+                padding: 24px;
+            }
+            
+            /* El resultado empieza JUSTO DESPUÉS del menú izquierdo. IMPOSIBLE SOLAPARSE */
+            #result-modal:not(.hidden) {
+                position: fixed !important;
+                top: 8rem !important;
+                bottom: 3rem !important;
+                left: calc(360px + 4vw) !important; 
+                right: 2vw !important;
+                width: auto !important;
                 background: transparent !important;
                 display: flex !important;
-                align-items: flex-start !important; /* Para que el título Detalles del Caso no se esconda arriba */
-                overflow-y: auto !important;
+                align-items: flex-start !important;
                 pointer-events: none;
-                z-index: 99999 !important;
+                z-index: 999;
+                padding: 0 !important;
             }
-            #result-modal > div { 
+
+            /* Contenedor Gris PC */
+            #result-modal > div {
                 pointer-events: auto;
                 width: 100% !important;
-                background-color: #1e293b !important; /* Contenedor gris */
+                background-color: #1e293b !important;
                 padding: 24px !important;
                 border: 1px solid #334155 !important;
                 border-radius: 16px !important;
-                box-sizing: border-box !important;
+                max-height: 100% !important;
+                overflow-y: auto !important; /* Scroll invisible si el texto es inmenso */
             }
+
             .result-card {
-                box-sizing: border-box !important;
+                border-width: 2px !important;
+                border-radius: 12px !important;
+                width: 100% !important;
             }
         }
 
-        /* Limpieza para Firebase */
+        /* Limpieza de fondos residuales de Firebase */
         #modal-detalle-caso [style*="background"] { background-color: transparent !important; }
     </style>
 </head>
@@ -148,26 +172,23 @@
         <div id="question-container" class="mt-6 flex flex-col"></div>
     </div>
 
-    <div id="result-modal" class="hidden fixed bg-black/80 md:bg-transparent backdrop-blur-sm md:backdrop-blur-0">
+    <div id="result-modal" class="hidden">
         <div class="shadow-2xl relative">
-            <button onclick="closeResultModal()" class="absolute top-3 right-3 md:top-4 md:right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md z-[100000]">
+            <button onclick="closeResultModal()" class="absolute top-4 right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md z-[100000]">
                 <i class="fas fa-times"></i>
             </button>
-            
-            <h2 class="text-xl md:text-2xl font-black text-cyan-500 uppercase tracking-widest mb-4 border-b border-slate-700 pb-3 pr-10">
+            <h2 class="text-xl md:text-2xl font-black text-cyan-500 uppercase tracking-widest mb-4 border-b border-slate-700 pb-3">
                 <i class="fas fa-file-contract mr-2"></i> Detalles del Caso
             </h2>
-            
             <div id="modal-detalle-caso"></div>
         </div>
     </div>
 
     <div id="edit-modal" class="hidden fixed inset-0 bg-black/80 h-full w-full z-[999999] flex justify-center items-start pt-10 md:pt-20 overflow-y-auto">
         <div class="relative p-6 border border-slate-700 w-11/12 max-w-lg shadow-2xl rounded-2xl bg-slate-800 mb-10">
-            <button onclick="document.getElementById('edit-modal').classList.add('hidden')" class="absolute top-4 right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md z-10">
+            <button type="button" onclick="document.getElementById('edit-modal').classList.add('hidden')" class="absolute top-4 right-4 bg-slate-700 hover:bg-red-500 text-slate-200 hover:text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md z-10">
                 <i class="fas fa-times"></i>
             </button>
-            
             <h3 class="text-lg font-black text-cyan-500 uppercase tracking-widest mb-6 border-b border-slate-700 pb-3 pr-8">Editar Resultado</h3>
             <form id="edit-form" class="space-y-4">
                 <div>
@@ -191,7 +212,6 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN FIREBASE
         const firebaseConfig = {
           apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
           authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -204,7 +224,6 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        // ÁRBOLES DE DECISIÓN (Con los textos actualizados)
         const decisionTrees = {
             "perdida-vigencia-por-puntos": {
                 question: "¿EN QUÉ SITUACIÓN ESTÁ CONDUCIENDO?",
@@ -270,6 +289,7 @@
         let breadcrumbs = [];
         let currentSection = null;
         let currentCaseKey = null;
+        let currentInfoData = null; 
 
         function findCaseParent(caseKey) {
             for (const section in decisionTrees) {
@@ -377,7 +397,6 @@
             document.getElementById("result-modal").classList.add("hidden");
         }
 
-        // --- LA FUNCIÓN MAESTRA DE RESULTADOS ---
         function showResult(optionKey) {
             const modal = document.getElementById("result-modal");
             const detailDiv = document.getElementById("modal-detalle-caso");
@@ -385,7 +404,7 @@
 
             currentCaseKey = optionKey;
             
-            // Limpia antes de mostrar para evitar fallos visuales
+            // Limpia antes de mostrar y hace visible el modal
             detailDiv.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-4xl text-cyan-500"></i></div>';
             modal.classList.remove("hidden");
 
@@ -393,6 +412,8 @@
 
             db.ref(`protocolo/${parentKey}/options/${optionKey}`).once('value').then((snapshot) => {
                 const info = snapshot.val();
+                currentInfoData = info; 
+                
                 if (info) {
                     const hecho = info.hecho.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
                     const resumen = info.resumen.replace("DELITO LSV art.384 CP- ATESTADO", "DSV DELITO art.384 CP - ATESTADO");
@@ -401,47 +422,50 @@
                     const tipoClass = info.tipo === 'delito' ? "border-red-500 bg-red-500/10 text-red-200" : 
                                     (info.tipo === 'infraccion' ? "border-yellow-500 bg-yellow-500/10 text-yellow-200" : "border-green-500 bg-green-500/10 text-green-200");
 
-                    // Comprimimos la "Prohibición de Conducir" si existe para ahorrar espacio
+                    // Comprimimos la prohibición si existe
                     let prohibicionHtml = "";
                     if (actuacionRaw.includes("Prohibición de Conducir")) {
                         let parts = actuacionRaw.split(/<div[^>]*>.*Prohibición de Conducir/is);
                         if(parts.length > 1) {
                             actuacionRaw = parts[0].replace(/(<br\s*\/?>\s*)+$/, ''); 
                             prohibicionHtml = `
-                                <div class='mt-1 p-2 bg-slate-900/90 rounded border border-slate-700 flex flex-col gap-0.5'>
-                                    <div class='flex items-center gap-1'>
-                                        <i class='fas fa-ban text-red-500 text-[10px] md:text-sm'></i>
-                                        <b class='text-red-400 text-[9px] md:text-xs uppercase'>Prohibición</b>
+                                <div class='mt-2 p-2.5 bg-slate-900/90 rounded-lg border border-slate-700 flex flex-col gap-1'>
+                                    <div class='flex items-center gap-2'>
+                                        <i class='fas fa-ban text-red-500 text-xs md:text-sm'></i>
+                                        <b class='text-red-400 text-[10px] md:text-xs uppercase'>Prohibición de Conducir</b>
                                     </div>
-                                    <div class='flex items-start gap-1 leading-tight border-t border-slate-700 pt-1'>
+                                    <div class='flex items-start gap-1.5 leading-tight border-t border-slate-700 pt-1.5'>
                                         <i class='fas fa-truck-pickup text-cyan-500 text-[10px] md:text-xs mt-0.5'></i>
-                                        <span class='text-[10px] md:text-sm'><b class='text-cyan-400'>87.5 LSV:</b> Inmovilizar si no hay residencia.</span>
+                                        <span class='text-[11px] md:text-[13px]'><b class='text-cyan-400'>Art. 87.5 LSV:</b> Inmovilizar por caución si no hay residencia legal.</span>
                                     </div>
                                 </div>
                             `;
                         }
                     }
 
-                    // El botón Editar SOLO se genera si la pantalla es de Tablet/PC (>= 768px). 
-                    // Se coloca FUERA de la 'result-card' (marco rojo) pero DENTRO de 'detailDiv' (marco gris).
-                    const btnHtml = (window.innerWidth >= 768) ? 
-                        `<button onclick="closeResultModal(); openEditModal(${JSON.stringify(info).replace(/"/g, '&quot;')})" class="w-full mt-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-lg uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-sm">
-                            <i class="fas fa-edit"></i> Editar Resultado
-                        </button>` : '';
+                    // EL BOTÓN EDITAR SE INYECTA SIEMPRE MEDIANTE JS.
+                    // La clase 'btn-edit-desktop' lo ocultará en móviles mediante CSS.
+                    const btnHtml = `
+                        <div class="btn-edit-desktop w-full mt-4">
+                            <button onclick="closeResultModal(); openEditModal(currentInfoData)" class="w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
+                                <i class="fas fa-edit"></i> Editar Resultado
+                            </button>
+                        </div>
+                    `;
 
                     detailDiv.innerHTML = `
-                        <div class="result-card p-3 md:p-5 rounded-xl border-2 ${tipoClass} shadow-inner flex flex-col gap-2 md:gap-3 box-border">
+                        <div class="result-card p-4 md:p-6 border-2 ${tipoClass} shadow-inner flex flex-col gap-2 md:gap-4 box-border">
                             <div>
-                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block">Hecho:</strong>
+                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block mb-1">Hecho:</strong>
                                 <span class="block text-[13px] md:text-base leading-tight">${hecho}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block">Resumen:</strong>
+                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block mb-1">Resumen:</strong>
                                 <span class="font-bold block text-[13px] md:text-base leading-tight">${resumen}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block">Actuación:</strong>
-                                <div class="actuacion-text bg-slate-900/80 p-2 md:p-4 rounded border border-slate-700 mt-0.5 text-slate-300 shadow-sm text-[14px] md:text-base leading-snug">
+                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block mb-1">Actuación:</strong>
+                                <div class="actuacion-text bg-slate-900/80 p-3 md:p-4 rounded border border-slate-700 mt-1 text-slate-300 shadow-sm text-[14px] md:text-[15px] leading-snug">
                                     ${actuacionRaw}
                                 </div>
                             </div>
@@ -450,13 +474,14 @@
                         ${btnHtml}
                     `;
 
-                    // Lógica Double Tap para edición en móvil
+                    // Lógica Double Tap
                     let lastTap = 0;
-                    detailDiv.addEventListener('touchend', function (e) {
+                    const card = detailDiv.querySelector('.result-card');
+                    card.addEventListener('touchend', function (e) {
                         const currentTime = new Date().getTime();
                         if (currentTime - lastTap < 500 && currentTime - lastTap > 0) {
                             closeResultModal();
-                            openEditModal(info);
+                            openEditModal(currentInfoData);
                             e.preventDefault();
                         }
                         lastTap = currentTime;
@@ -465,7 +490,6 @@
             });
         }
 
-        // --- FUNCIONES DE EDICIÓN ---
         function openEditModal(data) {
             const modal = document.getElementById("edit-modal");
             document.getElementById("edit-hecho").value = data.hecho || "";
@@ -486,7 +510,7 @@
                 db.ref(`protocolo/${parentKey}/options/${currentCaseKey}`).update(updatedData)
                     .then(() => {
                         document.getElementById("edit-modal").classList.add("hidden");
-                        showResult(currentCaseKey); // Recarga el resultado actualizado
+                        showResult(currentCaseKey);
                     });
             }
         };
