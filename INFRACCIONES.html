@@ -7,7 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> 
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
   
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
@@ -17,37 +18,40 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f8fafc;
+      background-color: #0f172a; /* Dark Mode: bg-slate-900 */
+      color: #e2e8f0; /* Dark Mode: text-slate-200 */
     }
     .infraction-item {
       transition: all 0.3s ease;
     }
     .infraction-item:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }
     .highlight {
-      background-color: #bbf7d0;
+      background-color: rgba(6, 182, 212, 0.3); /* Adaptado al cyan */
       padding: 0 2px;
       border-radius: 2px;
+      color: #06b6d4;
+      font-weight: bold;
     }
     .regulation-code {
       font-weight: 800;
-      color: #1e40af;
+      color: #06b6d4; /* Dark Mode: Cyan brillante */
       font-size: 1.1rem;
       text-transform: uppercase;
     }
     .article-info {
       font-weight: bold;
       font-size: 1rem;
-      color: #374151;
+      color: #e2e8f0;
     }
-    .article-part { color: #dc2626; font-weight: 800; }
-    .section-part { color: #059669; font-weight: 800; }
-    .option-part { color: #7c3aed; font-weight: 800; }
+    .article-part { color: #f87171; font-weight: 800; }
+    .section-part { color: #34d399; font-weight: 800; }
+    .option-part { color: #a78bfa; font-weight: 800; }
     
     .keywords-display {
-      color: #6b7280;
+      color: #94a3b8;
       font-size: 0.8rem;
       margin-bottom: 0.25rem;
       font-style: italic;
@@ -56,10 +60,10 @@
     /* Toggle Switch */
     .toggle-checkbox:checked {
         right: 0;
-        border-color: #2563EB;
+        border-color: #06b6d4;
     }
     .toggle-checkbox:checked + .toggle-label {
-        background-color: #2563EB;
+        background-color: #06b6d4;
     }
 
     /* Iconos Compartir */
@@ -81,8 +85,8 @@
     }
 
     .loading-spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
+      border: 4px solid #334155;
+      border-top: 4px solid #06b6d4;
       border-radius: 50%;
       width: 40px;
       height: 40px;
@@ -96,33 +100,34 @@
 
     .suggestions-container {
       position: absolute;
-      background: white;
-      border: 1px solid #e5e7eb;
+      background: #1e293b;
+      border: 1px solid #334155;
       border-radius: 0.5rem;
       width: 100%;
       max-height: 300px;
       overflow-y: auto;
       z-index: 50;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
       margin-top: 4px;
     }
     .suggestion-item {
       padding: 10px 16px;
       cursor: pointer;
-      border-bottom: 1px solid #f3f4f6;
+      border-bottom: 1px solid #334155;
       font-size: 0.85rem;
       line-height: 1.4;
+      color: #e2e8f0;
     }
     .suggestion-item:hover {
-      background-color: #f0f9ff;
-      color: #1e40af;
+      background-color: #0f172a;
+      color: #06b6d4;
     }
     .suggestion-header {
       font-weight: bold;
-      color: #4b5563;
+      color: #94a3b8;
       font-size: 0.7rem;
       text-transform: uppercase;
-      background-color: #f9fafb;
+      background-color: #0f172a;
       padding: 5px 16px;
       position: sticky;
       top: 0;
@@ -133,81 +138,121 @@
         min-height: 100px;
         max-height: 200px;
         overflow-y: auto;
-        border: 1px solid #d1d5db;
+        border: 1px solid #334155;
         border-radius: 0.5rem;
         padding: 0.5rem;
-        background-color: white;
+        background-color: #0f172a;
+        color: #e2e8f0;
         outline: none;
     }
     .rich-editor:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        border-color: #06b6d4;
+        box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
     }
-    .rich-editor b, .rich-editor strong { font-weight: 700; }
-    .highlight-red { color: #dc2626; font-weight: 700; }
+    .rich-editor b, .rich-editor strong { font-weight: 700; color: #06b6d4; }
+    .highlight-red { color: #f87171; font-weight: 700; }
 
     .format-toolbar button {
-        background-color: #f3f4f6;
-        border: 1px solid #d1d5db;
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        color: #e2e8f0;
         border-radius: 4px;
         padding: 4px 10px;
         margin-right: 5px;
         cursor: pointer;
         transition: background 0.2s;
     }
-    .format-toolbar button:hover { background-color: #e5e7eb; }
+    .format-toolbar button:hover { background-color: #334155; }
     
     /* Mensaje de carga de seguridad */
     #auth-loading-screen {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #f8fafc; z-index: 9999;
+        background: #0f172a; z-index: 9999;
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
-        color: #1e40af; font-weight: bold;
+        color: #06b6d4; font-weight: bold;
+    }
+
+    /* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
+    #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+    #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+    #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+    /* Zoom de miniaturas sin cortes (Solo PC) */
+    td, tr { position: static !important; }
+    .results-container { overflow: visible !important; }
+    @media (hover: hover) and (pointer: fine) { 
+        .thumbnail-img:hover { 
+            transform: scale(4); 
+            z-index: 9999 !important; 
+            position: relative; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+            border-color: #06b6d4; 
+        } 
+    }
+
+    /* Responsive Móvil Estricto (De tabla a tarjetas) */
+    @media (max-width: 768px) {
+        thead { display: none; }
+        tr { 
+            display: flex; 
+            flex-direction: column; 
+            background: #1e293b !important; 
+            border-radius: 12px; 
+            margin-bottom: 1rem;
+            border: 1px solid #334155;
+            overflow: hidden;
+        }
+        td { display: block; width: 100%; border: none !important; padding: 0.75rem !important; }
+        .thumbnail-img { width: 100% !important; height: auto !important; max-width: none !important; border-radius: 0 !important; }
     }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-12 text-slate-800">
+<body class="bg-slate-900 min-h-screen flex flex-col pb-12 text-slate-200">
 
   <div id="auth-loading-screen">
       <i class="fas fa-shield-alt fa-3x mb-4"></i>
       <span>Conectando con Base de Datos V4...</span>
   </div>
 
-  <header class="bg-gradient-to-r from-blue-900 to-blue-700 w-full shadow-lg py-4">
-    <div class="flex flex-col justify-center items-center">
-        <div class="w-32 h-32 rounded-full overflow-hidden shadow-2xl">
-            <img src="logogad.png" onerror="this.src='https://via.placeholder.com/150/0000FF/808080?text=GAD'" alt="Logo GAD" class="w-full h-full object-cover block">
-        </div>
-        <h1 class="text-white text-center mt-4 text-xl font-bold tracking-wider uppercase drop-shadow-md px-4">
-            Codificado de Infracciones GAD
-        </h1>
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+    <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+    
+    <div class="text-center flex-1">
+      <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+        CODIFICADO DE<br class="md:hidden"> INFRACCIONES
+      </h1>
+      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+        Grupo de Análisis Documental
+      </h2>
     </div>
+
+    <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
   <div id="main-content" style="display:none;">
       <div class="w-11/12 max-w-3xl mx-auto mt-6 flex justify-end items-center px-1">
-          <span class="mr-3 text-xs font-bold text-slate-500 uppercase tracking-widest">Modo Edición</span>
+          <span class="mr-3 text-xs font-bold text-slate-400 uppercase tracking-widest">Modo Edición</span>
           <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
-              <input type="checkbox" name="toggle" id="editModeToggle" onchange="toggleEditMode()" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 left-0 transition-all duration-200 ease-in-out"/>
-              <label for="editModeToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
+              <input type="checkbox" name="toggle" id="editModeToggle" onchange="toggleEditMode()" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-slate-200 border-4 appearance-none cursor-pointer border-slate-600 left-0 transition-all duration-200 ease-in-out"/>
+              <label for="editModeToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-600 cursor-pointer transition-colors duration-200 ease-in-out"></label>
           </div>
       </div>
 
-      <div class="w-11/12 max-w-3xl mx-auto mt-2 bg-white p-6 rounded-xl shadow-md border border-gray-200">
+      <div class="w-11/12 max-w-3xl mx-auto mt-2 bg-slate-800 p-6 rounded-xl shadow-md border border-slate-700">
         <div class="relative search-container">
-          <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition">
+          <div class="flex items-center border border-slate-600 bg-slate-900 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-cyan-500 transition">
             <input 
               type="text" 
               id="searchInput" 
               placeholder="Buscar por palabra clave, artículo, norma..." 
-              class="flex-grow px-4 py-3 focus:outline-none text-gray-700"
+              class="flex-grow px-4 py-3 focus:outline-none bg-transparent text-slate-200"
               autocomplete="off"
             >
-            <button id="clearButton" class="hidden text-gray-400 hover:text-gray-600 px-3 transition">
+            <button id="clearButton" class="hidden text-slate-400 hover:text-cyan-500 px-3 transition">
               <i class="fas fa-times-circle"></i>
             </button>
-            <button id="searchButton" class="bg-blue-600 text-white px-6 py-3 hover:bg-blue-700 transition font-bold">
+            <button id="searchButton" class="bg-cyan-600 text-white px-6 py-3 hover:bg-cyan-500 transition font-bold">
               <i class="fas fa-search"></i>
             </button>
           </div>
@@ -215,8 +260,8 @@
         </div>
         
         <div class="mt-4">
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-1 tracking-wide">Filtrar por normativa</label>
-          <select id="regulationFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1 tracking-wide">Filtrar por normativa</label>
+          <select id="regulationFilter" class="w-full p-3 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-slate-900 text-slate-200">
             <option value="todas">Todas las normativas</option>
             <option value="Ley de Seguridad Vial">Ley de Seguridad Vial</option>
             <option value="Reglamento General de Conductores">Reglamento General de Conductores</option>
@@ -227,42 +272,37 @@
         </div>
       </div>
 
-      <div id="searchResults" class="w-11/12 max-w-3xl mx-auto mt-4 bg-white p-4 md:p-6 rounded-xl shadow-md border border-gray-200 min-h-[200px]">
-        <div class="flex justify-between items-center mb-4 border-b pb-2">
-            <h2 class="text-lg font-bold text-blue-800 uppercase tracking-wide">Resultados</h2>
-            <span id="resultCount" class="text-sm text-gray-500"></span>
+      <div id="searchResults" class="w-11/12 max-w-3xl mx-auto mt-4 bg-slate-800 p-4 md:p-6 rounded-xl shadow-md border border-slate-700 min-h-[200px]">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+            <h2 class="text-lg font-bold text-cyan-500 uppercase tracking-wide">Resultados</h2>
+            <span id="resultCount" class="text-sm text-slate-400"></span>
         </div>
         
         <div id="resultsContainer" class="space-y-4 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
           <div class="loading-spinner"></div>
-          <p class="text-center text-gray-500 py-4">Cargando base de datos...</p>
+          <p class="text-center text-slate-400 py-4">Cargando base de datos...</p>
         </div>
-        <p id="noResults" class="hidden text-center text-gray-500 py-8 italic">No se encontraron infracciones con esos criterios.</p>
+        <p id="noResults" class="hidden text-center text-slate-400 py-8 italic">No se encontraron infracciones con esos criterios.</p>
       </div>
 
       <div class="mt-8 flex flex-col items-center space-y-4 pb-8">
         <button id="addInfractionBtn" style="display: none;"
-                class="w-11/12 max-w-3xl p-4 bg-green-600 text-white font-bold rounded-lg shadow-md transition hover:bg-green-700 flex items-center justify-center gap-2 uppercase tracking-wide">
+                class="w-11/12 max-w-3xl p-4 bg-green-600 text-white font-bold rounded-lg shadow-md transition hover:bg-green-500 flex items-center justify-center gap-2 uppercase tracking-wide border border-green-500">
             <i class="fas fa-plus-circle"></i> Introducir Nueva Infracción
-        </button>
-
-        <button onclick="window.location.href='index.html'"
-                class="w-11/12 max-w-xs p-3 bg-amber-400 text-amber-900 font-bold rounded shadow-md transition hover:bg-amber-300 border-b-4 border-amber-500 active:border-b-0 active:mt-1 uppercase tracking-widest text-xs">
-            Menú Principal
         </button>
       </div>
   </div>
 
-  <div id="addInfractionModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 backdrop-blur-sm">
-    <div class="bg-white rounded-xl shadow-2xl w-11/12 max-w-lg max-h-[90vh] overflow-y-auto">
-      <div class="p-5 border-b bg-green-600 text-white sticky top-0 z-10">
+  <div id="addInfractionModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-xl shadow-2xl w-11/12 max-w-lg max-h-[90vh] overflow-y-auto border border-slate-700 text-slate-200">
+      <div class="p-5 border-b border-slate-700 bg-slate-900 text-cyan-500 sticky top-0 z-10">
         <h2 class="text-xl font-bold">Nueva Infracción</h2>
       </div>
       
       <form id="infractionForm" class="p-6 space-y-4">
         <div>
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Normativa *</label>
-          <select name="regulation" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Normativa *</label>
+          <select name="regulation" required class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             <option value="">Seleccione...</option>
             <option value="Ley de Seguridad Vial">Ley de Seguridad Vial</option>
             <option value="Reglamento General de Conductores">Rgto. Gral. Conductores</option>
@@ -274,71 +314,71 @@
         
         <div class="grid grid-cols-3 gap-3">
             <div class="col-span-1">
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Art. *</label>
-              <input type="text" name="article" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Art. *</label>
+              <input type="text" name="article" required class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
             <div class="col-span-1">
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ap.</label>
-              <input type="text" name="section" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Ap.</label>
+              <input type="text" name="section" class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
             <div class="col-span-1">
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Op.</label>
-              <input type="text" name="option" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Op.</label>
+              <input type="text" name="option" class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
         </div>
         
         <div>
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Hecho Denunciado *</label>
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Hecho Denunciado *</label>
           <div class="format-toolbar mb-1 flex items-center">
              <button type="button" onmousedown="event.preventDefault(); applyBold()" title="Negrita" class="font-bold">B</button>
-             <button type="button" onmousedown="event.preventDefault(); applyRed()" title="Rojo Negrita" class="text-red-600 font-bold">A</button>
-             <span class="text-xs text-gray-400 ml-2">(Selecciona el texto y pulsa el botón)</span>
+             <button type="button" onmousedown="event.preventDefault(); applyRed()" title="Rojo Negrita" class="text-red-500 font-bold">A</button>
+             <span class="text-xs text-slate-500 ml-2">(Selecciona el texto y pulsa el botón)</span>
           </div>
           <div id="addDescription" contenteditable="true" class="rich-editor w-full"></div>
         </div>
         
         <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Total (€) *</label>
-              <input type="number" name="totalAmount" step="0.01" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Total (€) *</label>
+              <input type="number" name="totalAmount" step="0.01" required class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Reducido (€)</label>
-              <input type="number" name="reducedAmount" step="0.01" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Reducido (€)</label>
+              <input type="number" name="reducedAmount" step="0.01" class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
         </div>
         
         <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipo *</label>
-              <select name="type" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Tipo *</label>
+              <select name="type" required class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
                 <option value="leve">Leve</option>
                 <option value="grave">Grave</option>
                 <option value="muy grave">Muy grave</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Puntos</label>
-              <input type="number" name="puntos" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Puntos</label>
+              <input type="number" name="puntos" class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Keywords</label>
-          <input type="text" name="keywords" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500" placeholder="Frases o palabras clave separadas...">
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Keywords</label>
+          <input type="text" name="keywords" required class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200" placeholder="Frases o palabras clave separadas...">
         </div>
       </form>
       
-      <div class="p-4 border-t flex justify-end space-x-2 bg-gray-50 sticky bottom-0">
-        <button id="cancelInfraction" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition font-bold text-sm">CANCELAR</button>
-        <button id="saveInfraction" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition font-bold text-sm">GUARDAR</button>
+      <div class="p-4 border-t border-slate-700 flex justify-end space-x-2 bg-slate-900 sticky bottom-0">
+        <button id="cancelInfraction" class="px-4 py-2 bg-slate-700 text-slate-200 rounded hover:bg-slate-600 transition font-bold text-sm">CANCELAR</button>
+        <button id="saveInfraction" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500 transition font-bold text-sm">GUARDAR</button>
       </div>
     </div>
   </div>
 
-  <div id="editInfractionModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 backdrop-blur-sm">
-    <div class="bg-white rounded-xl shadow-2xl w-11/12 max-w-lg max-h-[90vh] overflow-y-auto">
-      <div class="p-5 border-b bg-blue-600 text-white sticky top-0 z-10">
+  <div id="editInfractionModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-xl shadow-2xl w-11/12 max-w-lg max-h-[90vh] overflow-y-auto border border-slate-700 text-slate-200">
+      <div class="p-5 border-b border-slate-700 bg-slate-900 text-cyan-500 sticky top-0 z-10">
         <h2 class="text-xl font-bold">Editar Infracción</h2>
       </div>
       
@@ -346,8 +386,8 @@
         <input type="hidden" id="editKey" name="key">
         
         <div>
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Normativa *</label>
-          <select id="editRegulation" name="regulation" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Normativa *</label>
+          <select id="editRegulation" name="regulation" required class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
              <option value="">Seleccione...</option>
              <option value="Ley de Seguridad Vial">Ley de Seguridad Vial</option>
              <option value="Reglamento General de Conductores">Rgto. Gral. Conductores</option>
@@ -359,75 +399,67 @@
         
         <div class="grid grid-cols-3 gap-3">
             <div class="col-span-1">
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Art. *</label>
-              <input type="text" id="editArticle" name="article" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Art. *</label>
+              <input type="text" id="editArticle" name="article" required class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
             <div class="col-span-1">
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ap.</label>
-              <input type="text" id="editSection" name="section" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Ap.</label>
+              <input type="text" id="editSection" name="section" class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
             <div class="col-span-1">
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Op.</label>
-              <input type="text" id="editOption" name="option" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Op.</label>
+              <input type="text" id="editOption" name="option" class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
         </div>
         
         <div>
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Hecho Denunciado *</label>
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Hecho Denunciado *</label>
           <div class="format-toolbar mb-1 flex items-center">
              <button type="button" onmousedown="event.preventDefault(); applyBold()" title="Negrita" class="font-bold">B</button>
-             <button type="button" onmousedown="event.preventDefault(); applyRed()" title="Rojo Negrita" class="text-red-600 font-bold">A</button>
-             <span class="text-xs text-gray-400 ml-2">(Selecciona el texto y pulsa el botón)</span>
+             <button type="button" onmousedown="event.preventDefault(); applyRed()" title="Rojo Negrita" class="text-red-500 font-bold">A</button>
+             <span class="text-xs text-slate-500 ml-2">(Selecciona el texto y pulsa el botón)</span>
           </div>
           <div id="editDescription" contenteditable="true" class="rich-editor w-full"></div>
         </div>
         
         <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Total (€) *</label>
-              <input type="number" id="editTotalAmount" name="totalAmount" step="0.01" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Total (€) *</label>
+              <input type="number" id="editTotalAmount" name="totalAmount" step="0.01" required class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Reducido (€)</label>
-              <input type="number" id="editReducedAmount" name="reducedAmount" step="0.01" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Reducido (€)</label>
+              <input type="number" id="editReducedAmount" name="reducedAmount" step="0.01" class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
         </div>
         
         <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipo *</label>
-              <select id="editType" name="type" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Tipo *</label>
+              <select id="editType" name="type" required class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
                 <option value="leve">Leve</option>
                 <option value="grave">Grave</option>
                 <option value="muy grave">Muy grave</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Puntos</label>
-              <input type="number" id="editPuntos" name="puntos" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Puntos</label>
+              <input type="number" id="editPuntos" name="puntos" class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
             </div>
         </div>
         
         <div>
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Keywords</label>
-          <input type="text" id="editKeywords" name="keywords" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Keywords</label>
+          <input type="text" id="editKeywords" name="keywords" required class="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:ring-2 focus:ring-cyan-500 text-slate-200">
         </div>
       </form>
       
-      <div class="p-4 border-t flex justify-end space-x-2 bg-gray-50 sticky bottom-0">
-        <button id="cancelEditInfraction" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition font-bold text-sm">CANCELAR</button>
-        <button id="updateInfraction" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-bold text-sm">ACTUALIZAR</button>
+      <div class="p-4 border-t border-slate-700 flex justify-end space-x-2 bg-slate-900 sticky bottom-0">
+        <button id="cancelEditInfraction" class="px-4 py-2 bg-slate-700 text-slate-200 rounded hover:bg-slate-600 transition font-bold text-sm">CANCELAR</button>
+        <button id="updateInfraction" class="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-500 transition font-bold text-sm">ACTUALIZAR</button>
       </div>
     </div>
   </div>
-
- <footer class="mt-auto text-center py-6 bg-slate-900 text-slate-400">
-    <div class="w-11/12 max-w-3xl mx-auto border-t border-slate-700 pt-6 space-y-1">
-        <p class="font-bold text-white tracking-widest text-sm">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-        <p class="font-bold text-slate-300 text-xs">POLICÍA LOCAL DE ALICANTE</p>
-        <p class="text-xs text-slate-500 mt-2">&copy; GAD - Todos los derechos reservados</p>
-    </div>
-  </footer>
 
   <script>
     // --- 1. CONFIGURACIÓN FIREBASE V4 ---
@@ -443,7 +475,7 @@
 
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    const auth = firebase.auth(); // INICIALIZAMOS AUTH
+    const auth = firebase.auth(); 
     const infraccionesRef = database.ref('infracciones');
     
     let infractionsMap = {};
@@ -477,12 +509,11 @@
             document.getElementById('auth-loading-screen').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
             
-            // INICIAR CARGA DE DATOS (Solo ahora)
             loadInfractionsFromFirebase();
         } else {
             console.warn("Usuario no autenticado");
             document.getElementById('auth-loading-screen').innerHTML = 
-                "<div class='text-center text-red-600'><i class='fas fa-lock fa-3x mb-3'></i><br>ACCESO DENEGADO<br>Inicia sesión en el Menú Principal</div>";
+                "<div class='text-center text-red-500'><i class='fas fa-lock fa-3x mb-3'></i><br>ACCESO DENEGADO<br>Inicia sesión en el Menú Principal</div>";
         }
     });
 
@@ -669,7 +700,7 @@
         const customKeywords = 'Alquiler, Vehículos, Mercancías, Autorización, Transporte';
         const suggestionItem = document.createElement('div');
         suggestionItem.className = 'suggestion-item';
-        suggestionItem.innerHTML = `<span class="text-xs font-bold text-blue-600 uppercase">Sugerencia Rápida</span><br>${customKeywords}`;
+        suggestionItem.innerHTML = `<span class="text-xs font-bold text-cyan-500 uppercase">Sugerencia Rápida</span><br>${customKeywords}`;
         suggestionItem.onclick = () => {
           searchInput.value = customKeywords.split(',')[0].trim();
           suggestionsBox.classList.add('hidden');
@@ -805,7 +836,8 @@
       
       infractionsArray.forEach(infraction => {
         const infractionElement = document.createElement('div');
-        infractionElement.className = 'infraction-item bg-white p-5 rounded-lg border border-gray-100 hover:border-blue-300 shadow-sm';
+        // Actualizado para encajar con el estilo Dark Mode GAD
+        infractionElement.className = 'infraction-item bg-slate-800 p-5 rounded-lg border border-slate-700 hover:border-cyan-500 shadow-sm text-slate-200';
         
         const formattedArticleInfo = formatArticleInfo(infraction.article, infraction.section, infraction.option, searchTerm);
         
@@ -820,11 +852,11 @@
         let adminButtonsHTML = '';
         if (isEditMode) {
             adminButtonsHTML = `
-                <div class="mt-3 pt-3 border-t border-gray-100 flex justify-end gap-2">
-                    <button class="btn-edit bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm font-bold hover:bg-blue-200" data-key="${infraction.key}">
+                <div class="mt-3 pt-3 border-t border-slate-700 flex justify-end gap-2">
+                    <button class="btn-edit bg-slate-700 text-cyan-500 px-3 py-1 rounded text-sm font-bold hover:bg-slate-600" data-key="${infraction.key}">
                       <i class="fas fa-edit"></i> Editar
                     </button>
-                    <button class="btn-delete bg-red-100 text-red-700 px-3 py-1 rounded text-sm font-bold hover:bg-red-200" data-key="${infraction.key}">
+                    <button class="btn-delete bg-slate-700 text-red-500 px-3 py-1 rounded text-sm font-bold hover:bg-slate-600" data-key="${infraction.key}">
                       <i class="fas fa-trash"></i> Eliminar
                     </button>
                 </div>
@@ -837,7 +869,7 @@
             
             <div class="regulation-code mb-1">${highlightedRegulation}</div>
             
-            <div class="flex justify-between items-center bg-gray-50 p-2 rounded mb-2">
+            <div class="flex justify-between items-center bg-slate-900 p-2 rounded mb-2 border border-slate-700">
                 <div class="article-info">${formattedArticleInfo}</div>
                 <div class="flex gap-2">
                     <button onclick="handleWhatsappClick('${infraction.key}')" class="icon-btn wa-icon" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
@@ -845,13 +877,13 @@
                 </div>
             </div>
 
-            <p class="text-sm text-gray-700 leading-relaxed">${descriptionHTML}</p>
+            <p class="text-sm text-slate-300 leading-relaxed">${descriptionHTML}</p>
             
             <div class="flex flex-wrap gap-2 mt-3">
-              <span class="text-xs font-bold px-2 py-1 bg-gray-200 text-gray-700 rounded uppercase tracking-wide">${infraction.type}</span>
-              <span class="text-xs font-bold px-2 py-1 bg-green-100 text-green-800 rounded">TOTAL: ${infraction.totalAmount}€</span>
-              ${infraction.reducedAmount ? `<span class="text-xs font-bold px-2 py-1 bg-blue-50 text-blue-800 rounded">REDUCIDO: ${infraction.reducedAmount}€</span>` : ''}
-              ${infraction.puntos ? `<span class="text-xs font-bold px-2 py-1 bg-red-100 text-red-800 rounded">PTS: ${infraction.puntos}</span>` : ''}
+              <span class="text-xs font-bold px-2 py-1 bg-slate-700 text-slate-300 rounded uppercase tracking-wide border border-slate-600">${infraction.type}</span>
+              <span class="text-xs font-bold px-2 py-1 bg-green-900 text-green-300 rounded border border-green-800">TOTAL: ${infraction.totalAmount}€</span>
+              ${infraction.reducedAmount ? `<span class="text-xs font-bold px-2 py-1 bg-blue-900 text-blue-300 rounded border border-blue-800">REDUCIDO: ${infraction.reducedAmount}€</span>` : ''}
+              ${infraction.puntos ? `<span class="text-xs font-bold px-2 py-1 bg-red-900 text-red-300 rounded border border-red-800">PTS: ${infraction.puntos}</span>` : ''}
             </div>
 
             ${adminButtonsHTML}
@@ -953,9 +985,6 @@
       });
     }
 
-    // EL LISTENER PRINCIPAL YA SE ENCARGA DE INICIAR TODO
-    // document.addEventListener('DOMContentLoaded', loadInfractionsFromFirebase); <-- ELIMINADO
-    
     searchButton.addEventListener('click', searchInfractions);
     searchInput.addEventListener('keyup', (e) => {
       if (searchInput.value.length > 0) clearButton.classList.remove('hidden');
