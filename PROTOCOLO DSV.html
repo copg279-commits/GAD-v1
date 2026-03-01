@@ -73,41 +73,45 @@
 
         .hidden { display: none !important; }
 
- /* --- AJUSTE ELÁSTICO SIN CORTES LATERALES --- */
+ /* --- AJUSTE DE LÓGICA Y VISIBILIDAD (SÓLO SE MUESTRA SI NO ESTÁ OCULTO) --- */
         @media (max-width: 1023px) {
-            /* Modo un solo contenedor (Móvil y Tablet vertical) */
-            #result-modal { 
+            /* IMPORTANTE: :not(.hidden) evita que aparezca al cargar la página */
+            #result-modal:not(.hidden) { 
+                display: flex !important;
                 padding: 0 !important; 
                 top: 5rem !important; 
                 bottom: 65px !important; 
-                display: flex !important;
                 justify-content: center !important;
                 align-items: flex-start !important;
+                z-index: 9999 !important; /* Asegura que esté sobre la cabecera */
             }
             #result-modal > div { 
-                width: 98% !important; /* Pequeño margen para que no toque el borde del cristal */
+                width: 98% !important; 
                 margin: 4px auto !important;
                 background: #1e293b !important;
                 padding: 12px !important;
                 border-radius: 12px !important;
+                position: relative;
             }
             .result-card {
                 width: 100% !important;
                 border-width: 3px !important;
             }
+            /* Botón cerrar más accesible en móvil */
+            #result-modal button[onclick="closeResultModal()"] {
+                z-index: 10000 !important;
+                pointer-events: auto !important;
+            }
         }
 
         @media (min-width: 1024px) {
-            /* Modo pantalla dividida (PC y Tablet horizontal) */
             body:has(#result-modal:not(.hidden)) .container {
                 margin-left: 2% !important;
-                margin-right: 0 !important;
-                width: 30% !important; /* Ancho fijo para las preguntas */
-                max-width: 400px !important;
+                max-width: 30% !important;
                 transition: all 0.3s ease;
             }
+            /* Solo se activa la pantalla dividida si NO está oculto */
             #result-modal:not(.hidden) {
-                /* El resultado ocupa el resto del espacio disponible de forma elástica */
                 left: calc(2% + 30% + 2%) !important; 
                 right: 2% !important;
                 width: auto !important;
@@ -118,6 +122,7 @@
                 align-items: center; 
                 overflow: hidden !important;
                 pointer-events: none;
+                z-index: 950 !important;
             }
             #result-modal > div { 
                 pointer-events: auto;
@@ -129,7 +134,7 @@
             }
         }
 
-        /* Bloqueo total de scrollbars */
+        /* Bloqueo total de scrollbars residuales */
         #result-modal, #result-modal *, #modal-detalle-caso {
             scrollbar-width: none !important;
             -ms-overflow-style: none !important;
@@ -426,26 +431,26 @@
                     const tipoClass = info.tipo === 'delito' ? "border-red-500 bg-red-500/10 text-red-200" : 
                                     (info.tipo === 'infraccion' ? "border-yellow-500 bg-yellow-500/10 text-yellow-200" : "border-green-500 bg-green-500/10 text-green-200");
 
-                    // Botón Editar: Solo aparece en PC (ancho >= 768px)
+                    // Botón Editar: Solo se genera si es PC (>= 768px)
                     const btnHtml = (window.innerWidth >= 768) ? 
-                        `<button onclick="closeResultModal(); openEditModal(${JSON.stringify(info).replace(/"/g, '&quot;')})" class="w-full mt-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-lg uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-xs">
+                        `<button onclick="closeResultModal(); openEditModal(${JSON.stringify(info).replace(/"/g, '&quot;')})" class="w-full mt-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-sm">
                             <i class="fas fa-edit"></i> Editar Resultado
                         </button>` : '';
 
-                    // EL BOTÓN EDITAR QUEDA FUERA DEL DIV result-card (MARCO ROJO)
+                    // EL BOTÓN QUEDA FUERA DEL DIV DE LA CLASE "result-card" (MARCO ROJO)
                     detailDiv.innerHTML = `
-                        <div class="result-card p-3 md:p-4 rounded-xl border-2 ${tipoClass} shadow-inner flex flex-col gap-2 box-border">
+                        <div class="result-card p-4 md:p-6 rounded-xl border-2 ${tipoClass} shadow-inner flex flex-col gap-2 md:gap-4 box-border">
                             <div>
-                                <strong class="text-cyan-500 text-[9px] md:text-xs uppercase block">Hecho:</strong>
-                                <span class="block text-[13px] md:text-[15px] leading-tight">${hecho}</span>
+                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block mb-1">Hecho:</strong>
+                                <span class="block text-[14px] md:text-base leading-tight">${hecho}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[9px] md:text-xs uppercase block">Resumen:</strong>
-                                <span class="font-bold block text-[13px] md:text-[15px] leading-tight">${resumen}</span>
+                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block mb-1">Resumen:</strong>
+                                <span class="font-bold block text-[14px] md:text-base leading-tight">${resumen}</span>
                             </div>
                             <div>
-                                <strong class="text-cyan-500 text-[9px] md:text-xs uppercase block">Actuación:</strong>
-                                <div class="actuacion-text bg-slate-900/80 p-2 md:p-3 rounded border border-slate-700 mt-0.5 text-slate-300 shadow-sm text-[14px] md:text-[15px] leading-tight">
+                                <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block mb-1">Actuación:</strong>
+                                <div class="actuacion-text bg-slate-900/80 p-3 md:p-4 rounded border border-slate-700 mt-1 text-slate-300 shadow-sm text-[15px] md:text-base leading-snug">
                                     ${info.actuacion}
                                 </div>
                             </div>
@@ -453,7 +458,7 @@
                         ${btnHtml}
                     `;
 
-                    // Lógica Double Tap para móvil
+                    // Lógica Double Tap para móvil (Mantenemos la edición oculta para seguridad)
                     let lastTap = 0;
                     const card = detailDiv.querySelector('.result-card');
                     card.addEventListener('touchend', function (e) {
