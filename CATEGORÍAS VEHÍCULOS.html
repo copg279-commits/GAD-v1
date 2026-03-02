@@ -6,131 +6,137 @@
   <title>GAD - Clasificación de Vehículos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Estilos para el modo móvil (sin tabla) */
-    @media (max-width: 767px) {
+    /* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
+    #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+    #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+    #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+    /* Zoom de miniaturas sin cortes (Solo PC) */
+    td, tr { position: static !important; }
+    .results-container { overflow: visible !important; }
+    @media (hover: hover) and (pointer: fine) { 
+        .thumbnail-img:hover { 
+            transform: scale(4); 
+            z-index: 9999 !important; 
+            position: relative; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+            border-color: #06b6d4; 
+        } 
+    }
+
+    /* Estilos responsivos (Móvil) para las tarjetas de la tabla */
+    @media (max-width: 768px) {
+      .responsive-table table { display: none; }
+      
       .responsive-table .responsive-row {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        background: #1e293b;
+        border-radius: 12px;
         margin-bottom: 1rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        background-color: #fff;
+        border: 1px solid #334155;
+        overflow: hidden;
       }
+      
       .responsive-table .responsive-cell {
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
         padding: 0.75rem 1rem;
-        border-bottom: 1px solid #f3f4f6;
+        border-bottom: 1px solid #334155;
+        color: #e2e8f0;
       }
+      
       .responsive-table .responsive-cell:last-child {
         border-bottom: none;
       }
+      
       .responsive-table .responsive-cell::before {
         content: attr(data-label);
-        font-weight: 600;
-        color: #1f2937; /* Gray 800 */
-      }
-      .responsive-table th, .responsive-table thead {
-        display: none;
-      }
-      .responsive-table td {
-        display: block;
-        padding: 0;
-      }
-      .responsive-table td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        margin-right: 0.5rem;
+        font-weight: bold;
+        color: #06b6d4;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
       }
     }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
+<body class="bg-slate-900 min-h-screen flex flex-col pb-16 text-slate-200">
 
-<header class="bg-blue-600 w-full flex justify-center items-center py-2">
-    <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
-      <img
-        src="logogad.png"
-        alt="Logo GAD"
-        class="w-full h-full object-cover block"
-      >
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+    <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+    
+    <div class="text-center flex-1">
+      <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+        CLASIFICACIÓN DE<br class="md:hidden"> VEHÍCULOS
+      </h1>
+      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+        Grupo de Análisis Documental
+      </h2>
     </div>
+
+    <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
-  <h1 class="text-black text-center mt-6 text-2xl md:text-3xl font-bold px-4">
-    Clasificación de Vehículos
-  </h1>
-
-  <div class="w-11/12 max-w-md mx-auto mt-6 p-6 bg-white rounded-xl shadow-lg">
+  <div class="w-11/12 max-w-5xl mx-auto mt-6 p-6 bg-slate-800 border border-slate-700 rounded-xl shadow-lg">
 
     <div class="mb-6">
-      <label for="searchBox" class="block text-sm font-semibold text-gray-800 mb-2">
-        🔍 Buscar por tipo de vehículo:
+      <label for="searchBox" class="block text-sm font-semibold text-cyan-500 mb-2">
+        🔍 Buscar por tipo de vehículo o permiso:
       </label>
-      <input type="text" id="searchBox" placeholder="Ej: Autobús, Motocicleta, Turismo..."
-             class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300">
+      <input type="text" id="searchBox" placeholder="Ej: VMP, Autobús, Turismo, Coche, Permiso B..."
+             class="w-full p-3 bg-slate-900 border border-slate-700 text-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300 placeholder-slate-500">
     </div>
 
     <div class="mb-4">
-      <label for="categorySelect" class="block text-sm font-semibold text-gray-800 mb-2">
+      <label for="categorySelect" class="block text-sm font-semibold text-cyan-500 mb-2">
         O selecciona por categoría:
       </label>
       <select id="categorySelect"
-              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300">
+              class="w-full p-3 bg-slate-900 border border-slate-700 text-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300 appearance-none">
         <option value="" disabled selected>-- Elige una categoría --</option>
       </select>
     </div>
 
-    <div id="resultsContainer" class="mt-6">
-      </div>
+    <div id="resultsContainer" class="mt-6 results-container">
+    </div>
   </div>
-
-  <div class="mt-8 flex justify-center">
-    <button onclick="window.location.href='index.html'"
-            class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-300">
-        MENÚ PRINCIPAL
-    </button>
-  </div>
-
- <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
 
   <script>
     const vehicleData = [
-      { category: "L1e", commonName: "Ciclomotor", description: "Vehículos de dos ruedas (ciclomotores) con una velocidad máxima de 45 km/h." },
-      { category: "L2e", commonName: "Ciclomotor de 3 ruedas", description: "Vehículos de tres ruedas (ciclomotores) con una velocidad máxima de 45 km/h." },
-      { category: "L3eA1", commonName: "Motocicleta", description: "Motocicletas de dos ruedas con una potencia inferior a 11 kW y una relación potencia/peso inferior a 0.1 kW/kg." },
-      { category: "L3eA2", commonName: "Motocicleta", description: "Motocicletas de dos ruedas con una potencia inferior a 35 kW y una relación potencia/peso inferior a 0.2 kW/kg." },
-      { category: "L3eA3", commonName: "Motocicleta", description: "Motocicletas de dos ruedas con una potencia superior a 35 kW." },
-      { category: "L4eA1", commonName: "Motocicleta con sidecar", description: "Motocicletas de dos ruedas con sidecar, con una potencia inferior a 11 kW y una relación potencia/peso inferior a 0.1 kW/kg." },
-      { category: "L4eA2", commonName: "Motocicleta con sidecar", description: "Motocicletas de dos ruedas con sidecar, con una potencia inferior a 35 kW y una relación potencia/peso inferior a 0.2 kW/kg." },
-      { category: "L4eA3", commonName: "Motocicleta con sidecar", description: "Motocicletas de dos ruedas con sidecar, con una potencia superior a 35 kW." },
-      { category: "L5e", commonName: "Triciclo de motor", description: "Triciclos de motor (velocidad superior a 45 km/h)." },
-      { category: "L6e", commonName: "Cuadriciclo ligero", description: "Cuadriciclos ligeros, masa en vacío inferior a 350 kg, velocidad máx. 45 km/h." },
-      { category: "L7e", commonName: "Cuadriciclo pesado", description: "Cuadriciclos pesados, masa en vacío inferior a 450 kg (pasajeros) o 600 kg (carga)." },
+      { category: "VMP", commonName: "Vehículo de Movilidad Personal (VMP)", description: "Vehículo de una o más ruedas dotado de una única plaza y propulsado exclusivamente por motores eléctricos (vel. máx entre 6 y 25 km/h). Ej: Patinetes eléctricos.", license: "No necesita permiso" },
 
-      { category: "M1", commonName: "Turismo", description: "Vehículos diseñados y fabricados para el transporte de pasajeros, que no tengan más de 8 asientos además del asiento del conductor." },
-      { category: "M2", commonName: "Autobús", description: "Vehículos para transporte de pasajeros, con más de 8 asientos y una masa máxima no superior a 5 toneladas." },
-      { category: "M3", commonName: "Autobús", description: "Vehículos para transporte de pasajeros, con más de 8 asientos y una masa máxima superior a 5 toneladas." },
+      { category: "L1e", commonName: "Ciclomotor", description: "Vehículos de dos ruedas (ciclomotores) con una velocidad máxima de 45 km/h.", license: "Permiso AM" },
+      { category: "L2e", commonName: "Ciclomotor de 3 ruedas", description: "Vehículos de tres ruedas (ciclomotores) con una velocidad máxima de 45 km/h.", license: "Permiso AM" },
+      { category: "L3e-A1", commonName: "Motocicleta", description: "Motocicletas de dos ruedas con una potencia inferior a 11 kW y una relación potencia/peso inferior a 0.1 kW/kg.", license: "Permiso A1 (o B con +3 años)" },
+      { category: "L3e-A2", commonName: "Motocicleta", description: "Motocicletas de dos ruedas con una potencia inferior a 35 kW y una relación potencia/peso inferior a 0.2 kW/kg.", license: "Permiso A2" },
+      { category: "L3e-A3", commonName: "Motocicleta", description: "Motocicletas de dos ruedas con una potencia superior a 35 kW.", license: "Permiso A" },
+      { category: "L4e-A1", commonName: "Motocicleta con sidecar", description: "Motocicletas de dos ruedas con sidecar, con una potencia inferior a 11 kW.", license: "Permiso A1 (o B con +3 años)" },
+      { category: "L4e-A2", commonName: "Motocicleta con sidecar", description: "Motocicletas de dos ruedas con sidecar, con una potencia inferior a 35 kW.", license: "Permiso A2" },
+      { category: "L4e-A3", commonName: "Motocicleta con sidecar", description: "Motocicletas de dos ruedas con sidecar, con una potencia superior a 35 kW.", license: "Permiso A" },
+      { category: "L5e", commonName: "Triciclo de motor", description: "Triciclos de motor (velocidad superior a 45 km/h).", license: "Permiso B (o A1/A según características)" },
+      { category: "L6e", commonName: "Cuadriciclo ligero", description: "Cuadriciclos ligeros, masa en vacío inferior a 425 kg, velocidad máx. 45 km/h.", license: "Permiso AM" },
+      { category: "L7e", commonName: "Cuadriciclo pesado", description: "Cuadriciclos pesados, masa en vacío inferior a 450 kg (pasajeros) o 600 kg (carga).", license: "Permiso B" },
 
-      { category: "N1", commonName: "Furgoneta o Camioneta", description: "Vehículos para transporte de mercancías con una masa máxima no superior a 3.5 toneladas." },
-      { category: "N2", commonName: "Camión", description: "Vehículos para transporte de mercancías con una masa máxima superior a 3.5 toneladas pero no superior a 12 toneladas." },
-      { category: "N3", commonName: "Camión", description: "Vehículos para transporte de mercancías con una masa máxima superior a 12 toneladas." },
+      { category: "M1", commonName: "Turismo / Coche", description: "Vehículos diseñados y fabricados para el transporte de pasajeros, que no tengan más de 8 asientos además del asiento del conductor.", license: "Permiso B" },
+      { category: "M2", commonName: "Autobús", description: "Vehículos para transporte de pasajeros, con más de 8 asientos y una masa máxima no superior a 5 toneladas.", license: "Permiso D1" },
+      { category: "M3", commonName: "Autobús", description: "Vehículos para transporte de pasajeros, con más de 8 asientos y una masa máxima superior a 5 toneladas.", license: "Permiso D" },
 
-      { category: "O1", commonName: "Remolque ligero", description: "Remolques con una masa máxima no superior a 0.75 toneladas." },
-      { category: "O2", commonName: "Remolque medio", description: "Remolques con una masa máxima superior a 0.75 toneladas pero no superior a 3.5 toneladas." },
-      { category: "O3", commonName: "Remolque pesado", description: "Remolques con una masa máxima superior a 3.5 toneladas pero no superior a 10 toneladas." },
-      { category: "O4", commonName: "Remolque muy pesado", description: "Remolques con una masa máxima superior a 10 toneladas." },
+      { category: "N1", commonName: "Furgoneta o Camioneta", description: "Vehículos para transporte de mercancías con una masa máxima no superior a 3.5 toneladas.", license: "Permiso B" },
+      { category: "N2", commonName: "Camión", description: "Vehículos para transporte de mercancías con una masa máxima superior a 3.5 toneladas pero no superior a 12 toneladas.", license: "Permiso C1" },
+      { category: "N3", commonName: "Camión", description: "Vehículos para transporte de mercancías con una masa máxima superior a 12 toneladas.", license: "Permiso C" },
 
-      { category: "T", commonName: "Tractor", description: "Tractores de ruedas (agrícolas y forestales)." },
-      { category: "R1", commonName: "Remolque agrícola", description: "Remolques agrícolas de masa máxima técnica inferior a 1,5 toneladas." },
-      { category: "R2", commonName: "Remolque agrícola", description: "Remolques agrícolas de masa máxima técnica superior a 1,5 toneladas e inferior a 3,5 toneladas." },
-      { category: "R3", commonName: "Remolque agrícola", description: "Remolques agrícolas de masa máxima técnica superior a 3,5 toneladas e inferior a 21 toneladas." },
-      { category: "R4", commonName: "Remolque agrícola", description: "Remolques agrícolas de masa máxima técnica superior a 21 toneladas." }
+      { category: "O1", commonName: "Remolque ligero", description: "Remolques con una masa máxima no superior a 0.75 toneladas.", license: "Permiso del vehículo tractor (ej. B)" },
+      { category: "O2", commonName: "Remolque medio", description: "Remolques con una masa máxima superior a 0.75 toneladas pero no superior a 3.5 toneladas.", license: "B+E, C1+E, C+E (según tractor y pesos)" },
+      { category: "O3", commonName: "Remolque pesado", description: "Remolques con una masa máxima superior a 3.5 toneladas pero no superior a 10 toneladas.", license: "C1+E, C+E, D1+E, D+E (según tractor)" },
+      { category: "O4", commonName: "Remolque muy pesado", description: "Remolques con una masa máxima superior a 10 toneladas.", license: "C+E o D+E (según vehículo tractor)" },
+
+      { category: "T", commonName: "Tractor", description: "Tractores de ruedas (agrícolas y forestales).", license: "Licencia LVA o Permiso B / C" },
+      { category: "R1", commonName: "Remolque agrícola", description: "Remolques agrícolas de masa máxima técnica inferior a 1,5 toneladas.", license: "Asociado al permiso del tractor" },
+      { category: "R2", commonName: "Remolque agrícola", description: "Remolques agrícolas de masa máxima técnica superior a 1,5 toneladas e inferior a 3,5 toneladas.", license: "Asociado al permiso del tractor" },
+      { category: "R3", commonName: "Remolque agrícola", description: "Remolques agrícolas de masa máxima técnica superior a 3,5 toneladas e inferior a 21 toneladas.", license: "Asociado al permiso del tractor" },
+      { category: "R4", commonName: "Remolque agrícola", description: "Remolques agrícolas de masa máxima técnica superior a 21 toneladas.", license: "Asociado al permiso del tractor" }
     ];
 
     const categorySelect = document.getElementById('categorySelect');
@@ -148,56 +154,65 @@
 
     function createTable(data) {
       if (data.length === 0) {
-        resultsContainer.innerHTML = '<p class="text-gray-600 text-center">No se encontraron resultados.</p>';
+        resultsContainer.innerHTML = '<p class="text-slate-400 text-center font-medium py-4">No se encontraron resultados.</p>';
         return;
       }
       
       let tableHtml = `
         <div class="responsive-table">
-          <table class="w-full text-sm text-left text-gray-700 hidden md:table">
-            <thead class="bg-blue-600 text-white uppercase tracking-wider">
+          <table class="w-full text-sm text-left text-slate-200 hidden md:table border-collapse">
+            <thead class="bg-slate-900 text-cyan-500 uppercase tracking-wider border-b border-slate-700">
               <tr>
-                <th scope="col" class="px-6 py-3 font-semibold">Categoría</th>
-                <th scope="col" class="px-6 py-3 font-semibold">Nombre Común</th>
-                <th scope="col" class="px-6 py-3 font-semibold">Descripción Completa</th>
+                <th scope="col" class="px-6 py-4 font-bold">Categoría</th>
+                <th scope="col" class="px-6 py-4 font-bold">Nombre Común</th>
+                <th scope="col" class="px-6 py-4 font-bold">Descripción Completa</th>
+                <th scope="col" class="px-6 py-4 font-bold">Permiso Necesario</th>
               </tr>
             </thead>
             <tbody>
       `;
-      data.forEach((item, index) => {
-        const rowColor = index % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+      data.forEach((item) => {
+        // Resaltar en verde oscuro si "No necesita permiso" para mejor visibilidad visual
+        const licenseColor = item.license === "No necesita permiso" ? "text-emerald-400 font-bold" : "text-slate-300";
+        
         tableHtml += `
-          <tr class="${rowColor} border-b border-gray-200 hover:bg-gray-100 transition duration-150">
-            <th scope="row" class="px-6 py-4 font-medium text-gray-900">${item.category}</th>
-            <td class="px-6 py-4">${item.commonName}</td>
-            <td class="px-6 py-4">${item.description}</td>
+          <tr class="border-b border-slate-700 hover:bg-slate-700 transition duration-150">
+            <th scope="row" class="px-6 py-4 font-bold text-cyan-500 whitespace-nowrap">${item.category}</th>
+            <td class="px-6 py-4 font-semibold text-white">${item.commonName}</td>
+            <td class="px-6 py-4 text-slate-300">${item.description}</td>
+            <td class="px-6 py-4 ${licenseColor}">${item.license}</td>
           </tr>
         `;
       });
-      tableHtml += `</tbody></table></div>`;
+      tableHtml += `</tbody></table>`;
 
-      // Mobile view
+      // Mobile view (Responsive Rows)
       tableHtml += `<div class="md:hidden">`;
       data.forEach((item) => {
+        const licenseColor = item.license === "No necesita permiso" ? "text-emerald-400 font-bold" : "text-slate-300 font-semibold";
         tableHtml += `
           <div class="responsive-row">
             <div class="responsive-cell" data-label="Categoría">
-              <span class="font-bold text-gray-900">${item.category}</span>
+              <span class="font-bold text-cyan-500 text-lg">${item.category}</span>
             </div>
             <div class="responsive-cell" data-label="Nombre Común">
-              <span>${item.commonName}</span>
+              <span class="font-semibold text-white text-base">${item.commonName}</span>
             </div>
             <div class="responsive-cell" data-label="Descripción Completa">
-              <span>${item.description}</span>
+              <span class="text-slate-300 text-sm">${item.description}</span>
+            </div>
+            <div class="responsive-cell" data-label="Permiso Necesario">
+              <span class="${licenseColor} text-sm">${item.license}</span>
             </div>
           </div>
         `;
       });
-      tableHtml += `</div>`;
+      tableHtml += `</div></div>`;
 
       resultsContainer.innerHTML = tableHtml;
     }
     
+    // Función que normaliza el texto (pasa a minúsculas y quita acentos)
     function normalizeText(text) {
         return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     }
@@ -217,7 +232,8 @@
         const filteredData = vehicleData.filter(item => 
           normalizeText(item.commonName).includes(searchTerm) || 
           normalizeText(item.description).includes(searchTerm) ||
-          normalizeText(item.category).includes(searchTerm)
+          normalizeText(item.category).includes(searchTerm) ||
+          normalizeText(item.license).includes(searchTerm)
         );
         createTable(filteredData);
       } else {
