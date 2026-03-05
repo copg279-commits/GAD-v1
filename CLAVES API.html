@@ -6,108 +6,213 @@
     <title>Gestor de Claves API - Ajustesia (Nube)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Estilos base */
-        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: #f8fafc; }
-        
-        .header-pro {
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-            color: white;
-            box-shadow: 0 4px 15px -3px rgba(37, 99, 235, 0.3);
-            position: relative;
-            overflow: hidden; 
+        /* Estilos base Dark Mode */
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background-color: #0f172a; 
+            color: #e2e8f0;
         }
 
-        /* Tabla estilizada */
-        .api-table th { background-color: #f1f5f9; color: #475569; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 12px 16px; font-weight: 700; }
-        .api-table td { padding: 16px; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+        /* Tabla estilizada Dark Mode */
+        .api-table th { 
+            background-color: #0f172a; 
+            color: #06b6d4; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            padding: 12px 16px; 
+            font-weight: 700; 
+            border-bottom: 1px solid #334155;
+        }
+        .api-table td { 
+            padding: 16px; 
+            border-bottom: 1px solid #334155; 
+            font-size: 0.9rem; 
+        }
         .api-table tr:last-child td { border-bottom: none; }
-        .api-table tr:hover { background-color: #f8fafc; }
+        .api-table tr:hover { background-color: #1e293b; }
 
-        /* Inputs editables */
-        .editable-input { width: 100%; background: transparent; border: 1px solid transparent; padding: 4px; border-radius: 4px; transition: all 0.2s; outline: none; }
-        .editable-input:hover, .editable-input:focus { background: white; border-color: #cbd5e1; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        /* Inputs editables Dark Mode */
+        .editable-input { 
+            width: 100%; 
+            background: transparent; 
+            border: 1px solid transparent; 
+            padding: 6px; 
+            border-radius: 4px; 
+            transition: all 0.2s; 
+            outline: none; 
+            color: #e2e8f0;
+        }
+        .editable-input:hover, .editable-input:focus { 
+            background: #0f172a; 
+            border-color: #06b6d4; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2); 
+        }
         
-        /* Botones */
-        .btn-copy { background-color: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-        .btn-copy:hover { background-color: #2563eb; color: white; }
+        /* Botones Dark Mode */
+        .btn-copy { 
+            background-color: #1e293b; 
+            color: #06b6d4; 
+            border: 1px solid #06b6d4; 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            font-size: 0.75rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        .btn-copy:hover { background-color: #06b6d4; color: #0f172a; }
         .btn-copy:active { transform: scale(0.95); }
 
-        .btn-delete { color: #ef4444; background: transparent; border: none; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: background 0.2s; }
-        .btn-delete:hover { background-color: #fee2e2; }
+        .btn-delete { 
+            color: #ef4444; 
+            background: transparent; 
+            border: none; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            transition: background 0.2s; 
+        }
+        .btn-delete:hover { background-color: rgba(239, 68, 68, 0.2); }
 
         /* Toast */
         #toast-notification {
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
             transform: translateY(100px); opacity: 0;
+            background-color: #1e293b;
+            border-color: #06b6d4;
         }
         #toast-notification.show { transform: translateY(0); opacity: 1; }
         
         /* Loading */
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        .loader { border: 3px solid #334155; border-top: 3px solid #06b6d4; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Pantalla de Carga de Seguridad */
+        /* Pantalla de Carga de Seguridad Dark Mode */
         #auth-loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #f8fafc; z-index: 9999;
+            background: #0f172a; z-index: 9999;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            color: #1e3a8a; font-weight: bold; font-size: 1.2rem;
+            color: #06b6d4; font-weight: bold; font-size: 1.2rem;
+        }
+
+        /* -------------------------------------------------------------
+           REGLAS OBLIGATORIAS: Textos de Ayuda, Firebase y Miniaturas
+           ------------------------------------------------------------- */
+        /* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
+        #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+        #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+        #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+        /* Zoom de miniaturas sin cortes (Solo PC) */
+        td, tr { position: static !important; }
+        .results-container { overflow: visible !important; }
+        @media (hover: hover) and (pointer: fine) { 
+            .thumbnail-img:hover { 
+                transform: scale(4); 
+                z-index: 9999 !important; 
+                position: relative; 
+                box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+                border-color: #06b6d4; 
+            } 
+        }
+
+        /* -------------------------------------------------------------
+           REGLAS OBLIGATORIAS: Responsive (Móvil) para Tablas
+           ------------------------------------------------------------- */
+        @media (max-width: 768px) {
+            .api-table thead {
+                display: none;
+            }
+            .api-table tbody tr {
+                display: flex;
+                flex-direction: column;
+                background: #1e293b !important;
+                border-radius: 12px;
+                margin-bottom: 1rem;
+                border: 1px solid #334155;
+                padding: 10px;
+            }
+            .api-table td {
+                display: flex;
+                flex-direction: column;
+                border-bottom: 1px solid #334155;
+                padding: 10px 5px;
+                width: 100% !important;
+            }
+            .api-table td:last-child {
+                border-bottom: none;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 15px;
+            }
+            .api-table td img.thumbnail-img {
+                width: 100%;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
-<body class="flex flex-col min-h-screen pb-6">
+<body class="flex flex-col min-h-screen pb-6 bg-slate-900 text-slate-200">
 
     <div id="auth-loading-screen">
         <span style="font-size: 3rem; margin-bottom: 1rem;">🔐</span>
         <span>Conectando con Base de Datos V4...</span>
     </div>
 
-    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 bg-gray-900 text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4 border-l-4 border-green-500 max-w-sm">
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 bg-slate-800 text-slate-200 px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4 border-l-4 border-cyan-500 max-w-sm">
         <span class="text-2xl">📋</span>
         <div>
-            <h4 class="font-bold text-sm uppercase text-green-400">Portapapeles</h4>
-            <p id="toast-message" class="text-sm font-medium text-gray-200">Clave copiada</p>
+            <h4 class="font-bold text-sm uppercase text-cyan-400">Portapapeles</h4>
+            <p id="toast-message" class="text-sm font-medium text-slate-300">Clave copiada</p>
         </div>
     </div>
 
-    <div id="main-content" style="display:none; width: 100%; flex-grow: 1; display: flex; flex-direction: column;">
+    <div id="main-content" style="display:none; width: 100%; flex-grow: 1; flex-direction: column;">
 
-        <header class="header-pro py-8 shadow-lg relative z-10">
-            <div class="container mx-auto flex flex-col items-center justify-center">
-                <div class="w-32 h-32 mb-2 flex items-center justify-center">
-                    <img src="logogad.png" onerror="this.style.opacity='0'" alt="GAD Logo" class="w-full h-full object-contain drop-shadow-lg">
-                </div>
-                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm">GESTOR DE CLAVES API</h1>
-                <p class="text-blue-100 text-sm font-bold mt-1 tracking-widest uppercase opacity-90">Sincronizado en la Nube (Firebase)</p>
+        <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+            <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+            
+            <div class="text-center flex-1">
+              <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+                GESTOR DE<br class="md:hidden"> CLAVES API
+              </h1>
+              <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+                Grupo de Análisis Documental
+              </h2>
             </div>
+
+            <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
         </header>
 
         <main class="w-full max-w-5xl mx-auto px-4 mt-8 flex-grow">
             
-            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8 shadow-sm">
-                <h3 class="text-blue-900 font-bold mb-2 flex items-center gap-2">☁️ Conexión Compartida</h3>
-                <p class="text-sm text-blue-800 mb-2">
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 mb-8 shadow-sm">
+                <h3 class="text-cyan-500 font-bold mb-2 flex items-center gap-2">☁️ Conexión Compartida</h3>
+                <p class="text-sm text-slate-300 mb-2">
                     Estas claves se guardan en la base de datos común. Cualquier cambio que hagas aquí se reflejará para el resto de los 5 usuarios.
                 </p>
-                <ul class="list-disc ml-5 text-sm text-blue-700 space-y-1">
-                    <li>Usa el botón <strong>COPIAR</strong> para llevarte la clave a la aplicación principal.</li>
+                <ul class="list-disc ml-5 text-sm text-slate-400 space-y-1">
+                    <li>Usa el botón <strong class="text-cyan-400">COPIAR</strong> para llevarte la clave a la aplicación principal.</li>
                     <li>Si una clave da error, bórrala o edítala para no confundir a los compañeros.</li>
                 </ul>
             </div>
 
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <div class="bg-slate-800 rounded-xl shadow-lg border border-slate-700 overflow-hidden results-container">
+                <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-900">
+                    <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
                         🔑 Listado de Claves
                         <span id="loading-indicator" class="loader hidden"></span>
                     </h3>
-                    <button onclick="agregarFila()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-xs flex items-center gap-2 transition">
+                    <button onclick="agregarFila()" class="bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-bold py-2 px-4 rounded-lg shadow-sm text-xs flex items-center gap-2 transition">
                         <span>➕</span> AÑADIR NUEVA
                     </button>
                 </div>
                 
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto overflow-y-visible">
                     <table class="w-full text-left api-table">
                         <thead>
                             <tr>
@@ -121,28 +226,22 @@
                     </table>
                 </div>
                 
-                <div id="empty-state" class="hidden p-12 text-center text-gray-400">
+                <div id="empty-state" class="hidden p-12 text-center text-slate-500">
                     <p>No hay claves en la nube. Pulsa "Añadir Nueva".</p>
                 </div>
             </div>
 
             <div class="mt-4 text-center">
-                <p class="text-xs text-gray-400">🔒 Acceso restringido a usuarios con este archivo.</p>
+                <p class="text-xs text-slate-500">🔒 Acceso restringido a usuarios con este archivo.</p>
             </div>
 
         </main>
 
-        <footer class="mt-auto text-center py-6 bg-gray-200">
-            <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-            <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-            <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-            <p>&copy; GAD - Todos los derechos reservados</p>
-        </footer>
-
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
     <script>
         // --- 1. CONFIGURACIÓN FIREBASE V4 ---
@@ -172,17 +271,15 @@
                 console.log("Usuario V4 conectado:", user.email);
                 
                 document.getElementById('auth-loading-screen').style.display = 'none';
-                // Ojo: main-content tenía display:flex en el style inline, lo respetamos
                 const main = document.getElementById('main-content');
                 main.style.display = 'flex';
-                main.style.flexDirection = 'column';
                 
                 // INICIAR CARGA DE DATOS AHORA
                 iniciarListener();
             } else {
                 console.warn("Usuario no autenticado");
                 document.getElementById('auth-loading-screen').innerHTML = 
-                    "<div class='text-center text-red-600'><i class='fas fa-lock fa-3x mb-3'></i><br>ACCESO DENEGADO<br>Inicia sesión en el Menú Principal</div>";
+                    "<div class='text-center text-red-500'><i class='fas fa-lock fa-3x mb-3'></i><br>ACCESO DENEGADO<br>Inicia sesión en el Menú Principal</div>";
             }
         });
 
@@ -219,15 +316,16 @@
             const tbody = document.getElementById('tabla-body');
             const tr = document.createElement('tr');
             
+            // Nota UI: Se cambian únicamente las clases text-gray-700/500 de Tailwind a sus equivalentes text-slate para Dark Mode
             tr.innerHTML = `
                 <td>
-                    <input type="text" class="editable-input font-bold text-gray-700" 
+                    <input type="text" class="editable-input font-bold text-slate-200" 
                            value="${alias}" placeholder="Nombre del proyecto..." 
                            onchange="guardarCambioFirebase('${firebaseKey}', 'alias', this.value)">
                 </td>
                 <td>
                     <div class="relative">
-                        <input type="text" class="editable-input font-mono text-gray-500 text-xs" 
+                        <input type="text" class="editable-input font-mono text-slate-400 text-xs" 
                                value="${apiKey}" placeholder="Pega aquí tu API Key..." 
                                onchange="guardarCambioFirebase('${firebaseKey}', 'api_key', this.value)">
                     </div>
@@ -298,9 +396,6 @@
                 t.classList.remove('show');
             }, 2000);
         }
-
-        // Eliminamos el listener DOMContentLoaded antiguo porque ahora usamos auth.onAuthStateChanged
-        // document.addEventListener('DOMContentLoaded', iniciarListener); 
 
     </script>
 </body>
