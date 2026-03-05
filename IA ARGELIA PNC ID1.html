@@ -6,127 +6,174 @@
   <title>Verificación Permiso Argelia PRO + IA</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* TIPOGRAFÍA Y BASE */
-    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: #f8fafc; }
+    /* TIPOGRAFÍA Y BASE DARK MODE */
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: #0f172a; color: #e2e8f0; }
     
-    /* CABECERA */
-    .header-pro {
-        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-        color: white;
-        box-shadow: 0 4px 15px -3px rgba(37, 99, 235, 0.3);
-        position: relative;
-        overflow: hidden; 
-    }
-    
-    /* PESTAÑAS (TABS) */
-    .tab-container { display: flex; border-bottom: 2px solid #e2e8f0; background: #fff; }
+    /* PESTAÑAS (TABS) DARK MODE */
+    .tab-container { display: flex; border-bottom: 2px solid #334155; background: #1e293b; }
     .tab-btn {
-        flex: 1; padding: 16px; text-align: center; font-weight: 800; color: #94a3b8;
+        flex: 1; padding: 16px; text-align: center; font-weight: 800; color: #64748b;
         cursor: pointer; transition: all 0.2s; border-bottom: 4px solid transparent;
         text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem;
     }
-    .tab-btn:hover { background-color: #f1f5f9; color: #475569; }
-    .tab-btn.active-a { border-bottom-color: #2563eb; color: #2563eb; background-color: #eff6ff; }
-    .tab-btn.active-l { border-bottom-color: #7c3aed; color: #7c3aed; background-color: #f5f3ff; }
+    .tab-btn:hover { background-color: #0f172a; color: #94a3b8; }
+    .tab-btn.active-a { border-bottom-color: #06b6d4; color: #06b6d4; background-color: #0f172a; }
+    .tab-btn.active-l { border-bottom-color: #8b5cf6; color: #8b5cf6; background-color: #0f172a; }
 
-    /* TABLA */
+    /* TABLA SCROLL DARK MODE */
     .table-container-scroll { max-height: 60vh; overflow-y: auto; }
     .table-container-scroll::-webkit-scrollbar { width: 6px; }
-    .table-container-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
-    .table-container-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .table-container-scroll::-webkit-scrollbar-track { background: #1e293b; }
+    .table-container-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
 
-    /* TARJETA REFERENCIA */
+    /* TARJETA REFERENCIA DARK MODE */
     .reference-card {
-        background: white; border-radius: 1rem; overflow: hidden;
-        border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        background: #1e293b; border-radius: 1rem; overflow: hidden;
+        border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     }
 
-    /* DROP ZONE */
+    /* DROP ZONE DARK MODE */
     .drop-zone {
-        border: 3px dashed #cbd5e1; border-radius: 1rem; transition: all 0.3s ease; 
-        background-color: #ffffff; height: 100%; display: flex; flex-direction: column;
+        border: 3px dashed #475569; border-radius: 1rem; transition: all 0.3s ease; 
+        background-color: #1e293b; height: 100%; display: flex; flex-direction: column;
         justify-content: center; align-items: center;
     }
     .drop-zone.drag-active {
-        background-color: #eff6ff; border-color: #2563eb; transform: scale(1.02);
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        background-color: #0f172a; border-color: #06b6d4; transform: scale(1.02);
+        box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
     }
 
-    /* LOADING SPINNER */
+    /* LOADING SPINNER DARK MODE */
     .loading-overlay {
-        position: fixed; inset: 0; background: rgba(255,255,255,0.98); 
+        position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); 
         z-index: 100; display: flex; flex-direction: column; 
         align-items: center; justify-content: center;
     }
     .spinner {
-        width: 60px; height: 60px; border: 6px solid #e5e7eb; 
-        border-top: 6px solid #2563eb; border-radius: 50%; 
+        width: 60px; height: 60px; border: 6px solid #334155; 
+        border-top: 6px solid #06b6d4; border-radius: 50%; 
         animation: spin 1s linear infinite; margin-bottom: 24px;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* TOAST */
+    /* TOAST DARK MODE */
     #toast-notification {
         transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
         transform: translateY(100px); opacity: 0;
+        background-color: #1e293b;
     }
     #toast-notification.show { transform: translateY(0); opacity: 1; }
     .fade-in { animation: fadeIn 0.5s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* MODAL AYUDA */
+    /* MODAL AYUDA DARK MODE */
     .help-modal {
-        position: fixed; inset: 0; background: rgba(0,0,0,0.5); 
+        position: fixed; inset: 0; background: rgba(0,0,0,0.7); 
         z-index: 60; display: none; align-items: center; justify-content: center;
         backdrop-filter: blur(4px);
     }
     .help-content {
-        background: white; width: 90%; max-width: 600px; max-height: 85vh; 
+        background: #1e293b; width: 90%; max-width: 600px; max-height: 85vh; 
         overflow-y: auto; border-radius: 1rem; padding: 2rem; 
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        position: relative;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        position: relative; border: 1px solid #334155;
     }
     
-    /* AUTH STATUS */
+    /* AUTH STATUS DARK MODE */
     #auth-status-bar {
-        text-align: center; padding: 5px; font-size: 0.8rem; font-weight: bold; color: #64748b;
+        text-align: center; padding: 5px; font-size: 0.8rem; font-weight: bold; color: #94a3b8;
+    }
+
+    /* -------------------------------------------------------------
+       REGLAS OBLIGATORIAS: Textos de Ayuda, Firebase y Miniaturas
+       ------------------------------------------------------------- */
+    #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+    #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+    #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+    td, tr { position: static !important; }
+    .results-container { overflow: visible !important; }
+    @media (hover: hover) and (pointer: fine) { 
+        .thumbnail-img:hover { 
+            transform: scale(4); 
+            z-index: 9999 !important; 
+            position: relative; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+            border-color: #06b6d4; 
+        } 
+    }
+
+    /* -------------------------------------------------------------
+       REGLAS OBLIGATORIAS: Responsive (Móvil) para Tablas
+       ------------------------------------------------------------- */
+    @media (max-width: 768px) {
+        .api-table thead, .w-full.text-sm.text-left.text-gray-600 thead {
+            display: none;
+        }
+        .api-table tbody tr, .w-full.text-sm.text-left.text-gray-600 tbody tr {
+            display: flex;
+            flex-direction: column;
+            background: #1e293b !important;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid #334155;
+            padding: 10px;
+        }
+        .api-table td, .w-full.text-sm.text-left.text-gray-600 td {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #334155;
+            padding: 10px 5px;
+            width: 100% !important;
+        }
+        .api-table td:last-child, .w-full.text-sm.text-left.text-gray-600 td:last-child {
+            border-bottom: none;
+            flex-direction: row;
+            justify-content: flex-end; /* Ajustado para botones a la derecha */
+            align-items: center;
+            padding-top: 15px;
+        }
+        .api-table td img.thumbnail-img {
+            width: 100%;
+            margin-bottom: 10px;
+        }
     }
   </style>
 </head>
-<body class="flex flex-col min-h-screen pb-6">
+<body class="flex flex-col min-h-screen pb-6 bg-slate-900 text-slate-200">
 
-  <div id="toast-notification" class="fixed bottom-6 right-6 z-50 bg-gray-900 text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4 border-l-4 border-green-500 max-w-sm">
+  <div id="toast-notification" class="fixed bottom-6 right-6 z-50 text-slate-200 px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4 border-l-4 border-cyan-500 max-w-sm">
       <span id="toast-icon" class="text-2xl">✅</span>
       <div>
-          <h4 class="font-bold text-sm uppercase text-green-400">Notificación</h4>
-          <p id="toast-message" class="text-sm font-medium text-gray-200">Operación realizada</p>
+          <h4 class="font-bold text-sm uppercase text-cyan-400">Notificación</h4>
+          <p id="toast-message" class="text-sm font-medium text-slate-300">Operación realizada</p>
       </div>
   </div>
 
   <div id="loadingOverlay" class="loading-overlay hidden">
       <div class="spinner"></div>
-      <h3 class="text-blue-800 font-extrabold text-2xl tracking-wide animate-pulse">PROCESANDO...</h3>
-      <p class="text-gray-500 text-sm mt-2 font-semibold">Analizando documento y consultando bases de datos</p>
+      <h3 class="text-cyan-500 font-extrabold text-2xl tracking-wide animate-pulse">PROCESANDO...</h3>
+      <p class="text-slate-400 text-sm mt-2 font-semibold">Analizando documento y consultando bases de datos</p>
   </div>
 
   <div id="helpModal" class="help-modal">
-      <div class="help-content fade-in">
-          <button onclick="toggleHelp()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-2xl">&times;</button>
-          <h2 class="text-2xl font-extrabold text-blue-800 mb-6 border-b pb-2">Manual de Usuario y Ayuda</h2>
+      <div class="help-content fade-in" id="helpContent">
+          <button onclick="toggleHelp()" class="absolute top-4 right-4 text-slate-400 hover:text-cyan-400 font-bold text-2xl transition">&times;</button>
+          <h2 class="text-2xl font-extrabold text-cyan-500 mb-6 border-b border-slate-700 pb-2">Manual de Usuario y Ayuda</h2>
           
-          <div class="space-y-4 text-gray-700 text-sm leading-relaxed">
+          <div class="space-y-4 text-slate-300 text-sm leading-relaxed">
               
-              <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 shadow-sm">
-                  <h3 class="font-bold text-yellow-800 mb-2 text-base flex items-center gap-2">⚙️ Configuración API Gemini</h3>
+              <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-sm">
+                  <h3 class="font-bold text-cyan-400 mb-2 text-base flex items-center gap-2">⚙️ Configuración API Gemini</h3>
                   <p class="mb-2">Para el correcto funcionamiento del análisis de imagen:</p>
                   <ul class="list-disc ml-5 space-y-2">
-                      <li><strong>Modelo obligatorio:</strong> Debes usar siempre <code>gemini-2.5-flash</code>. Es el único probado y funcional para esta tarea.</li>
+                      <li><strong>Modelo obligatorio:</strong> Debes usar siempre <code class="bg-slate-900 px-1 rounded text-cyan-300">gemini-2.5-flash</code>. Es el único probado y funcional para esta tarea.</li>
                       <li><strong>Si falla la API:</strong> Si cambias de navegador o la IA deja de responder (error de cuota o clave inválida), pulsa el botón <strong>OBTENER CLAVE API</strong> en los ajustes para ir a tu listado privado, copia una nueva y pégala en el campo correspondiente.</li>
                   </ul>
               </div>
 
-              <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                  <h3 class="font-bold text-blue-900 mb-2 text-base">🔢 Introducción Manual</h3>
+              <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                  <h3 class="font-bold text-cyan-400 mb-2 text-base">🔢 Introducción Manual</h3>
                   <p>Puedes escribir el número de serie en el buscador principal:</p>
                   <ul class="list-disc ml-5 mt-2 space-y-1">
                       <li>El sistema te dirá si el número es <strong>coherente</strong> basándose en registros anteriores y posteriores.</li>
@@ -135,8 +182,8 @@
                   </ul>
               </div>
 
-              <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
-                  <h3 class="font-bold text-purple-900 mb-2 text-base">📂 Organización Automática</h3>
+              <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                  <h3 class="font-bold text-cyan-400 mb-2 text-base">📂 Organización Automática</h3>
                   <p>Los registros se guardan automáticamente en su listado correspondiente:</p>
                   <ul class="list-disc ml-5 mt-2 space-y-1">
                       <li><strong>Serie A:</strong> Documentos estándar.</li>
@@ -144,97 +191,102 @@
                   </ul>
               </div>
 
-              <div class="bg-green-50 p-4 rounded-lg border border-green-100">
-                  <h3 class="font-bold text-green-900 mb-2 text-base">🤖 Arrastrar y Soltar (IA)</h3>
+              <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                  <h3 class="font-bold text-cyan-400 mb-2 text-base">🤖 Arrastrar y Soltar (IA)</h3>
                   <p>Puedes arrastrar una imagen del permiso directamente al recuadro:</p>
                   <ul class="list-disc ml-5 mt-2 space-y-1">
                       <li>El sistema extraerá automáticamente: <strong>Número de Serie</strong>, <strong>Vilaya (traducida)</strong> y <strong>Fecha de Expedición</strong>.</li>
-                      <li><strong>Advertencia:</strong> La API es gratuita. No arrastres muchos documentos de golpe (hazlo uno a uno) o el sistema podría saturarse y dejar de funcionar temporalmente.</li>
+                      <li><strong class="text-orange-400">Advertencia:</strong> La API es gratuita. No arrastres muchos documentos de golpe (hazlo uno a uno) o el sistema podría saturarse y dejar de funcionar temporalmente.</li>
                   </ul>
               </div>
           </div>
           
-          <button onclick="toggleHelp()" class="mt-6 w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-black transition">ENTENDIDO</button>
+          <button onclick="toggleHelp()" class="mt-6 w-full bg-cyan-600 text-slate-900 font-bold py-3 rounded-lg hover:bg-cyan-500 transition">ENTENDIDO</button>
       </div>
   </div>
 
   <div class="absolute top-4 right-4 z-50 flex flex-col gap-2 items-end">
-      <button onclick="toggleSettings()" class="bg-white/10 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-white/20 transition flex items-center gap-2">
+      <button onclick="toggleSettings()" class="bg-slate-800/80 backdrop-blur-md border border-slate-600 text-cyan-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-slate-700 transition flex items-center gap-2">
           ⚙️ AJUSTES IA
       </button>
       
-      <button onclick="toggleHelp()" class="bg-yellow-400/90 text-yellow-900 border border-yellow-500/30 px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-yellow-400 transition flex items-center gap-2">
+      <button onclick="toggleHelp()" class="bg-slate-800/80 text-cyan-400 border border-slate-600 px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-slate-700 transition flex items-center gap-2">
           ❓ AYUDA
       </button>
   </div>
 
-  <div id="settingsPanel" class="hidden absolute top-28 right-4 w-80 bg-white border border-gray-200 shadow-2xl rounded-xl p-6 z-50 fade-in">
-      <h4 class="font-bold text-gray-800 mb-4 border-b pb-2">Configuración Gemini API</h4>
+  <div id="settingsPanel" class="hidden absolute top-28 right-4 w-80 bg-slate-800 border border-slate-700 shadow-2xl rounded-xl p-6 z-50 fade-in">
+      <h4 class="font-bold text-cyan-400 mb-4 border-b border-slate-700 pb-2">Configuración Gemini API</h4>
       
-      <label class="block text-xs font-bold text-gray-500 mb-1">API KEY</label>
+      <label class="block text-xs font-bold text-slate-400 mb-1">API KEY</label>
       <div class="relative mb-4">
-          <input type="password" id="apiKeyInput" class="w-full bg-gray-50 border border-gray-300 rounded p-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none pr-10">
-          <button onclick="toggleVisibility()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none" title="Mostrar/Ocultar Clave">
+          <input type="password" id="apiKeyInput" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-slate-200 focus:ring-1 focus:ring-cyan-500 outline-none pr-10">
+          <button onclick="toggleVisibility()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-cyan-400 focus:outline-none" title="Mostrar/Ocultar Clave">
               <span id="eyeIcon">👁️</span>
           </button>
       </div>
 
-      <label class="block text-xs font-bold text-gray-500 mb-1">MODELO</label>
-      <input type="text" id="modelInput" class="w-full bg-gray-50 border border-gray-300 rounded p-2 text-xs mb-4" placeholder="gemini-2.5-flash">
+      <label class="block text-xs font-bold text-slate-400 mb-1">MODELO</label>
+      <input type="text" id="modelInput" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-xs text-slate-200 mb-4" placeholder="gemini-2.5-flash">
       
-      <button onclick="saveSettings()" class="w-full bg-blue-600 text-white font-bold text-xs py-3 rounded-lg hover:bg-blue-700 transition mb-4">GUARDAR Y CERRAR</button>
+      <button onclick="saveSettings()" class="w-full bg-cyan-600 text-slate-900 font-bold text-xs py-3 rounded-lg hover:bg-cyan-500 transition mb-4">GUARDAR Y CERRAR</button>
       
-      <hr class="border-gray-200 mb-4">
+      <hr class="border-slate-700 mb-4">
       
-      <a href="CLAVES API.html" target="_blank" class="block w-full bg-gray-800 text-white text-center font-bold text-xs py-3 rounded-lg hover:bg-black transition flex items-center justify-center gap-2 no-underline">
+      <a href="CLAVES API.html" target="_blank" class="block w-full bg-slate-900 text-cyan-400 text-center font-bold text-xs py-3 rounded-lg hover:bg-slate-700 border border-slate-700 transition flex items-center justify-center gap-2 no-underline">
         🔑 OBTENER CLAVE API
       </a>
-      <p class="text-[10px] text-gray-400 mt-2 text-center">Abre el listado privado de claves.</p>
+      <p class="text-[10px] text-slate-500 mt-2 text-center">Abre el listado privado de claves.</p>
   </div>
 
-  <header class="header-pro py-8 shadow-lg relative z-10">
-    <div class="container mx-auto flex flex-col items-center justify-center">
-        <div class="w-32 h-32 mb-2 flex items-center justify-center transition-transform hover:scale-105">
-            <img src="logogad.png" onerror="this.style.opacity='0'" alt="GAD Logo" class="w-full h-full object-contain drop-shadow-lg" style="background: transparent;">
-        </div>
-        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm">VERIFICACIÓN PERMISO ARGELIA</h1>
-        <p class="text-blue-100 text-sm font-bold mt-1 tracking-widest uppercase opacity-90">Sistema Integral Anti-Fraude (Series A y L) - V4</p>
-    </div>
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+      <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+      
+      <div class="text-center flex-1">
+        <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+          VERIFICACIÓN<br class="md:hidden"> PERMISO ARGELIA
+        </h1>
+        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+          Grupo de Análisis Documental
+        </h2>
+      </div>
+
+      <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
-  <div id="auth-status-bar">Conectando con base de datos V4...</div>
+  <div id="auth-status-bar" class="bg-slate-900 border-b border-slate-800">Conectando con base de datos V4...</div>
 
   <main class="w-full max-w-6xl mx-auto px-4 mt-8 flex-grow">
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10 items-stretch">
         
-        <div class="reference-card p-2 bg-white flex flex-col items-center justify-center relative group">
-            <div class="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm z-10">
+        <div class="reference-card p-2 flex flex-col items-center justify-center relative group">
+            <div class="absolute top-4 left-4 bg-cyan-600 text-slate-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm z-10">
                 GUÍA DE REFERENCIA
             </div>
-            <div class="w-full h-full overflow-hidden rounded-lg flex items-center justify-center bg-gray-50">
-                <img src="logoargelia2.jpg" alt="Ejemplo Permiso Argelia" class="max-w-full max-h-[350px] object-contain">
+            <div class="w-full h-full overflow-hidden rounded-lg flex items-center justify-center bg-slate-900">
+                <img src="logoargelia2.jpg" alt="Ejemplo Permiso Argelia" class="max-w-full max-h-[350px] object-contain opacity-90 mix-blend-screen">
             </div>
-            <p class="text-xs text-gray-400 mt-2 font-medium text-center pb-2">Verifica la ubicación del Número de Soporte y Wilaya</p>
+            <p class="text-xs text-slate-400 mt-2 font-medium text-center pb-2">Verifica la ubicación del Número de Soporte y Wilaya</p>
         </div>
 
-        <div id="mainDropZone" class="drop-zone p-4 md:p-8 text-center relative cursor-pointer group bg-white shadow-sm hover:shadow-md">
+        <div id="mainDropZone" class="drop-zone p-4 md:p-8 text-center relative cursor-pointer group shadow-sm hover:shadow-md">
             <div class="pointer-events-none mb-6">
-                <div class="inline-block p-4 rounded-full bg-blue-50 text-blue-500 mb-4 group-hover:scale-110 transition-transform duration-300">
+                <div class="inline-block p-4 rounded-full bg-slate-800 text-cyan-500 mb-4 group-hover:scale-110 transition-transform duration-300 border border-slate-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                 </div>
-                <h2 class="text-xl font-bold text-gray-800">Arrastra el documento aquí</h2>
-                <p class="text-gray-400 text-sm mt-1">O pega imagen (Ctrl+V) • Detecta A/L y Wilaya</p>
+                <h2 class="text-xl font-bold text-slate-200">Arrastra el documento aquí</h2>
+                <p class="text-slate-400 text-sm mt-1">O pega imagen (Ctrl+V) • Detecta A/L y Wilaya</p>
             </div>
 
-            <div class="w-full border-t border-gray-100 pt-6 pointer-events-auto">
-                <p class="text-xs text-gray-400 font-bold uppercase mb-2 tracking-wide text-left pl-1">Búsqueda Rápida</p>
-                <div class="flex shadow-sm rounded-lg ring-1 ring-gray-200 overflow-hidden w-full">
+            <div class="w-full border-t border-slate-700 pt-6 pointer-events-auto">
+                <p class="text-xs text-slate-400 font-bold uppercase mb-2 tracking-wide text-left pl-1">Búsqueda Rápida</p>
+                <div class="flex shadow-sm rounded-lg border border-slate-600 overflow-hidden w-full">
                     <input type="text" id="numero" placeholder="Ej: A12345 o L98765" 
-                           class="flex-1 min-w-0 p-3 border-none outline-none uppercase font-mono text-lg text-center bg-gray-50 focus:bg-white transition-colors">
-                    <button onclick="buscarFechaManual()" class="shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 md:px-6 transition flex items-center gap-2">
+                           class="flex-1 min-w-0 p-3 border-none outline-none uppercase font-mono text-lg text-center bg-slate-800 text-slate-200 focus:bg-slate-700 transition-colors placeholder-slate-500">
+                    <button onclick="buscarFechaManual()" class="shrink-0 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-bold px-4 md:px-6 transition flex items-center gap-2">
                         🔍 <span class="hidden sm:inline">BUSCAR</span>
                     </button>
                 </div>
@@ -244,70 +296,70 @@
 
     <div id="output" class="mb-8 text-center fade-in empty:hidden"></div>
 
-    <div id="aiResultBox" class="hidden mb-10 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden fade-in max-w-4xl mx-auto ring-1 ring-gray-100">
-        <div id="aiHeader" class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
-            <h3 class="font-bold text-lg flex items-center gap-2 text-gray-800" id="aiTitle">🤖 Análisis Inteligente</h3>
-            <span class="text-xs font-mono text-gray-500 bg-gray-200 px-2 py-1 rounded" id="aiModelBadge">AI MODE</span>
+    <div id="aiResultBox" class="hidden mb-10 bg-slate-800 rounded-xl shadow-2xl border border-slate-700 overflow-hidden fade-in max-w-4xl mx-auto">
+        <div id="aiHeader" class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-900">
+            <h3 class="font-bold text-lg flex items-center gap-2 text-slate-200" id="aiTitle">🤖 Análisis Inteligente</h3>
+            <span class="text-xs font-mono text-slate-900 bg-cyan-500 px-2 py-1 rounded" id="aiModelBadge">AI MODE</span>
         </div>
         
         <div class="p-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center">
-                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Número</span>
-                    <span id="aiNumero" class="block text-2xl font-mono font-bold text-gray-900 break-all">---</span>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center">
+                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Número</span>
+                    <span id="aiNumero" class="block text-2xl font-mono font-bold text-cyan-400 break-all">---</span>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center">
-                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Fecha</span>
-                    <span id="aiFecha" class="block text-2xl font-mono font-bold text-gray-900">--/--/--</span>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center">
+                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Fecha</span>
+                    <span id="aiFecha" class="block text-2xl font-mono font-bold text-cyan-400">--/--/--</span>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center">
-                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Wilaya</span>
-                    <span id="aiWilaya" class="block text-xl font-bold text-blue-700 uppercase">---</span>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center">
+                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Wilaya</span>
+                    <span id="aiWilaya" class="block text-xl font-bold text-cyan-400 uppercase">---</span>
                 </div>
             </div>
 
-            <div id="aiValidationMsg" class="mb-6 text-sm p-5 rounded-lg border-l-4 shadow-sm bg-white"></div>
+            <div id="aiValidationMsg" class="mb-6 text-sm p-5 rounded-lg border-l-4 shadow-sm bg-slate-900"></div>
             <div id="aiActions" class="space-y-3"></div>
-            <button onclick="cerrarPanelIA()" class="mt-6 text-xs text-gray-400 hover:text-gray-600 underline w-full text-center">Descartar resultados</button>
+            <button onclick="cerrarPanelIA()" class="mt-6 text-xs text-slate-400 hover:text-cyan-400 underline w-full text-center transition">Descartar resultados</button>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-10" id="mainDatabasePanel" style="opacity: 0.5; pointer-events: none;">
-        <div class="p-5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50 gap-4">
-            <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                🗄️ BASE DE DATOS <span id="dbCounter" class="text-xs font-bold text-white bg-blue-600 px-3 py-1 rounded-full shadow-sm">...</span>
+    <div class="bg-slate-800 rounded-xl shadow-lg border border-slate-700 overflow-hidden mb-10" id="mainDatabasePanel" style="opacity: 0.5; pointer-events: none;">
+        <div class="p-5 border-b border-slate-700 flex flex-wrap justify-between items-center bg-slate-900 gap-4">
+            <h3 class="text-xl font-bold text-slate-200 flex items-center gap-2">
+                🗄️ BASE DE DATOS <span id="dbCounter" class="text-xs font-bold text-slate-900 bg-cyan-500 px-3 py-1 rounded-full shadow-sm">...</span>
             </h3>
             <div class="flex gap-2">
-                <button onclick="prepararNuevoManual()" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-xs font-bold rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center gap-2">
+                <button onclick="prepararNuevoManual()" class="px-4 py-2 bg-slate-700 border border-slate-600 text-cyan-400 text-xs font-bold rounded-lg shadow-sm hover:bg-slate-600 transition flex items-center gap-2">
                     <span>➕</span> AÑADIR
                 </button>
-                <button onclick="toggleView('list')" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-blue-700 transition flex items-center gap-2">
+                <button onclick="toggleView('list')" class="px-4 py-2 bg-cyan-600 text-slate-900 text-xs font-bold rounded-lg shadow-sm hover:bg-cyan-500 transition flex items-center gap-2">
                     <span>📋</span> LISTADO
                 </button>
             </div>
         </div>
 
-        <div id="formularioNuevosDatos" class="hidden p-8 bg-blue-50/30">
-            <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md border border-gray-100 relative">
-                <button onclick="cancelarEdicion()" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 font-bold text-xs transition">✕ CANCELAR</button>
-                <h4 id="formTitle" class="text-gray-700 font-bold text-lg mb-6 border-b pb-3 flex items-center gap-2">
+        <div id="formularioNuevosDatos" class="hidden p-8 bg-slate-900/50">
+            <div class="max-w-2xl mx-auto bg-slate-800 p-8 rounded-xl shadow-md border border-slate-700 relative">
+                <button onclick="cancelarEdicion()" class="absolute top-6 right-6 text-slate-400 hover:text-red-400 font-bold text-xs transition">✕ CANCELAR</button>
+                <h4 id="formTitle" class="text-slate-200 font-bold text-lg mb-6 border-b border-slate-700 pb-3 flex items-center gap-2">
                     📝 Nuevo Registro
                 </h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="col-span-1 md:col-span-2">
-                        <label class="block text-xs font-bold text-gray-500 mb-1 tracking-wide">NÚMERO DE SOPORTE</label>
-                        <input type="text" id="nuevoNumero" class="w-full border border-gray-300 p-3 rounded-lg text-lg uppercase focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 font-mono transition-all">
+                        <label class="block text-xs font-bold text-slate-400 mb-1 tracking-wide">NÚMERO DE SOPORTE</label>
+                        <input type="text" id="nuevoNumero" class="w-full border border-slate-600 p-3 rounded-lg text-lg uppercase focus:ring-1 focus:ring-cyan-500 outline-none bg-slate-900 text-slate-200 font-mono transition-all">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 tracking-wide">FECHA EXPEDICIÓN</label>
-                        <input type="date" id="nuevaFecha" class="w-full border border-gray-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                        <label class="block text-xs font-bold text-slate-400 mb-1 tracking-wide">FECHA EXPEDICIÓN</label>
+                        <input type="date" id="nuevaFecha" class="w-full border border-slate-600 p-3 rounded-lg text-sm focus:ring-1 focus:ring-cyan-500 outline-none bg-slate-900 text-slate-200 transition-all [color-scheme:dark]">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 tracking-wide">WILAYA (ESPAÑOL)</label>
-                        <input type="text" id="nuevaWilaya" class="w-full border border-gray-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Ej: Orán">
+                        <label class="block text-xs font-bold text-slate-400 mb-1 tracking-wide">WILAYA (ESPAÑOL)</label>
+                        <input type="text" id="nuevaWilaya" class="w-full border border-slate-600 p-3 rounded-lg text-sm focus:ring-1 focus:ring-cyan-500 outline-none bg-slate-900 text-slate-200 transition-all placeholder-slate-600" placeholder="Ej: Orán">
                     </div>
                 </div>
-                <button id="btnGuardarForm" onclick="guardarManual()" class="w-full bg-gray-900 text-white font-bold py-4 rounded-lg hover:bg-black transition shadow-lg text-sm tracking-widest uppercase">GUARDAR REGISTRO</button>
+                <button id="btnGuardarForm" onclick="guardarManual()" class="w-full bg-cyan-600 text-slate-900 font-bold py-4 rounded-lg hover:bg-cyan-500 transition shadow-lg text-sm tracking-widest uppercase">GUARDAR REGISTRO</button>
             </div>
         </div>
 
@@ -319,35 +371,35 @@
 
             <div class="table-wrapper">
                 <div id="containerA" class="table-container-scroll">
-                    <table class="w-full text-sm text-left text-gray-600">
-                        <thead class="text-xs text-blue-700 uppercase bg-blue-50 sticky top-0 shadow-sm z-10">
+                    <table class="w-full text-sm text-left text-slate-300">
+                        <thead class="text-xs text-cyan-400 uppercase bg-slate-900 sticky top-0 shadow-sm z-10 border-b border-slate-700">
                             <tr>
-                                <th class="px-6 py-4 font-bold bg-blue-50">Número</th>
-                                <th class="px-6 py-4 font-bold bg-blue-50">Fecha Exp.</th>
-                                <th class="px-6 py-4 font-bold text-right bg-blue-50">Wilaya</th>
-                                <th class="px-6 py-4 font-bold text-right bg-blue-50">Acciones</th>
+                                <th class="px-6 py-4 font-bold">Número</th>
+                                <th class="px-6 py-4 font-bold">Fecha Exp.</th>
+                                <th class="px-6 py-4 font-bold text-right">Wilaya</th>
+                                <th class="px-6 py-4 font-bold text-right">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="listA" class="divide-y divide-gray-100 bg-white"></tbody>
+                        <tbody id="listA" class="divide-y divide-slate-700 bg-slate-800"></tbody>
                     </table>
-                    <div id="emptyA" class="hidden text-center py-16 text-gray-400">
+                    <div id="emptyA" class="hidden text-center py-16 text-slate-500">
                         <p class="text-lg">Sin registros en Serie A</p>
                     </div>
                 </div>
 
                 <div id="containerL" class="hidden table-container-scroll">
-                    <table class="w-full text-sm text-left text-gray-600">
-                        <thead class="text-xs text-purple-700 uppercase bg-purple-50 sticky top-0 shadow-sm z-10">
+                    <table class="w-full text-sm text-left text-slate-300">
+                        <thead class="text-xs text-purple-400 uppercase bg-slate-900 sticky top-0 shadow-sm z-10 border-b border-slate-700">
                             <tr>
-                                <th class="px-6 py-4 font-bold bg-purple-50">Número</th>
-                                <th class="px-6 py-4 font-bold bg-purple-50">Fecha Exp.</th>
-                                <th class="px-6 py-4 font-bold text-right bg-purple-50">Wilaya</th>
-                                <th class="px-6 py-4 font-bold text-right bg-purple-50">Acciones</th>
+                                <th class="px-6 py-4 font-bold">Número</th>
+                                <th class="px-6 py-4 font-bold">Fecha Exp.</th>
+                                <th class="px-6 py-4 font-bold text-right">Wilaya</th>
+                                <th class="px-6 py-4 font-bold text-right">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="listL" class="divide-y divide-gray-100 bg-white"></tbody>
+                        <tbody id="listL" class="divide-y divide-slate-700 bg-slate-800"></tbody>
                     </table>
-                    <div id="emptyL" class="hidden text-center py-16 text-gray-400">
+                    <div id="emptyL" class="hidden text-center py-16 text-slate-500">
                          <p class="text-lg">Sin registros en Serie L</p>
                     </div>
                 </div>
@@ -355,13 +407,6 @@
         </div>
     </div>
   </main>
-
-  <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -400,7 +445,7 @@
         if (user) {
             isUserAuthenticated = true;
             console.log("Usuario V4 Autorizado:", user.email);
-            statusBar.innerHTML = `<span class="text-green-600">✅ Conectado como: ${user.email}</span>`;
+            statusBar.innerHTML = `<span class="text-cyan-400">✅ Conectado como: ${user.email}</span>`;
             
             // Habilitar panel
             mainPanel.style.opacity = '1';
@@ -410,7 +455,7 @@
             iniciarDescargaDatos();
         } else {
             console.warn("Sin sesión en V4");
-            statusBar.innerHTML = "<span class='text-red-500'>⚠️ NO AUTORIZADO. Inicia sesión en el menú principal.</span>";
+            statusBar.innerHTML = "<span class='text-red-400'>⚠️ NO AUTORIZADO. Inicia sesión en el menú principal.</span>";
             // Deshabilitar panel
             mainPanel.style.opacity = '0.5';
             mainPanel.style.pointerEvents = 'none';
@@ -431,7 +476,7 @@
             procesarDatosGlobales();
         }, (error) => {
             console.error("Error Permisos V4:", error);
-            statusBar.innerHTML = `<span class="text-red-600 font-bold">ERROR PERMISOS: ${error.code}</span>`;
+            statusBar.innerHTML = `<span class="text-red-400 font-bold">ERROR PERMISOS: ${error.code}</span>`;
         });
 
         // Escucha Serie L (New)
@@ -456,10 +501,10 @@
         text.textContent = msg;
         
         if(type==='error') {
-            t.className = "fixed bottom-6 right-6 z-50 bg-red-900 text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4 border-l-4 border-red-500 max-w-sm show";
+            t.className = "fixed bottom-6 right-6 z-50 bg-slate-800 text-slate-200 px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4 border-l-4 border-red-500 max-w-sm show";
             icon.textContent = "⚠️";
         } else {
-            t.className = "fixed bottom-6 right-6 z-50 bg-gray-900 text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4 border-l-4 border-green-500 max-w-sm show";
+            t.className = "fixed bottom-6 right-6 z-50 bg-slate-800 text-slate-200 px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4 border-l-4 border-cyan-500 max-w-sm show";
             icon.textContent = "✅";
         }
 
@@ -508,17 +553,17 @@
 
         datos.forEach(d => {
             const tr = document.createElement('tr');
-            tr.className = "hover:bg-gray-50 transition border-b border-gray-100 group";
+            tr.className = "hover:bg-slate-700/50 transition border-b border-slate-700 group";
             
             const wSafe = d.wilaya ? d.wilaya.replace(/'/g, "\\'") : '';
             
             tr.innerHTML = `
-                <td class="px-6 py-4 font-mono font-bold text-gray-800 text-base">${d.numero}</td>
-                <td class="px-6 py-4 text-gray-600">${d.fecha}</td>
-                <td class="px-6 py-4 text-right uppercase text-xs font-bold text-gray-500">${d.wilaya || '---'}</td>
+                <td class="px-6 py-4 font-mono font-bold text-slate-200 text-base">${d.numero}</td>
+                <td class="px-6 py-4 text-slate-400">${d.fecha}</td>
+                <td class="px-6 py-4 text-right uppercase text-xs font-bold text-slate-500">${d.wilaya || '---'}</td>
                 <td class="px-6 py-4 text-right flex justify-end gap-2">
-                    <button onclick="iniciarEdicion('${d.key}', '${d.source}', '${d.numero}', '${d.fecha}', '${wSafe}')" class="text-white bg-blue-500 hover:bg-blue-600 font-bold px-2 py-1 rounded text-xs shadow-sm transition-transform hover:scale-105" title="Editar">✏️</button>
-                    <button onclick="eliminarRegistro('${d.key}', '${d.source}')" class="text-white bg-red-400 hover:bg-red-500 font-bold px-2 py-1 rounded text-xs shadow-sm transition-transform hover:scale-105" title="Eliminar">✕</button>
+                    <button onclick="iniciarEdicion('${d.key}', '${d.source}', '${d.numero}', '${d.fecha}', '${wSafe}')" class="text-slate-900 bg-cyan-500 hover:bg-cyan-400 font-bold px-2 py-1 rounded text-xs shadow-sm transition-transform hover:scale-105" title="Editar">✏️</button>
+                    <button onclick="eliminarRegistro('${d.key}', '${d.source}')" class="text-slate-200 bg-red-600 hover:bg-red-500 font-bold px-2 py-1 rounded text-xs shadow-sm transition-transform hover:scale-105" title="Eliminar">✕</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -528,9 +573,9 @@
     // --- LÓGICA DE EDICIÓN Y GUARDADO ---
     function prepararNuevoManual() {
         editState = { isEditing: false, key: null, source: null };
-        document.getElementById('formTitle').textContent = "📝 Nuevo Registro";
+        document.getElementById('formTitle').innerHTML = "📝 Nuevo Registro";
         document.getElementById('btnGuardarForm').textContent = "GUARDAR REGISTRO";
-        document.getElementById('btnGuardarForm').className = "w-full bg-gray-900 text-white font-bold py-4 rounded-lg hover:bg-black transition shadow-lg text-sm tracking-widest uppercase";
+        document.getElementById('btnGuardarForm').className = "w-full bg-cyan-600 text-slate-900 font-bold py-4 rounded-lg hover:bg-cyan-500 transition shadow-lg text-sm tracking-widest uppercase";
         document.getElementById('nuevoNumero').value = '';
         document.getElementById('nuevaFecha').value = '';
         document.getElementById('nuevaWilaya').value = '';
@@ -546,9 +591,9 @@
 
     function iniciarEdicion(key, source, num, fecha, wilaya) {
         editState = { isEditing: true, key: key, source: source };
-        document.getElementById('formTitle').textContent = "✏️ Editar / Actualizar Registro";
+        document.getElementById('formTitle').innerHTML = "✏️ Editar / Actualizar Registro";
         document.getElementById('btnGuardarForm').textContent = "ACTUALIZAR REGISTRO";
-        document.getElementById('btnGuardarForm').className = "w-full bg-blue-600 text-white font-bold py-4 rounded-lg hover:bg-blue-700 transition shadow-lg text-sm tracking-widest uppercase";
+        document.getElementById('btnGuardarForm').className = "w-full bg-cyan-600 text-slate-900 font-bold py-4 rounded-lg hover:bg-cyan-500 transition shadow-lg text-sm tracking-widest uppercase";
         
         document.getElementById('nuevoNumero').value = num;
         document.getElementById('nuevoNumero').disabled = true; 
@@ -634,7 +679,7 @@
         if (!input) return;
         
         if(!isUserAuthenticated && globalStore.length === 0) {
-            output.innerHTML = `<div class="bg-red-100 p-4 rounded text-red-600 font-bold">⚠️ Conectando... espera un momento</div>`;
+            output.innerHTML = `<div class="bg-red-900/50 p-4 rounded text-red-400 font-bold border border-red-800">⚠️ Conectando... espera un momento</div>`;
             return;
         }
 
@@ -642,12 +687,12 @@
         if (exacto) {
             const wSafe = exacto.wilaya ? exacto.wilaya.replace(/'/g, "\\'") : '';
             output.innerHTML = `
-                <div class="inline-block bg-blue-50 border border-blue-200 p-6 rounded-xl text-left shadow-sm">
-                    <h3 class="text-blue-800 font-bold text-lg mb-2">✅ DOCUMENTO REGISTRADO</h3>
-                    <p class="text-gray-700">Número: <strong>${exacto.numero}</strong></p>
-                    <p class="text-gray-700">Fecha: <strong>${exacto.fecha}</strong></p>
-                    <p class="text-blue-600 font-bold mt-1 mb-3">Wilaya: ${exacto.wilaya || '---'}</p>
-                    <button onclick="iniciarEdicion('${exacto.key}', '${exacto.source}', '${exacto.numero}', '${exacto.fecha}', '${wSafe}')" class="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 text-xs">
+                <div class="inline-block bg-slate-800 border border-cyan-700/50 p-6 rounded-xl text-left shadow-sm">
+                    <h3 class="text-cyan-400 font-bold text-lg mb-2">✅ DOCUMENTO REGISTRADO</h3>
+                    <p class="text-slate-300">Número: <strong class="text-slate-100">${exacto.numero}</strong></p>
+                    <p class="text-slate-300">Fecha: <strong class="text-slate-100">${exacto.fecha}</strong></p>
+                    <p class="text-cyan-500 font-bold mt-1 mb-3">Wilaya: ${exacto.wilaya || '---'}</p>
+                    <button onclick="iniciarEdicion('${exacto.key}', '${exacto.source}', '${exacto.numero}', '${exacto.fecha}', '${wSafe}')" class="w-full bg-cyan-600 text-slate-900 font-bold py-2 rounded hover:bg-cyan-500 text-xs transition">
                         ✏️ EDITAR DATOS
                     </button>
                 </div>`;
@@ -660,7 +705,7 @@
         const ant = sorted.filter(d => extraerValorNumerico(d.numero) < val).pop();
         const post = sorted.find(d => extraerValorNumerico(d.numero) > val);
 
-        let htmlEst = `<p class="text-gray-400 italic mb-4">Sin datos suficientes para estimar.</p>`;
+        let htmlEst = `<p class="text-slate-500 italic mb-4">Sin datos suficientes para estimar.</p>`;
         if (ant && post) {
             const f1 = new Date(convertirFechaInput(ant.fecha)).getTime();
             const f2 = new Date(convertirFechaInput(post.fecha)).getTime();
@@ -668,16 +713,16 @@
             const fEst = new Date(f1 + prop * (f2 - f1));
             htmlEst = `
                 <div class="mb-4">
-                    <p class="text-xs text-gray-400 uppercase font-bold">Fecha Estimada</p>
-                    <p class="text-3xl font-bold text-gray-800">${fEst.toLocaleDateString('es-ES')}</p>
+                    <p class="text-xs text-slate-400 uppercase font-bold">Fecha Estimada</p>
+                    <p class="text-3xl font-bold text-slate-200">${fEst.toLocaleDateString('es-ES')}</p>
                 </div>`;
         }
 
         output.innerHTML = `
-            <div class="inline-block bg-white border-l-4 border-orange-400 p-6 rounded-r-xl shadow-lg text-left max-w-md w-full">
-                <div class="flex justify-between mb-4"><h4 class="text-orange-500 font-bold uppercase">⚠️ NO REGISTRADO</h4></div>
+            <div class="inline-block bg-slate-800 border-l-4 border-orange-500 p-6 rounded-r-xl shadow-lg text-left max-w-md w-full">
+                <div class="flex justify-between mb-4"><h4 class="text-orange-400 font-bold uppercase">⚠️ NO REGISTRADO</h4></div>
                 ${htmlEst}
-                <button onclick="prepararGuardadoDesdeBusqueda('${input}')" class="w-full bg-gray-800 text-white font-bold py-2 rounded hover:bg-black transition flex justify-center gap-2 mt-2">
+                <button onclick="prepararGuardadoDesdeBusqueda('${input}')" class="w-full bg-slate-700 text-slate-200 font-bold py-2 rounded hover:bg-slate-600 border border-slate-600 transition flex justify-center gap-2 mt-2">
                     📝 AÑADIR AHORA
                 </button>
             </div>`;
@@ -730,14 +775,14 @@
             
             let msg = `Documento registrado.<br>Fecha: ${existe.fecha}`;
             let btnHtml = `
-                <button onclick="iniciarEdicion('${existe.key}', '${existe.source}', '${existe.numero}', '${existe.fecha}', '${wExistSafe}')" class="w-full bg-blue-600 text-white font-bold py-3 rounded shadow hover:bg-blue-700">
+                <button onclick="iniciarEdicion('${existe.key}', '${existe.source}', '${existe.numero}', '${existe.fecha}', '${wExistSafe}')" class="w-full bg-cyan-600 text-slate-900 font-bold py-3 rounded shadow hover:bg-cyan-500 transition">
                     ✏️ EDITAR
                 </button>`;
 
             if (wilaya && wilaya !== 'Desconocido' && (!existe.wilaya || existe.wilaya.trim() === '')) {
-                msg += `<br><span class="text-green-700 font-bold">¡NUEVA WILAYA: ${wilaya}!</span>`;
+                msg += `<br><span class="text-green-400 font-bold">¡NUEVA WILAYA: ${wilaya}!</span>`;
                 btnHtml = `
-                    <button onclick="iniciarEdicion('${existe.key}', '${existe.source}', '${existe.numero}', '${existe.fecha}', '${wSafe}')" class="w-full bg-green-600 text-white font-bold py-4 rounded-lg shadow-lg hover:bg-green-700 animate-pulse">
+                    <button onclick="iniciarEdicion('${existe.key}', '${existe.source}', '${existe.numero}', '${existe.fecha}', '${wSafe}')" class="w-full bg-green-600 text-slate-900 font-bold py-4 rounded-lg shadow-lg hover:bg-green-500 animate-pulse transition">
                         🔄 ACTUALIZAR CON WILAYA
                     </button>`;
                 configAlerta('verde', 'MEJORA DETECTADA', msg);
@@ -760,13 +805,13 @@
 
             if(err) {
                 configAlerta('rojo', '⚠️ POSIBLE INCONGRUENCIA', err);
-                actions.innerHTML = `<button onclick="iniciarEdicion(null, null, '${num}', '${fecha}', '${wSafe}')" class="w-full bg-gray-600 text-white font-bold py-3 rounded shadow hover:bg-gray-700">✏️ REVISAR MANUALMENTE</button>`;
+                actions.innerHTML = `<button onclick="iniciarEdicion(null, null, '${num}', '${fecha}', '${wSafe}')" class="w-full bg-slate-600 text-slate-200 font-bold py-3 rounded shadow hover:bg-slate-500 transition">✏️ REVISAR MANUALMENTE</button>`;
             } else {
                 configAlerta('verde', 'SECUENCIA CORRECTA', 'Documento coherente.');
                 actions.innerHTML = `
                     <div class="flex gap-2">
-                        <button onclick="guardarDesdeAI()" class="flex-1 bg-green-600 text-white font-bold py-3 rounded shadow hover:bg-green-700">💾 GUARDAR</button>
-                        <button onclick="iniciarEdicion(null, null, '${num}', '${fecha}', '${wSafe}')" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded shadow hover:bg-gray-200">✏️ EDITAR</button>
+                        <button onclick="guardarDesdeAI()" class="flex-1 bg-green-600 text-slate-900 font-bold py-3 rounded shadow hover:bg-green-500 transition">💾 GUARDAR</button>
+                        <button onclick="iniciarEdicion(null, null, '${num}', '${fecha}', '${wSafe}')" class="flex-1 bg-slate-700 text-slate-200 border border-slate-600 font-bold py-3 rounded shadow hover:bg-slate-600 transition">✏️ EDITAR</button>
                     </div>`;
             }
         }
@@ -827,8 +872,12 @@
     function cerrarPanelIA() { document.getElementById('aiResultBox').classList.add('hidden'); }
     function configAlerta(c,t,m) {
         const h=document.getElementById('aiHeader'), b=document.getElementById('aiValidationMsg');
-        const cols = { rojo: ['bg-red-600','bg-red-50 text-red-800 border-red-500'], verde: ['bg-green-600','bg-green-50 text-green-800 border-green-500'], azul: ['bg-blue-600','bg-blue-50 text-blue-800 border-blue-500'] };
-        h.className=`px-6 py-4 border-b flex justify-between items-center ${cols[c][0]} text-white`;
+        const cols = { 
+            rojo: ['bg-slate-800 border-b-red-500','bg-slate-900/80 text-red-400 border-red-500 border'], 
+            verde: ['bg-slate-800 border-b-green-500','bg-slate-900/80 text-green-400 border-green-500 border'], 
+            azul: ['bg-slate-800 border-b-cyan-500','bg-slate-900/80 text-cyan-400 border-cyan-500 border'] 
+        };
+        h.className=`px-6 py-4 border-b-4 flex justify-between items-center ${cols[c][0]} text-slate-200`;
         b.className=`mb-6 text-sm p-5 rounded-lg border-l-4 shadow-sm ${cols[c][1]}`;
         document.getElementById('aiTitle').innerHTML=t; b.innerHTML=m;
     }
