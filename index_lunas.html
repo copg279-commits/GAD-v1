@@ -184,15 +184,16 @@
             border-color: var(--accent-cyan);
         }
         
-        .btn-label {
-            font-size: 1.1rem; 
+.btn-label {
+            font-size: clamp(0.85rem, 4vw, 1.1rem); /* Tamaño fluido: se encoge un poco en móviles */
             font-weight: 800;
             line-height: 1.2;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.5);
             width: 100%;
-            word-wrap: break-word;
+            word-break: keep-all; /* Evita que las palabras se partan a la mitad */
+            overflow-wrap: normal;
         }
 
         /* MODO EDICIÓN */
