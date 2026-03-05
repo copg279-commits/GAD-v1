@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IA FRANCIA CPI ORDEN (FINAL v2)</title>
+  <title>IA FRANCIA CPI ORDEN (FINAL v2 - Dark Mode)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Estilos base */
@@ -21,21 +21,21 @@
     }
 
     .drop-wrapper.drag-active {
-        background-color: rgba(34, 197, 94, 0.1); 
-        border-color: #22c55e;
+        background-color: rgba(6, 182, 212, 0.1); 
+        border-color: #06b6d4;
         transform: scale(1.01);
-        box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+        box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
     }
     
-    /* Overlay de carga */
+    /* Overlay de carga (Dark) */
     .loading-overlay {
-        position: fixed; inset: 0; background: rgba(255,255,255,0.95); 
-        z-index: 100; display: flex; flex-direction: column; 
+        position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); 
+        z-index: 10000; display: flex; flex-direction: column; 
         align-items: center; justify-content: center;
     }
     .spinner {
-        width: 60px; height: 60px; border: 6px solid #e5e7eb; 
-        border-top: 6px solid #2563eb; border-radius: 50%; 
+        width: 60px; height: 60px; border: 6px solid #334155; 
+        border-top: 6px solid #06b6d4; border-radius: 50%; 
         animation: spin 1s linear infinite; margin-bottom: 20px;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -44,73 +44,125 @@
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     
     /* Mensaje de estado auth */
-    #auth-loading-msg { text-align: center; color: #6b7280; margin-top: 10px; font-weight: bold; }
+    #auth-loading-msg { text-align: center; color: #94a3b8; margin-top: 10px; font-weight: bold; }
+
+    /* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
+    #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+    #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+    #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+    /* Zoom de miniaturas sin cortes (Solo PC) */
+    td, tr { position: static !important; }
+    .results-container { overflow: visible !important; }
+    @media (hover: hover) and (pointer: fine) { 
+        .thumbnail-img:hover { 
+            transform: scale(4); 
+            z-index: 9999 !important; 
+            position: relative; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+            border-color: #06b6d4; 
+        } 
+    }
+
+    /* Responsive Móvil para Tablas en Tarjetas */
+    @media (max-width: 768px) {
+        table { display: block; width: 100%; }
+        thead { display: none; }
+        tbody { display: block; width: 100%; }
+        tr {
+            display: flex;
+            flex-direction: column;
+            background-color: #1e293b !important;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #334155 !important;
+        }
+        td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0 !important;
+            border: none !important;
+        }
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #06b6d4;
+            margin-right: 1rem;
+        }
+    }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-16 relative">
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col pb-16 relative">
 
   <div id="loadingOverlay" class="loading-overlay hidden">
       <div class="spinner"></div>
-      <h3 class="text-blue-700 font-bold text-xl animate-pulse">Analizando CPI (Nº Orden y Fecha)...</h3>
-      <p class="text-gray-500 text-sm mt-2">Consultando IA y verificando coherencia de fechas</p>
+      <h3 class="text-cyan-500 font-bold text-xl animate-pulse">Analizando CPI (Nº Orden y Fecha)...</h3>
+      <p class="text-slate-400 text-sm mt-2">Consultando IA y verificando coherencia de fechas</p>
   </div>
 
-  <div class="absolute top-2 right-2 z-40">
-      <button onclick="toggleSettings()" class="bg-gray-800 text-white text-xs px-3 py-1 rounded shadow hover:bg-gray-700 flex items-center gap-1">
+  <div class="absolute top-32 right-2 z-40">
+      <button onclick="toggleSettings()" class="bg-slate-800 text-slate-200 border border-slate-700 text-xs px-3 py-1 rounded shadow hover:bg-slate-700 flex items-center gap-1">
           ⚙️ Configurar IA
       </button>
   </div>
-  <div id="settingsPanel" class="hidden absolute top-10 right-2 w-72 bg-gray-800 border border-gray-600 shadow-xl rounded p-3 z-40 text-white">
-      <div class="text-xs text-gray-400 mb-2">Proveedor: Google Gemini (Fijo)</div>
-      <label class="block text-xs font-bold text-gray-300 mb-1">API Key:</label>
-      <input type="password" id="apiKeyInput" class="w-full bg-gray-900 text-white text-xs border border-gray-700 p-1 rounded mb-2" placeholder="Pegar API Key aquí...">
-      <label class="block text-xs font-bold text-gray-300 mb-1">Modelo:</label>
-      <input type="text" id="modelInput" class="w-full bg-gray-900 text-white text-xs border border-gray-700 p-1 rounded mb-3" placeholder="gemini-1.5-flash">
-      <button onclick="saveSettings()" class="w-full bg-blue-600 text-white text-xs py-1.5 rounded hover:bg-blue-700 font-bold">GUARDAR CONFIGURACIÓN</button>
+  <div id="settingsPanel" class="hidden absolute top-40 right-2 w-72 bg-slate-800 border border-slate-700 shadow-xl rounded p-3 z-40 text-slate-200">
+      <div class="text-xs text-slate-400 mb-2">Proveedor: Google Gemini (Fijo)</div>
+      <label class="block text-xs font-bold text-cyan-500 mb-1">API Key:</label>
+      <input type="password" id="apiKeyInput" class="w-full bg-slate-900 text-slate-200 text-xs border border-slate-700 p-1 rounded mb-2" placeholder="Pegar API Key aquí...">
+      <label class="block text-xs font-bold text-cyan-500 mb-1">Modelo:</label>
+      <input type="text" id="modelInput" class="w-full bg-slate-900 text-slate-200 text-xs border border-slate-700 p-1 rounded mb-3" placeholder="gemini-1.5-flash">
+      <button onclick="saveSettings()" class="w-full bg-cyan-600 text-white text-xs py-1.5 rounded hover:bg-cyan-700 font-bold">GUARDAR CONFIGURACIÓN</button>
   </div>
 
-  <header class="bg-blue-600 w-full flex justify-center items-center py-2">
-    <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
-      <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+    <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+    
+    <div class="text-center flex-1">
+      <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+        CPI FRANCIA<br class="md:hidden"> ESTIMACIÓN DE FECHA
+      </h1>
+      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+        Grupo de Análisis Documental
+      </h2>
     </div>
-  </header>
-  
-  <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
-    Consulta Fecha Expedición CPI
-  </h1>
 
-  <div id="mainDropZone" class="drop-wrapper w-11/12 max-w-md mx-auto mt-4">
-    <div class="w-full pointer-events-none select-none flex justify-center">
+    <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
+  </header>
+
+  <div id="mainDropZone" class="drop-wrapper w-11/12 max-w-md mx-auto mt-6 bg-slate-800 border-slate-700 shadow-lg">
+    <div class="w-full pointer-events-none select-none flex justify-center p-2 rounded-lg bg-slate-900">
         <img src="logocpi.png" alt="Logo CPI" class="w-full h-auto object-contain max-h-40">
     </div>
     
-    <p class="text-center mt-2 px-4 text-sm text-gray-600">
+    <p class="text-center mt-4 px-4 text-sm text-slate-400">
         Ingresa un número de orden para estimar la fecha más aproximada.
     </p>
 
     <div class="w-full mt-4 mb-2">
-        <label for="documento" class="block text-sm font-bold text-gray-700 mb-1 ml-1">Número de orden</label>
-        <input type="text" id="documento" placeholder="Ej: 10402260107" class="w-full p-2 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+        <label for="documento" class="block text-sm font-bold text-cyan-500 mb-1 ml-1">Número de orden</label>
+        <input type="text" id="documento" placeholder="Ej: 10402260107" class="w-full p-2 text-lg border border-slate-700 bg-slate-900 text-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-sm">
     </div>
   </div>
 
   <div class="w-11/12 max-w-md mx-auto">
-    <button onclick="calcularFecha()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-md shadow hover:bg-blue-700 transition">
+    <button onclick="calcularFecha()" class="w-full bg-cyan-600 text-white font-bold py-2 rounded-md shadow hover:bg-cyan-700 transition">
       Calcular fecha
     </button>
     <div id="resultado" class="mt-4 text-sm font-medium text-center"></div>
   </div>
 
-  <div id="aiResultBox" class="hidden mt-4 w-11/12 max-w-md mx-auto border-2 rounded-lg p-4 text-center shadow-md bg-white">
-      <h3 id="aiTitle" class="font-bold text-lg mb-2"></h3>
+  <div id="aiResultBox" class="hidden mt-4 w-11/12 max-w-md mx-auto border-2 border-slate-700 rounded-lg p-4 text-center shadow-md bg-slate-800">
+      <h3 id="aiTitle" class="font-bold text-lg mb-2 text-cyan-500"></h3>
       
-      <div class="grid grid-cols-1 gap-2 text-sm text-gray-800 text-left mb-3 bg-gray-50 p-2 rounded border">
-          <div class="flex justify-between items-center border-b pb-1">
-              <span class="text-xs text-gray-500 font-bold">Nº LEÍDO (1)</span>
+      <div class="grid grid-cols-1 gap-2 text-sm text-slate-200 text-left mb-3 bg-slate-900 p-2 rounded border border-slate-700">
+          <div class="flex justify-between items-center border-b border-slate-700 pb-1">
+              <span class="text-xs text-cyan-500 font-bold">Nº LEÍDO (1)</span>
               <span id="aiNumero" class="font-mono font-bold text-lg"></span>
           </div>
           <div class="flex justify-between items-center pt-1">
-              <span class="text-xs text-gray-500 font-bold">FECHA LEÍDA (2)</span>
+              <span class="text-xs text-cyan-500 font-bold">FECHA LEÍDA (2)</span>
               <span id="aiFecha" class="font-mono font-bold text-lg"></span>
           </div>
       </div>
@@ -123,61 +175,66 @@
               Añadir a Base de Datos
           </button>
       </div>
-      <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-3 text-gray-500 text-xs underline">
+      <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-3 text-slate-400 hover:text-slate-200 text-xs underline">
           Cerrar panel
       </button>
   </div>
 
   <div id="auth-loading-msg">Conectando con base de datos V4...</div>
 
-  <div id="db-panel" class="bg-white shadow-md rounded-lg p-6 mt-6 text-center w-11/12 max-w-md mx-auto" style="display:none;">
-    <h3 class="text-lg font-semibold mb-4">Añadir nuevos datos (Manual)</h3>
+  <div id="db-panel" class="bg-slate-800 border border-slate-700 shadow-md rounded-lg p-6 mt-6 text-center w-11/12 max-w-md mx-auto" style="display:none;">
+    <h3 class="text-lg font-semibold mb-4 text-cyan-500">Añadir nuevos datos (Manual)</h3>
     <div class="flex flex-col space-y-2">
-      <button id="mostrarFormularioBtn" class="w-full bg-gray-600 text-white py-2 rounded-md shadow hover:bg-gray-700 text-sm">
+      <button id="mostrarFormularioBtn" class="w-full bg-slate-700 border border-slate-600 text-white py-2 rounded-md shadow hover:bg-slate-600 text-sm">
         Introduzca nuevo número de CPI
       </button>
-      <button id="toggleCpiListBtn" class="w-full bg-blue-600 text-white py-2 rounded-md shadow hover:bg-blue-700">
+      <button id="toggleCpiListBtn" class="w-full bg-cyan-600 text-white py-2 rounded-md shadow hover:bg-cyan-500">
         Consultar lista completa
       </button>
-      <button id="toggleEstadisticasBtn" class="w-full bg-purple-600 text-white py-2 rounded-md shadow hover:bg-purple-700">
+      <button id="toggleEstadisticasBtn" class="w-full bg-purple-600 text-white py-2 rounded-md shadow hover:bg-purple-500">
         Ver Estadísticas
       </button>
     </div>
 
-    <div id="formularioCpi" class="mt-4 hidden text-left">
+    <div id="formularioCpi" class="mt-4 hidden text-left bg-slate-900 p-4 rounded-lg border border-slate-700">
         <div class="mb-4">
-            <label class="block text-sm font-bold text-gray-700 mb-1">Número de orden:</label>
-            <input type="number" id="nuevoNumeroCpi" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+            <label class="block text-sm font-bold text-cyan-500 mb-1">Número de orden:</label>
+            <input type="number" id="nuevoNumeroCpi" class="w-full bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-500">
         </div>
         <div class="mb-4">
-            <label class="block text-sm font-bold text-gray-700 mb-1">Fecha de expedición:</label>
-            <input type="date" id="nuevaFechaCpi" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+            <label class="block text-sm font-bold text-cyan-500 mb-1">Fecha de expedición:</label>
+            <input type="date" id="nuevaFechaCpi" class="w-full bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-500">
         </div>
         <div class="flex space-x-2">
-            <button onclick="guardarNuevoCpi()" class="w-1/2 bg-blue-600 text-white py-2 rounded shadow hover:bg-blue-700">Guardar</button>
-            <button onclick="limpiarCampos()" class="w-1/2 bg-gray-400 text-white py-2 rounded shadow hover:bg-gray-500">Limpiar</button>
+            <button onclick="guardarNuevoCpi()" class="w-1/2 bg-cyan-600 text-white py-2 rounded shadow hover:bg-cyan-500">Guardar</button>
+            <button onclick="limpiarCampos()" class="w-1/2 bg-slate-600 text-white py-2 rounded shadow hover:bg-slate-500">Limpiar</button>
         </div>
         <div id="mensajeGuardado" class="mt-4 text-sm font-medium text-center"></div>
     </div>
     
     <div id="cpiDataTable" class="mt-4 hidden">
-        <div class="cpi-table-container">
-            <table class="w-full text-sm text-left text-gray-500"><thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0"><tr><th class="px-6 py-3">Número</th><th class="px-6 py-3">Fecha</th><th class="px-6 py-3"></th></tr></thead><tbody id="cpiList"></tbody></table>
+        <div class="cpi-table-container border border-slate-700 rounded-lg bg-slate-900">
+            <table class="w-full text-sm text-left text-slate-300">
+                <thead class="text-xs text-cyan-500 uppercase bg-slate-800 sticky top-0 border-b border-slate-700">
+                    <tr>
+                        <th class="px-6 py-3">Número</th>
+                        <th class="px-6 py-3">Fecha</th>
+                        <th class="px-6 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody id="cpiList"></tbody>
+            </table>
         </div>
     </div>
-    <div id="estadisticasCpi" class="mt-4 hidden"><div id="resumenEstadisticas" class="p-4 bg-gray-100 rounded-lg"></div><div class="flex flex-col space-y-2 mt-4"><select id="mesSelector" class="w-full border p-2 rounded"></select><select id="anioSelector" class="w-full border p-2 rounded"></select></div><div id="resultadosEstadisticas" class="mt-4 text-center"></div></div>
+    <div id="estadisticasCpi" class="mt-4 hidden">
+        <div id="resumenEstadisticas" class="p-4 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"></div>
+        <div class="flex flex-col space-y-2 mt-4">
+            <select id="mesSelector" class="w-full bg-slate-800 text-slate-200 border border-slate-700 p-2 rounded focus:ring-2 focus:ring-cyan-500"></select>
+            <select id="anioSelector" class="w-full bg-slate-800 text-slate-200 border border-slate-700 p-2 rounded focus:ring-2 focus:ring-cyan-500"></select>
+        </div>
+        <div id="resultadosEstadisticas" class="mt-4 text-center"></div>
+    </div>
   </div>
-  
-  <div class="mt-8 flex justify-center">
-    <button onclick="window.location.href='index.html'" class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">MENÚ PRINCIPAL</button>
-  </div>
-  
-  <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -327,45 +384,45 @@
 
                 if (anterior && fechaVal < anterior.fecha) {
                     esSospechoso = true;
-                    motivo = `⛔ <b>INCONGRUENCIA TEMPORAL (Pasado):</b><br>
+                    motivo = `⛔ <b class="text-red-400">INCONGRUENCIA TEMPORAL (Pasado):</b><br>
                               El documento actual tiene una fecha (${fechaLimpia}) <b>ANTERIOR</b> a un número de orden menor ya registrado.<br><br>
                               • Registro Previo: Nº ${anterior.numero} (${formatoFecha(anterior.fecha)})`;
                 } else if (posterior && fechaVal > posterior.fecha) {
                     esSospechoso = true;
-                    motivo = `⛔ <b>INCONGRUENCIA TEMPORAL (Futuro):</b><br>
+                    motivo = `⛔ <b class="text-red-400">INCONGRUENCIA TEMPORAL (Futuro):</b><br>
                               El documento actual tiene una fecha (${fechaLimpia}) <b>POSTERIOR</b> a un número de orden mayor ya registrado.<br><br>
                               • Registro Siguiente: Nº ${posterior.numero} (${formatoFecha(posterior.fecha)})`;
                 } else {
                     if (anterior && posterior) {
-                        motivo = `✅ <b>COHERENCIA VERIFICADA:</b><br>Se sitúa entre el anterior (${formatoFecha(anterior.fecha)}) y el posterior (${formatoFecha(posterior.fecha)}).`;
+                        motivo = `✅ <b class="text-green-400">COHERENCIA VERIFICADA:</b><br>Se sitúa entre el anterior (${formatoFecha(anterior.fecha)}) y el posterior (${formatoFecha(posterior.fecha)}).`;
                     } else if (anterior) {
-                        motivo = `✅ <b>COHERENCIA VERIFICADA:</b><br>Posterior al último registro (${formatoFecha(anterior.fecha)}).`;
+                        motivo = `✅ <b class="text-green-400">COHERENCIA VERIFICADA:</b><br>Posterior al último registro (${formatoFecha(anterior.fecha)}).`;
                     } else if (posterior) {
-                        motivo = `✅ <b>COHERENCIA VERIFICADA:</b><br>Anterior al primer registro (${formatoFecha(posterior.fecha)}).`;
+                        motivo = `✅ <b class="text-green-400">COHERENCIA VERIFICADA:</b><br>Anterior al primer registro (${formatoFecha(posterior.fecha)}).`;
                     } else {
                         motivo = "✅ Primer dato en la base de datos. Formato correcto.";
                     }
                 }
 
                 box.className = esSospechoso 
-                    ? "mt-4 w-11/12 max-w-md mx-auto border-4 border-red-600 bg-red-50 rounded-lg p-4 text-center shadow-xl animate-pulse" 
-                    : "mt-4 w-11/12 max-w-md mx-auto border-2 border-green-500 bg-green-50 rounded-lg p-4 text-center shadow-md";
+                    ? "mt-4 w-11/12 max-w-md mx-auto border-2 border-red-500 bg-slate-800 rounded-lg p-4 text-center shadow-xl animate-pulse" 
+                    : "mt-4 w-11/12 max-w-md mx-auto border-2 border-green-500 bg-slate-800 rounded-lg p-4 text-center shadow-md";
 
-                title.className = esSospechoso ? "text-red-700 font-black text-xl mb-2 uppercase" : "text-green-700 font-bold text-lg mb-2";
+                title.className = esSospechoso ? "text-red-500 font-black text-xl mb-2 uppercase" : "text-green-400 font-bold text-lg mb-2";
                 title.textContent = esSospechoso ? "⚠️ ALERTA: INCOHERENCIA" : "✅ Documento Coherente";
 
                 if (esSospechoso) {
-                    msg.className = "bg-red-100 text-red-900 p-3 rounded border border-red-300 text-sm font-medium text-left";
+                    msg.className = "bg-slate-900 text-red-400 p-3 rounded border border-red-500/50 text-sm font-medium text-left";
                     msg.innerHTML = `${motivo}<br><br><span class="font-bold underline">CONCLUSIÓN:</span> Posible documento manipulado o falso.`;
                     actions.classList.add('hidden');
                 } else {
                     const existe = datosCPI.find(d => d.numero == numVal);
                     if(existe) {
-                        msg.className = "text-blue-700 bg-blue-50 p-2 rounded border border-blue-200";
+                        msg.className = "text-cyan-400 bg-slate-900 p-2 rounded border border-cyan-800";
                         msg.innerHTML = "ℹ️ Este número ya existe en la base de datos con fecha: " + formatoFecha(existe.fecha);
                         actions.classList.add('hidden');
                     } else {
-                        msg.className = "text-green-800 bg-green-100 p-3 rounded border border-green-300 text-sm";
+                        msg.className = "text-green-400 bg-slate-900 p-3 rounded border border-green-800 text-sm";
                         msg.innerHTML = motivo;
                         actions.classList.remove('hidden');
                         window.tempAiData = { numero: numVal, fecha: fechaLimpia.split('/').reverse().join('-') };
@@ -434,12 +491,12 @@
       meses.forEach(m => { const [mes, anio] = m.split('-'); mesSelector.innerHTML += `<option value="${m}">${nombresMeses[mes]} ${anio}</option>`; });
     }
 
-    mesSelector.addEventListener('change', (e) => { if(e.target.value) { const [m, a] = e.target.value.split('-'); resultadosEstadisticasDiv.innerHTML = `<p class="font-bold">Estimación: <span class="text-blue-600 text-xl">${formatNumber(calcularCertificados(new Date(a, m, 1), new Date(a, Number(m)+1, 0)))}</span></p>`; } });
-    anioSelector.addEventListener('change', (e) => { if(e.target.value) { resultadosEstadisticasDiv.innerHTML = `<p class="font-bold">Estimación Año: <span class="text-blue-600 text-xl">${formatNumber(calcularCertificados(new Date(e.target.value, 0, 1), new Date(e.target.value, 11, 31)))}</span></p>`; } });
+    mesSelector.addEventListener('change', (e) => { if(e.target.value) { const [m, a] = e.target.value.split('-'); resultadosEstadisticasDiv.innerHTML = `<p class="font-bold">Estimación: <span class="text-cyan-400 text-xl">${formatNumber(calcularCertificados(new Date(a, m, 1), new Date(a, Number(m)+1, 0)))}</span></p>`; } });
+    anioSelector.addEventListener('change', (e) => { if(e.target.value) { resultadosEstadisticasDiv.innerHTML = `<p class="font-bold">Estimación Año: <span class="text-cyan-400 text-xl">${formatNumber(calcularCertificados(new Date(e.target.value, 0, 1), new Date(e.target.value, 11, 31)))}</span></p>`; } });
 
     function mostrarResumenEstadisticas() {
         const hoy = new Date();
-        resumenEstadisticasDiv.innerHTML = `<p>Mes actual: <b>${formatNumber(calcularCertificados(new Date(hoy.getFullYear(), hoy.getMonth(), 1), hoy))}</b></p><p>Año actual: <b>${formatNumber(calcularCertificados(new Date(hoy.getFullYear(), 0, 1), hoy))}</b></p>`;
+        resumenEstadisticasDiv.innerHTML = `<p>Mes actual: <b class="text-cyan-400">${formatNumber(calcularCertificados(new Date(hoy.getFullYear(), hoy.getMonth(), 1), hoy))}</b></p><p>Año actual: <b class="text-cyan-400">${formatNumber(calcularCertificados(new Date(hoy.getFullYear(), 0, 1), hoy))}</b></p>`;
     }
 
     function calcularCertificados(ini, fin) {
@@ -468,7 +525,14 @@
         cpiListDiv.innerHTML = '';
         const sorted = datosCPI.sort((a,b) => b.numero - a.numero);
         sorted.forEach(d => {
-            cpiListDiv.innerHTML += `<tr class="bg-white border-b hover:bg-gray-50"><td class="px-6 py-4">${d.numero}</td><td class="px-6 py-4">${formatoFecha(d.fecha)}</td><td class="px-6 py-4 text-right"><span onclick="eliminarCpi('${d.key}')" class="text-red-500 cursor-pointer font-bold">X</span></td></tr>`;
+            cpiListDiv.innerHTML += `
+            <tr class="bg-slate-800 border-b border-slate-700 hover:bg-slate-700">
+                <td class="px-6 py-4" data-label="Número">${d.numero}</td>
+                <td class="px-6 py-4" data-label="Fecha">${formatoFecha(d.fecha)}</td>
+                <td class="px-6 py-4 text-right" data-label="Acción">
+                    <span onclick="eliminarCpi('${d.key}')" class="text-red-500 cursor-pointer font-bold bg-slate-900 px-3 py-1 rounded border border-slate-700 hover:bg-red-900 hover:text-white transition">X</span>
+                </td>
+            </tr>`;
         });
     }
     
@@ -499,17 +563,17 @@
         
         const ord = datosCPI.sort((a,b)=>a.numero-b.numero);
         const ex = ord.find(x=>x.numero===n);
-        if(ex) { res.innerHTML = `<span class="text-green-600 font-bold">EXISTE: ${formatoFecha(ex.fecha)}</span>`; return; }
+        if(ex) { res.innerHTML = `<span class="text-green-400 font-bold">EXISTE: ${formatoFecha(ex.fecha)}</span>`; return; }
         
         const ant = ord.filter(x=>x.numero<n).pop();
         const post = ord.find(x=>x.numero>n);
         
         if(!ant) { res.innerHTML = "Número muy bajo"; return; }
-        if(!post) { res.innerHTML = `Sin datos recientes. Posterior a ${formatoFecha(ant.fecha)}`; return; }
+        if(!post) { res.innerHTML = `Sin datos recientes. Posterior a <span class="text-cyan-400 font-bold">${formatoFecha(ant.fecha)}</span>`; return; }
         
         const r = (n - ant.numero) / (post.numero - ant.numero);
         const t = ant.fecha.getTime() + r * (post.fecha.getTime() - ant.fecha.getTime());
-        res.innerHTML = `Estimada: <b>${formatoFecha(new Date(t))}</b>`;
+        res.innerHTML = `Estimada: <b class="text-cyan-400 text-lg">${formatoFecha(new Date(t))}</b>`;
     }
   </script>
 </body>
