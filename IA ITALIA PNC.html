@@ -10,7 +10,7 @@
     body { background-color: #0f172a; color: #e2e8f0; }
     .delete-icon { cursor: pointer; transition: transform 0.2s; color: #ef4444; }
     .delete-icon:hover { transform: scale(1.1); }
-    .cpi-table-container { max-height: 400px; overflow-y: auto; }
+    .cpi-table-container { max-height: 400px; overflow-y: auto; } /* El scroll de la tabla */
 
     /* DROP ZONE - Dark Mode */
     .drop-zone {
@@ -87,11 +87,11 @@
       <h3 class="text-cyan-500 font-bold text-lg animate-pulse">Analizando Documento...</h3>
   </div>
 
-  <div class="absolute top-4 right-4 z-40">
-      <button onclick="toggleSettings()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs px-3 py-1 rounded-lg shadow hover:bg-slate-700 flex items-center gap-1 font-bold transition">⚙️ Configurar IA</button>
+  <div class="fixed top-3 right-3 md:top-4 md:right-4 z-[1001]">
+      <button onclick="toggleSettings()" class="bg-slate-800 border border-slate-700 text-slate-200 text-[10px] md:text-xs px-2 py-1 md:px-3 md:py-1 rounded-lg shadow hover:bg-slate-700 flex items-center gap-1 font-bold transition">⚙️ Configurar IA</button>
   </div>
   
-  <div id="settingsPanel" class="hidden absolute top-12 right-4 w-72 bg-slate-800 border border-slate-700 shadow-xl rounded-lg p-4 z-40 text-slate-200">
+  <div id="settingsPanel" class="hidden fixed top-12 right-3 md:top-14 md:right-4 w-72 bg-slate-800 border border-slate-700 shadow-xl rounded-lg p-4 z-[1001] text-slate-200">
       <div class="text-xs text-slate-400 mb-3">Proveedor: Google Gemini (Fijo)</div>
       <label class="block text-xs font-bold text-slate-300 mb-1">API Key:</label>
       <input type="password" id="apiKeyInput" class="w-full bg-slate-900 text-slate-200 text-xs border border-slate-700 p-2 rounded mb-3 focus:outline-none focus:border-cyan-500" placeholder="Pegar API Key aquí...">
@@ -166,7 +166,7 @@
         <button id="mostrarListadoBtn" class="flex-1 bg-cyan-600 text-white py-2 rounded-lg shadow hover:bg-cyan-500 text-xs font-bold uppercase transition">Ver Lista</button>
     </div>
     <div id="cpiDataTable" class="mt-4 hidden">
-        <div class="cpi-table-container border border-slate-700 rounded-lg bg-slate-900 overflow-hidden">
+        <div class="cpi-table-container border border-slate-700 rounded-lg bg-slate-900">
             <table class="w-full text-sm text-left text-slate-300">
                 <thead class="text-xs text-slate-400 uppercase bg-slate-800 border-b border-slate-700 sticky top-0">
                     <tr><th class="px-4 py-3">Número</th><th class="px-4 py-3">Fecha</th><th class="px-4 py-3"></th></tr>
@@ -186,7 +186,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   
   <script>
-    // --- 1. CONFIGURACIÓN V4 (REVISADA) ---
+    // --- 1. CONFIGURACIÓN V4 ---
     const firebaseConfig = {
       apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
       authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -199,27 +199,21 @@
 
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const auth = firebase.auth(); // Instancia de Auth
+    const auth = firebase.auth(); 
     const licenciasNuevasRef = db.ref('licencias_italia');
     
     let datosCompletos = [];
-    let isUserAuthenticated = false; // Bandera de seguridad
+    let isUserAuthenticated = false; 
     let geminiApiKey = localStorage.getItem('ai_api_key') || '', geminiModelName = localStorage.getItem('gemini_model_name') || 'gemini-1.5-flash';
 
-    // --- 2. SISTEMA DE SEGURIDAD ESTRICTA (WAIT FOR AUTH) ---
+    // --- 2. SISTEMA DE SEGURIDAD ESTRICTA ---
     auth.onAuthStateChanged((user) => {
         if (user) {
             isUserAuthenticated = true;
-            console.log("Usuario V4 conectado (Italia):", user.email);
-            
-            // UI: Ocultar carga y mostrar panel
             document.getElementById('auth-loading-msg').style.display = 'none';
             document.getElementById('db-panel').style.display = 'block';
-            
-            // INICIAR CARGA DE DATOS (Solo ahora)
             cargarDatos();
         } else {
-            console.warn("Usuario no autenticado en V4");
             document.getElementById('auth-loading-msg').innerHTML = "<span class='text-red-400 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú.</span>";
         }
     });
@@ -228,7 +222,6 @@
     function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('hidden'); document.getElementById('apiKeyInput').value = geminiApiKey; document.getElementById('modelInput').value = geminiModelName; }
     function saveSettings() { const key = document.getElementById('apiKeyInput').value.trim(), model = document.getElementById('modelInput').value.trim(); if(key && model) { geminiApiKey = key; geminiModelName = model; localStorage.setItem('ai_api_key', key); localStorage.setItem('gemini_model_name', model); alert("Guardado."); toggleSettings(); } }
 
-    // --- LOGICA DE LIMPIEZA ---
     function limpiarInterfaz(modo) {
         if (modo === 'manual') {
             imagesBuffer = []; updateImageStatus();
@@ -244,7 +237,6 @@
     }
     function limpiarTodo(origen) { imagesBuffer = []; updateImageStatus(); document.getElementById('aiResultBox').classList.add('hidden'); if (origen === 'full' || origen === 'manual') { document.getElementById('numero').value = ''; document.getElementById('output').innerHTML = ''; } }
 
-    // --- CARGA IMÁGENES ---
     let imagesBuffer = []; 
     const dropZone = document.getElementById('mainDropZone'), statusText = document.getElementById('statusText'), dot1 = document.getElementById('imgDot1'), dot2 = document.getElementById('imgDot2');
     
@@ -302,7 +294,6 @@
             box.classList.add('border-cyan-600'); header.className = "bg-cyan-900/50 p-3 border-b border-cyan-800 text-cyan-200"; title.innerHTML = "ℹ️ Registrado Correctamente";
             msg.innerHTML = `<p class="text-cyan-300 p-3 bg-cyan-900/30 rounded-lg">El número existe y la fecha coincide.</p>`;
         } else {
-            // VERDE CON RANGO
             box.classList.add('border-emerald-600'); header.className = "bg-emerald-900/50 p-3 border-b border-emerald-800 text-emerald-200"; title.innerHTML = "✅ Documento Correcto";
             msg.innerHTML = `<div class="bg-emerald-900/30 p-3 rounded-lg border border-emerald-800">
                 <p class="text-emerald-400 font-bold text-lg mb-1">Progresión Lógica Correcta</p>
@@ -317,7 +308,6 @@
         box.classList.remove('hidden');
     }
 
-    // --- ESTIMACIÓN Y VERIFICACIÓN ---
     function calcularEstimacionString(numStr, antesObj, despuesObj) {
         if (!antesObj || !despuesObj) return null;
         const n1 = parseInt(antesObj.numero.replace(/\D/g, ''), 36) || 0, n2 = parseInt(despuesObj.numero.replace(/\D/g, ''), 36) || 0, nTarget = parseInt(numStr.replace(/\D/g, ''), 36) || 0;
@@ -369,7 +359,6 @@
         return { esFraude, existe: false, mensajeClaro, detallesTecnicos, fechaEstimada, rangoInfo };
     }
 
-    // --- BÚSQUEDA MANUAL ---
     function buscarFecha() {
         limpiarInterfaz('manual');
         const num = document.getElementById("numero").value.trim().toUpperCase();
@@ -377,7 +366,6 @@
         if(!num) return;
         if (!validarFormatoItalia(num)) { output.innerHTML = "<div class='bg-red-900/30 border border-red-800 text-red-400 p-3 rounded font-bold'>Formato inválido (2 Letras + 7 Números)</div>"; return; }
         
-        // Check de seguridad
         if(!isUserAuthenticated && datosCompletos.length === 0) {
              output.innerHTML = "<div class='text-orange-400 font-bold'>Conectando con V4... Espera un segundo.</div>";
              return;
@@ -400,15 +388,11 @@
         output.innerHTML = html;
     }
 
-    // --- EVENTOS ---
     window.addEventListener('dragover', e => e.preventDefault()); window.addEventListener('drop', e => e.preventDefault());
     dropZone.addEventListener('dragenter', () => dropZone.classList.add('drag-active'));
     dropZone.addEventListener('dragleave', e => { if (e.target === dropZone) dropZone.classList.remove('drag-active'); });
     dropZone.addEventListener('drop', e => { dropZone.classList.remove('drag-active'); handleFiles(e.dataTransfer.files); });
     window.addEventListener('paste', e => { const files = []; Array.from(e.clipboardData.items).forEach(i => { if (i.type.startsWith("image")) files.push(i.getAsFile()); }); handleFiles(files); });
-    
-    // IMPORTANTE: Ya no llamamos a cargarDatos() aquí directamente. Lo hará el Auth Listener.
-    // document.addEventListener('DOMContentLoaded', cargarDatos); <-- ELIMINADO
     
     document.getElementById("numero").addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
@@ -417,9 +401,7 @@
         }
     });
 
-    // --- CRUD Y AUX ---
     function cargarDatos() { 
-        // Usamos .on() para actualizaciones en tiempo real (más seguro que once en este contexto)
         licenciasNuevasRef.on('value', (s) => { 
             datosCompletos = []; 
             const d = s.val(); 
@@ -455,12 +437,14 @@
         if(confirm('¿Borrar?')) licenciasNuevasRef.child(key).remove();
     }
 
+    // CORRECCIÓN ORDENAMIENTO: Ahora las fechas se ordenan del más nuevo al más antiguo correctamente.
     function renderTabla() { 
         const tb = document.getElementById('cpiList'); tb.innerHTML = ''; 
         [...datosCompletos].sort((a,b) => { 
-            const [d1,m1,y1]=a.fecha.split('/'); 
-            const [d2,m2,y2]=b.fecha.split('/'); 
-            return new Date(`${y2}-${m2}-${d2}`) - new Date(`${y1}-${m1}-${d1}`); 
+            const [d1,m1,y1] = a.fecha.split('/'); 
+            const [d2,m2,y2] = b.fecha.split('/'); 
+            // Creamos los objetos Date usando año, mes-1, y día para garantizar una resta perfecta (orden descendente)
+            return new Date(y2, m2 - 1, d2) - new Date(y1, m1 - 1, d1); 
         }).forEach(d => { 
             tb.innerHTML += `<tr class="bg-slate-800 border-b border-slate-700 hover:bg-slate-700 transition"><td class="px-4 py-3 font-mono font-bold text-cyan-400" data-label="Número">${d.numero}</td><td class="px-4 py-3" data-label="Fecha">${d.fecha}</td><td class="px-4 py-3 text-right"><span onclick="eliminarRegistro('${d.key}')" class="text-red-500 font-bold cursor-pointer hover:text-red-400">X</span></td></tr>`; 
         }); 
