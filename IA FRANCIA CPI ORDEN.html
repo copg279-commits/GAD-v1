@@ -130,7 +130,7 @@
       <label class="block text-xs font-bold text-cyan-500 mb-1">API Key:</label>
       <input type="password" id="apiKeyInput" class="w-full bg-slate-900 text-slate-200 text-sm border border-slate-700 p-2 rounded mb-3 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="Pegar API Key aquí...">
       <label class="block text-xs font-bold text-cyan-500 mb-1">Modelo:</label>
-      <input type="text" id="modelInput" class="w-full bg-slate-900 text-slate-200 text-sm border border-slate-700 p-2 rounded mb-4 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="gemini-1.5-flash">
+      <input type="text" id="modelInput" class="w-full bg-slate-900 text-slate-200 text-sm border border-slate-700 p-2 rounded mb-4 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="gemini-2.5-flash">
       <button onclick="saveSettings()" class="w-full bg-cyan-600 text-white text-sm py-2 rounded hover:bg-cyan-700 font-bold transition-colors">GUARDAR CONFIGURACIÓN</button>
   </div>
 
@@ -302,7 +302,7 @@
 
     // --- CONFIGURACIÓN IA ---
     let geminiApiKey = localStorage.getItem('ai_api_key') || '';
-    let geminiModelName = localStorage.getItem('gemini_model_name') || 'gemini-1.5-flash';
+    let geminiModelName = localStorage.getItem('gemini_model_name') || 'gemini-2.5-flash';
 
     function toggleSettings() {
         document.getElementById('settingsPanel').classList.toggle('hidden');
