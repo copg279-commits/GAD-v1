@@ -6,48 +6,43 @@
   <title>Verificación Permiso Italia (FINAL)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Estilos Generales */
+    /* Estilos Generales Dark Mode */
+    body { background-color: #0f172a; color: #e2e8f0; }
     .delete-icon { cursor: pointer; transition: transform 0.2s; color: #ef4444; }
     .delete-icon:hover { transform: scale(1.1); }
     .cpi-table-container { max-height: 400px; overflow-y: auto; }
 
-    /* LOGO HEADER */
-    .header-logo-container {
-         width: 10rem; height: 10rem; border-radius: 9999px; overflow: hidden;
-         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-
-    /* DROP ZONE - Base limpia y profesional */
+    /* DROP ZONE - Dark Mode */
     .drop-zone {
         transition: all 0.3s ease;
-        border: 3px solid transparent;
-        background-color: #ffffff; 
+        border: 3px solid #334155;
+        background-color: #1e293b; 
         border-radius: 1rem;
         position: relative;
         min-height: 150px;
         display: flex; flex-direction: column; justify-content: center; align-items: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     }
     .drop-zone.drag-active {
-        background-color: #ecfdf5 !important; /* Verde muy pálido */
-        border-color: #34d399 !important; /* Verde medio */
+        background-color: #0f172a !important; 
+        border-color: #06b6d4 !important; 
         border-style: dashed;
         transform: scale(1.01);
         z-index: 50;
     }
     .image-indicator {
         width: 10px; height: 10px; border-radius: 50%;
-        background-color: #e2e8f0; transition: background-color 0.3s; border: 1px solid #cbd5e1;
+        background-color: #334155; transition: background-color 0.3s; border: 1px solid #475569;
     }
-    .image-indicator.active { background-color: #10b981; border-color: #059669; box-shadow: 0 0 5px #10b981; }
+    .image-indicator.active { background-color: #06b6d4; border-color: #0891b2; box-shadow: 0 0 5px #06b6d4; }
 
-    /* Overlay Carga */
+    /* Overlay Carga Dark */
     .loading-overlay {
-        position: fixed; inset: 0; background: rgba(255,255,255,0.95); 
+        position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); 
         z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
     .spinner {
-        width: 50px; height: 50px; border: 5px solid #e5e7eb; border-top: 5px solid #2563eb; border-radius: 50%; 
+        width: 50px; height: 50px; border: 5px solid #334155; border-top: 5px solid #06b6d4; border-radius: 50%; 
         animation: spin 1s linear infinite; margin-bottom: 15px;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -55,39 +50,73 @@
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     
     /* Mensaje de estado auth */
-    #auth-loading-msg { text-align: center; color: #6b7280; margin-top: 20px; font-weight: bold; }
+    #auth-loading-msg { text-align: center; color: #94a3b8; margin-top: 20px; font-weight: bold; }
+
+    /* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
+    #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+    #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+    #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+    /* Zoom de miniaturas sin cortes (Solo PC) */
+    td, tr { position: static !important; }
+    .results-container { overflow: visible !important; }
+    @media (hover: hover) and (pointer: fine) { 
+        .thumbnail-img:hover { 
+            transform: scale(4); 
+            z-index: 9999 !important; 
+            position: relative; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+            border-color: #06b6d4; 
+        } 
+    }
+
+    /* Responsive Modo Tarjetas (Móvil) */
+    @media (max-width: 768px) {
+        #cpiDataTable thead { display: none; }
+        #cpiDataTable tr { display: flex; flex-direction: column; background: #1e293b; border-radius: 12px; margin-bottom: 1rem; padding: 1rem; border: 1px solid #334155; }
+        #cpiDataTable td { border: none; padding: 0.5rem 0; display: flex; justify-content: space-between; align-items: center; color: #e2e8f0; }
+        #cpiDataTable td:last-child { justify-content: flex-end; }
+        #cpiDataTable td::before { content: attr(data-label); font-weight: bold; color: #06b6d4; text-transform: uppercase; font-size: 0.75rem; margin-right: 1rem; }
+    }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col pb-16 relative">
+<body class="min-h-screen flex flex-col pb-16 relative">
 
   <div id="loadingOverlay" class="loading-overlay hidden">
       <div class="spinner"></div>
-      <h3 class="text-blue-600 font-bold text-lg animate-pulse">Analizando Documento...</h3>
+      <h3 class="text-cyan-500 font-bold text-lg animate-pulse">Analizando Documento...</h3>
   </div>
 
   <div class="absolute top-4 right-4 z-40">
-      <button onclick="toggleSettings()" class="bg-gray-800 text-white text-xs px-3 py-1 rounded-lg shadow hover:bg-gray-700 flex items-center gap-1 font-bold">⚙️ Configurar IA</button>
+      <button onclick="toggleSettings()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs px-3 py-1 rounded-lg shadow hover:bg-slate-700 flex items-center gap-1 font-bold transition">⚙️ Configurar IA</button>
   </div>
   
-  <div id="settingsPanel" class="hidden absolute top-12 right-4 w-72 bg-gray-900 border border-gray-700 shadow-xl rounded-lg p-4 z-40 text-white">
-      <div class="text-xs text-gray-400 mb-3">Proveedor: Google Gemini (Fijo)</div>
-      <label class="block text-xs font-bold text-gray-300 mb-1">API Key:</label>
-      <input type="password" id="apiKeyInput" class="w-full bg-gray-800 text-white text-xs border border-gray-600 p-2 rounded mb-3 focus:outline-none focus:border-blue-500" placeholder="Pegar API Key aquí...">
-      <label class="block text-xs font-bold text-gray-300 mb-1">Modelo:</label>
-      <input type="text" id="modelInput" class="w-full bg-gray-800 text-white text-xs border border-gray-600 p-2 rounded mb-4 focus:outline-none focus:border-blue-500" value="gemini-1.5-flash">
-      <button onclick="saveSettings()" class="w-full bg-blue-600 text-white text-xs py-2 rounded-lg hover:bg-blue-700 font-bold uppercase tracking-wide">GUARDAR CONFIGURACIÓN</button>
+  <div id="settingsPanel" class="hidden absolute top-12 right-4 w-72 bg-slate-800 border border-slate-700 shadow-xl rounded-lg p-4 z-40 text-slate-200">
+      <div class="text-xs text-slate-400 mb-3">Proveedor: Google Gemini (Fijo)</div>
+      <label class="block text-xs font-bold text-slate-300 mb-1">API Key:</label>
+      <input type="password" id="apiKeyInput" class="w-full bg-slate-900 text-slate-200 text-xs border border-slate-700 p-2 rounded mb-3 focus:outline-none focus:border-cyan-500" placeholder="Pegar API Key aquí...">
+      <label class="block text-xs font-bold text-slate-300 mb-1">Modelo:</label>
+      <input type="text" id="modelInput" class="w-full bg-slate-900 text-slate-200 text-xs border border-slate-700 p-2 rounded mb-4 focus:outline-none focus:border-cyan-500" value="gemini-1.5-flash">
+      <button onclick="saveSettings()" class="w-full bg-cyan-600 text-white text-xs py-2 rounded-lg hover:bg-cyan-700 font-bold uppercase tracking-wide transition">GUARDAR CONFIGURACIÓN</button>
   </div>
 
-  <header class="bg-blue-600 w-full flex justify-center items-center py-4 shadow-xl">
-    <div class="header-logo-container">
-      <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-contain block">
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+    <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+    
+    <div class="text-center flex-1">
+      <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+        VERIFICACIÓN PERMISO<br class="md:hidden"> ITALIA
+      </h1>
+      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+        Grupo de Análisis Documental
+      </h2>
     </div>
-  </header>
 
-  <h1 class="text-gray-800 text-center mt-6 text-2xl font-bold px-4">Verificación Permiso de Conducir Italia</h1>
+    <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
+  </header>
   
-  <div id="mainDropZone" class="drop-zone w-11/12 max-w-md mx-auto mt-4 py-4 cursor-pointer">
-    <p class="text-gray-500 text-center text-sm mb-2 font-medium">Arrastra Anverso y Reverso o pega (Ctrl+V)</p>
+  <div id="mainDropZone" class="drop-zone w-11/12 max-w-md mx-auto mt-6 py-4 cursor-pointer">
+    <p class="text-slate-400 text-center text-sm mb-2 font-medium">Arrastra Anverso y Reverso o pega (Ctrl+V)</p>
     <div class="w-full pointer-events-none select-none mb-2">
       <img src="logoitalia.png" alt="Logo Italia" class="h-28 mx-auto object-contain transition-transform duration-300">
     </div>
@@ -95,70 +124,63 @@
         <div id="imgDot1" class="image-indicator" title="Imagen 1"></div>
         <div id="imgDot2" class="image-indicator" title="Imagen 2"></div>
     </div>
-    <div id="statusText" class="text-xs text-blue-600 font-bold h-4 mt-1"></div>
-    <button onclick="limpiarTodo('manual')" class="mt-1 text-[10px] text-gray-400 underline hover:text-red-500">Limpiar imágenes</button>
+    <div id="statusText" class="text-xs text-cyan-500 font-bold h-4 mt-1"></div>
+    <button onclick="limpiarTodo('manual')" class="mt-1 text-[10px] text-slate-500 underline hover:text-red-400">Limpiar imágenes</button>
   </div>
 
-  <div class="w-11/12 max-w-md mx-auto mt-4 bg-white p-4 rounded-xl shadow-lg border border-gray-100">
-      <label class="block text-xs font-bold text-gray-500 mb-2 uppercase text-center tracking-wider">Búsqueda Manual</label>
-      <input type="text" id="numero" placeholder="Ej: AN6023163" class="block w-full p-3 text-base border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase font-bold text-lg shadow-inner mb-3"/>
-      <button onclick="buscarFecha()" class="block w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow-md">CALCULAR FECHA ESTIMADA</button>
+  <div class="w-11/12 max-w-md mx-auto mt-4 bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-700">
+      <label class="block text-xs font-bold text-slate-400 mb-2 uppercase text-center tracking-wider">Búsqueda Manual</label>
+      <input type="text" id="numero" placeholder="Ej: AN6023163" class="block w-full p-3 text-base bg-slate-900 border border-slate-700 rounded-lg text-center text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 uppercase font-bold text-lg shadow-inner mb-3"/>
+      <button onclick="buscarFecha()" class="block w-full bg-cyan-600 text-white font-bold py-3 rounded-lg hover:bg-cyan-700 transition shadow-md">CALCULAR FECHA ESTIMADA</button>
   </div>
 
-  <div id="output" class="mt-4 text-gray-700 text-center w-11/12 max-w-md mx-auto"></div>
+  <div id="output" class="mt-4 text-slate-200 text-center w-11/12 max-w-md mx-auto"></div>
 
-  <div id="aiResultBox" class="hidden mt-6 w-11/12 max-w-md mx-auto bg-white border rounded-xl shadow-xl overflow-hidden mb-10">
-      <div id="aiHeader" class="bg-gray-100 p-3 border-b">
-          <h3 class="font-bold text-lg text-center" id="aiTitle">🔍 Resultado del Análisis</h3>
+  <div id="aiResultBox" class="hidden mt-6 w-11/12 max-w-md mx-auto bg-slate-800 border-slate-700 rounded-xl shadow-xl overflow-hidden mb-10 border-2">
+      <div id="aiHeader" class="bg-slate-900 p-3 border-b border-slate-700">
+          <h3 class="font-bold text-lg text-center text-slate-200" id="aiTitle">🔍 Resultado del Análisis</h3>
       </div>
       <div class="p-5">
-          <div class="grid grid-cols-2 gap-3 text-sm text-gray-800 text-left mb-5">
-              <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                  <span class="text-[10px] text-gray-500 block uppercase font-bold tracking-wider">Nº SOPORTE</span>
-                  <span id="aiNumero" class="font-mono font-bold text-black text-xl break-all"></span>
+          <div class="grid grid-cols-2 gap-3 text-sm text-slate-200 text-left mb-5">
+              <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                  <span class="text-[10px] text-cyan-500 block uppercase font-bold tracking-wider">Nº SOPORTE</span>
+                  <span id="aiNumero" class="font-mono font-bold text-slate-100 text-xl break-all"></span>
               </div>
-              <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                  <span class="text-[10px] text-gray-500 block uppercase font-bold tracking-wider">FECHA (4a)</span>
-                  <span id="aiFecha" class="font-mono font-bold text-black text-xl"></span>
+              <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                  <span class="text-[10px] text-cyan-500 block uppercase font-bold tracking-wider">FECHA (4a)</span>
+                  <span id="aiFecha" class="font-mono font-bold text-slate-100 text-xl"></span>
               </div>
           </div>
           <div id="aiValidationMsg" class="mb-4 text-sm"></div>
           <div id="aiActions" class="mt-4"></div>
-          <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-4 text-gray-400 text-xs underline text-center">Cerrar panel</button>
+          <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-4 text-slate-400 text-xs underline text-center hover:text-slate-300">Cerrar panel</button>
       </div>
   </div>
   
   <div id="auth-loading-msg">Conectando con base de datos V4...</div>
 
-  <div id="db-panel" class="bg-white shadow-xl rounded-xl p-6 mt-4 text-center w-11/12 max-w-md mx-auto mb-12 border border-gray-100" style="display:none;">
-    <h3 class="text-lg font-semibold mb-4 text-gray-700">Base de Datos Local (V4)</h3>
+  <div id="db-panel" class="bg-slate-800 shadow-xl rounded-xl p-6 mt-4 text-center w-11/12 max-w-md mx-auto mb-12 border border-slate-700" style="display:none;">
+    <h3 class="text-lg font-semibold mb-4 text-slate-200">Base de Datos Local (V4)</h3>
     <div class="flex gap-2">
-        <button id="mostrarFormularioBtn" class="flex-1 bg-gray-600 text-white py-2 rounded-lg shadow hover:bg-gray-700 text-xs font-bold uppercase">+ Añadir Manual</button>
-        <button id="mostrarListadoBtn" class="flex-1 bg-blue-500 text-white py-2 rounded-lg shadow hover:bg-blue-600 text-xs font-bold uppercase">Ver Lista</button>
+        <button id="mostrarFormularioBtn" class="flex-1 bg-slate-700 text-slate-200 py-2 rounded-lg shadow hover:bg-slate-600 border border-slate-600 text-xs font-bold uppercase transition">+ Añadir Manual</button>
+        <button id="mostrarListadoBtn" class="flex-1 bg-cyan-600 text-white py-2 rounded-lg shadow hover:bg-cyan-500 text-xs font-bold uppercase transition">Ver Lista</button>
     </div>
     <div id="cpiDataTable" class="mt-4 hidden">
-        <div class="cpi-table-container border rounded-lg bg-gray-50">
-            <table class="w-full text-sm text-left text-gray-500">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0">
+        <div class="cpi-table-container border border-slate-700 rounded-lg bg-slate-900 overflow-hidden">
+            <table class="w-full text-sm text-left text-slate-300">
+                <thead class="text-xs text-slate-400 uppercase bg-slate-800 border-b border-slate-700 sticky top-0">
                     <tr><th class="px-4 py-3">Número</th><th class="px-4 py-3">Fecha</th><th class="px-4 py-3"></th></tr>
                 </thead>
                 <tbody id="cpiList"></tbody>
             </table>
         </div>
     </div>
-    <div id="formularioNuevosDatos" class="mt-4 hidden text-left bg-gray-50 p-4 rounded-lg border">
-      <div class="mb-4"><label class="block text-xs font-bold text-gray-700 mb-1">NÚMERO:</label><input type="text" id="nuevoNumero" placeholder="Ej: AN6023163" class="w-full border border-gray-300 rounded px-3 py-2 uppercase"></div>
-      <div class="mb-4"><label class="block text-xs font-bold text-gray-700 mb-1">FECHA:</label><input type="date" id="nuevaFecha" class="w-full border border-gray-300 rounded px-3 py-2"></div>
-      <button onclick="guardarNuevoNumero()" class="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700">GUARDAR</button>
+    <div id="formularioNuevosDatos" class="mt-4 hidden text-left bg-slate-900 p-4 rounded-lg border border-slate-700">
+      <div class="mb-4"><label class="block text-xs font-bold text-cyan-500 mb-1">NÚMERO:</label><input type="text" id="nuevoNumero" placeholder="Ej: AN6023163" class="w-full bg-slate-800 border border-slate-600 text-slate-200 rounded px-3 py-2 uppercase focus:outline-none focus:border-cyan-500"></div>
+      <div class="mb-4"><label class="block text-xs font-bold text-cyan-500 mb-1">FECHA:</label><input type="date" id="nuevaFecha" class="w-full bg-slate-800 border border-slate-600 text-slate-200 rounded px-3 py-2 focus:outline-none focus:border-cyan-500"></div>
+      <button onclick="guardarNuevoNumero()" class="w-full bg-cyan-600 text-white font-bold py-2 rounded hover:bg-cyan-700 transition">GUARDAR</button>
     </div>
   </div>
-
-  <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -198,7 +220,7 @@
             cargarDatos();
         } else {
             console.warn("Usuario no autenticado en V4");
-            document.getElementById('auth-loading-msg').innerHTML = "<span class='text-red-500 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú.</span>";
+            document.getElementById('auth-loading-msg').innerHTML = "<span class='text-red-400 font-bold'>⚠️ Acceso Denegado. Inicia sesión en el Menú.</span>";
         }
     });
 
@@ -257,13 +279,13 @@
     function handleAiResult(result) {
         const num = (result.numero || "").replace(/[^A-Za-z0-9]/g, '').toUpperCase(), fecha = (result.fecha || "").replace(/\./g, '/').replace(/-/g, '/');
         document.getElementById('numero').value = num; document.getElementById('aiNumero').textContent = num || "ND"; document.getElementById('aiFecha').textContent = fecha || "ND";
-        const box = document.getElementById('aiResultBox'), header = document.getElementById('aiHeader'), title = document.getElementById('aiTitle'), msg = document.getElementById('aiValidationMsg'), actions = document.getElementById('aiActions'); box.className = "mt-6 w-11/12 max-w-md mx-auto bg-white border-2 rounded-lg shadow-xl overflow-hidden mb-10"; actions.innerHTML = "";
+        const box = document.getElementById('aiResultBox'), header = document.getElementById('aiHeader'), title = document.getElementById('aiTitle'), msg = document.getElementById('aiValidationMsg'), actions = document.getElementById('aiActions'); box.className = "mt-6 w-11/12 max-w-md mx-auto bg-slate-800 border-2 rounded-lg shadow-xl overflow-hidden mb-10"; actions.innerHTML = "";
 
-        if (!num || !fecha) { box.classList.remove('hidden'); msg.innerHTML = "<span class='text-red-500'>Error de lectura.</span>"; return; }
+        if (!num || !fecha) { box.classList.remove('hidden'); msg.innerHTML = "<span class='text-red-400'>Error de lectura.</span>"; return; }
         if (!validarFormatoItalia(num)) {
-            box.classList.add('border-red-500'); header.className = "bg-red-600 p-3 border-b text-white"; title.innerHTML = "⚠️ FORMATO INVÁLIDO";
-            msg.className = "bg-red-50 p-4 rounded border border-red-200 text-left";
-            msg.innerHTML = `<div class="text-red-800 font-bold text-sm"><p class="uppercase mb-1">ERROR FORMATO:</p><p>Debe ser 2 Letras + 7 Números (${num}).</p></div>`;
+            box.classList.add('border-red-600'); header.className = "bg-red-900/50 p-3 border-b border-red-800 text-red-200"; title.innerHTML = "⚠️ FORMATO INVÁLIDO";
+            msg.className = "bg-red-900/30 p-4 rounded border border-red-800 text-left";
+            msg.innerHTML = `<div class="text-red-400 font-bold text-sm"><p class="uppercase mb-1">ERROR FORMATO:</p><p>Debe ser 2 Letras + 7 Números (${num}).</p></div>`;
             box.classList.remove('hidden'); return;
         }
         mostrarResultadoIA(verificarCongruencia(num, fecha), num, fecha);
@@ -272,25 +294,25 @@
     function mostrarResultadoIA(chequeo, num, fecha) {
         const box = document.getElementById('aiResultBox'), header = document.getElementById('aiHeader'), title = document.getElementById('aiTitle'), msg = document.getElementById('aiValidationMsg'), actions = document.getElementById('aiActions');
         if (chequeo.esFraude) {
-            box.classList.add('border-red-500'); header.className = "bg-red-600 p-3 border-b text-white"; title.innerHTML = "⚠️ INCONGRUENCIA DETECTADA";
-            msg.className = "bg-red-50 p-4 rounded border border-red-200 text-left";
-            let estimateHtml = chequeo.fechaEstimada ? `<div class="mt-3 bg-yellow-100 p-3 rounded-lg border border-yellow-300 text-center"><p class="text-yellow-800 text-xs uppercase font-bold">Fecha Real Estimada:</p><p class="text-xl font-bold text-yellow-900">${chequeo.fechaEstimada}</p></div>` : '';
-            msg.innerHTML = `<div class="text-red-800 font-bold text-lg mb-2">${chequeo.mensajeClaro}</div>${estimateHtml}<div class="mt-3 pt-3 border-t border-red-200 text-gray-600 text-xs"><p class="font-bold mb-1">Detalles:</p>${chequeo.detallesTecnicos}</div>`;
+            box.classList.add('border-red-600'); header.className = "bg-red-900/50 p-3 border-b border-red-800 text-red-200"; title.innerHTML = "⚠️ INCONGRUENCIA DETECTADA";
+            msg.className = "bg-red-900/30 p-4 rounded border border-red-800 text-left";
+            let estimateHtml = chequeo.fechaEstimada ? `<div class="mt-3 bg-yellow-900/30 p-3 rounded-lg border border-yellow-700 text-center"><p class="text-yellow-400 text-xs uppercase font-bold">Fecha Real Estimada:</p><p class="text-xl font-bold text-yellow-300">${chequeo.fechaEstimada}</p></div>` : '';
+            msg.innerHTML = `<div class="text-red-400 font-bold text-lg mb-2">${chequeo.mensajeClaro}</div>${estimateHtml}<div class="mt-3 pt-3 border-t border-red-800 text-slate-300 text-xs"><p class="font-bold mb-1">Detalles:</p>${chequeo.detallesTecnicos}</div>`;
         } else if (chequeo.existe) {
-            box.classList.add('border-blue-500'); header.className = "bg-blue-600 p-3 border-b text-white"; title.innerHTML = "ℹ️ Registrado Correctamente";
-            msg.innerHTML = `<p class="text-blue-800 p-3 bg-blue-50 rounded-lg">El número existe y la fecha coincide.</p>`;
+            box.classList.add('border-cyan-600'); header.className = "bg-cyan-900/50 p-3 border-b border-cyan-800 text-cyan-200"; title.innerHTML = "ℹ️ Registrado Correctamente";
+            msg.innerHTML = `<p class="text-cyan-300 p-3 bg-cyan-900/30 rounded-lg">El número existe y la fecha coincide.</p>`;
         } else {
             // VERDE CON RANGO
-            box.classList.add('border-green-500'); header.className = "bg-green-600 p-3 border-b text-white"; title.innerHTML = "✅ Documento Correcto";
-            msg.innerHTML = `<div class="bg-green-50 p-3 rounded-lg border border-green-200">
-                <p class="text-green-800 font-bold text-lg mb-1">Progresión Lógica Correcta</p>
-                <div class="text-gray-600 text-xs mt-2 pt-2 border-t border-green-200">
-                    <p class="font-bold uppercase mb-1 text-green-700">Rango Justificado:</p>
+            box.classList.add('border-emerald-600'); header.className = "bg-emerald-900/50 p-3 border-b border-emerald-800 text-emerald-200"; title.innerHTML = "✅ Documento Correcto";
+            msg.innerHTML = `<div class="bg-emerald-900/30 p-3 rounded-lg border border-emerald-800">
+                <p class="text-emerald-400 font-bold text-lg mb-1">Progresión Lógica Correcta</p>
+                <div class="text-slate-300 text-xs mt-2 pt-2 border-t border-emerald-800">
+                    <p class="font-bold uppercase mb-1 text-emerald-500">Rango Justificado:</p>
                     ${chequeo.rangoInfo}
                 </div>
             </div>`;
             window.tempAiData = { numero: num, fecha: fecha };
-            actions.innerHTML = `<button onclick="guardarDesdeAI()" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg mt-2 shadow hover:bg-green-700 flex justify-center items-center gap-2">AÑADIR A LA LISTA</button>`;
+            actions.innerHTML = `<button onclick="guardarDesdeAI()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg mt-2 shadow hover:bg-emerald-700 flex justify-center items-center gap-2 transition">AÑADIR A LA LISTA</button>`;
         }
         box.classList.remove('hidden');
     }
@@ -353,16 +375,16 @@
         const num = document.getElementById("numero").value.trim().toUpperCase();
         const output = document.getElementById("output");
         if(!num) return;
-        if (!validarFormatoItalia(num)) { output.innerHTML = "<div class='bg-red-100 text-red-700 p-3 rounded font-bold'>Formato inválido (2 Letras + 7 Números)</div>"; return; }
+        if (!validarFormatoItalia(num)) { output.innerHTML = "<div class='bg-red-900/30 border border-red-800 text-red-400 p-3 rounded font-bold'>Formato inválido (2 Letras + 7 Números)</div>"; return; }
         
         // Check de seguridad
         if(!isUserAuthenticated && datosCompletos.length === 0) {
-             output.innerHTML = "<div class='text-orange-500 font-bold'>Conectando con V4... Espera un segundo.</div>";
+             output.innerHTML = "<div class='text-orange-400 font-bold'>Conectando con V4... Espera un segundo.</div>";
              return;
         }
 
         const exacto = datosCompletos.find(d => d.numero === num);
-        if (exacto) { output.innerHTML = `<div class='bg-blue-50 border border-blue-200 p-4 rounded'><p class='text-green-600 font-bold text-xl'>✅ EXISTE</p><p class="text-gray-600">Fecha registrada: <strong>${exacto.fecha}</strong></p></div>`; return; }
+        if (exacto) { output.innerHTML = `<div class='bg-slate-800 border border-slate-700 p-4 rounded'><p class='text-emerald-400 font-bold text-xl'>✅ EXISTE</p><p class="text-slate-300 mt-1">Fecha registrada: <strong class="text-cyan-400">${exacto.fecha}</strong></p></div>`; return; }
 
         const sorted = [...datosCompletos].sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
         const anterior = sorted.filter(d => d.numero.localeCompare(num, undefined, { numeric: true }) < 0).pop();
@@ -371,10 +393,10 @@
         let html = "";
         if (anterior && posterior) {
             const estimacion = calcularEstimacionString(num, anterior, posterior);
-            html = `<div class="bg-yellow-50 p-4 rounded border border-yellow-200 shadow-sm text-left"><h4 class="font-bold text-yellow-800 border-b border-yellow-200 pb-2 mb-2 text-center">📊 ESTIMACIÓN MANUAL</h4><div class="text-xs text-gray-500 flex justify-between mb-3"><span>Ant: ${anterior.numero} (${anterior.fecha})</span><span>Post: ${posterior.numero} (${posterior.fecha})</span></div><div class="text-center bg-white p-3 rounded border border-yellow-100"><p class="text-xs uppercase text-gray-400 font-bold tracking-wider">Fecha Probable</p><p class="text-2xl font-bold text-blue-600 mt-1">${estimacion || "Calculando..."}</p></div></div>`;
-        } else if (anterior) { html = `<div class="bg-gray-100 p-3 rounded text-sm text-gray-600">Posterior al último registro (${anterior.fecha}). Debería ser reciente.</div>`;
-        } else if (posterior) { html = `<div class="bg-gray-100 p-3 rounded text-sm text-gray-600">Anterior al primer registro (${posterior.fecha}). Debería ser antiguo.</div>`;
-        } else { html = `<div class="text-gray-400">Sin datos suficientes.</div>`; }
+            html = `<div class="bg-slate-800 p-4 rounded border border-slate-700 shadow-sm text-left"><h4 class="font-bold text-cyan-400 border-b border-slate-700 pb-2 mb-2 text-center">📊 ESTIMACIÓN MANUAL</h4><div class="text-xs text-slate-400 flex justify-between mb-3"><span>Ant: ${anterior.numero} (${anterior.fecha})</span><span>Post: ${posterior.numero} (${posterior.fecha})</span></div><div class="text-center bg-slate-900 p-3 rounded border border-slate-700"><p class="text-xs uppercase text-slate-500 font-bold tracking-wider">Fecha Probable</p><p class="text-2xl font-bold text-cyan-400 mt-1">${estimacion || "Calculando..."}</p></div></div>`;
+        } else if (anterior) { html = `<div class="bg-slate-800 border border-slate-700 p-3 rounded text-sm text-slate-300">Posterior al último registro (${anterior.fecha}). Debería ser reciente.</div>`;
+        } else if (posterior) { html = `<div class="bg-slate-800 border border-slate-700 p-3 rounded text-sm text-slate-300">Anterior al primer registro (${posterior.fecha}). Debería ser antiguo.</div>`;
+        } else { html = `<div class="text-slate-400">Sin datos suficientes.</div>`; }
         output.innerHTML = html;
     }
 
@@ -440,7 +462,7 @@
             const [d2,m2,y2]=b.fecha.split('/'); 
             return new Date(`${y2}-${m2}-${d2}`) - new Date(`${y1}-${m1}-${d1}`); 
         }).forEach(d => { 
-            tb.innerHTML += `<tr class="bg-white border-b hover:bg-gray-50"><td class="px-4 py-3 font-mono font-bold">${d.numero}</td><td class="px-4 py-3">${d.fecha}</td><td class="px-4 py-3 text-right"><span onclick="eliminarRegistro('${d.key}')" class="text-red-500 font-bold cursor-pointer">X</span></td></tr>`; 
+            tb.innerHTML += `<tr class="bg-slate-800 border-b border-slate-700 hover:bg-slate-700 transition"><td class="px-4 py-3 font-mono font-bold text-cyan-400" data-label="Número">${d.numero}</td><td class="px-4 py-3" data-label="Fecha">${d.fecha}</td><td class="px-4 py-3 text-right"><span onclick="eliminarRegistro('${d.key}')" class="text-red-500 font-bold cursor-pointer hover:text-red-400">X</span></td></tr>`; 
         }); 
     }
   </script>
