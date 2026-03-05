@@ -125,6 +125,19 @@
         input:checked + .slider { background-color: var(--accent-cyan); }
         input:checked + .slider:before { transform: translateX(18px); background-color: white;}
 
+        /* Botón Logout */
+        .logout-btn {
+            background: #7f1d1d;
+            color: #fca5a5;
+            border: 1px solid #991b1b;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: none;
+            align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .logout-btn:hover { background: #991b1b; transform: scale(1.05); }
 
         /* --- GRID SYSTEM --- */
         .grid-system {
@@ -329,15 +342,6 @@
                     <option value="" disabled selected>Seleccionar Fabricante...</option>
                 </select>
             </div>
-
-            <div class="right-controls-group">
-                <div class="edit-controls">
-                    <span class="mode-badge" id="modeBadge">USO</span>
-                    <label class="switch">
-                        <input type="checkbox" id="editToggle" onchange="window.toggleMode()">
-                        <span class="slider"></span>
-                    </label>
-            </div>
         </div>
 
         <div class="grid-system" id="gridContainer">
@@ -444,6 +448,17 @@ const firebaseConfig = {
             });
         }
 
+      // Monitor de Autenticación
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Usuario logueado: ocultamos modal y cargamos datos
+                document.getElementById('loginModal').style.display = 'none';
+                loadData();
+            } else {
+                // Usuario no logueado: intentamos cargar datos públicos
+                loadData();
+            }
+        });
 
         // --- FUNCIONES UI ---
 
@@ -455,7 +470,6 @@ const firebaseConfig = {
             auth.signInWithEmailAndPassword(email, pass)
                 .catch((error) => { alert("Error: " + error.message); });
         }
-
 
         function sanitizeId(name) {
             return name.trim().toUpperCase().replace(/[^A-Z0-9]/g, '_');
