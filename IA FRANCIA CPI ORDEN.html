@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IA FRANCIA CPI ORDEN (FINAL v2 - Dark Mode)</title>
+  <title>IA FRANCIA CPI ORDEN (FINAL v2 - Dark Mode Wide)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Estilos base */
     .cpi-table-container { max-height: 400px; overflow-y: auto; }
+    @media (min-width: 768px) { .cpi-table-container { max-height: 600px; } }
+    
     .delete-icon { cursor: pointer; transition: transform 0.2s; }
     .delete-icon:hover { transform: scale(1.1); color: #ef4444; }
 
@@ -102,137 +104,139 @@
       <p class="text-slate-400 text-sm mt-2">Consultando IA y verificando coherencia de fechas</p>
   </div>
 
-  <div class="absolute top-32 right-2 z-40">
-      <button onclick="toggleSettings()" class="bg-slate-800 text-slate-200 border border-slate-700 text-xs px-3 py-1 rounded shadow hover:bg-slate-700 flex items-center gap-1">
-          ⚙️ Configurar IA
-      </button>
-  </div>
-  <div id="settingsPanel" class="hidden absolute top-40 right-2 w-72 bg-slate-800 border border-slate-700 shadow-xl rounded p-3 z-40 text-slate-200">
-      <div class="text-xs text-slate-400 mb-2">Proveedor: Google Gemini (Fijo)</div>
-      <label class="block text-xs font-bold text-cyan-500 mb-1">API Key:</label>
-      <input type="password" id="apiKeyInput" class="w-full bg-slate-900 text-slate-200 text-xs border border-slate-700 p-1 rounded mb-2" placeholder="Pegar API Key aquí...">
-      <label class="block text-xs font-bold text-cyan-500 mb-1">Modelo:</label>
-      <input type="text" id="modelInput" class="w-full bg-slate-900 text-slate-200 text-xs border border-slate-700 p-1 rounded mb-3" placeholder="gemini-1.5-flash">
-      <button onclick="saveSettings()" class="w-full bg-cyan-600 text-white text-xs py-1.5 rounded hover:bg-cyan-700 font-bold">GUARDAR CONFIGURACIÓN</button>
-  </div>
-
-  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+  <header class="min-h-[6rem] py-3 md:py-0 md:h-32 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
     <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
     
-    <div class="text-center flex-1">
+    <div class="text-center flex-1 flex flex-col items-center justify-center">
       <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
         CPI FRANCIA<br class="md:hidden"> ESTIMACIÓN DE FECHA
       </h1>
       <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
         Grupo de Análisis Documental
       </h2>
+      <button onclick="toggleSettings()" class="mt-2 bg-slate-800 text-slate-200 border border-slate-700 text-xs md:text-sm px-4 py-1.5 rounded shadow hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2">
+          ⚙️ Configurar IA
+      </button>
     </div>
 
     <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
-  <div id="mainDropZone" class="drop-wrapper w-11/12 max-w-md mx-auto mt-6 bg-slate-800 border-slate-700 shadow-lg">
-    <div class="w-full pointer-events-none select-none flex justify-center p-2 rounded-lg bg-slate-900">
-        <img src="logocpi.png" alt="Logo CPI" class="w-full h-auto object-contain max-h-40">
+  <div id="settingsPanel" class="hidden fixed top-[110px] md:top-[140px] left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-8 w-11/12 max-w-[320px] bg-slate-800 border border-slate-700 shadow-2xl rounded-lg p-4 z-[1001] text-slate-200">
+      <div class="flex justify-between items-center mb-3">
+          <div class="text-xs text-slate-400">Proveedor: Google Gemini</div>
+          <button onclick="toggleSettings()" class="text-slate-400 hover:text-white font-bold text-lg leading-none">&times;</button>
+      </div>
+      <label class="block text-xs font-bold text-cyan-500 mb-1">API Key:</label>
+      <input type="password" id="apiKeyInput" class="w-full bg-slate-900 text-slate-200 text-sm border border-slate-700 p-2 rounded mb-3 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="Pegar API Key aquí...">
+      <label class="block text-xs font-bold text-cyan-500 mb-1">Modelo:</label>
+      <input type="text" id="modelInput" class="w-full bg-slate-900 text-slate-200 text-sm border border-slate-700 p-2 rounded mb-4 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="gemini-1.5-flash">
+      <button onclick="saveSettings()" class="w-full bg-cyan-600 text-white text-sm py-2 rounded hover:bg-cyan-700 font-bold transition-colors">GUARDAR CONFIGURACIÓN</button>
+  </div>
+
+  <div id="mainDropZone" class="drop-wrapper w-11/12 max-w-3xl mx-auto mt-6 bg-slate-800 border-slate-700 shadow-lg">
+    <div class="w-full pointer-events-none select-none flex justify-center p-4 rounded-lg bg-slate-900">
+        <img src="logocpi.png" alt="Logo CPI" class="w-full h-auto object-contain max-h-40 md:max-h-64">
     </div>
     
-    <p class="text-center mt-4 px-4 text-sm text-slate-400">
+    <p class="text-center mt-4 px-4 text-sm md:text-base text-slate-400">
         Ingresa un número de orden para estimar la fecha más aproximada.
     </p>
 
-    <div class="w-full mt-4 mb-2">
+    <div class="w-full mt-4 mb-4 px-2 md:px-8">
         <label for="documento" class="block text-sm font-bold text-cyan-500 mb-1 ml-1">Número de orden</label>
-        <input type="text" id="documento" placeholder="Ej: 10402260107" class="w-full p-2 text-lg border border-slate-700 bg-slate-900 text-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-sm">
+        <input type="text" id="documento" placeholder="Ej: 10402260107" class="w-full p-3 text-lg border border-slate-700 bg-slate-900 text-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-sm text-center md:text-left">
     </div>
   </div>
 
-  <div class="w-11/12 max-w-md mx-auto">
-    <button onclick="calcularFecha()" class="w-full bg-cyan-600 text-white font-bold py-2 rounded-md shadow hover:bg-cyan-700 transition">
+  <div class="w-11/12 max-w-3xl mx-auto mt-6">
+    <button onclick="calcularFecha()" class="w-full bg-cyan-600 text-white font-bold py-3 text-lg md:text-xl rounded-md shadow hover:bg-cyan-700 transition">
       Calcular fecha
     </button>
-    <div id="resultado" class="mt-4 text-sm font-medium text-center"></div>
+    <div id="resultado" class="mt-4 text-base md:text-lg font-medium text-center"></div>
   </div>
 
-  <div id="aiResultBox" class="hidden mt-4 w-11/12 max-w-md mx-auto border-2 border-slate-700 rounded-lg p-4 text-center shadow-md bg-slate-800">
-      <h3 id="aiTitle" class="font-bold text-lg mb-2 text-cyan-500"></h3>
+  <div id="aiResultBox" class="hidden mt-4 w-11/12 max-w-3xl mx-auto border-2 border-slate-700 rounded-lg p-6 text-center shadow-md bg-slate-800">
+      <h3 id="aiTitle" class="font-bold text-lg md:text-xl mb-4 text-cyan-500"></h3>
       
-      <div class="grid grid-cols-1 gap-2 text-sm text-slate-200 text-left mb-3 bg-slate-900 p-2 rounded border border-slate-700">
-          <div class="flex justify-between items-center border-b border-slate-700 pb-1">
-              <span class="text-xs text-cyan-500 font-bold">Nº LEÍDO (1)</span>
-              <span id="aiNumero" class="font-mono font-bold text-lg"></span>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-200 text-left mb-4 bg-slate-900 p-4 rounded border border-slate-700">
+          <div class="flex md:flex-col justify-between md:justify-start md:items-start items-center border-b md:border-b-0 md:border-r border-slate-700 pb-2 md:pb-0 md:pr-4">
+              <span class="text-xs text-cyan-500 font-bold mb-1">Nº LEÍDO (1)</span>
+              <span id="aiNumero" class="font-mono font-bold text-lg md:text-2xl text-white"></span>
           </div>
-          <div class="flex justify-between items-center pt-1">
-              <span class="text-xs text-cyan-500 font-bold">FECHA LEÍDA (2)</span>
-              <span id="aiFecha" class="font-mono font-bold text-lg"></span>
+          <div class="flex md:flex-col justify-between md:justify-start md:items-start items-center pt-2 md:pt-0 md:pl-4">
+              <span class="text-xs text-cyan-500 font-bold mb-1">FECHA LEÍDA (2)</span>
+              <span id="aiFecha" class="font-mono font-bold text-lg md:text-2xl text-white"></span>
           </div>
       </div>
       
-      <div id="aiMessage" class="text-sm font-medium mb-3 p-3 rounded text-left leading-relaxed"></div>
+      <div id="aiMessage" class="text-sm md:text-base font-medium mb-4 p-4 rounded text-left leading-relaxed"></div>
 
-      <div id="aiActions" class="hidden">
-          <button onclick="guardarDesdeAI()" class="w-full bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700 transition flex justify-center items-center gap-2 shadow">
+      <div id="aiActions" class="hidden md:w-1/2 md:mx-auto">
+          <button onclick="guardarDesdeAI()" class="w-full bg-green-600 text-white font-bold py-3 rounded hover:bg-green-700 transition flex justify-center items-center gap-2 shadow">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" /></svg>
               Añadir a Base de Datos
           </button>
       </div>
-      <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-3 text-slate-400 hover:text-slate-200 text-xs underline">
+      <button onclick="document.getElementById('aiResultBox').classList.add('hidden')" class="w-full mt-4 text-slate-400 hover:text-slate-200 text-sm underline">
           Cerrar panel
       </button>
   </div>
 
-  <div id="auth-loading-msg">Conectando con base de datos V4...</div>
+  <div id="auth-loading-msg" class="text-center md:text-lg">Conectando con base de datos V4...</div>
 
-  <div id="db-panel" class="bg-slate-800 border border-slate-700 shadow-md rounded-lg p-6 mt-6 text-center w-11/12 max-w-md mx-auto" style="display:none;">
-    <h3 class="text-lg font-semibold mb-4 text-cyan-500">Añadir nuevos datos (Manual)</h3>
-    <div class="flex flex-col space-y-2">
-      <button id="mostrarFormularioBtn" class="w-full bg-slate-700 border border-slate-600 text-white py-2 rounded-md shadow hover:bg-slate-600 text-sm">
-        Introduzca nuevo número de CPI
+  <div id="db-panel" class="bg-slate-800 border border-slate-700 shadow-md rounded-lg p-6 md:p-8 mt-6 text-center w-11/12 max-w-4xl mx-auto" style="display:none;">
+    <h3 class="text-lg md:text-xl font-semibold mb-6 text-cyan-500 border-b border-slate-700 pb-2">Gestión de Base de Datos</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-6">
+      <button id="mostrarFormularioBtn" class="w-full bg-slate-700 border border-slate-600 text-white py-3 md:py-2 rounded-md shadow hover:bg-slate-600 text-sm md:text-base transition-colors">
+        Añadir Manual
       </button>
-      <button id="toggleCpiListBtn" class="w-full bg-cyan-600 text-white py-2 rounded-md shadow hover:bg-cyan-500">
-        Consultar lista completa
+      <button id="toggleCpiListBtn" class="w-full bg-cyan-600 text-white py-3 md:py-2 rounded-md shadow hover:bg-cyan-500 text-sm md:text-base transition-colors">
+        Consultar Lista
       </button>
-      <button id="toggleEstadisticasBtn" class="w-full bg-purple-600 text-white py-2 rounded-md shadow hover:bg-purple-500">
-        Ver Estadísticas
+      <button id="toggleEstadisticasBtn" class="w-full bg-purple-600 text-white py-3 md:py-2 rounded-md shadow hover:bg-purple-500 text-sm md:text-base transition-colors">
+        Estadísticas
       </button>
     </div>
 
-    <div id="formularioCpi" class="mt-4 hidden text-left bg-slate-900 p-4 rounded-lg border border-slate-700">
-        <div class="mb-4">
-            <label class="block text-sm font-bold text-cyan-500 mb-1">Número de orden:</label>
-            <input type="number" id="nuevoNumeroCpi" class="w-full bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-500">
+    <div id="formularioCpi" class="mt-4 hidden text-left bg-slate-900 p-6 md:p-8 rounded-lg border border-slate-700 md:w-2/3 md:mx-auto">
+        <div class="mb-5">
+            <label class="block text-sm md:text-base font-bold text-cyan-500 mb-2">Número de orden:</label>
+            <input type="number" id="nuevoNumeroCpi" class="w-full bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-cyan-500 outline-none">
         </div>
-        <div class="mb-4">
-            <label class="block text-sm font-bold text-cyan-500 mb-1">Fecha de expedición:</label>
-            <input type="date" id="nuevaFechaCpi" class="w-full bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-500">
+        <div class="mb-6">
+            <label class="block text-sm md:text-base font-bold text-cyan-500 mb-2">Fecha de expedición:</label>
+            <input type="date" id="nuevaFechaCpi" class="w-full bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-cyan-500 outline-none">
         </div>
-        <div class="flex space-x-2">
-            <button onclick="guardarNuevoCpi()" class="w-1/2 bg-cyan-600 text-white py-2 rounded shadow hover:bg-cyan-500">Guardar</button>
-            <button onclick="limpiarCampos()" class="w-1/2 bg-slate-600 text-white py-2 rounded shadow hover:bg-slate-500">Limpiar</button>
+        <div class="flex space-x-4">
+            <button onclick="guardarNuevoCpi()" class="w-1/2 bg-cyan-600 text-white py-3 rounded shadow hover:bg-cyan-500 font-bold text-lg">Guardar</button>
+            <button onclick="limpiarCampos()" class="w-1/2 bg-slate-600 text-white py-3 rounded shadow hover:bg-slate-500 font-bold text-lg">Limpiar</button>
         </div>
         <div id="mensajeGuardado" class="mt-4 text-sm font-medium text-center"></div>
     </div>
     
     <div id="cpiDataTable" class="mt-4 hidden">
-        <div class="cpi-table-container border border-slate-700 rounded-lg bg-slate-900">
-            <table class="w-full text-sm text-left text-slate-300">
-                <thead class="text-xs text-cyan-500 uppercase bg-slate-800 sticky top-0 border-b border-slate-700">
+        <div class="cpi-table-container border border-slate-700 rounded-lg bg-slate-900 overflow-hidden">
+            <table class="w-full text-sm md:text-base text-left text-slate-300">
+                <thead class="text-xs md:text-sm text-cyan-500 uppercase bg-slate-800 sticky top-0 border-b border-slate-700 z-10">
                     <tr>
-                        <th class="px-6 py-3">Número</th>
-                        <th class="px-6 py-3">Fecha</th>
-                        <th class="px-6 py-3"></th>
+                        <th class="px-6 py-4">Número</th>
+                        <th class="px-6 py-4">Fecha</th>
+                        <th class="px-6 py-4 text-right">Acción</th>
                     </tr>
                 </thead>
-                <tbody id="cpiList"></tbody>
+                <tbody id="cpiList" class="divide-y divide-slate-700/50"></tbody>
             </table>
         </div>
     </div>
-    <div id="estadisticasCpi" class="mt-4 hidden">
-        <div id="resumenEstadisticas" class="p-4 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"></div>
-        <div class="flex flex-col space-y-2 mt-4">
-            <select id="mesSelector" class="w-full bg-slate-800 text-slate-200 border border-slate-700 p-2 rounded focus:ring-2 focus:ring-cyan-500"></select>
-            <select id="anioSelector" class="w-full bg-slate-800 text-slate-200 border border-slate-700 p-2 rounded focus:ring-2 focus:ring-cyan-500"></select>
+
+    <div id="estadisticasCpi" class="mt-4 hidden md:w-2/3 md:mx-auto">
+        <div id="resumenEstadisticas" class="p-5 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-base md:text-lg space-y-2"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <select id="mesSelector" class="w-full bg-slate-800 text-slate-200 border border-slate-700 p-3 rounded focus:ring-2 focus:ring-cyan-500 outline-none"></select>
+            <select id="anioSelector" class="w-full bg-slate-800 text-slate-200 border border-slate-700 p-3 rounded focus:ring-2 focus:ring-cyan-500 outline-none"></select>
         </div>
-        <div id="resultadosEstadisticas" class="mt-4 text-center"></div>
+        <div id="resultadosEstadisticas" class="mt-6 text-center bg-slate-900 p-4 rounded-lg border border-slate-700"></div>
     </div>
   </div>
 
@@ -405,24 +409,24 @@
                 }
 
                 box.className = esSospechoso 
-                    ? "mt-4 w-11/12 max-w-md mx-auto border-2 border-red-500 bg-slate-800 rounded-lg p-4 text-center shadow-xl animate-pulse" 
-                    : "mt-4 w-11/12 max-w-md mx-auto border-2 border-green-500 bg-slate-800 rounded-lg p-4 text-center shadow-md";
+                    ? "mt-4 w-11/12 max-w-3xl mx-auto border-2 border-red-500 bg-slate-800 rounded-lg p-6 text-center shadow-xl animate-pulse" 
+                    : "mt-4 w-11/12 max-w-3xl mx-auto border-2 border-green-500 bg-slate-800 rounded-lg p-6 text-center shadow-md";
 
-                title.className = esSospechoso ? "text-red-500 font-black text-xl mb-2 uppercase" : "text-green-400 font-bold text-lg mb-2";
+                title.className = esSospechoso ? "text-red-500 font-black text-xl md:text-2xl mb-4 uppercase" : "text-green-400 font-bold text-lg md:text-xl mb-4";
                 title.textContent = esSospechoso ? "⚠️ ALERTA: INCOHERENCIA" : "✅ Documento Coherente";
 
                 if (esSospechoso) {
-                    msg.className = "bg-slate-900 text-red-400 p-3 rounded border border-red-500/50 text-sm font-medium text-left";
-                    msg.innerHTML = `${motivo}<br><br><span class="font-bold underline">CONCLUSIÓN:</span> Posible documento manipulado o falso.`;
+                    msg.className = "bg-slate-900 text-red-400 p-4 rounded border border-red-500/50 text-sm md:text-base font-medium text-left";
+                    msg.innerHTML = `${motivo}<br><br><span class="font-bold underline text-white">CONCLUSIÓN:</span> Posible documento manipulado o falso.`;
                     actions.classList.add('hidden');
                 } else {
                     const existe = datosCPI.find(d => d.numero == numVal);
                     if(existe) {
-                        msg.className = "text-cyan-400 bg-slate-900 p-2 rounded border border-cyan-800";
-                        msg.innerHTML = "ℹ️ Este número ya existe en la base de datos con fecha: " + formatoFecha(existe.fecha);
+                        msg.className = "text-cyan-400 bg-slate-900 p-4 rounded border border-cyan-800 md:text-base";
+                        msg.innerHTML = "ℹ️ Este número ya existe en la base de datos con fecha: <b class='text-white'>" + formatoFecha(existe.fecha) + "</b>";
                         actions.classList.add('hidden');
                     } else {
-                        msg.className = "text-green-400 bg-slate-900 p-3 rounded border border-green-800 text-sm";
+                        msg.className = "text-green-400 bg-slate-900 p-4 rounded border border-green-800 text-sm md:text-base";
                         msg.innerHTML = motivo;
                         actions.classList.remove('hidden');
                         window.tempAiData = { numero: numVal, fecha: fechaLimpia.split('/').reverse().join('-') };
@@ -491,12 +495,20 @@
       meses.forEach(m => { const [mes, anio] = m.split('-'); mesSelector.innerHTML += `<option value="${m}">${nombresMeses[mes]} ${anio}</option>`; });
     }
 
-    mesSelector.addEventListener('change', (e) => { if(e.target.value) { const [m, a] = e.target.value.split('-'); resultadosEstadisticasDiv.innerHTML = `<p class="font-bold">Estimación: <span class="text-cyan-400 text-xl">${formatNumber(calcularCertificados(new Date(a, m, 1), new Date(a, Number(m)+1, 0)))}</span></p>`; } });
-    anioSelector.addEventListener('change', (e) => { if(e.target.value) { resultadosEstadisticasDiv.innerHTML = `<p class="font-bold">Estimación Año: <span class="text-cyan-400 text-xl">${formatNumber(calcularCertificados(new Date(e.target.value, 0, 1), new Date(e.target.value, 11, 31)))}</span></p>`; } });
+    mesSelector.addEventListener('change', (e) => { if(e.target.value) { const [m, a] = e.target.value.split('-'); resultadosEstadisticasDiv.innerHTML = `<p class="font-bold text-lg">Estimación mensual: <br class="md:hidden"><span class="text-cyan-400 text-2xl">${formatNumber(calcularCertificados(new Date(a, m, 1), new Date(a, Number(m)+1, 0)))}</span> uds.</p>`; } });
+    anioSelector.addEventListener('change', (e) => { if(e.target.value) { resultadosEstadisticasDiv.innerHTML = `<p class="font-bold text-lg">Estimación anual: <br class="md:hidden"><span class="text-cyan-400 text-2xl">${formatNumber(calcularCertificados(new Date(e.target.value, 0, 1), new Date(e.target.value, 11, 31)))}</span> uds.</p>`; } });
 
     function mostrarResumenEstadisticas() {
         const hoy = new Date();
-        resumenEstadisticasDiv.innerHTML = `<p>Mes actual: <b class="text-cyan-400">${formatNumber(calcularCertificados(new Date(hoy.getFullYear(), hoy.getMonth(), 1), hoy))}</b></p><p>Año actual: <b class="text-cyan-400">${formatNumber(calcularCertificados(new Date(hoy.getFullYear(), 0, 1), hoy))}</b></p>`;
+        resumenEstadisticasDiv.innerHTML = `
+            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                <span>Total Mes Actual:</span>
+                <b class="text-cyan-400 text-xl">${formatNumber(calcularCertificados(new Date(hoy.getFullYear(), hoy.getMonth(), 1), hoy))}</b>
+            </div>
+            <div class="flex justify-between items-center pt-2">
+                <span>Total Año Actual:</span>
+                <b class="text-cyan-400 text-xl">${formatNumber(calcularCertificados(new Date(hoy.getFullYear(), 0, 1), hoy))}</b>
+            </div>`;
     }
 
     function calcularCertificados(ini, fin) {
@@ -526,11 +538,11 @@
         const sorted = datosCPI.sort((a,b) => b.numero - a.numero);
         sorted.forEach(d => {
             cpiListDiv.innerHTML += `
-            <tr class="bg-slate-800 border-b border-slate-700 hover:bg-slate-700">
-                <td class="px-6 py-4" data-label="Número">${d.numero}</td>
-                <td class="px-6 py-4" data-label="Fecha">${formatoFecha(d.fecha)}</td>
-                <td class="px-6 py-4 text-right" data-label="Acción">
-                    <span onclick="eliminarCpi('${d.key}')" class="text-red-500 cursor-pointer font-bold bg-slate-900 px-3 py-1 rounded border border-slate-700 hover:bg-red-900 hover:text-white transition">X</span>
+            <tr class="bg-slate-800 hover:bg-slate-700 transition-colors">
+                <td class="px-6 py-4 md:py-3 font-mono text-white" data-label="Número">${d.numero}</td>
+                <td class="px-6 py-4 md:py-3" data-label="Fecha">${formatoFecha(d.fecha)}</td>
+                <td class="px-6 py-4 md:py-3 text-right" data-label="Acción">
+                    <span onclick="eliminarCpi('${d.key}')" class="text-red-500 cursor-pointer font-bold bg-slate-900 px-4 py-2 md:py-1 rounded border border-slate-700 hover:bg-red-900 hover:text-white transition shadow-sm">ELIMINAR</span>
                 </td>
             </tr>`;
         });
@@ -538,14 +550,14 @@
     
     function eliminarCpi(k) {
         if (!isUserAuthenticated) return alert("No autorizado.");
-        if(confirm("¿Eliminar?")) cpiRef.child(k).remove();
+        if(confirm("¿Seguro que deseas eliminar este registro?")) cpiRef.child(k).remove();
     }
     
     function guardarNuevoCpi() {
         if (!isUserAuthenticated) return alert("No autorizado.");
         const n = parseInt(document.getElementById('nuevoNumeroCpi').value);
         const f = document.getElementById('nuevaFechaCpi').value;
-        if(n && f) cpiRef.child(String(n)).set({fecha: f}).then(()=>{alert("Guardado"); limpiarCampos();});
+        if(n && f) cpiRef.child(String(n)).set({fecha: f}).then(()=>{alert("Guardado correctamente"); limpiarCampos();});
     }
     function limpiarCampos() { document.getElementById('nuevoNumeroCpi').value=''; document.getElementById('nuevaFechaCpi').value=''; }
 
@@ -553,7 +565,7 @@
         resetUI();
         const n = parseInt(document.getElementById("documento").value);
         const res = document.getElementById("resultado");
-        if(isNaN(n)) { res.innerHTML = "Número inválido"; return; }
+        if(isNaN(n)) { res.innerHTML = "<span class='text-red-400'>Por favor, introduce un número válido.</span>"; return; }
         
         // Check por si no hay datos cargados
         if(datosCPI.length === 0 && !isUserAuthenticated) {
@@ -563,17 +575,17 @@
         
         const ord = datosCPI.sort((a,b)=>a.numero-b.numero);
         const ex = ord.find(x=>x.numero===n);
-        if(ex) { res.innerHTML = `<span class="text-green-400 font-bold">EXISTE: ${formatoFecha(ex.fecha)}</span>`; return; }
+        if(ex) { res.innerHTML = `<div class="p-4 bg-slate-800 border border-slate-700 rounded-lg shadow"><span class="text-green-400 font-bold block mb-1">EL DOCUMENTO YA EXISTE</span>Fecha registrada: <b class="text-white text-xl ml-2">${formatoFecha(ex.fecha)}</b></div>`; return; }
         
         const ant = ord.filter(x=>x.numero<n).pop();
         const post = ord.find(x=>x.numero>n);
         
-        if(!ant) { res.innerHTML = "Número muy bajo"; return; }
-        if(!post) { res.innerHTML = `Sin datos recientes. Posterior a <span class="text-cyan-400 font-bold">${formatoFecha(ant.fecha)}</span>`; return; }
+        if(!ant) { res.innerHTML = "<span class='text-yellow-400'>El número es demasiado bajo respecto a los registros actuales.</span>"; return; }
+        if(!post) { res.innerHTML = `<div class="p-4 bg-slate-800 border border-slate-700 rounded-lg shadow text-slate-300">Sin registros posteriores para interpolar.<br>Se estima posterior a: <span class="text-cyan-400 font-bold text-xl ml-2">${formatoFecha(ant.fecha)}</span></div>`; return; }
         
         const r = (n - ant.numero) / (post.numero - ant.numero);
         const t = ant.fecha.getTime() + r * (post.fecha.getTime() - ant.fecha.getTime());
-        res.innerHTML = `Estimada: <b class="text-cyan-400 text-lg">${formatoFecha(new Date(t))}</b>`;
+        res.innerHTML = `<div class="p-4 bg-slate-800 border border-slate-700 rounded-lg shadow text-slate-300 text-lg">Fecha de expedición estimada:<br><b class="text-cyan-400 text-2xl md:text-3xl mt-2 inline-block">${formatoFecha(new Date(t))}</b></div>`;
     }
   </script>
 </body>
