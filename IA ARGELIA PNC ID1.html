@@ -78,11 +78,6 @@
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
         position: relative; border: 1px solid #334155;
     }
-    
-    /* AUTH STATUS DARK MODE */
-    #auth-status-bar {
-        text-align: center; padding: 5px; font-size: 0.8rem; font-weight: bold; color: #94a3b8;
-    }
 
     /* -------------------------------------------------------------
        REGLAS OBLIGATORIAS: Textos de Ayuda, Firebase y Miniaturas
@@ -162,7 +157,6 @@
           <h2 class="text-2xl font-extrabold text-cyan-500 mb-6 border-b border-slate-700 pb-2">Manual de Usuario y Ayuda</h2>
           
           <div class="space-y-4 text-slate-300 text-sm leading-relaxed">
-              
               <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-sm">
                   <h3 class="font-bold text-cyan-400 mb-2 text-base flex items-center gap-2">⚙️ Configuración API Gemini</h3>
                   <p class="mb-2">Para el correcto funcionamiento del análisis de imagen:</p>
@@ -171,7 +165,6 @@
                       <li><strong>Si falla la API:</strong> Si cambias de navegador o la IA deja de responder (error de cuota o clave inválida), pulsa el botón <strong>OBTENER CLAVE API</strong> en los ajustes para ir a tu listado privado, copia una nueva y pégala en el campo correspondiente.</li>
                   </ul>
               </div>
-
               <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
                   <h3 class="font-bold text-cyan-400 mb-2 text-base">🔢 Introducción Manual</h3>
                   <p>Puedes escribir el número de serie en el buscador principal:</p>
@@ -181,7 +174,6 @@
                       <li>Si no existe, podrás <strong>añadirlo</strong> manualmente.</li>
                   </ul>
               </div>
-
               <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
                   <h3 class="font-bold text-cyan-400 mb-2 text-base">📂 Organización Automática</h3>
                   <p>Los registros se guardan automáticamente en su listado correspondiente:</p>
@@ -190,7 +182,6 @@
                       <li><strong>Serie L:</strong> Licencias que empiezan por la letra L.</li>
                   </ul>
               </div>
-
               <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
                   <h3 class="font-bold text-cyan-400 mb-2 text-base">🤖 Arrastrar y Soltar (IA)</h3>
                   <p>Puedes arrastrar una imagen del permiso directamente al recuadro:</p>
@@ -220,17 +211,21 @@
       <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
-  <div class="fixed top-32 right-4 z-[900] flex flex-col gap-2 items-end">
-      <button onclick="toggleSettings()" class="bg-slate-800/90 backdrop-blur-md border border-slate-600 text-cyan-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-slate-700 transition flex items-center gap-2">
-          ⚙️ AJUSTES IA
-      </button>
+  <div class="bg-slate-900 border-b border-slate-800 py-2 px-4 flex justify-between items-center z-[900] relative shadow-sm">
+      <div id="auth-status-text" class="text-xs md:text-sm font-bold text-slate-400 truncate pr-2">Conectando...</div>
       
-      <button onclick="toggleHelp()" class="bg-slate-800/90 text-cyan-400 border border-slate-600 px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-slate-700 transition flex items-center gap-2">
-          ❓ AYUDA
-      </button>
+      <div class="flex gap-2 flex-shrink-0">
+          <button onclick="toggleSettings()" class="bg-slate-800 border border-slate-600 text-cyan-400 px-3 py-1.5 rounded-full text-[11px] md:text-xs font-bold shadow hover:bg-slate-700 transition flex items-center gap-1.5">
+              ⚙️ <span class="hidden sm:inline">AJUSTES IA</span>
+          </button>
+          
+          <button onclick="toggleHelp()" class="bg-slate-800 text-cyan-400 border border-slate-600 px-3 py-1.5 rounded-full text-[11px] md:text-xs font-bold shadow hover:bg-slate-700 transition flex items-center gap-1.5">
+              ❓ <span class="hidden sm:inline">AYUDA</span>
+          </button>
+      </div>
   </div>
 
-  <div id="settingsPanel" class="hidden fixed top-44 right-4 w-80 bg-slate-800 border border-slate-700 shadow-2xl rounded-xl p-6 z-[1000] fade-in">
+  <div id="settingsPanel" class="hidden absolute top-40 right-4 w-80 bg-slate-800 border border-slate-700 shadow-2xl rounded-xl p-6 z-[1000] fade-in">
       <h4 class="font-bold text-cyan-400 mb-4 border-b border-slate-700 pb-2">Configuración Gemini API</h4>
       
       <label class="block text-xs font-bold text-slate-400 mb-1">API KEY</label>
@@ -253,8 +248,6 @@
       </a>
       <p class="text-[10px] text-slate-500 mt-2 text-center">Abre el listado privado de claves.</p>
   </div>
-
-  <div id="auth-status-bar" class="bg-slate-900 border-b border-slate-800">Conectando con base de datos V4...</div>
 
   <main class="w-full max-w-6xl mx-auto px-4 mt-8 flex-grow">
 
@@ -438,14 +431,15 @@
     let isUserAuthenticated = false;
 
     // --- 2. GESTIÓN DE SEGURIDAD ESTRICTA (V4) ---
-    const statusBar = document.getElementById('auth-status-bar');
+    const statusText = document.getElementById('auth-status-text');
     const mainPanel = document.getElementById('mainDatabasePanel');
 
     auth.onAuthStateChanged((user) => {
         if (user) {
             isUserAuthenticated = true;
             console.log("Usuario V4 Autorizado:", user.email);
-            statusBar.innerHTML = `<span class="text-cyan-400">✅ Conectado como: ${user.email}</span>`;
+            // Mostrar texto simple sin email
+            statusText.innerHTML = `<span class="text-cyan-400">✅ BASE DE DATOS CONECTADA</span>`;
             
             // Habilitar panel
             mainPanel.style.opacity = '1';
@@ -455,7 +449,7 @@
             iniciarDescargaDatos();
         } else {
             console.warn("Sin sesión en V4");
-            statusBar.innerHTML = "<span class='text-red-400'>⚠️ NO AUTORIZADO. Inicia sesión en el menú principal.</span>";
+            statusText.innerHTML = "<span class='text-red-400'>⚠️ NO AUTORIZADO. Inicia sesión.</span>";
             // Deshabilitar panel
             mainPanel.style.opacity = '0.5';
             mainPanel.style.pointerEvents = 'none';
@@ -475,7 +469,7 @@
             procesarDatosGlobales();
         }, (error) => {
             console.error("Error Permisos V4:", error);
-            statusBar.innerHTML = `<span class="text-red-400 font-bold">ERROR PERMISOS: ${error.code}</span>`;
+            statusText.innerHTML = `<span class="text-red-400 font-bold">ERROR PERMISOS: ${error.code}</span>`;
         });
 
         refNew.on('value', snap => {
@@ -519,7 +513,6 @@
             else listA.push(item);
         });
 
-        // MODIFICACIÓN: Invertido (numB frente a numA) para ordenar de más actual a más antiguo.
         const sorter = (a, b) => {
             const numA = a.numero || "";
             const numB = b.numero || "";
