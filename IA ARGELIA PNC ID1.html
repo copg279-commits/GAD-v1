@@ -214,13 +214,13 @@
   <div class="bg-slate-900 border-b border-slate-800 py-2 px-4 flex justify-between items-center z-[900] relative shadow-sm">
       <div id="auth-status-text" class="text-xs md:text-sm font-bold text-slate-400 truncate pr-2">Conectando...</div>
       
-      <div class="flex gap-2 flex-shrink-0">
-          <button onclick="toggleSettings()" class="bg-slate-800 border border-slate-600 text-cyan-400 px-3 py-1.5 rounded-full text-[11px] md:text-xs font-bold shadow hover:bg-slate-700 transition flex items-center gap-1.5">
-              ⚙️ <span class="hidden sm:inline">AJUSTES IA</span>
+   <div class="flex gap-2 flex-shrink-0">
+          <button onclick="toggleSettings()" class="bg-slate-800 border border-slate-600 text-cyan-400 px-2.5 py-1.5 md:px-3 rounded-full text-[10px] md:text-xs font-bold shadow hover:bg-slate-700 transition flex items-center gap-1.5">
+              ⚙️ <span>AJUSTES IA</span>
           </button>
           
-          <button onclick="toggleHelp()" class="bg-slate-800 text-cyan-400 border border-slate-600 px-3 py-1.5 rounded-full text-[11px] md:text-xs font-bold shadow hover:bg-slate-700 transition flex items-center gap-1.5">
-              ❓ <span class="hidden sm:inline">AYUDA</span>
+          <button onclick="toggleHelp()" class="bg-slate-800 text-cyan-400 border border-slate-600 px-2.5 py-1.5 md:px-3 rounded-full text-[10px] md:text-xs font-bold shadow hover:bg-slate-700 transition flex items-center gap-1.5">
+              ❓ <span>AYUDA</span>
           </button>
       </div>
   </div>
@@ -253,14 +253,14 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10 items-stretch">
         
-        <div class="reference-card p-2 flex flex-col items-center justify-center relative group">
-            <div class="absolute top-4 left-4 bg-cyan-600 text-slate-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm z-10">
+        <div class="reference-card p-4 flex flex-col items-center justify-center group gap-3">
+            <div class="bg-cyan-600 text-slate-900 text-[10px] md:text-xs font-bold px-3 py-1 rounded-full shadow-sm w-max self-start md:self-center">
                 GUÍA DE REFERENCIA
             </div>
-            <div class="w-full h-full overflow-hidden rounded-lg flex items-center justify-center bg-slate-900">
+            <div class="w-full overflow-hidden rounded-lg flex items-center justify-center bg-slate-900">
                 <img src="logoargelia2.jpg" alt="Ejemplo Permiso Argelia" class="max-w-full max-h-[350px] object-contain opacity-90 mix-blend-screen">
             </div>
-            <p class="text-xs text-slate-400 mt-2 font-medium text-center pb-2">Verifica la ubicación del Número de Soporte y Wilaya</p>
+            <p class="text-xs text-slate-400 font-medium text-center">Verifica la ubicación del Número de Soporte y Wilaya</p>
         </div>
 
         <div id="mainDropZone" class="drop-zone p-4 md:p-8 text-center relative cursor-pointer group shadow-sm hover:shadow-md">
