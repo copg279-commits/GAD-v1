@@ -69,7 +69,7 @@
     /* MODAL AYUDA DARK MODE */
     .help-modal {
         position: fixed; inset: 0; background: rgba(0,0,0,0.7); 
-        z-index: 60; display: none; align-items: center; justify-content: center;
+        z-index: 2000; display: none; align-items: center; justify-content: center;
         backdrop-filter: blur(4px);
     }
     .help-content {
@@ -129,7 +129,7 @@
         .api-table td:last-child, .w-full.text-sm.text-left.text-gray-600 td:last-child {
             border-bottom: none;
             flex-direction: row;
-            justify-content: flex-end; /* Ajustado para botones a la derecha */
+            justify-content: flex-end; 
             align-items: center;
             padding-top: 15px;
         }
@@ -205,17 +205,32 @@
       </div>
   </div>
 
-  <div class="absolute top-4 right-4 z-50 flex flex-col gap-2 items-end">
-      <button onclick="toggleSettings()" class="bg-slate-800/80 backdrop-blur-md border border-slate-600 text-cyan-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-slate-700 transition flex items-center gap-2">
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+      <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+      
+      <div class="text-center flex-1">
+        <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+          VERIFICACIÓN<br class="md:hidden"> PERMISO ARGELIA
+        </h1>
+        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+          Grupo de Análisis Documental
+        </h2>
+      </div>
+
+      <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
+  </header>
+
+  <div class="fixed top-32 right-4 z-[900] flex flex-col gap-2 items-end">
+      <button onclick="toggleSettings()" class="bg-slate-800/90 backdrop-blur-md border border-slate-600 text-cyan-400 px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-slate-700 transition flex items-center gap-2">
           ⚙️ AJUSTES IA
       </button>
       
-      <button onclick="toggleHelp()" class="bg-slate-800/80 text-cyan-400 border border-slate-600 px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-slate-700 transition flex items-center gap-2">
+      <button onclick="toggleHelp()" class="bg-slate-800/90 text-cyan-400 border border-slate-600 px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-slate-700 transition flex items-center gap-2">
           ❓ AYUDA
       </button>
   </div>
 
-  <div id="settingsPanel" class="hidden absolute top-28 right-4 w-80 bg-slate-800 border border-slate-700 shadow-2xl rounded-xl p-6 z-50 fade-in">
+  <div id="settingsPanel" class="hidden fixed top-44 right-4 w-80 bg-slate-800 border border-slate-700 shadow-2xl rounded-xl p-6 z-[1000] fade-in">
       <h4 class="font-bold text-cyan-400 mb-4 border-b border-slate-700 pb-2">Configuración Gemini API</h4>
       
       <label class="block text-xs font-bold text-slate-400 mb-1">API KEY</label>
@@ -238,21 +253,6 @@
       </a>
       <p class="text-[10px] text-slate-500 mt-2 text-center">Abre el listado privado de claves.</p>
   </div>
-
-  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
-      <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
-      
-      <div class="text-center flex-1">
-        <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
-          VERIFICACIÓN<br class="md:hidden"> PERMISO ARGELIA
-        </h1>
-        <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
-          Grupo de Análisis Documental
-        </h2>
-      </div>
-
-      <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
-  </header>
 
   <div id="auth-status-bar" class="bg-slate-900 border-b border-slate-800">Conectando con base de datos V4...</div>
 
@@ -451,7 +451,7 @@
             mainPanel.style.opacity = '1';
             mainPanel.style.pointerEvents = 'auto';
             
-            // INICIAR ESCUCHA DE DATOS (Solo ahora)
+            // INICIAR ESCUCHA DE DATOS
             iniciarDescargaDatos();
         } else {
             console.warn("Sin sesión en V4");
@@ -464,7 +464,6 @@
 
     // --- 3. FUNCIÓN DE CARGA SEGURA ---
     function iniciarDescargaDatos() {
-        // Escucha Serie A (Old)
         refOld.on('value', snap => {
             globalStore = globalStore.filter(d => d.source !== 'old');
             if (snap.exists()) {
@@ -479,7 +478,6 @@
             statusBar.innerHTML = `<span class="text-red-400 font-bold">ERROR PERMISOS: ${error.code}</span>`;
         });
 
-        // Escucha Serie L (New)
         refNew.on('value', snap => {
             globalStore = globalStore.filter(d => d.source !== 'new');
             if (snap.exists()) {
@@ -521,10 +519,11 @@
             else listA.push(item);
         });
 
+        // MODIFICACIÓN: Invertido (numB frente a numA) para ordenar de más actual a más antiguo.
         const sorter = (a, b) => {
             const numA = a.numero || "";
             const numB = b.numero || "";
-            return numA.localeCompare(numB, undefined, { numeric: true, sensitivity: 'base' });
+            return numB.localeCompare(numA, undefined, { numeric: true, sensitivity: 'base' });
         };
 
         listA.sort(sorter);
@@ -701,6 +700,8 @@
 
         const val = extraerValorNumerico(input);
         const dataset = input.startsWith('L') ? globalStore.filter(d=>d.numero.startsWith('L')) : globalStore.filter(d=>!d.numero.startsWith('L'));
+        
+        // La IA para estimar SIEMPRE necesita orden ascendente, esto se queda igual
         const sorted = [...dataset].sort((a,b) => extraerValorNumerico(a.numero) - extraerValorNumerico(b.numero));
         const ant = sorted.filter(d => extraerValorNumerico(d.numero) < val).pop();
         const post = sorted.find(d => extraerValorNumerico(d.numero) > val);
@@ -794,6 +795,8 @@
         } else {
             const dataset = num.startsWith('L') ? globalStore.filter(d=>d.numero.startsWith('L')) : globalStore.filter(d=>!d.numero.startsWith('L'));
             const val = extraerValorNumerico(num);
+            
+            // La validación interna sigue requiriendo orden ascendente, esto no se altera
             const sorted = [...dataset].sort((a,b)=>extraerValorNumerico(a.numero)-extraerValorNumerico(b.numero));
             const ant = sorted.filter(d=>extraerValorNumerico(d.numero)<val).pop();
             const post = sorted.find(d=>extraerValorNumerico(d.numero)>val);
