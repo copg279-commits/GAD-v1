@@ -6,6 +6,11 @@
   <title>Gestión de Documentos - GAD</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
   <style>
     body {
       font-family: "Inter", sans-serif;
@@ -184,7 +189,9 @@
             <th class="py-3 px-4 text-cyan-500 font-semibold uppercase tracking-wider text-sm text-center">Acciones</th>
           </tr>
         </thead>
-        <tbody id="tablaCuerpo" class="divide-y divide-slate-700"></tbody>
+        <tbody id="tablaCuerpo" class="divide-y divide-slate-700">
+          <tr><td colspan='4' class='text-center text-cyan-500 py-6 font-semibold' id="loading-msg">Cargando documentos o esperando autenticación...</td></tr>
+        </tbody>
       </table>
     </div>
 
@@ -195,18 +202,8 @@
     </div>
   </main>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
-    import {
-      getDatabase,
-      ref,
-      push,
-      set,
-      onValue,
-      update,
-      remove,
-    } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-database.js";
-
+  <script>
+    // --- 1. CONFIGURACIÓN V4 ---
     const firebaseConfig = {
       apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
       authDomain: "gad-alicante-v4.firebaseapp.com",
@@ -217,9 +214,14 @@
       appId: "1:119727545224:web:36880c50d196c456cdb83d"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const ordenesRef = ref(db, "ordenes");
+    // Inicialización Firebase v8
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
+    const db = firebase.database();
+    const auth = firebase.auth();
+    const ordenesRef = db.ref("ordenes");
 
     // 🔗 Elementos del DOM
     const mostrarFormularioBtn = document.getElementById("mostrarFormularioBtn");
@@ -233,6 +235,7 @@
     const tablaCuerpo = document.getElementById("tablaCuerpo");
 
     let idEditando = null;
+    let isUserAuthenticated = false;
 
     // 🎛 Mostrar / Ocultar formulario
     mostrarFormularioBtn.addEventListener("click", () => {
@@ -245,8 +248,25 @@
       limpiarFormulario();
     });
 
+    // --- 2. LÓGICA DE AUTENTICACIÓN ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            isUserAuthenticated = true;
+            document.getElementById('loading-msg')?.remove();
+            iniciarEscuchaOrdenes();
+        } else {
+            console.warn("Usuario no logueado. No se cargarán documentos.");
+            tablaCuerpo.innerHTML = "<tr><td colspan='4' class='text-center text-red-500 font-bold bg-slate-800 py-6'>Error: No se ha detectado sesión activa.</td></tr>";
+        }
+    });
+
     // 💾 Guardar o actualizar documento
     guardarBtn.addEventListener("click", async () => {
+      if (!isUserAuthenticated) {
+        alert("No estás autenticado. No puedes guardar documentos.");
+        return;
+      }
+
       const tipo = tipoInput.value.trim();
       const fecha = fechaInput.value;
       const descripcion = descripcionInput.value.trim();
@@ -257,15 +277,19 @@
         return;
       }
 
-      if (idEditando) {
-        await update(ref(db, "ordenes/" + idEditando), { tipo, fecha, descripcion, url });
-        idEditando = null;
-      } else {
-        await push(ordenesRef, { tipo, fecha, descripcion, url });
+      try {
+        if (idEditando) {
+          await ordenesRef.child(idEditando).update({ tipo, fecha, descripcion, url });
+          idEditando = null;
+        } else {
+          await ordenesRef.push({ tipo, fecha, descripcion, url });
+        }
+        limpiarFormulario();
+        formularioContainer.classList.add("hidden");
+      } catch (error) {
+        console.error("Error al guardar: ", error);
+        alert("Error al guardar el documento: Verifica tus permisos.");
       }
-
-      limpiarFormulario();
-      formularioContainer.classList.add("hidden");
     });
 
     function limpiarFormulario() {
@@ -276,53 +300,64 @@
     }
 
     // 📋 Mostrar lista en tiempo real
-    onValue(ordenesRef, (snapshot) => {
-      tablaCuerpo.innerHTML = "";
-      const datos = snapshot.val();
+    function iniciarEscuchaOrdenes() {
+      ordenesRef.on("value", (snapshot) => {
+        tablaCuerpo.innerHTML = "";
+        
+        if (!snapshot.exists()) {
+          tablaCuerpo.innerHTML =
+            "<tr><td colspan='4' class='text-center text-slate-500 py-6'>No hay documentos guardados.</td></tr>";
+          return;
+        }
 
-      if (!datos) {
-        tablaCuerpo.innerHTML =
-          "<tr><td colspan='4' class='text-center text-slate-500 py-6'>No hay documentos guardados.</td></tr>";
-        return;
-      }
+        snapshot.forEach((childSnapshot) => {
+          const id = childSnapshot.key;
+          const doc = childSnapshot.val();
 
-      Object.entries(datos).forEach(([id, doc]) => {
-        const fila = document.createElement("tr");
-        fila.className = "hover:bg-slate-700/50 transition-colors group"; // Actualizado a Dark Mode
+          const fila = document.createElement("tr");
+          fila.className = "hover:bg-slate-700/50 transition-colors group";
 
-        // Modificado para inyectar "data-label" necesario para las tarjetas móviles
-        fila.innerHTML = `
-          <td class="py-3 px-4 text-slate-300" data-label="Tipo">${doc.tipo}</td>
-          <td class="py-3 px-4 text-slate-300" data-label="Fecha">${doc.fecha}</td>
-          <td class="py-3 px-4 text-slate-300" data-label="Descripción">${doc.descripcion || "-"}</td>
-          <td class="py-3 px-4 text-center md:flex md:flex-wrap md:gap-2 md:justify-center">
-            <a href="${doc.url}" target="_blank" class="bg-cyan-700 text-white px-3 py-1.5 rounded hover:bg-cyan-600 transition-colors text-sm shadow-sm inline-block mb-1 md:mb-0"><i class="fas fa-eye"></i> Ver</a>
-            <button class="editar bg-yellow-600 text-white px-3 py-1.5 rounded hover:bg-yellow-500 transition-colors text-sm shadow-sm"><i class="fas fa-edit"></i></button>
-            <button class="eliminar bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-500 transition-colors text-sm shadow-sm"><i class="fas fa-trash"></i></button>
-          </td>
-        `;
+          fila.innerHTML = `
+            <td class="py-3 px-4 text-slate-300" data-label="Tipo">${doc.tipo}</td>
+            <td class="py-3 px-4 text-slate-300" data-label="Fecha">${doc.fecha}</td>
+            <td class="py-3 px-4 text-slate-300" data-label="Descripción">${doc.descripcion || "-"}</td>
+            <td class="py-3 px-4 text-center md:flex md:flex-wrap md:gap-2 md:justify-center">
+              <a href="${doc.url}" target="_blank" class="bg-cyan-700 text-white px-3 py-1.5 rounded hover:bg-cyan-600 transition-colors text-sm shadow-sm inline-block mb-1 md:mb-0"><i class="fas fa-eye"></i> Ver</a>
+              <button class="editar bg-yellow-600 text-white px-3 py-1.5 rounded hover:bg-yellow-500 transition-colors text-sm shadow-sm"><i class="fas fa-edit"></i></button>
+              <button class="eliminar bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-500 transition-colors text-sm shadow-sm"><i class="fas fa-trash"></i></button>
+            </td>
+          `;
 
-        // 📝 Editar documento
-        fila.querySelector(".editar").addEventListener("click", () => {
-          idEditando = id;
-          tipoInput.value = doc.tipo;
-          fechaInput.value = doc.fecha;
-          descripcionInput.value = doc.descripcion || "";
-          urlInput.value = doc.url || "";
-          formularioContainer.classList.remove("hidden");
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          // 📝 Editar documento
+          fila.querySelector(".editar").addEventListener("click", () => {
+            idEditando = id;
+            tipoInput.value = doc.tipo;
+            fechaInput.value = doc.fecha;
+            descripcionInput.value = doc.descripcion || "";
+            urlInput.value = doc.url || "";
+            formularioContainer.classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+
+          // 🗑️ Eliminar documento
+          fila.querySelector(".eliminar").addEventListener("click", async () => {
+            if (confirm("¿Seguro que deseas eliminar este documento?")) {
+              try {
+                await ordenesRef.child(id).remove();
+              } catch (error) {
+                console.error("Error al eliminar: ", error);
+                alert("Error al eliminar el documento.");
+              }
+            }
+          });
+
+          tablaCuerpo.appendChild(fila);
         });
-
-        // 🗑️ Eliminar documento
-        fila.querySelector(".eliminar").addEventListener("click", async () => {
-          if (confirm("¿Seguro que deseas eliminar este documento?")) {
-            await remove(ref(db, "ordenes/" + id));
-          }
-        });
-
-        tablaCuerpo.appendChild(fila);
+      }, (error) => {
+        console.error("Error leyendo documentos:", error);
+        tablaCuerpo.innerHTML = `<tr><td colspan='4' class='text-center text-red-400 bg-slate-800 py-6'>Error de acceso a datos: ${error.message}</td></tr>`;
       });
-    });
+    }
   </script>
 </body>
 </html>
