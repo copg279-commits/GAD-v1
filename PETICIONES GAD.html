@@ -12,8 +12,9 @@
     
     <style>
         body {
-            font-family: sans-serif;
-            background-color: #f3f4f6;
+            font-family: "Inter", sans-serif;
+            background-color: #0f172a; /* Dark absoluto */
+            color: #e2e8f0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -23,188 +24,188 @@
             box-sizing: border-box;
             overflow-y: auto;
         }
+
+        /* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
+        #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+        #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+        #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+        /* Zoom de miniaturas sin cortes (Solo PC) */
+        td, tr { position: static !important; }
+        .results-container { overflow: visible !important; }
+        @media (hover: hover) and (pointer: fine) { 
+            .thumbnail-img:hover { 
+                transform: scale(4); 
+                z-index: 9999 !important; 
+                position: relative; 
+                box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+                border-color: #06b6d4; 
+            } 
+        }
+
         .main-content-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             flex-grow: 1;
             width: 100%;
-            padding: 0px;
+            padding: 1rem 0;
             box-sizing: border-box;
         }
         .grid-container {
             width: 100%;
+            max-width: 1024px; /* Ajuste para no ocupar todo el ancho en PC */
             margin-left: auto;
             margin-right: auto;
-            padding: 0.5rem;
-            background-color: white;
+            padding: 1.5rem;
+            background-color: #1e293b; /* Paneles Dark */
+            border: 1px solid #334155;
             border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
             display: flex;
             flex-direction: column;
             gap: 1rem;
+        }
+        .filter-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
         .task-item {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            padding: 0.75rem;
-            background-color: #f9fafb;
+            padding: 1rem;
+            background-color: #0f172a; /* Fondo dark en tareas */
+            border: 1px solid #334155;
             border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             transition: all 0.2s ease-in-out;
             flex-direction: row;
+            gap: 1rem;
         }
         @media (max-width: 639px) {
             .task-item {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 0.5rem;
+                gap: 0.75rem;
             }
             .task-status-container {
                 width: 100%;
                 justify-content: space-between;
                 flex-wrap: wrap;
             }
-            .task-status-btn, .edit-btn {
+            .task-status-btn, .edit-btn, .delete-btn {
                 flex: 1 1 auto;
                 min-width: 0;
+                text-align: center;
             }
             .task-text-container {
                 width: 100%;
             }
-            .task-text {
-                width: 100%;
-                word-break: break-word;
-            }
         }
-        .task-item.pendiente .task-text {
-            color: #ef4444;
-            font-weight: bold;
-        }
-        .task-item.en-tramite .task-text {
-            color: #3b82f6;
-            font-weight: bold;
-        }
-        .task-item.finalizada .task-text {
-            color: #22c55e;
-            font-weight: bold;
-            text-decoration: line-through;
-        }
+        
         .task-text {
             flex-grow: 1;
+            word-break: break-word;
+            width: 100%;
         }
+        /* Colores adaptados a Dark Mode */
+        .task-item.pendiente .task-text { color: #f87171; font-weight: bold; } /* red-400 */
+        .task-item.en-tramite .task-text { color: #38bdf8; font-weight: bold; } /* sky-400 */
+        .task-item.finalizada .task-text { color: #4ade80; font-weight: bold; text-decoration: line-through; opacity: 0.7; } /* green-400 */
+
         .task-status-container {
             display: flex;
             align-items: stretch;
             gap: 0.5rem;
             flex-shrink: 0;
         }
-        .task-status-btn, .edit-btn {
-            padding: 0.25rem 0.5rem;
+        .task-status-btn, .edit-btn, .delete-btn {
+            padding: 0.35rem 0.75rem;
             font-size: 0.875rem;
             font-weight: bold;
             border-radius: 0.375rem;
             cursor: pointer;
-            border: 2px solid transparent;
+            border: 1px solid transparent;
             transition: all 0.2s;
         }
-        /* 🎨 BOTONES INACTIVOS - Colores muy claros */
+        
+        /* 🎨 BOTONES INACTIVOS - Dark Mode */
         .task-status-btn.inactive {
-            opacity: 0.4;
-            filter: saturate(40%);
-        }
-        .btn-pendiente.inactive {
-            background-color: #fecaca;
-            color: #b91c1c;
-        }
-        .btn-tramite.inactive {
-            background-color: #bfdbfe;
-            color: #1d4ed8;
-        }
-        .btn-finalizada.inactive {
-            background-color: #bbf7d0;
-            color: #15803d;
+            opacity: 0.5;
+            filter: saturate(50%);
+            background-color: #1e293b; /* slate-800 */
+            border-color: #334155;
+            color: #94a3b8;
         }
 
-        /* 🌈 BOTONES ACTIVOS - Colores vibrantes con efectos */
+        /* 🌈 BOTONES ACTIVOS - Dark Mode */
         .task-status-btn.active {
-            border-color: #000;
             opacity: 1;
             filter: saturate(120%);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transform: scale(1.02);
         }
-        .btn-pendiente.active {
-            background-color: #ef4444;
-            color: white;
-        }
-        .btn-tramite.active {
-            background-color: #3b82f6;
-            color: white;
-        }
-        .btn-finalizada.active {
-            background-color: #22c55e;
-            color: white;
-        }
+        .btn-pendiente.active { background-color: #b91c1c; color: #fee2e2; border-color: #ef4444; }
+        .btn-tramite.active { background-color: #0369a1; color: #e0f2fe; border-color: #0ea5e9; }
+        .btn-finalizada.active { background-color: #15803d; color: #dcfce3; border-color: #22c55e; }
 
         .add-task-form {
             display: flex;
             gap: 0.5rem;
             width: 100%;
         }
-        .edit-btn {
-            background-color: #d1d5db;
-            color: black;
-            font-weight: bold;
-        }
-        /* Contenedor para el texto de la tarea */
+        .edit-btn { background-color: #334155; color: #e2e8f0; border-color: #475569; }
+        .edit-btn:hover { background-color: #475569; }
+        .delete-btn { background-color: #7f1d1d; color: #fca5a5; border-color: #991b1b; }
+        .delete-btn:hover { background-color: #991b1b; }
+
         .task-text-container {
             display: flex;
             flex-grow: 1;
             flex-shrink: 1;
-        }
-
-        .task-text {
-            word-break: break-word;
-            width: 100%;
+            align-items: center;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
-    <header class="bg-blue-600 w-full flex justify-center items-center py-2">
-        <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
-            <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
+<body class="pb-16">
+    
+    <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+        <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+        
+        <div class="text-center flex-1">
+          <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+            TAREAS<br class="md:hidden"> PENDIENTES
+          </h1>
+          <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+            Grupo de Análisis Documental
+          </h2>
         </div>
+      
+        <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
     </header>
-    <h1 class="text-black text-center mt-2 text-xl font-bold px-4">
-        Tareas Pendientes
-    </h1>
+
     <div class="main-content-wrapper px-2 sm:px-4 lg:px-16">
         <div class="grid-container">
-            <form id="add-task-form" class="add-task-form">
+            <form id="add-task-form" class="add-task-form flex-col sm:flex-row">
                 <input type="text" id="new-task-input" placeholder="Añadir nueva tarea..." required
-                       class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                       class="flex-grow p-3 bg-slate-900 border border-slate-700 text-slate-200 rounded-lg focus:outline-none focus:border-cyan-500 transition-colors">
                 <button type="submit"
-                        class="p-2 bg-blue-500 text-white font-bold rounded-lg shadow-md hover:bg-blue-600 transition">
-                    Añadir
+                        class="p-3 bg-cyan-600 text-white font-bold rounded-lg shadow-md hover:bg-cyan-500 transition-colors whitespace-nowrap">
+                    ➕ Añadir
                 </button>
             </form>
-            <div id="task-list" class="flex flex-col gap-2">
-                <div class="p-4 text-center text-gray-500" id="loading-msg">Cargando tareas o esperando autenticación...</div>
+            
+            <div id="filter-controls" class="filter-controls">
+                </div>
+
+            <div id="task-list" class="flex flex-col gap-3 mt-2">
+                <div class="p-4 text-center text-cyan-500 font-semibold" id="loading-msg">Cargando tareas o esperando autenticación...</div>
             </div>
-            <button id="main-menu-btn"
-                    class="mt-2 p-2.5 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-500 text-base lg:text-xl">
-                MENÚ PRINCIPAL
-            </button>
         </div>
     </div>
- <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
+
     <script>
         // --- 1. CONFIGURACIÓN V4 ---
         const firebaseConfig = {
@@ -229,23 +230,21 @@
         const taskList = document.getElementById('task-list');
         const addTaskForm = document.getElementById('add-task-form');
         const newTaskInput = document.getElementById('new-task-input');
-        const mainMenuBtn = document.getElementById('main-menu-btn');
+        const filterControls = document.getElementById('filter-controls');
 
-        // Crea los botones de filtro
+        // Crea los botones de filtro con diseño Dark
         const showAllBtn = document.createElement('button');
         showAllBtn.id = 'show-all-btn';
         showAllBtn.textContent = 'Mostrar todas las tareas';
-        showAllBtn.className = 'mt-2 p-2.5 bg-gray-400 text-white font-bold rounded-lg shadow-md transition hover:bg-gray-500 text-base lg:text-xl';
+        showAllBtn.className = 'flex-1 p-2 bg-slate-700 text-slate-200 font-semibold rounded-lg shadow transition hover:bg-slate-600 border border-slate-600 text-sm';
         
         const hideCompletedBtn = document.createElement('button');
         hideCompletedBtn.id = 'hide-completed-btn';
         hideCompletedBtn.textContent = 'Ocultar tareas finalizadas';
-        hideCompletedBtn.className = 'mt-2 p-2.5 bg-green-500 text-white font-bold rounded-lg shadow-md transition hover:bg-green-600 text-base lg:text-xl';
+        hideCompletedBtn.className = 'flex-1 p-2 bg-slate-800 text-cyan-400 font-semibold rounded-lg shadow transition hover:bg-slate-700 border border-cyan-800 text-sm';
         
-        // Inserta los botones de filtro en el grid-container, antes del botón de menú
-        const gridContainer = document.querySelector('.grid-container');
-        gridContainer.insertBefore(showAllBtn, mainMenuBtn);
-        gridContainer.insertBefore(hideCompletedBtn, mainMenuBtn);
+        filterControls.appendChild(showAllBtn);
+        filterControls.appendChild(hideCompletedBtn);
 
         let currentFilter = 'show-all';
         let isUserAuthenticated = false; // Bandera de estado
@@ -261,7 +260,7 @@
                 iniciarEscuchaTareas();
             } else {
                 console.warn("Usuario no logueado. No se cargarán tareas.");
-                taskList.innerHTML = '<div class="p-4 text-center text-red-500 font-bold">Error: No se ha detectado sesión activa. Vuelva al menú principal.</div>';
+                taskList.innerHTML = '<div class="p-4 text-center text-red-500 font-bold bg-slate-800 rounded-lg border border-red-900">Error: No se ha detectado sesión activa. Por favor, inicie sesión.</div>';
             }
         });
 
@@ -269,7 +268,7 @@
             taskList.innerHTML = ''; // Limpiar lista
             
             if (!snapshot.exists()) {
-                taskList.innerHTML = '<div class="p-4 text-center text-gray-500">No hay tareas pendientes.</div>';
+                taskList.innerHTML = '<div class="p-4 text-center text-slate-400">No hay tareas pendientes.</div>';
                 return;
             }
 
@@ -304,23 +303,25 @@
                 taskText.className = 'task-text ml-2';
                 const dateObj = task.createdAt ? new Date(task.createdAt) : new Date();
                 const formattedDate = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                taskText.textContent = `${formattedDate} - ${task.description}`;
+                taskText.innerHTML = `<span class="text-slate-400 text-sm font-mono mr-2">[${formattedDate}]</span> ${task.description}`;
                 
+                // Aplicación de color inline en base al Dark Mode (se complementa con CSS)
                 switch (task.status) {
                     case 'Pendiente':
-                        taskText.style.color = '#ef4444';
+                        taskText.style.color = '#fca5a5'; /* red-300 */
                         taskText.style.fontWeight = 'bold';
                         taskText.style.textDecoration = 'none';
                         break;
                     case 'En trámite':
-                        taskText.style.color = '#3b82f6';
+                        taskText.style.color = '#7dd3fc'; /* sky-300 */
                         taskText.style.fontWeight = 'bold';
                         taskText.style.textDecoration = 'none';
                         break;
                     case 'Finalizada':
-                        taskText.style.color = '#22c55e';
-                        taskText.style.fontWeight = 'bold';
+                        taskText.style.color = '#86efac'; /* green-300 */
+                        taskText.style.fontWeight = 'normal';
                         taskText.style.textDecoration = 'line-through';
+                        taskText.style.opacity = '0.6';
                         break;
                 }
                 
@@ -338,7 +339,7 @@
                     const currentText = task.description;
                     const input = document.createElement('textarea');
                     input.value = currentText;
-                    input.className = 'flex-grow p-1 border border-gray-400 rounded-md w-full resize-y';
+                    input.className = 'flex-grow p-2 bg-slate-900 text-slate-200 border border-slate-600 rounded-md w-full resize-y focus:border-cyan-500 focus:outline-none';
                     input.rows = 2;
                     
                     const saveChanges = () => {
@@ -365,9 +366,9 @@
                 });
                 statusContainer.appendChild(editButton);
 
-                // Botón de eliminar
+                // Botón de eliminar Dark Mode
                 const deleteButton = document.createElement('button');
-                deleteButton.className = 'p-2.5 bg-yellow-300 text-white font-bold rounded-lg shadow-md transition hover:bg-red-600';
+                deleteButton.className = 'delete-btn';
                 deleteButton.textContent = '🗑️';
                 deleteButton.title = 'Eliminar tarea';
                 deleteButton.addEventListener('click', () => {
@@ -414,7 +415,7 @@
             // Escucha los cambios en Firebase y re-renderiza la lista
             tasksRef.on('value', renderTask, (error) => {
                 console.error("Error leyendo tareas:", error);
-                taskList.innerHTML = `<div class="p-4 text-center text-red-500">Error de acceso a datos: ${error.message}</div>`;
+                taskList.innerHTML = `<div class="p-4 text-center text-red-400 bg-slate-800 border border-red-900 rounded-lg">Error de acceso a datos: ${error.message}</div>`;
             });
         }
 
@@ -443,19 +444,18 @@
         // Event listeners para los botones de filtrado
         showAllBtn.addEventListener('click', () => {
             currentFilter = 'show-all';
-            // Volver a leer para aplicar filtro (o simplemente re-renderizar si tuviéramos los datos en memoria, 
-            // pero .once fuerza refresh desde cache/server)
+            showAllBtn.classList.replace('bg-slate-700', 'bg-slate-600');
+            hideCompletedBtn.classList.replace('bg-slate-700', 'bg-slate-800');
             if(isUserAuthenticated) tasksRef.once('value', renderTask);
         });
         
         hideCompletedBtn.addEventListener('click', () => {
             currentFilter = 'hide-completed';
+            hideCompletedBtn.classList.replace('bg-slate-800', 'bg-slate-700');
+            showAllBtn.classList.replace('bg-slate-600', 'bg-slate-700');
             if(isUserAuthenticated) tasksRef.once('value', renderTask);
         });
         
-        mainMenuBtn.addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
     </script>
 </body>
 </html>
