@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestión de Documentos - GAD</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
     body {
       font-family: "Inter", sans-serif;
-      background-color: #f3f4f6;
+      background-color: #0f172a; /* Dark absoluto */
+      color: #e2e8f0;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
@@ -23,113 +21,149 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       padding: 2rem;
       text-align: center;
     }
-    .gad-logo-header {
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    /* Adaptación de Textos de Ayuda y Firebase al Dark Mode */
+    #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
+    #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
+    #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
+
+    /* Zoom de miniaturas sin cortes (Solo PC) */
+    td, tr { position: static !important; }
+    .results-container { overflow: visible !important; }
+    @media (hover: hover) and (pointer: fine) { 
+        .thumbnail-img:hover { 
+            transform: scale(4); 
+            z-index: 9999 !important; 
+            position: relative; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
+            border-color: #06b6d4; 
+        } 
     }
-    .nav-buttons {
-      display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-    .back-button {
-      padding: 0.75rem 1.5rem;
-      font-weight: 600;
-      border-radius: 0.5rem;
-      color: white;
-      transition: background-color 0.3s;
-    }
-    .back-to-menu-button {
-      background-color: #f59e0b;
-    }
-    .back-to-menu-button:hover {
-      background-color: #d97706;
-    }
-    .back-button-history {
-      background-color: #4b5563;
-    }
-    .back-button-history:hover {
-      background-color: #374151;
+
+    /* Conversión de Tabla a Tarjetas en Móvil */
+    @media (max-width: 768px) {
+      #listaDocumentos table { display: block; width: 100%; }
+      #listaDocumentos thead { display: none; }
+      #listaDocumentos tbody { display: flex; flex-direction: column; gap: 1rem; width: 100%; }
+      #listaDocumentos tr {
+        display: flex;
+        flex-direction: column;
+        background: #1e293b !important;
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid #334155;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      #listaDocumentos td {
+        display: block;
+        text-align: left;
+        padding: 0.5rem 0 !important;
+        border: none !important;
+      }
+      /* Fake Headers para las tarjetas móviles */
+      #listaDocumentos td::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: bold;
+        color: #06b6d4;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+      }
+      #listaDocumentos td:last-child {
+        display: flex;
+        justify-content: flex-start;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        border-top: 1px solid #334155 !important;
+        padding-top: 1rem !important;
+      }
+      #listaDocumentos td:last-child::before { display: none; }
     }
   </style>
 </head>
 <body>
-  <header class="bg-blue-600 w-full flex justify-center items-center py-2">
-    <div class="gad-logo-header">
-      <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block" />
+  
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+    <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
+    
+    <div class="text-center flex-1">
+      <h1 class="text-[15px] md:text-3xl font-black text-white tracking-wider uppercase leading-tight" id="headerTitle">
+        GESTIÓN DE<br class="md:hidden"> DOCUMENTOS
+      </h1>
+      <h2 class="text-cyan-500 font-bold tracking-widest uppercase text-[12px] md:text-sm mt-1 leading-tight">
+        Grupo de Análisis Documental
+      </h2>
     </div>
+
+    <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
   <main class="w-full max-w-5xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6">Gestión de Documentos</h1>
+    <h1 class="text-2xl font-bold text-cyan-500 mb-6 hidden md:block">Registro y Control</h1>
 
-    <!-- Botón para mostrar formulario -->
     <button
       id="mostrarFormularioBtn"
-      class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mb-4"
+      class="bg-cyan-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:bg-cyan-500 transition-colors mb-6 shadow-lg shadow-cyan-500/20"
     >
       ➕ Añadir nuevo documento
     </button>
 
-    <!-- Formulario -->
     <div
       id="formularioContainer"
-      class="bg-white p-6 rounded-2xl shadow-md w-full hidden"
+      class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl w-full hidden mb-8 text-left"
     >
       <div class="flex flex-col gap-4">
-        <label class="font-semibold">Tipo de Documento</label>
+        <label class="font-semibold text-cyan-400">Tipo de Documento</label>
         <input
           list="tiposDocumento"
           id="tipoDocumento"
           placeholder="Selecciona o escribe un tipo"
-          class="border border-gray-300 rounded-lg px-3 py-2"
+          class="bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-500 transition-colors"
         />
         <datalist id="tiposDocumento">
           <option value="Orden"></option>
           <option value="Solicitud"></option>
         </datalist>
 
-        <label class="font-semibold">Fecha</label>
+        <label class="font-semibold text-cyan-400">Fecha</label>
         <input
           type="date"
           id="fechaDocumento"
-          class="border border-gray-300 rounded-lg px-3 py-2"
+          class="bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-500 transition-colors"
         />
 
-        <label class="font-semibold">Descripción</label>
+        <label class="font-semibold text-cyan-400">Descripción</label>
         <textarea
           id="descripcionDocumento"
           rows="2"
           placeholder="Breve descripción del documento"
-          class="border border-gray-300 rounded-lg px-3 py-2"
+          class="bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-500 transition-colors"
         ></textarea>
 
-        <label class="font-semibold">URL de OneDrive</label>
+        <label class="font-semibold text-cyan-400">URL de OneDrive</label>
         <input
           type="url"
           id="urlDocumento"
           placeholder="Pega aquí la URL de OneDrive"
-          class="border border-gray-300 rounded-lg px-3 py-2"
+          class="bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-500 transition-colors"
         />
 
-        <div class="flex gap-3 mt-4">
+        <div class="flex gap-3 mt-6">
           <button
             id="guardarBtn"
-            class="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700"
+            class="bg-cyan-600 font-semibold text-white rounded-lg px-5 py-2 hover:bg-cyan-500 transition-colors shadow-lg shadow-cyan-500/20"
           >
             Guardar documento
           </button>
           <button
             id="cancelarBtn"
-            class="bg-gray-400 text-white rounded-lg px-4 py-2 hover:bg-gray-500"
+            class="bg-slate-600 font-semibold text-white rounded-lg px-5 py-2 hover:bg-slate-500 transition-colors"
           >
             Cancelar
           </button>
@@ -137,40 +171,30 @@
       </div>
     </div>
 
-    <!-- Lista de documentos -->
     <div
       id="listaDocumentos"
-      class="mt-8 w-full bg-white rounded-xl shadow-md overflow-x-auto"
+      class="w-full bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-x-auto results-container"
     >
       <table class="w-full text-left border-collapse">
-        <thead class="bg-blue-600 text-white">
+        <thead class="bg-slate-900 border-b border-slate-700">
           <tr>
-            <th class="py-2 px-3">Tipo</th>
-            <th class="py-2 px-3">Fecha</th>
-            <th class="py-2 px-3">Descripción</th>
-            <th class="py-2 px-3 text-center">Acciones</th>
+            <th class="py-3 px-4 text-cyan-500 font-semibold uppercase tracking-wider text-sm">Tipo</th>
+            <th class="py-3 px-4 text-cyan-500 font-semibold uppercase tracking-wider text-sm">Fecha</th>
+            <th class="py-3 px-4 text-cyan-500 font-semibold uppercase tracking-wider text-sm">Descripción</th>
+            <th class="py-3 px-4 text-cyan-500 font-semibold uppercase tracking-wider text-sm text-center">Acciones</th>
           </tr>
         </thead>
-        <tbody id="tablaCuerpo" class="divide-y"></tbody>
+        <tbody id="tablaCuerpo" class="divide-y divide-slate-700"></tbody>
       </table>
     </div>
 
-    <div class="nav-buttons">
-      <a href="index.html" class="back-button back-to-menu-button">Volver a Menú Principal</a>
-      <button onclick="history.back()" class="back-button back-button-history">Atrás</button>
+    <div class="mt-8 flex justify-center w-full">
+      <button onclick="history.back()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-2.5 px-8 rounded-lg transition-colors shadow-md">
+        <i class="fas fa-arrow-left mr-2"></i> Atrás
+      </button>
     </div>
   </main>
 
-  <footer class="mt-auto text-center py-6 bg-gray-200">
-    <div class="flex flex-col items-center">
-      <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4" />
-      <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-      <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-      <p>&copy; GAD - Todos los derechos reservados</p>
-    </div>
-  </footer>
-
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
     import {
@@ -183,15 +207,15 @@
       remove,
     } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
-  authDomain: "gad-alicante-v4.firebaseapp.com",
-  databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gad-alicante-v4",
-  storageBucket: "gad-alicante-v4.firebasestorage.app",
-  messagingSenderId: "119727545224",
-  appId: "1:119727545224:web:36880c50d196c456cdb83d"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY8V_P7m8lZUvGbMVlGaa-GVhbmyikmag",
+      authDomain: "gad-alicante-v4.firebaseapp.com",
+      databaseURL: "https://gad-alicante-v4-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gad-alicante-v4",
+      storageBucket: "gad-alicante-v4.firebasestorage.app",
+      messagingSenderId: "119727545224",
+      appId: "1:119727545224:web:36880c50d196c456cdb83d"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -258,22 +282,23 @@ const firebaseConfig = {
 
       if (!datos) {
         tablaCuerpo.innerHTML =
-          "<tr><td colspan='4' class='text-center text-gray-500 py-4'>No hay documentos guardados.</td></tr>";
+          "<tr><td colspan='4' class='text-center text-slate-500 py-6'>No hay documentos guardados.</td></tr>";
         return;
       }
 
       Object.entries(datos).forEach(([id, doc]) => {
         const fila = document.createElement("tr");
-        fila.className = "hover:bg-gray-100";
+        fila.className = "hover:bg-slate-700/50 transition-colors group"; // Actualizado a Dark Mode
 
+        // Modificado para inyectar "data-label" necesario para las tarjetas móviles
         fila.innerHTML = `
-          <td class="py-2 px-3">${doc.tipo}</td>
-          <td class="py-2 px-3">${doc.fecha}</td>
-          <td class="py-2 px-3">${doc.descripcion || "-"}</td>
-          <td class="py-2 px-3 text-center flex flex-wrap gap-2 justify-center">
-            <a href="${doc.url}" target="_blank" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"><i class="fas fa-eye"></i> Ver</a>
-            <button class="editar bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"><i class="fas fa-edit"></i></button>
-            <button class="eliminar bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"><i class="fas fa-trash"></i></button>
+          <td class="py-3 px-4 text-slate-300" data-label="Tipo">${doc.tipo}</td>
+          <td class="py-3 px-4 text-slate-300" data-label="Fecha">${doc.fecha}</td>
+          <td class="py-3 px-4 text-slate-300" data-label="Descripción">${doc.descripcion || "-"}</td>
+          <td class="py-3 px-4 text-center md:flex md:flex-wrap md:gap-2 md:justify-center">
+            <a href="${doc.url}" target="_blank" class="bg-cyan-700 text-white px-3 py-1.5 rounded hover:bg-cyan-600 transition-colors text-sm shadow-sm inline-block mb-1 md:mb-0"><i class="fas fa-eye"></i> Ver</a>
+            <button class="editar bg-yellow-600 text-white px-3 py-1.5 rounded hover:bg-yellow-500 transition-colors text-sm shadow-sm"><i class="fas fa-edit"></i></button>
+            <button class="eliminar bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-500 transition-colors text-sm shadow-sm"><i class="fas fa-trash"></i></button>
           </td>
         `;
 
