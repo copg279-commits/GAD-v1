@@ -163,31 +163,57 @@
         .nav-btn:hover { background: var(--primary-color); color: var(--bg-color); transform: scale(1.1); }
         #visor-loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 18px; background: rgba(0,0,0,0.8); padding: 20px 40px; border-radius: 40px; z-index: 5000; display: flex; gap: 15px; align-items: center; font-weight: 500; }
 
-        @media screen and (max-width: 768px) {
-            table { display: block; width: 100%; }
-            thead { display: none; }
-            tbody { display: block; width: 100%; }
-            tr { display: flex; flex-direction: column; background: #1e293b; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; overflow: hidden; }
-            td { display: block; width: 100%; padding: 10px 15px; color: #e2e8f0; border: none !important; }
-            td img.thumbnail-img { width: 100% !important; height: auto !important; border-radius: 0; object-fit: cover; }
-            td:first-child { padding: 0; }
-            .controls-container { padding: 20px; }
-            .search-wrapper { flex-direction: column; gap: 15px; }
-            .search-input-container { width: 100%; } 
-            .btn-clear { width: 100%; } 
-            .filters-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
-            .chip { width: 100%; padding: 8px 4px; font-size: 12px; justify-content: center; text-align: center; }
-            .chip i { display: none; } 
-            .divider { display: none; } 
-            .btn-folder-drive span, .btn-file-drive span { display: none; } 
-            .grid { grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); } 
-            .viewer-top { padding: 0 10px; height: 60px; }
-            .viewer-left-group { max-width: 50%; gap: 10px; }
-            .viewer-title { font-size: 13px; padding: 4px 10px; }
-            .btn-close-viewer { width: 36px; height: 36px; }
-            .btn-folder-drive, .btn-file-drive { padding: 0 12px; height: 36px; }
+     @media screen and (max-width: 768px) {
+            /* Ajuste del Modal para que use todo el ancho */
+            .modal-content-help { width: 98% !important; max-height: 95vh !important; margin: 5px !important; }
+
+            /* CABECERA: Título arriba, botones abajo, X fija */
+            .help-header { 
+                flex-direction: column !important; 
+                padding: 15px 10px !important; 
+                gap: 12px !important;
+                position: relative !important;
+            }
+
+            /* Título centrado y más pequeño */
+            .help-header h2 { 
+                font-size: 14px !important; 
+                text-align: center; 
+                width: 100%; 
+                padding-right: 25px; 
+            }
+
+            /* Botones en línea que no se salen */
+            .help-header div { 
+                width: 100% !important; 
+                justify-content: center !important; 
+                gap: 6px !important;
+            }
+
+            /* Botones encogidos para que quepan */
+            .btn-help-premium { 
+                padding: 6px 8px !important; 
+                font-size: 10px !important; 
+                flex: 1;
+                min-width: 110px;
+                justify-content: center;
+            }
+
+            /* La X de cierre arriba a la derecha pase lo que pase */
+            .btn-close-help { 
+                position: absolute !important; 
+                top: 10px; 
+                right: 15px; 
+                font-size: 20px !important; 
+                z-index: 100;
+            }
+
+            /* Resto de ajustes que ya tenías */
             .audit-layout { flex-direction: column; gap: 0; }
-          .audit-panel-left { border-right: none; padding-right: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 25px; margin-bottom: 25px; }
+            .audit-panel-left { border-right: none; border-bottom: 1px solid var(--border-color); padding-bottom: 25px; margin-bottom: 25px; }
+            .filters-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
+            .chip { width: 100%; padding: 8px 4px; font-size: 11px; }
+            .grid { grid-template-columns: 1fr; }
         }
         /* --- ESTO ES LO NUEVO --- */
         footer { 
