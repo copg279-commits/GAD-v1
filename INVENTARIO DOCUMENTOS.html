@@ -23,75 +23,43 @@
            1. VARIABLES DE DISEÑO (DARK MODE GAD)
         ========================================== */
       :root {
-    --primary-color: #06b6d4;       
-    --primary-dark: #0891b2;        
-    --bg-color: #0f172a;            /* Fondo general oscuro */
-    --card-bg: #1e293b;             /* Fondo de tarjetas oscuro */
-    --border-color: #334155;        
-    --text-color: #e2e8f0;          
-    --text-muted: #94a3b8;          
-    --eye-color: #06b6d4;           
-    --folder-color: #f39c12;        
-    --drive-color: #34a853;         
-    --danger-color: #ef4444;        
-    --gad-gold: #f59e0b;            
-    --info-blue: #0ea5e9;           
-}--shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
+            --primary-color: #06b6d4;       
+            --primary-dark: #0891b2;        
+            --bg-color: #0f172a;            
+            --card-bg: #1e293b;             
+            --border-color: #334155;        
+            --text-color: #e2e8f0;          
+            --text-muted: #94a3b8;          
+            --eye-color: #06b6d4;           
+            --folder-color: #f39c12;        
+            --drive-color: #34a853;         
+            --danger-color: #ef4444;        
+            --gad-gold: #f59e0b;            
+            --info-blue: #0ea5e9;           
+            --shadow-sm: 0 4px 6px rgba(0,0,0,0.3);
+            --shadow-md: 0 6px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
         }
 
-        /* Reset básico */
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0; 
-            padding: 0;
-            display: flex; 
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* ==========================================
-           REGLAS OBLIGATORIAS INYECTADAS (Regla 5)
-        ========================================== */
-        /* Ayuda a prueba de Firebase (anula fondos blancos) */
         #helpContent [class*="bg-"], #helpContent [style*="background"] { background-color: #0f172a !important; border-color: #334155 !important; }
         #helpContent, #helpContent p, #helpContent span, #helpContent li { color: #e2e8f0 !important; }
         #helpContent h4, #helpContent strong, #helpContent b { color: #06b6d4 !important; font-weight: bold !important; background: transparent !important; }
         
-        /* Zoom de miniaturas sin cortes (Solo PC) */
         td, tr { position: static !important; }
         .results-container { overflow: visible !important; }
         @media (hover: hover) and (pointer: fine) { 
-            .thumbnail-img:hover { 
-                transform: scale(4); 
-                z-index: 9999 !important; 
-                position: relative; 
-                box-shadow: 0 15px 40px rgba(0,0,0,0.9); 
-                border-color: #06b6d4; 
-            } 
+            .thumbnail-img:hover { transform: scale(4); z-index: 9999 !important; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.9); border-color: #06b6d4; } 
         }
 
-        /* ==========================================
-           2. CABECERA (Estilos heredados para los stats integrados)
-        ========================================== */
-        .stats-wrapper { 
-            display: flex; 
-            align-items: center; 
-            gap: 20px; 
-            background: rgba(15, 23, 42, 0.6); 
-            padding: 8px 20px; 
-            border-radius: 12px; 
-            backdrop-filter: blur(5px);
-            border: 1px solid var(--border-color);
-        }
+        /* Ocultar flechas blancas nativas del input de año */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
 
+        .stats-wrapper { display: flex; align-items: center; gap: 20px; background: rgba(15, 23, 42, 0.6); padding: 8px 20px; border-radius: 12px; backdrop-filter: blur(5px); border: 1px solid var(--border-color); }
         .stat-box { display: flex; flex-direction: column; align-items: flex-end; position: relative; justify-content: center; }
         .stat-box.divider-right::after { content: ''; position: absolute; right: -10px; top: 15%; height: 70%; width: 1px; background: var(--border-color); }
         .stat-number { color: var(--text-color); font-size: 24px; font-weight: 900; line-height: 1; }
@@ -105,158 +73,80 @@
         .act-item.del { color: var(--danger-color); }
         .act-item.none { color: var(--text-muted); font-weight: 400; font-size: 12px; }
 
-        .last-update-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: var(--bg-color); padding: 5px 12px; border-radius: 20px;
-            color: var(--text-muted); font-size: 11px; font-weight: 400;
-            border: 1px solid var(--border-color);
-        }
+        .last-update-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-color); padding: 5px 12px; border-radius: 20px; color: var(--text-muted); font-size: 11px; font-weight: 400; border: 1px solid var(--border-color); }
 
-        .btn-help-premium {
-            background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); 
-            padding: 8px 20px; border-radius: 30px; cursor: pointer; font-size: 12px; font-weight: 700;
-            display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; text-transform: uppercase; 
-            letter-spacing: 1px;
-        }
+        .btn-help-premium { background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 8px 20px; border-radius: 30px; cursor: pointer; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
         .btn-help-premium:hover { background: var(--primary-color); color: var(--bg-color); box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
 
-        /* ==========================================
-           3. CONTROLES Y BUSCADOR
-        ========================================== */
-        .controls-container { 
-            background: var(--card-bg); 
-            padding: 25px 30px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
-            margin-bottom: 30px; 
-            position: relative; 
-            z-index: 10;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
+        .controls-container { background: var(--card-bg); padding: 25px 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); margin-bottom: 30px; position: relative; z-index: 10; border-bottom: 1px solid var(--border-color); }
         .search-wrapper { max-width: 1100px; margin: 0 auto; display: flex; gap: 15px; align-items: center; }
         .search-input-container { position: relative; flex: 1; }
-        
-        .search-input {
-            width: 100%; padding: 16px 25px 16px 55px; font-size: 16px;
-            border: 2px solid var(--border-color); border-radius: 50px; outline: none; height: 54px;
-            transition: border-color 0.3s, box-shadow 0.3s; 
-            background: var(--bg-color); color: var(--text-color);
-        }
-        
+        .search-input { width: 100%; padding: 16px 25px 16px 55px; font-size: 16px; border: 2px solid var(--border-color); border-radius: 50px; outline: none; height: 54px; transition: border-color 0.3s, box-shadow 0.3s; background: var(--bg-color); color: var(--text-color); }
         .search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15); }
         .search-icon { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 20px; transition: color 0.3s; }
         .search-input:focus + .search-icon { color: var(--primary-color); }
 
-        .btn-clear {
-            background-color: transparent; color: var(--danger-color); 
-            border: 1px solid var(--danger-color); border-radius: 50px; padding: 0 35px; height: 54px; 
-            font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; 
-            justify-content: center; gap: 10px; transition: all 0.2s;
-        }
+        .btn-clear { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); border-radius: 50px; padding: 0 35px; height: 54px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
         .btn-clear:hover { background-color: var(--danger-color); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
-        .btn-clear:active { transform: translateY(0); }
 
         .filters-chips { display: flex; justify-content: center; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
-        
-        .chip {
-            padding: 10px 20px; background: var(--bg-color); border: 1px solid var(--border-color); 
-            border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted);
-            transition: all 0.2s; display: flex; align-items: center; gap: 8px;
-        }
+        .chip { padding: 10px 20px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .chip:hover { background: var(--border-color); color: var(--text-color); }
         .chip.active { background: var(--primary-color); color: var(--bg-color); border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3); }
-        
         .chip i { font-size: 14px; }
         .divider { width: 1px; background: var(--border-color); margin: 0 10px; height: 32px; }
 
-        /* ==========================================
-           4. GRID RESULTADOS
-        ========================================== */
         .results-container { flex: 1; max-width: 1600px; margin: 0 auto; width: 100%; padding: 0 30px 50px 30px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
 
-        .card {
-            background: var(--card-bg); border-radius: 12px; padding: 15px 18px;
-            display: flex; align-items: center; justify-content: space-between;
-            border: 1px solid var(--border-color); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            position: relative; box-shadow: var(--shadow-sm); overflow: hidden;
-        }
-        .card::before {
-            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-            background: var(--primary-color); opacity: 0; transition: opacity 0.3s;
-        }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 15px 18px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border-color); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; box-shadow: var(--shadow-sm); overflow: hidden; }
+        .card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--primary-color); opacity: 0; transition: opacity 0.3s; }
         .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary-color); }
         .card:hover::before { opacity: 1; }
-
         .card-content { flex: 1; overflow: hidden; padding-right: 15px; }
         .card-badges { display: flex; gap: 6px; margin-bottom: 6px; }
-        
         .badge { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-loc { background: rgba(6, 182, 212, 0.1); color: var(--primary-color); border: 1px solid rgba(6, 182, 212, 0.2); }
         .badge-dpi { background: var(--bg-color); color: var(--text-muted); border: 1px solid var(--border-color); }
         .badge-veh { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
-        
         .card-title { font-size: 14px; font-weight: 600; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; }
 
-        .btn-view {
-            width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; background: var(--bg-color); border: 1px solid var(--border-color);
-            color: var(--eye-color); font-size: 20px; transition: all 0.2s; flex-shrink: 0;
-        }
+        .btn-view { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--eye-color); font-size: 20px; transition: all 0.2s; flex-shrink: 0; }
         .btn-view:hover { background: var(--eye-color); color: var(--bg-color); border-color: var(--eye-color); transform: scale(1.1); box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3); }
-
         .loader-box { text-align: center; padding: 80px; font-size: 18px; color: var(--text-muted); width: 100%; background: var(--card-bg); border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
 
-        /* ==========================================
-           5. MODAL AYUDA EXTENSA
-        ========================================== */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 20px; animation: fadeIn 0.3s; }
-        
-        .modal-content-help { background: var(--card-bg); padding: 0; border-radius: 16px; border: 1px solid var(--border-color); max-width: 750px; width: 100%; position: relative; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); animation: slideUp 0.3s; }
-        
+        .modal-content-help { background: var(--card-bg); padding: 0; border-radius: 16px; border: 1px solid var(--border-color); max-width: 850px; width: 100%; position: relative; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); animation: slideUp 0.3s; }
         .help-header { background: var(--bg-color); border-bottom: 1px solid var(--border-color); color: var(--text-color); padding: 20px 30px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .help-header h2 { margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
-        
         .help-body { padding: 30px; color: var(--text-color); overflow-y: auto; flex: 1; line-height: 1.6; }
-        
         .btn-close-help { cursor: pointer; font-size: 24px; color: var(--text-muted); background: none; border: none; transition: color 0.2s; }
         .btn-close-help:hover { color: var(--text-color); }
-        
         .help-section { margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 25px; }
         .help-section:last-child { border: none; margin-bottom: 0; padding-bottom: 0; }
-        
         .help-title { font-weight: 800; color: var(--primary-color); margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-size: 17px; text-transform: uppercase; letter-spacing: 0.5px; }
-        
         .help-text { font-size: 15px; color: var(--text-muted); margin-bottom: 15px; }
         .help-subtext { font-size: 14px; color: var(--text-muted); margin-left: 20px; margin-bottom: 8px; display: list-item; list-style-type: disc; }
-        
         .help-tip { background: var(--bg-color); border-left: 5px solid var(--primary-color); padding: 15px 20px; margin: 15px 0; font-size: 14px; color: var(--text-color); border-radius: 0 8px 8px 0; }
-        
         .btn-modal-ok { background-color: var(--primary-color); color: var(--bg-color); border: none; padding: 20px 0; width: 100%; font-size: 16px; font-weight: 900; cursor: pointer; flex-shrink: 0; letter-spacing: 1px; transition: background 0.2s; }
         .btn-modal-ok:hover { background-color: var(--primary-dark); }
+        
+        .audit-layout { display: flex; gap: 20px; }
+        .audit-panel-left { flex: 1; border-right: 1px solid var(--border-color); padding-right: 20px; }
+        .audit-panel-right { flex: 1; }
 
-        /* ==========================================
-           6. VISOR
-        ========================================== */
         #modalVisor { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 5000; flex-direction: column; }
         #modalVisor.active { display: flex; animation: fadeIn 0.2s; }
-        
         .viewer-top { position: absolute; top: 0; left: 0; width: 100%; height: 70px; background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent); display: flex; align-items: center; justify-content: space-between; padding: 0 25px; z-index: 5002; pointer-events: none; }
         .viewer-left-group { display: flex; align-items: center; gap: 15px; pointer-events: auto; max-width: 60%; }
-
         .btn-close-viewer { background: var(--danger-color); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-shrink: 0; transition: transform 0.2s; font-size: 20px; }
         .btn-close-viewer:hover { transform: scale(1.1); }
-
         .viewer-title { color: white; font-size: 15px; font-weight: bold; text-shadow: 0 2px 4px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(0,0,0,0.5); padding: 6px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-
         .viewer-actions { display: flex; gap: 12px; pointer-events: auto; align-items: center; }
-
         .btn-folder-drive { background: var(--folder-color); color: white; border: none; height: 40px; padding: 0 20px; border-radius: 25px; cursor: pointer; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; text-decoration: none; transition: transform 0.2s; border: 1px solid rgba(255,255,255,0.2); }
         .btn-folder-drive:hover { background: #d35400; transform: translateY(-2px); }
-
         .btn-file-drive { background: var(--drive-color); color: white; border: none; height: 40px; padding: 0 20px; border-radius: 25px; cursor: pointer; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-decoration: none; transition: transform 0.2s; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.2); }
         .btn-file-drive:hover { transform: translateY(-2px); background-color: #2d9246; }
-
         .iframe-container { flex: 1; width: 100%; height: 100%; position: relative; background: #000; }
         #visor-iframe { width: 100%; height: 100%; border: none; display: block; }
         .nav-overlay { position: absolute; top: 50%; width: 100%; transform: translateY(-50%); display: flex; justify-content: space-between; padding: 0 25px; pointer-events: none; z-index: 5001; }
@@ -264,33 +154,22 @@
         .nav-btn:hover { background: var(--primary-color); color: var(--bg-color); transform: scale(1.1); }
         #visor-loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 18px; background: rgba(0,0,0,0.8); padding: 20px 40px; border-radius: 40px; z-index: 5000; display: flex; gap: 15px; align-items: center; font-weight: 500; }
 
-        /* ==========================================
-           7. MÓVIL (RESPONSIVE) - INCLUYE REGLA PARA TABLAS
-        ========================================== */
         @media screen and (max-width: 768px) {
-            /* Regla 6: Conversión de tabla genérica a tarjetas por si inyectas contenido tabular */
             table { display: block; width: 100%; }
             thead { display: none; }
             tbody { display: block; width: 100%; }
-            tr {
-                display: flex; flex-direction: column; background: #1e293b; 
-                border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; overflow: hidden;
-            }
+            tr { display: flex; flex-direction: column; background: #1e293b; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; overflow: hidden; }
             td { display: block; width: 100%; padding: 10px 15px; color: #e2e8f0; border: none !important; }
             td img.thumbnail-img { width: 100% !important; height: auto !important; border-radius: 0; object-fit: cover; }
             td:first-child { padding: 0; }
-
-            /* Ajustes del layout móvil para el grid y cabecera actual */
             .controls-container { padding: 20px; }
             .search-wrapper { flex-direction: column; gap: 15px; }
             .search-input-container { width: 100%; } 
             .btn-clear { width: 100%; } 
-
             .filters-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
             .chip { width: 100%; padding: 8px 4px; font-size: 12px; justify-content: center; text-align: center; }
             .chip i { display: none; } 
             .divider { display: none; } 
-            
             .btn-folder-drive span, .btn-file-drive span { display: none; } 
             .grid { grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); } 
             .viewer-top { padding: 0 10px; height: 60px; }
@@ -298,6 +177,8 @@
             .viewer-title { font-size: 13px; padding: 4px 10px; }
             .btn-close-viewer { width: 36px; height: 36px; }
             .btn-folder-drive, .btn-file-drive { padding: 0 12px; height: 36px; }
+            .audit-layout { flex-direction: column; gap: 0; }
+            .audit-panel-left { border-right: none; padding-right: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 25px; margin-bottom: 25px; }
         }
     </style>
 </head>
@@ -330,6 +211,10 @@
                 <div id="fecha-actualizacion" class="last-update-badge">
                     <i class="fa-regular fa-clock"></i> <span>Actualizado: --/-- --:--</span>
                 </div>
+
+                <button class="btn-help-premium" style="color: var(--gad-gold); border-color: var(--gad-gold);" onclick="abrirModalAuditoria()">
+                    <i class="fa-solid fa-radar"></i> Auditoría
+                </button>
 
                 <button class="btn-help-premium" onclick="toggleModalAyuda(true)">
                     <i class="fa-solid fa-book-open"></i> Manual
@@ -370,44 +255,76 @@
                 <h2><i class="fa-solid fa-circle-info"></i> Manual de Operador GAD</h2>
                 <button class="btn-close-help" onclick="toggleModalAyuda(false)">✕</button>
             </div>
-            
             <div class="help-body">
                 <div class="help-section">
                     <div class="help-title"><i class="fa-solid fa-magnifying-glass"></i> 1. ¿Cómo busco un documento?</div>
                     <p class="help-text">El buscador inteligente te permite encontrar cualquier archivo en segundos. Solo tienes que escribir en la barra blanca central.</p>
-                    <span class="help-subtext">Puedes escribir el <b>País</b> (Ej: "Rumania" o "Marruecos").</span>
-                    <span class="help-subtext">Puedes escribir el <b>Tipo de Documento</b> (Ej: "DNI", "Pasaporte", "Permiso").</span>
-                    <span class="help-subtext">O combinar ambos para mayor precisión: <b>"Rumania DNI"</b>.</span>
-                    <div class="help-tip">
-                        <b>Truco Pro:</b> No hace falta que pongas tildes ni mayúsculas. El sistema te entenderá igual si escribes "belgica" o "Bélgica".
+                </div>
+            </div>
+            <button class="btn-modal-ok" onclick="toggleModalAyuda(false)">¡ENTENDIDO! CERRAR MANUAL</button>
+        </div>
+    </div>
+
+    <div id="modalAuditoria" class="modal-overlay" onclick="if(event.target === this) cerrarModalAuditoria()">
+        <div class="modal-content-help" style="max-width: 850px;">
+            <div class="help-header">
+                <h2><i class="fa-solid fa-radar"></i> Auditoría de Documentos Faltantes</h2>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button class="btn-help-premium" style="color: var(--info-blue); border-color: var(--info-blue); padding: 6px 15px;" onclick="window.location.href='../REPARTO EQUITATIVO EXPEDIENTES.html'">
+                        <i class="fa-solid fa-list-check"></i> REPARTO TAREAS
+                    </button>
+                    <button class="btn-help-premium" style="color: var(--danger-color); border-color: var(--danger-color); padding: 6px 15px;" onclick="generarPDFAuditoria()">
+                        <i class="fa-solid fa-file-pdf"></i> Imprimir / PDF
+                    </button>
+                    <button class="btn-close-help" onclick="cerrarModalAuditoria()">✕</button>
+                </div>
+            </div>
+            
+            <div class="help-body audit-layout">
+                <div class="audit-panel-left">
+                    <h3 style="color: var(--primary-color); margin-bottom: 15px; font-weight: 700;"><i class="fa-solid fa-magnifying-glass-chart"></i> Comprobar Faltantes</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <datalist id="lista-paises"></datalist>
+                        <datalist id="lista-tipos"></datalist>
+                        <datalist id="lista-anyos"></datalist>
+
+                        <input list="lista-paises" id="aud-pais" placeholder="País (Ej: Francia)" class="search-input" style="height: 44px; padding-left: 15px; font-size: 14px; border-radius: 8px;" onclick="this.value=''">
+                        <div style="display: flex; gap: 10px;">
+                            <input list="lista-tipos" id="aud-tipo" placeholder="Tipo Doc (Ej: PNC)" class="search-input" style="height: 44px; padding-left: 15px; font-size: 14px; border-radius: 8px; flex: 1;" onclick="this.value=''">
+                            
+                            <div class="search-input" style="display: flex; align-items: center; padding: 0; height: 44px; border-radius: 8px; width: 160px; overflow: hidden; background: var(--bg-color);">
+                                <button type="button" onclick="cambiarAnyoAud(-1)" style="background: transparent; color: var(--text-muted); border: none; height: 100%; width: 40px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'"><i class="fa-solid fa-minus"></i></button>
+                                
+                                <input list="lista-anyos" type="number" id="aud-anyo" placeholder="Año" style="flex: 1; height: 100%; width: 100%; background: transparent; border: none; color: var(--text-color); font-size: 15px; text-align: center; outline: none; font-weight: bold;" onclick="this.value=''">
+                                
+                                <button type="button" onclick="cambiarAnyoAud(1)" style="background: transparent; color: var(--text-muted); border: none; height: 100%; width: 40px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <button class="btn-modal-ok" style="padding: 12px; border-radius: 8px; margin-top: 5px; font-size: 14px;" onclick="ejecutarAuditoria()"><i class="fa-solid fa-bolt"></i> EJECUTAR AUDITORÍA</button>
+                    </div>
+                    
+                    <div id="resultado-auditoria" style="margin-top: 20px; padding: 15px; background: var(--bg-color); border-radius: 8px; border: 1px dashed var(--border-color); min-height: 120px;">
+                        <p style="color: var(--text-muted); text-align: center; font-size: 14px; margin-top: 20px;"><i class="fa-solid fa-robot" style="font-size: 24px; display: block; margin-bottom: 10px; opacity: 0.5;"></i> Esperando parámetros...</p>
                     </div>
                 </div>
 
-                <div class="help-section">
-                    <div class="help-title"><i class="fa-solid fa-eye" style="color:var(--eye-color)"></i> 2. ¿Cómo veo el documento?</div>
-                    <p class="help-text">Cuando encuentres la ficha que buscas en la lista, pulsa el <b>icono del OJO CYAN</b> situado a la derecha de la tarjeta.</p>
-                    <p class="help-text">Se abrirá el Visor en pantalla completa. Aquí tienes dos opciones importantes arriba a la derecha:</p>
-                    <ul style="margin-left: 20px; color: var(--text-muted); margin-bottom: 15px; list-style: none;">
-                        <li style="margin-bottom: 8px;"><span style="color:#f39c12; font-weight:bold; background:rgba(243, 156, 18, 0.2); padding:2px 8px; border-radius:4px;">BOTÓN NARANJA</span> <b>Ver Carpeta:</b> Te lleva directamente a la carpeta de Google Drive donde está guardado este archivo y sus compañeros.</li>
-                        <li><span style="color:#34a853; font-weight:bold; background:rgba(52, 168, 83, 0.2); padding:2px 8px; border-radius:4px;">BOTÓN VERDE</span> <b>Ver Archivo:</b> Abre la imagen original en alta calidad en una pestaña nueva.</li>
-                    </ul>
-                </div>
+                <div class="audit-panel-right">
+                    <h3 style="color: var(--gad-gold); margin-bottom: 10px; font-weight: 700;"><i class="fa-solid fa-sliders"></i> Reglas de Periodicidad</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Define cada cuánto se debe subir un documento.</p>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="text" id="regla-tipo" placeholder="Tipo (Ej: PNC)" class="search-input" style="height: 38px; padding-left: 10px; flex: 1; font-size: 13px; border-radius: 6px;">
+                        <select id="regla-periodo" class="search-input" style="height: 38px; padding-left: 10px; flex: 1; font-size: 13px; background: var(--bg-color); border-radius: 6px;">
+                            <option value="mensual">Mensual (1/mes)</option>
+                            <option value="semestral">Semestral (2/año)</option>
+                            <option value="anual">Anual (1/año)</option>
+                        </select>
+                        <button class="btn-view" style="width: 38px; height: 38px; color: var(--gad-gold); border-radius: 6px;" onclick="guardarRegla()" title="Guardar Regla"><i class="fa-solid fa-save"></i></button>
+                    </div>
 
-                <div class="help-section">
-                    <div class="help-title"><i class="fa-solid fa-chart-line"></i> 3. ¿Qué significan los iconos de arriba?</div>
-                    <p class="help-text">En la cabecera verás un panel de actividad que te informa de lo que ha pasado en las últimas 24 horas:</p>
-                    <span class="help-subtext"><b style="color:var(--gad-gold)"><i class="fa-solid fa-circle-plus"></i> NUEVOS (Dorado):</b> Indica cuántos documentos se han añadido al sistema hoy.</span>
-                    <span class="help-subtext"><b style="color:var(--info-blue)"><i class="fa-solid fa-pen"></i> MODIFICADOS (Azul):</b> Indica cuántos documentos han cambiado de nombre o se han actualizado.</span>
-                    <span class="help-subtext"><b style="color:var(--danger-color)"><i class="fa-solid fa-trash"></i> ELIMINADOS (Rojo):</b> Indica cuántos documentos se han borrado de la base de datos.</span>
-                </div>
-
-                <div class="help-section">
-                    <div class="help-title"><i class="fa-regular fa-clock"></i> 4. Actualización Automática</div>
-                    <p class="help-text">El sistema se sincroniza automáticamente cada noche a las 02:00 AM. La fecha de la última actualización aparece siempre arriba a la derecha.</p>
+                    <div id="lista-reglas" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 5px;"></div>
                 </div>
             </div>
-
-            <button class="btn-modal-ok" onclick="toggleModalAyuda(false)">¡ENTENDIDO! CERRAR MANUAL</button>
         </div>
     </div>
 
@@ -449,54 +366,43 @@
         let LISTA_REPRODUCCION = []; 
         let INDICE_ACTUAL = 0;
         let filtros = { cat: 'TODOS', cal: 'TODOS' };
+        let reglasAuditoria = {};
 
         auth.onAuthStateChanged(user => {
             if (user) {
-                console.log("Usuario verificado:", user.email);
-                
                 db.ref('_ESTADISTICAS').on('value', snapshot => {
                     const stats = snapshot.val();
                     if (stats) actualizarCabeceraEstadisticas(stats);
                 });
+
+                db.ref('_REGLAS_AUDITORIA').on('value', snapshot => {
+                    reglasAuditoria = snapshot.val() || {};
+                    pintarReglas();
+                });
                 
                 iniciarEscuchaDatos();
             } else {
-                console.warn("Usuario no autenticado. Datos ocultos.");
-                document.getElementById('loader').innerHTML = '<span style="color:red">⚠ Esperando autenticación o acceso denegado...</span>';
+                document.getElementById('loader').innerHTML = '<span style="color:red">⚠ Esperando autenticación...</span>';
             }
         });
 
         function actualizarCabeceraEstadisticas(stats) {
             document.querySelector('#fecha-actualizacion span').innerText = `Actualizado: ${stats.UltimaActualizacion || '--'}`;
-            
             const boxDetalle = document.getElementById('activity-details');
             boxDetalle.innerHTML = ''; 
-
             let html = '';
             let huboCambios = false;
 
             let numNuevos = stats.Nuevos || stats.NuevosDetectados || 0;
-            if(numNuevos > 0) {
-                html += `<span class="act-item new"><i class="fa-solid fa-circle-plus"></i> ${numNuevos}</span>`;
-                huboCambios = true;
-            }
+            if(numNuevos > 0) { html += `<span class="act-item new"><i class="fa-solid fa-circle-plus"></i> ${numNuevos}</span>`; huboCambios = true; }
 
             let numMod = stats.Modificados || stats.Actualizados || 0;
-            if(numMod > 0) {
-                html += `<span class="act-item mod"><i class="fa-solid fa-pen"></i> ${numMod}</span>`;
-                huboCambios = true;
-            }
+            if(numMod > 0) { html += `<span class="act-item mod"><i class="fa-solid fa-pen"></i> ${numMod}</span>`; huboCambios = true; }
 
             let numDel = stats.Eliminados || stats.Borrados || 0;
-            if(numDel > 0) {
-                html += `<span class="act-item del"><i class="fa-solid fa-trash"></i> ${numDel}</span>`;
-                huboCambios = true;
-            }
+            if(numDel > 0) { html += `<span class="act-item del"><i class="fa-solid fa-trash"></i> ${numDel}</span>`; huboCambios = true; }
 
-            if(!huboCambios) {
-                html = `<span class="act-item none"><i class="fa-solid fa-check"></i> Sin cambios</span>`;
-            }
-
+            if(!huboCambios) html = `<span class="act-item none"><i class="fa-solid fa-check"></i> Sin cambios</span>`;
             boxDetalle.innerHTML = html;
         }
 
@@ -515,7 +421,6 @@
                         procesarDatos(datosTemporales);
                     }
                 }, (error) => {
-                    console.error("Error acceso a datos:", error);
                     document.getElementById('loader').innerHTML = `<span style="color:red">Error: ${error.message}</span>`;
                 });
             });
@@ -578,6 +483,7 @@
             } else { 
                 grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted);font-size:16px;"><i class="fa-solid fa-folder-open" style="font-size:40px;margin-bottom:15px;display:block;opacity:0.5"></i>Sin resultados</div>`; 
             }
+            actualizarSelectoresAuditoria();
         }
 
         function setFiltro(type, val, btn) {
@@ -589,7 +495,248 @@
         function limpiarBusqueda() { document.getElementById('buscador').value = ''; aplicarFiltrosInteligentes(); }
         function toggleModalAyuda(s) { document.getElementById('modalAyuda').style.display = s ? 'flex' : 'none'; }
 
-        // VISOR
+
+       // --- SISTEMA DE AUDITORÍA AVANZADO ---
+        function abrirModalAuditoria() { document.getElementById('modalAuditoria').style.display = 'flex'; }
+        function cerrarModalAuditoria() { document.getElementById('modalAuditoria').style.display = 'none'; }
+
+        function guardarRegla() {
+            const tipo = document.getElementById('regla-tipo').value.trim().toUpperCase();
+            const periodo = document.getElementById('regla-periodo').value;
+            if(!tipo) return alert("Escribe un tipo de documento");
+            db.ref('_REGLAS_AUDITORIA/' + tipo).set(periodo).then(() => { document.getElementById('regla-tipo').value = ''; });
+        }
+
+        function borrarRegla(tipo) { db.ref('_REGLAS_AUDITORIA/' + tipo).remove(); }
+        
+        function editarRegla(tipo, periodo) {
+            document.getElementById('regla-tipo').value = tipo;
+            document.getElementById('regla-periodo').value = periodo;
+        }
+
+        function pintarReglas() {
+            const contenedor = document.getElementById('lista-reglas');
+            contenedor.innerHTML = '';
+            for (const [tipo, periodo] of Object.entries(reglasAuditoria)) {
+                let colorBadge = periodo === 'mensual' ? '#0ea5e9' : (periodo === 'semestral' ? '#f59e0b' : '#10b981');
+                contenedor.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <span style="font-size: 13px; font-weight: bold; color: white;">${tipo}</span>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="badge" style="background: ${colorBadge}20; color: ${colorBadge}; border: 1px solid ${colorBadge}40;">${periodo.toUpperCase()}</span>
+                            <i class="fa-solid fa-pen" style="color: var(--info-blue); cursor: pointer; font-size: 14px; opacity: 0.8;" onclick="editarRegla('${tipo}', '${periodo}')" title="Editar"></i>
+                            <i class="fa-solid fa-trash" style="color: var(--danger-color); cursor: pointer; font-size: 14px; opacity: 0.8;" onclick="borrarRegla('${tipo}')" title="Borrar"></i>
+                        </div>
+                    </div>
+                `;
+            }
+            if(Object.keys(reglasAuditoria).length === 0) {
+                contenedor.innerHTML = `<p style="font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 10px;">No hay reglas configuradas.</p>`;
+            }
+            actualizarSelectoresAuditoria();
+        }
+
+        function actualizarSelectoresAuditoria() {
+            const dlPaises = document.getElementById('lista-paises');
+            const dlAnyos = document.getElementById('lista-anyos');
+            const dlTipos = document.getElementById('lista-tipos');
+            if (!dlPaises || !dlAnyos || !dlTipos) return; 
+
+            let paises = new Set();
+            let anyos = new Set();
+            
+            BD_GLOBAL.forEach(doc => {
+                if (doc.Pais) paises.add(doc.Pais.trim());
+                doc._palabras.forEach(palabra => {
+                    if (/^(19|20)\d{2}$/.test(palabra)) anyos.add(palabra);
+                });
+            });
+
+            dlPaises.innerHTML = Array.from(paises).sort().map(p => `<option value="${p}">`).join('');
+            dlAnyos.innerHTML = Array.from(anyos).sort((a,b) => b-a).map(a => `<option value="${a}">`).join('');
+            dlTipos.innerHTML = Object.keys(reglasAuditoria).sort().map(t => `<option value="${t}">`).join('');
+        }
+
+        function cambiarAnyoAud(dir) {
+            const input = document.getElementById('aud-anyo');
+            let val = parseInt(input.value);
+            if (isNaN(val)) {
+                input.value = new Date().getFullYear();
+            } else {
+                input.value = val + dir;
+            }
+        }
+
+        function obtenerMesesDoc(doc, tipoDeseado) {
+            let meses = new Set();
+            const nombre = (doc.NombreDocumento || "").trim().toUpperCase();
+            const tipo = tipoDeseado.trim().toUpperCase();
+            if (!nombre.startsWith(tipo)) return meses;
+            const matchFecha = nombre.match(/(?:19|20)\d{2}[-.\s](0[1-9]|1[0-2])\b/);
+            if (matchFecha) { meses.add(matchFecha[1]); }
+            return meses;
+        }
+
+        function ejecutarAuditoria() {
+            const contenedor = document.getElementById('resultado-auditoria');
+            const paisSel = document.getElementById('aud-pais').value.trim();
+            const tipoSel = document.getElementById('aud-tipo').value.trim().toUpperCase();
+            const anyoSel = document.getElementById('aud-anyo').value.trim();
+
+            if(!paisSel || !tipoSel || !anyoSel) {
+                contenedor.innerHTML = `<span style="color: var(--danger-color); font-size:13px;">Rellena País, Tipo y Año.</span>`;
+                return;
+            }
+
+            const regla = reglasAuditoria[tipoSel];
+            if(!regla) {
+                contenedor.innerHTML = `<span style="color: var(--gad-gold); font-size:12px;">No hay regla para "${tipoSel}".</span>`;
+                return;
+            }
+
+            const docsEncontrados = BD_GLOBAL.filter(doc => {
+                const nombre = (doc.NombreDocumento || "").trim().toUpperCase();
+                const paisDoc = (doc.Pais || "").trim().toUpperCase();
+                return paisDoc === paisSel.toUpperCase() && nombre.includes(anyoSel) && nombre.startsWith(tipoSel);
+            });
+
+            let periodosHtml = "";
+            const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+            if (regla === 'mensual') {
+                let chips = [];
+                for(let i = 1; i <= 12; i++) {
+                    const mesNum = i.toString().padStart(2, '0');
+                    const existe = docsEncontrados.some(d => obtenerMesesDoc(d, tipoSel).has(mesNum));
+                    const color = existe ? "#10b981" : "#ef4444";
+                    const bg = existe ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)";
+                    chips.push(`<span style="background:${bg}; border:1px solid ${color}; color:${color}; padding:2px 8px; border-radius:4px; font-size:11px; font-weight: bold;">${mesesNombres[i-1]}</span>`);
+                }
+                periodosHtml = chips.join("");
+            } else if (regla === 'semestral') {
+                const s1 = docsEncontrados.some(d => ['01','02','03','04','05','06'].some(x => obtenerMesesDoc(d, tipoSel).has(x)));
+                const s2 = docsEncontrados.some(d => ['07','08','09','10','11','12'].some(x => obtenerMesesDoc(d, tipoSel).has(x)));
+                
+                const col1 = s1 ? "#10b981" : "#ef4444";
+                const bg1 = s1 ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)";
+                const col2 = s2 ? "#10b981" : "#ef4444";
+                const bg2 = s2 ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)";
+
+                periodosHtml = `
+                    <span style="background:${bg1}; border:1px solid ${col1}; color:${col1}; padding:2px 8px; border-radius:4px; font-size:11px; font-weight: bold;">1º Semestre</span>
+                    <span style="background:${bg2}; border:1px solid ${col2}; color:${col2}; padding:2px 8px; border-radius:4px; font-size:11px; font-weight: bold;">2º Semestre</span>
+                `;
+            } else if (regla === 'anual') {
+                const existe = docsEncontrados.length > 0;
+                const col = existe ? "#10b981" : "#3b82f6";
+                const bg = existe ? "rgba(16, 185, 129, 0.15)" : "rgba(59, 130, 246, 0.15)";
+                const texto = existe ? "Documento Anual OK" : "Falta Documento Anual";
+                periodosHtml = `<span style="background:${bg}; border:1px solid ${col}; color:${col}; padding:2px 8px; border-radius:4px; font-size:11px; font-weight: bold;">${texto}</span>`;
+            }
+
+            contenedor.innerHTML = `
+                <p style="color: white; font-weight: bold; font-size: 13px; margin-bottom: 10px;">Estado de ${tipoSel} (${anyoSel}):</p>
+                <div style="display:flex; flex-wrap:wrap; gap:6px;">${periodosHtml}</div>
+                <p style="font-size:11px; color:var(--text-muted); margin-top:15px; border-top:1px solid var(--border-color); padding-top:8px;">
+                    <i class="fa-solid fa-info-circle"></i> Analizados: ${docsEncontrados.length} archivos válidos.
+                </p>
+            `;
+        }
+
+        function generarPDFAuditoria() {
+            const btnPdf = document.querySelector('.btn-help-premium i.fa-file-pdf').parentElement;
+            btnPdf.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abriendo...';
+            btnPdf.style.pointerEvents = 'none';
+
+            const anyoActual = new Date().getFullYear();
+            let reporte = {};
+            let hayFaltasGlobales = false;
+
+            Object.entries(reglasAuditoria).forEach(([tipoRegla, regla]) => {
+                const tipoU = tipoRegla.toUpperCase();
+                const paisesUnicos = [...new Set(BD_GLOBAL.map(d => (d.Pais || "").trim().toUpperCase()))].filter(Boolean);
+
+                paisesUnicos.forEach(paisU => {
+                    const docsPaisTipo = BD_GLOBAL.filter(d => 
+                        (d.Pais || "").trim().toUpperCase() === paisU && 
+                        (d.NombreDocumento || "").trim().toUpperCase().startsWith(tipoU)
+                    );
+                    
+                    if (docsPaisTipo.length === 0) return;
+
+                    let anyos = [];
+                    docsPaisTipo.forEach(d => d._palabras.forEach(p => { if(/^(19|20)\d{2}$/.test(p)) anyos.push(parseInt(p)); }));
+                    if (anyos.length === 0) return;
+                    const primerAnyo = Math.min(...anyos);
+
+                    for (let anyo = primerAnyo; anyo <= anyoActual; anyo++) {
+                        const anyoStr = anyo.toString();
+                        const docsDelAnyo = docsPaisTipo.filter(d => (d.NombreDocumento||"").includes(anyoStr));
+                        let faltaAlgoEnEsteAnyo = false;
+                        let periodosHtml = [];
+
+                        if (regla === 'mensual') {
+                            const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+                            for(let i=1; i<=12; i++) {
+                                const m = i.toString().padStart(2, '0');
+                                const existe = docsDelAnyo.some(d => obtenerMesesDoc(d, tipoU).has(m));
+                                if(!existe) { faltaAlgoEnEsteAnyo = true; periodosHtml.push(`<span style="color: #e11d48; font-weight: bold;">${meses[i-1]}</span>`); }
+                                else { periodosHtml.push(`<span style="color: #10b981;">${meses[i-1]}</span>`); }
+                            }
+                        } else if (regla === 'semestral') {
+                            const s1 = docsDelAnyo.some(d => ['01','02','03','04','05','06'].some(x => obtenerMesesDoc(d, tipoU).has(x)));
+                            const s2 = docsDelAnyo.some(d => ['07','08','09','10','11','12'].some(x => obtenerMesesDoc(d, tipoU).has(x)));
+                            if(!s1) { faltaAlgoEnEsteAnyo = true; periodosHtml.push(`<span style="color: #e11d48; font-weight: bold;">1º Semestre</span>`); } else { periodosHtml.push(`<span style="color: #10b981;">1º Semestre</span>`); }
+                            if(!s2) { faltaAlgoEnEsteAnyo = true; periodosHtml.push(`<span style="color: #e11d48; font-weight: bold;">2º Semestre</span>`); } else { periodosHtml.push(`<span style="color: #10b981;">2º Semestre</span>`); }
+                        } else if (regla === 'anual') {
+                            if (docsDelAnyo.length === 0) {
+                                faltaAlgoEnEsteAnyo = true;
+                                periodosHtml.push(`<span style="color: #3b82f6; font-weight: bold;">Falta documento anual</span>`);
+                            }
+                        }
+
+                        if (faltaAlgoEnEsteAnyo) {
+                            if (!reporte[paisU]) reporte[paisU] = {};
+                            if (!reporte[paisU][anyo]) reporte[paisU][anyo] = [];
+                            reporte[paisU][anyo].push(`<strong>${tipoRegla}:</strong> ${periodosHtml.join(", ")}`);
+                            hayFaltasGlobales = true;
+                        }
+                    }
+                });
+            });
+
+            if (!hayFaltasGlobales) {
+                alert("¡Todo al día!");
+                btnPdf.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Imprimir / PDF';
+                btnPdf.style.pointerEvents = 'auto';
+                return;
+            }
+
+            let html = `<html><head><title>Auditoría GAD</title><style>
+                body { font-family: 'Segoe UI', sans-serif; padding: 40px; color: #1e293b; }
+                h1 { color: #0891b2; border-bottom: 2px solid #0891b2; padding-bottom: 10px; }
+                .pais { background: #f1f5f9; padding: 10px; border-left: 5px solid #06b6d4; margin-top: 25px; font-weight: bold; page-break-inside: avoid; }
+                .anyo { margin-left: 20px; margin-top: 15px; color: #f59e0b; font-weight: bold; }
+                ul { list-style: none; padding-left: 40px; }
+                li { border-bottom: 1px dashed #e2e8f0; padding: 6px 0; font-size: 14px; page-break-inside: avoid; line-height: 1.5; }
+                strong { display: inline-block; min-width: 80px; }
+            </style></head><body><h1>Auditoría General de documentos faltantes (GAD)</h1><p>Generado: ${new Date().toLocaleDateString()}</p>`;
+
+            Object.keys(reporte).sort().forEach(pais => {
+                html += `<div class="pais">${pais}</div>`;
+                Object.keys(reporte[pais]).sort((a,b) => b-a).forEach(anyo => {
+                    html += `<div class="anyo">▶ Año ${anyo}</div><ul>`;
+                    reporte[pais][anyo].forEach(l => html += `<li>${l}</li>`);
+                    html += `</ul>`;
+                });
+            });
+
+            let win = window.open('', '_blank');
+            win.document.write(html + '</body></html>');
+            win.document.close();
+            setTimeout(() => { win.print(); btnPdf.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Imprimir / PDF'; btnPdf.style.pointerEvents = 'auto'; }, 500);
+        }
+        // --- VISOR ---
         const modalVisor = document.getElementById('modalVisor');
         const iframeEl = document.getElementById('visor-iframe');
         const tituloEl = document.getElementById('visor-titulo');
