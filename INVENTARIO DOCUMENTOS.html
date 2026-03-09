@@ -270,7 +270,7 @@
             <div class="help-header">
                 <h2><i class="fa-solid fa-radar"></i> Auditoría de Documentos Faltantes</h2>
                 <div style="display: flex; gap: 15px; align-items: center;">
-                    <button class="btn-help-premium" style="color: var(--info-blue); border-color: var(--info-blue); padding: 6px 15px;" onclick="window.location.href='../REPARTO EQUITATIVO EXPEDIENTES.html'">
+                    <button class="btn-help-premium" style="color: var(--info-blue); border-color: var(--info-blue); padding: 6px 15px;" onclick="window.location.href='REPARTO EQUITATIVO EXPEDIENTES.html'">
                         <i class="fa-solid fa-list-check"></i> REPARTO TAREAS
                     </button>
                     <button class="btn-help-premium" style="color: var(--danger-color); border-color: var(--danger-color); padding: 6px 15px;" onclick="generarPDFAuditoria()">
@@ -781,4 +781,5 @@
         document.addEventListener('keydown', e => { if(modalVisor.classList.contains('active')) { if(e.key==="ArrowLeft")cambiarDoc(-1); if(e.key==="ArrowRight")cambiarDoc(1); if(e.key==="Escape")cerrarVisor(); } });
     </script>
 </body>
+
 </html>
