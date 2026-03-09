@@ -96,7 +96,16 @@
         .chip i { font-size: 14px; }
         .divider { width: 1px; background: var(--border-color); margin: 0 10px; height: 32px; }
 
-        .results-container { flex: 1; max-width: 1600px; margin: 0 auto; width: 100%; padding: 0 30px 50px 30px; }
+        .results-container { 
+    flex: 1; 
+    max-width: 1600px; 
+    margin: 0 auto; 
+    width: 100%; 
+    /* Aumentamos el margen inferior a 120px para que los resultados nunca queden debajo del footer */
+    padding: 0 30px 120px 30px; 
+    position: relative;
+    z-index: 1;
+}
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
 
         .card { background: var(--card-bg); border-radius: 12px; padding: 15px 18px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border-color); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; box-shadow: var(--shadow-sm); overflow: hidden; }
@@ -178,7 +187,17 @@
             .btn-close-viewer { width: 36px; height: 36px; }
             .btn-folder-drive, .btn-file-drive { padding: 0 12px; height: 36px; }
             .audit-layout { flex-direction: column; gap: 0; }
-            .audit-panel-left { border-right: none; padding-right: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 25px; margin-bottom: 25px; }
+          .audit-panel-left { border-right: none; padding-right: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 25px; margin-bottom: 25px; }
+        }
+        /* --- ESTO ES LO NUEVO --- */
+        footer { 
+            margin-top: auto; 
+            width: 100%; 
+            background: var(--bg-color); 
+            border-top: 1px solid var(--border-color); 
+            padding: 20px; 
+            position: relative; 
+            z-index: 10; 
         }
     </style>
 </head>
@@ -270,7 +289,7 @@
             <div class="help-header">
                 <h2><i class="fa-solid fa-radar"></i> Auditoría de Documentos Faltantes</h2>
                 <div style="display: flex; gap: 15px; align-items: center;">
-                    <button class="btn-help-premium" style="color: var(--info-blue); border-color: var(--info-blue); padding: 6px 15px;" onclick="window.location.href='REPARTO EQUITATIVO EXPEDIENTES.html'">
+                    <button class="btn-help-premium" style="color: var(--info-blue); border-color: var(--info-blue); padding: 6px 15px;" onclick="window.location.href='REPARTO%20EQUITATIVO%20EXPEDIENTES.html'">
                         <i class="fa-solid fa-list-check"></i> REPARTO TAREAS
                     </button>
                     <button class="btn-help-premium" style="color: var(--danger-color); border-color: var(--danger-color); padding: 6px 15px;" onclick="generarPDFAuditoria()">
@@ -781,5 +800,4 @@
         document.addEventListener('keydown', e => { if(modalVisor.classList.contains('active')) { if(e.key==="ArrowLeft")cambiarDoc(-1); if(e.key==="ArrowRight")cambiarDoc(1); if(e.key==="Escape")cerrarVisor(); } });
     </script>
 </body>
-
 </html>
