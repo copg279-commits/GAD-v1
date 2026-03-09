@@ -6,10 +6,31 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
 
-    <style>
+  <style>
         :root { --blue-main: #1a73e8; --blue-dark: #0d47a1; --success: #28a745; --danger: #d93025; --bg: #f4f7f9; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); padding: 20px; color: #333; margin: 0; }
-        .container { max-width: 1200px; margin: 20px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg); 
+            padding: 20px; 
+            padding-bottom: 100px; /* Margen de seguridad para que no se oculte nada */
+            color: #333; 
+            margin: 0; 
+        }
+
+        .container { 
+            max-width: 1200px; 
+            margin: 20px auto 50px auto; /* Añadido margen inferior de 50px */
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            position: relative; 
+            min-height: 400px; 
+        }
+
+        /* ... El resto de tus estilos se mantienen igual ... */
+
         .help-btn { position: absolute; top: 20px; right: 20px; background: #5f6368; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 100; }
         .db-panel { background: #e8f0fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #c2d7fa; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .db-panel input { padding: 8px; border: 1px solid #ccc; border-radius: 5px; flex-grow: 1; min-width: 200px; }
@@ -20,7 +41,14 @@
         .ag-list input { width: 95%; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 5px; display: block; }
         textarea { width: 100%; height: 120px; border: 1px solid #ccc; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 11px; }
         button#process-btn { width: 100%; padding: 15px; background: var(--blue-main); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
-        .results { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
+        
+        .results { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 30px; /* Espacio extra al final de la lista de resultados */
+        }
+
         .card { background: white; border-radius: 12px; border: 1px solid #d1d9e0; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; }
         .card-header { background: var(--blue-main); color: white; padding: 12px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
         .card-body { padding: 15px; flex-grow: 1; }
@@ -35,8 +63,6 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
         .modal-content { background: white; margin: 10% auto; padding: 25px; border-radius: 12px; width: 80%; max-width: 500px; position: relative; }
         .count-badge { font-weight: bold; color: var(--danger); font-size: 0.9em; }
-        
-        /* Mensaje de carga inicial */
         #auth-status { text-align: center; color: #666; margin-bottom: 10px; font-weight: bold; font-size: 0.9em; }
     </style>
 </head>
