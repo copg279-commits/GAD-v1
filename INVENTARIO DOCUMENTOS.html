@@ -17,7 +17,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
+    
     <style>
         /* ==========================================
            1. VARIABLES DE DISEÑO (DARK MODE GAD)
@@ -199,6 +199,10 @@
             position: relative; 
             z-index: 10; 
         }
+        /* Cirugía para poner la ayuda por delante de la auditoría */
+        #modalAyudaAuditoria {
+            z-index: 5000 !important;
+        }
     </style>
 </head>
 <body>
@@ -236,8 +240,8 @@
                 </button>
 
                 <button class="btn-help-premium" onclick="toggleModalAyuda(true)">
-                    <i class="fa-solid fa-book-open"></i> Manual
-                </button>
+    <i class="fa-solid fa-circle-question"></i> Ayuda
+</button>
             </div>
         </div>
     </header>
@@ -268,19 +272,54 @@
         <div id="grid-resultados" class="grid"></div>
     </div>
 
-    <div id="modalAyuda" class="modal-overlay" onclick="if(event.target === this) toggleModalAyuda(false)">
+  <div id="modalAyuda" class="modal-overlay" onclick="if(event.target === this) toggleModalAyuda(false)">
         <div class="modal-content-help" id="helpContent">
             <div class="help-header">
-                <h2><i class="fa-solid fa-circle-info"></i> Manual de Operador GAD</h2>
+                <h2><i class="fa-solid fa-circle-question"></i> Centro de Ayuda GAD</h2>
                 <button class="btn-close-help" onclick="toggleModalAyuda(false)">✕</button>
             </div>
             <div class="help-body">
                 <div class="help-section">
-                    <div class="help-title"><i class="fa-solid fa-magnifying-glass"></i> 1. ¿Cómo busco un documento?</div>
-                    <p class="help-text">El buscador inteligente te permite encontrar cualquier archivo en segundos. Solo tienes que escribir en la barra blanca central.</p>
+                    <div class="help-title"><i class="fa-solid fa-magnifying-glass"></i> Buscador Inteligente</div>
+                    <p class="help-text">Escribe cualquier término (País, Tipo, Año) para filtrar al instante. El sistema busca coincidencias en todas las etiquetas del documento.</p>
+                </div>
+                <div class="help-section">
+                    <div class="help-title"><i class="fa-solid fa-layer-group"></i> Filtros Rápidos</div>
+                    <p class="help-text">Usa los botones superiores para segmentar por <b>Categoría</b> (Personas o Vehículos) y por <b>Calidad DPI</b>. La lista se actualizará automáticamente.</p>
+                </div>
+                <div class="help-section">
+                    <div class="help-title"><i class="fa-solid fa-eye"></i> Visor Premium</div>
+                    <p class="help-text">Haz clic en el icono del ojo para abrir el documento. Puedes usar las flechas laterales para navegar entre los archivos de ese mismo país sin salir del visor.</p>
                 </div>
             </div>
-            <button class="btn-modal-ok" onclick="toggleModalAyuda(false)">¡ENTENDIDO! CERRAR MANUAL</button>
+            <button class="btn-modal-ok" onclick="toggleModalAyuda(false)">ENTENDIDO</button>
+        </div>
+    </div>
+
+    <div id="modalAyudaAuditoria" class="modal-overlay" onclick="if(event.target === this) toggleModalAyudaAuditoria(false)">
+        <div class="modal-content-help" style="max-width: 600px;">
+            <div class="help-header" style="background: #1e293b;">
+                <h2 style="color: var(--info-blue);"><i class="fa-solid fa-robot"></i> Lógica de la Auditoría</h2>
+                <button class="btn-close-help" onclick="toggleModalAyudaAuditoria(false)">✕</button>
+            </div>
+            <div class="help-body" style="font-size: 14px;">
+                <div class="help-tip" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+                    <strong style="color: #ef4444;">⚠️ REGLA DE ORO:</strong> El nombre del archivo debe <b>EMPEZAR</b> exactamente por el tipo (Ej: "TIE 2024..."). Si empieza por "Solicitud TIE", el sistema lo ignorará para evitar errores.
+                </div>
+                
+                <h4 style="color: var(--gad-gold); margin-top: 20px;"><i class="fa-solid fa-calendar-check"></i> El Sistema Semáforo</h4>
+                <ul style="list-style: none; padding-left: 0; margin-top: 10px;">
+                    <li style="margin-bottom: 10px;"><span style="color: #10b981; font-weight: bold;">● VERDE:</span> Indica que el mes/semestre está cubierto. El sistema detecta el patrón <b>AAAA-MM</b> en el nombre.</li>
+                    <li style="margin-bottom: 10px;"><span style="color: #ef4444; font-weight: bold;">● ROJO:</span> Indica que el documento falta en la base de datos para ese periodo.</li>
+                </ul>
+
+                <h4 style="color: var(--primary-color); margin-top: 20px;"><i class="fa-solid fa-file-pdf"></i> ¿Qué muestra el PDF?</h4>
+                <p class="help-text">El reporte PDF genera un historial completo desde el primer año registrado de cada país. Mostrará los años con faltas detallando cada mes en color rojo/verde.</p>
+
+                <h4 style="color: var(--gad-gold); margin-top: 20px;"><i class="fa-solid fa-plus-circle"></i> Gestionar Reglas</h4>
+                <p class="help-text">Para añadir una regla: Escribe el tipo (ej: PNC), elige la frecuencia y dale a <b>Guardar</b>. El sistema empezará a auditar ese tipo de inmediato en todos los países.</p>
+            </div>
+            <button class="btn-modal-ok" style="background: var(--info-blue);" onclick="toggleModalAyudaAuditoria(false)">¡LO HE ENTENDIDO!</button>
         </div>
     </div>
 
@@ -328,7 +367,12 @@
                 </div>
 
                 <div class="audit-panel-right">
-                    <h3 style="color: var(--gad-gold); margin-bottom: 10px; font-weight: 700;"><i class="fa-solid fa-sliders"></i> Reglas de Periodicidad</h3>
+                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+    <h3 style="color: var(--gad-gold); font-weight: 700; margin: 0;"><i class="fa-solid fa-sliders"></i> Reglas de Periodicidad</h3>
+    <button onclick="toggleModalAyudaAuditoria(true)" style="background: rgba(14, 165, 233, 0.1); border: 1px solid var(--info-blue); color: var(--info-blue); cursor: pointer; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+        <i class="fa-solid fa-circle-info"></i> AYUDA
+    </button>
+</div>
                     <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.4;">Define cada cuánto se debe subir un documento.</p>
                     
                     <div style="display: flex; gap: 10px; margin-bottom: 20px;">
@@ -798,6 +842,12 @@
         function entrarFullscreen() { const e = document.documentElement; if (e.requestFullscreen) e.requestFullscreen().catch(()=>{}); }
         function salirFullscreen() { if (document.exitFullscreen) document.exitFullscreen().catch(()=>{}); }
         document.addEventListener('keydown', e => { if(modalVisor.classList.contains('active')) { if(e.key==="ArrowLeft")cambiarDoc(-1); if(e.key==="ArrowRight")cambiarDoc(1); if(e.key==="Escape")cerrarVisor(); } });
-    </script>
+   function toggleModalAyudaAuditoria(mostrar) {
+            const modal = document.getElementById('modalAyudaAuditoria');
+            if (modal) {
+                modal.style.display = mostrar ? 'flex' : 'none';
+            }
+        }
+   </script>
 </body>
 </html>
