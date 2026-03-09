@@ -229,6 +229,12 @@
         #modalAyudaAuditoria {
             z-index: 5000 !important;
         }
+
+        /* Scrollbar Dark Mode para Reglas de Periodicidad */
+        #lista-reglas::-webkit-scrollbar { width: 8px; }
+        #lista-reglas::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 4px; }
+        #lista-reglas::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        #lista-reglas::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
     </style>
 </head>
 <body>
@@ -633,11 +639,18 @@
 
             let paises = new Set();
             let anyos = new Set();
+            const anyoActual = new Date().getFullYear();
+            
+            // Asegurar que el año actual siempre esté disponible en la lista
+            anyos.add(anyoActual.toString());
             
             BD_GLOBAL.forEach(doc => {
                 if (doc.Pais) paises.add(doc.Pais.trim());
                 doc._palabras.forEach(palabra => {
-                    if (/^(19|20)\d{2}$/.test(palabra)) anyos.add(palabra);
+                    if (/^(19|20)\d{2}$/.test(palabra)) {
+                        // Añadimos un filtro para no mostrar años futuros que puedan ser errores
+                        if (parseInt(palabra) <= anyoActual) anyos.add(palabra);
+                    }
                 });
             });
 
@@ -732,7 +745,7 @@
             `;
         }
 
-        function generarPDFAuditoria() {
+       function generarPDFAuditoria() {
             const btnPdf = document.querySelector('.btn-help-premium i.fa-file-pdf').parentElement;
             btnPdf.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abriendo...';
             btnPdf.style.pointerEvents = 'none';
@@ -743,20 +756,25 @@
 
             Object.entries(reglasAuditoria).forEach(([tipoRegla, regla]) => {
                 const tipoU = tipoRegla.toUpperCase();
-                const paisesUnicos = [...new Set(BD_GLOBAL.map(d => (d.Pais || "").trim().toUpperCase()))].filter(Boolean);
+                
+                const docsDeEsteTipo = BD_GLOBAL.filter(d => 
+                    (d.NombreDocumento || "").trim().toUpperCase().startsWith(tipoU)
+                );
 
-                paisesUnicos.forEach(paisU => {
-                    const docsPaisTipo = BD_GLOBAL.filter(d => 
-                        (d.Pais || "").trim().toUpperCase() === paisU && 
-                        (d.NombreDocumento || "").trim().toUpperCase().startsWith(tipoU)
-                    );
+                if (docsDeEsteTipo.length === 0) return;
+
+                const paisesQueUsanEsteTipo = [...new Set(docsDeEsteTipo.map(d => (d.Pais || "").trim().toUpperCase()))].filter(Boolean);
+
+                paisesQueUsanEsteTipo.forEach(paisU => {
+                    const docsPaisTipo = docsDeEsteTipo.filter(d => (d.Pais || "").trim().toUpperCase() === paisU);
                     
-                    if (docsPaisTipo.length === 0) return;
-
-                    let anyos = [];
-                    docsPaisTipo.forEach(d => d._palabras.forEach(p => { if(/^(19|20)\d{2}$/.test(p)) anyos.push(parseInt(p)); }));
-                    if (anyos.length === 0) return;
-                    const primerAnyo = Math.min(...anyos);
+                    let anyosEncontrados = [];
+                    docsPaisTipo.forEach(d => {
+                        d._palabras.forEach(pal => { if (/^(19|20)\d{2}$/.test(pal)) anyosEncontrados.push(parseInt(pal)); });
+                    });
+                    if (anyosEncontrados.length === 0) return;
+                    
+                    const primerAnyo = Math.min(...anyosEncontrados);
 
                     for (let anyo = primerAnyo; anyo <= anyoActual; anyo++) {
                         const anyoStr = anyo.toString();
@@ -769,14 +787,14 @@
                             for(let i=1; i<=12; i++) {
                                 const m = i.toString().padStart(2, '0');
                                 const existe = docsDelAnyo.some(d => obtenerMesesDoc(d, tipoU).has(m));
-                                if(!existe) { faltaAlgoEnEsteAnyo = true; periodosHtml.push(`<span style="color: #e11d48; font-weight: bold;">${meses[i-1]}</span>`); }
+                                if (!existe) { faltaAlgoEnEsteAnyo = true; periodosHtml.push(`<span style="color: #e11d48; font-weight: bold;">${meses[i-1]}</span>`); }
                                 else { periodosHtml.push(`<span style="color: #10b981;">${meses[i-1]}</span>`); }
                             }
                         } else if (regla === 'semestral') {
                             const s1 = docsDelAnyo.some(d => ['01','02','03','04','05','06'].some(x => obtenerMesesDoc(d, tipoU).has(x)));
                             const s2 = docsDelAnyo.some(d => ['07','08','09','10','11','12'].some(x => obtenerMesesDoc(d, tipoU).has(x)));
-                            if(!s1) { faltaAlgoEnEsteAnyo = true; periodosHtml.push(`<span style="color: #e11d48; font-weight: bold;">1º Semestre</span>`); } else { periodosHtml.push(`<span style="color: #10b981;">1º Semestre</span>`); }
-                            if(!s2) { faltaAlgoEnEsteAnyo = true; periodosHtml.push(`<span style="color: #e11d48; font-weight: bold;">2º Semestre</span>`); } else { periodosHtml.push(`<span style="color: #10b981;">2º Semestre</span>`); }
+                            if (!s1) { faltaAlgoEnEsteAnyo = true; periodosHtml.push(`<span style="color: #e11d48; font-weight: bold;">1º Semestre</span>`); } else { periodosHtml.push(`<span style="color: #10b981;">1º Semestre</span>`); }
+                            if (!s2) { faltaAlgoEnEsteAnyo = true; periodosHtml.push(`<span style="color: #e11d48; font-weight: bold;">2º Semestre</span>`); } else { periodosHtml.push(`<span style="color: #10b981;">2º Semestre</span>`); }
                         } else if (regla === 'anual') {
                             if (docsDelAnyo.length === 0) {
                                 faltaAlgoEnEsteAnyo = true;
@@ -795,35 +813,48 @@
             });
 
             if (!hayFaltasGlobales) {
-                alert("¡Todo al día!");
+                alert("¡Todo al día! No se encontraron faltas según las reglas de auditoría.");
                 btnPdf.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Imprimir / PDF';
                 btnPdf.style.pointerEvents = 'auto';
                 return;
             }
 
-            let html = `<html><head><title>Auditoría GAD</title><style>
-                body { font-family: 'Segoe UI', sans-serif; padding: 40px; color: #1e293b; }
-                h1 { color: #0891b2; border-bottom: 2px solid #0891b2; padding-bottom: 10px; }
-                .pais { background: #f1f5f9; padding: 10px; border-left: 5px solid #06b6d4; margin-top: 25px; font-weight: bold; page-break-inside: avoid; }
-                .anyo { margin-left: 20px; margin-top: 15px; color: #f59e0b; font-weight: bold; }
-                ul { list-style: none; padding-left: 40px; }
+            let html = `<html><head><title>Auditoría Faltantes GAD</title><style>
+                body { font-family: 'Segoe UI', sans-serif; padding: 30px; color: #1e293b; max-width: 1000px; margin: 0 auto; }
+                h1 { color: #0891b2; border-bottom: 2px solid #0891b2; padding-bottom: 10px; font-size: 24px; }
+                p { color: #64748b; font-size: 13px; margin-bottom: 30px; }
+                .pais { background: #f1f5f9; padding: 10px 15px; border-left: 5px solid #06b6d4; margin-top: 25px; font-weight: bold; font-size: 18px; page-break-inside: avoid; }
+                .anyo { margin-left: 20px; margin-top: 15px; color: #f59e0b; font-weight: bold; font-size: 15px; page-break-inside: avoid; }
+                ul { list-style: none; padding-left: 35px; margin-top: 5px; }
                 li { border-bottom: 1px dashed #e2e8f0; padding: 6px 0; font-size: 14px; page-break-inside: avoid; line-height: 1.5; }
                 strong { display: inline-block; min-width: 80px; }
-            </style></head><body><h1>Auditoría General de documentos faltantes (GAD)</h1><p>Generado: ${new Date().toLocaleDateString()}</p>`;
+            </style></head><body>
+                <h1>Auditoría General de documentos faltantes (GAD)</h1>
+                <p>Generado el: ${new Date().toLocaleDateString()}</p>`;
 
             Object.keys(reporte).sort().forEach(pais => {
-                html += `<div class="pais">${pais}</div>`;
+                html += `<div class="pais">${pais.toUpperCase()}</div>`;
                 Object.keys(reporte[pais]).sort((a,b) => b-a).forEach(anyo => {
                     html += `<div class="anyo">▶ Año ${anyo}</div><ul>`;
-                    reporte[pais][anyo].forEach(l => html += `<li>${l}</li>`);
+                    reporte[pais][anyo].forEach(linea => { html += `<li>${linea}</li>`; });
                     html += `</ul>`;
                 });
             });
 
-            let win = window.open('', '_blank');
-            win.document.write(html + '</body></html>');
-            win.document.close();
-            setTimeout(() => { win.print(); btnPdf.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Imprimir / PDF'; btnPdf.style.pointerEvents = 'auto'; }, 500);
+            let printWindow = window.open('', '_blank');
+            if (printWindow) {
+                printWindow.document.write(html + '</body></html>');
+                printWindow.document.close();
+                setTimeout(() => { 
+                    printWindow.print(); 
+                    btnPdf.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Imprimir / PDF'; 
+                    btnPdf.style.pointerEvents = 'auto'; 
+                }, 500);
+            } else {
+                alert("Bloqueo de Pop-up detectado. Habilita los pop-ups para generar el PDF.");
+                btnPdf.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Imprimir / PDF'; 
+                btnPdf.style.pointerEvents = 'auto'; 
+            }
         }
         // --- VISOR ---
         const modalVisor = document.getElementById('modalVisor');
