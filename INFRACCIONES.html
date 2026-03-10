@@ -224,14 +224,14 @@
     }
   </style>
 </head>
-<body class="bg-slate-900 min-h-screen flex flex-col pb-12 text-slate-200">
+<body class="bg-slate-900 h-screen flex flex-col text-slate-200 overflow-hidden">
 
   <div id="auth-loading-screen">
       <i class="fas fa-shield-alt fa-3x mb-4"></i>
       <span>Conectando con Base de Datos V4...</span>
   </div>
 
-  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2">
+  <header class="min-h-[5rem] py-3 md:py-0 md:h-28 bg-slate-900 w-full border-b border-slate-800 flex items-center justify-between px-2 md:px-8 shadow-md sticky top-0 z-[1000] gap-2 shrink-0">
     <img src="logogad.png" onerror="this.onerror=null; this.src='../ASSETS/logogad.png';" alt="GAD LOGO" class="h-[64px] w-[64px] md:h-[112px] md:w-[112px] drop-shadow-md flex-shrink-0">
     
     <div class="text-center flex-1">
@@ -246,8 +246,8 @@
     <img src="t4c.png" onerror="this.onerror=null; this.src='../ASSETS/t4c.png';" alt="T4C" class="h-[56px] w-[56px] md:h-[96px] md:w-[96px] drop-shadow-md flex-shrink-0">
   </header>
 
-  <div id="main-content" style="display:none;">
-      <div class="w-11/12 max-w-3xl mx-auto mt-6 flex justify-end items-center px-1">
+  <div id="main-content" style="display:none;" class="flex-1 flex flex-col overflow-hidden w-full">
+      <div class="w-11/12 max-w-3xl mx-auto mt-4 flex justify-end items-center px-1 shrink-0">
           <span class="mr-3 text-xs font-bold text-slate-400 uppercase tracking-widest">Modo Edición</span>
           <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
               <input type="checkbox" name="toggle" id="editModeToggle" onchange="toggleEditMode()" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-slate-200 border-4 appearance-none cursor-pointer border-slate-600 left-0 transition-all duration-200 ease-in-out"/>
@@ -255,7 +255,7 @@
           </div>
       </div>
 
-      <div class="w-11/12 max-w-3xl mx-auto mt-2 bg-slate-800 p-6 rounded-xl shadow-md border border-slate-700">
+      <div class="w-11/12 max-w-3xl mx-auto mt-2 bg-slate-800 p-4 md:p-6 rounded-xl shadow-md border border-slate-700 shrink-0">
         <div class="relative search-container">
           <div class="flex items-center border border-slate-600 bg-slate-900 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-cyan-500 transition">
             <input 
@@ -288,20 +288,20 @@
         </div>
       </div>
 
-      <div id="searchResults" class="w-11/12 max-w-3xl mx-auto mt-4 bg-slate-800 p-4 md:p-6 rounded-xl shadow-md border border-slate-700 min-h-[200px] relative z-[9999] mb-24">
-        <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+      <div id="searchResults" class="w-11/12 max-w-3xl mx-auto mt-4 bg-slate-800 p-4 md:p-6 rounded-xl shadow-md border border-slate-700 min-h-0 flex flex-col flex-1 overflow-hidden mb-4 relative z-[50]">
+        <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2 shrink-0">
             <h2 class="text-lg font-bold text-cyan-500 uppercase tracking-wide">Resultados</h2>
             <span id="resultCount" class="text-sm text-slate-400"></span>
         </div>
         
-        <div id="resultsContainer" class="space-y-4 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar pb-16">
+        <div id="resultsContainer" class="space-y-4 overflow-y-auto pr-1 custom-scrollbar flex-1 h-full">
           <div class="loading-spinner"></div>
           <p class="text-center text-slate-400 py-4">Cargando base de datos...</p>
         </div>
         <p id="noResults" class="hidden text-center text-slate-400 py-8 italic">No se encontraron infracciones con esos criterios.</p>
       </div>
 
-      <div class="mt-8 flex flex-col items-center space-y-4 pb-8">
+      <div class="mt-2 flex flex-col items-center space-y-4 pb-4 shrink-0">
         <button id="addInfractionBtn" style="display: none;"
                 class="w-11/12 max-w-3xl p-4 bg-green-600 text-white font-bold rounded-lg shadow-md transition hover:bg-green-500 flex items-center justify-center gap-2 uppercase tracking-wide border border-green-500">
             <i class="fas fa-plus-circle"></i> Introducir Nueva Infracción
@@ -523,7 +523,7 @@
             console.log("Usuario V4 conectado:", user.email);
             
             document.getElementById('auth-loading-screen').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('main-content').style.display = 'flex';
             
             loadInfractionsFromFirebase();
         } else {
