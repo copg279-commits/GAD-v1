@@ -664,7 +664,19 @@
             infractionsMap[key] = adaptedInfraction;
           }
           infractions = sortInfractions(infractions);
-          searchInfractions();
+          
+          // NUEVO: Comprobar si venimos de un enlace del Protocolo
+          const urlParams = new URLSearchParams(window.location.search);
+          const idToFind = urlParams.get('id');
+          
+          if (idToFind && infractionsMap[idToFind]) {
+              // Si hay un ID exacto, mostramos solo esa infracción
+              displayResults([infractionsMap[idToFind]], '');
+          } else {
+              // Comportamiento normal (mostrar todo o buscar)
+              searchInfractions();
+          }
+          
         } else {
           resultsContainer.innerHTML = '';
           noResults.classList.remove('hidden');

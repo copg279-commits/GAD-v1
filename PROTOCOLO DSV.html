@@ -378,7 +378,7 @@
             document.getElementById("result-modal").classList.add("hidden");
         }
 
-        function showResult(optionKey) {
+       function showResult(optionKey) {
             const modal = document.getElementById("result-modal");
             const detailDiv = document.getElementById("modal-detalle-caso");
             const parentKey = findCaseParent(optionKey);
@@ -422,6 +422,12 @@
                         }
                     }
 
+                    // CREACIÓN DEL BOTÓN DE ENLACE A INFRACCIONES
+                    let btnVerInfraccion = "";
+                    if (info.infraccion_id) {
+                        btnVerInfraccion = `<a href="INFRACCIONES.html?id=${info.infraccion_id}" target="_blank" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-cyan-700 hover:bg-cyan-600 text-white text-[10px] md:text-xs font-bold rounded-lg shadow-md transition-all uppercase tracking-wider border border-cyan-500 whitespace-nowrap"><i class="fas fa-external-link-alt"></i> Ver Infracción</a>`;
+                    }
+
                     // Se inyecta la tarjeta (marco rojo) y LUEGO el botón por separado para mantener el orden HTML
                     detailDiv.innerHTML = `
                         <div class="result-card p-3 md:p-5 rounded-xl border-2 ${tipoClass} shadow-inner flex flex-col gap-2 md:gap-3 box-border">
@@ -431,7 +437,10 @@
                             </div>
                             <div>
                                 <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block">Resumen:</strong>
-                                <span class="font-bold block text-[13px] md:text-base leading-tight">${resumen}</span>
+                                <div class="flex justify-between items-center gap-2 mt-1">
+                                    <span class="font-bold block text-[13px] md:text-base leading-tight">${resumen}</span>
+                                    ${btnVerInfraccion}
+                                </div>
                             </div>
                             <div>
                                 <strong class="text-cyan-500 text-[10px] md:text-xs uppercase block">Actuación:</strong>
@@ -443,12 +452,12 @@
                         </div>
                     `;
 
-                    // Creación e inyección del botón de Editar asegurando que los eventos no fallen
+                    // Creación e inyección del botón de Editar
                     const editBtn = document.createElement("button");
-                    editBtn.className = "btn-edit-desktop w-full mt-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-md transition-all items-center justify-center gap-2 text-sm";
+                    editBtn.className = "btn-edit-desktop w-full mt-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 text-sm";
                     editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Resultado';
                     editBtn.onclick = () => { closeResultModal(); openEditModal(info); };
-                    detailDiv.appendChild(editBtn); // Se añade detrás de la result-card
+                    detailDiv.appendChild(editBtn); 
 
                     // Lógica Double Tap
                     let lastTap = 0;
