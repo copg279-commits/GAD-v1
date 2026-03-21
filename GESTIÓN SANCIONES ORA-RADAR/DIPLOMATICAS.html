@@ -103,7 +103,7 @@
 
         const App = () => {
             const storageKey = 'oficio_euipo_gad_v2';
-            const logoKey = 'logos_euipo_gad_v2';
+            const logoKey = 'logos_euipo_gad_v3';
 
             const initialTexts = {
                 header_info: `<div class="header-title">EXCMO. AYUNTAMIENTO DE ALICANTE</div>
@@ -139,7 +139,7 @@
             const [actas, setActas] = React.useState({});
             const [isEditMode, setIsEditMode] = React.useState(false);
             const [dragState, setDragState] = React.useState(null);
-            const [logos, setLogos] = React.useState({ left: 'judicial.png', right: 'logogad.png' });
+            const [logos, setLogos] = React.useState({ left: 'ASSETS/judicial.png', right: 'ASSETS/logogad.png' });
             
             // Estado para controlar la ventana de ayuda
             const [showHelp, setShowHelp] = React.useState(false);
