@@ -171,6 +171,8 @@ function render() {
         let badgeText = `${g.items.length} Exp.`;
 
         const displayMatricula = g.matricula;
+        // NUEVA LÓGICA: Detectar si es placa diplomática "OI300..."
+        const isDiplomatica = g.matricula.startsWith('OI300');
 
         const card = document.createElement('div');
         card.className = 'vehicle-card';
@@ -182,7 +184,8 @@ function render() {
                     <div class="count-badge ${isGlobalReincident ? 'reincident' : ''}">${badgeText}</div>
                     <div style="font-size:0.8em; color:#6b7280; font-weight:600;"><i class="far fa-clock"></i> ${formatDate(maxDate)}</div>
                 </div>
-                <div style="display:flex; gap:6px" onclick="event.stopPropagation()">
+                <div style="display:flex; gap:6px; align-items:center;" onclick="event.stopPropagation()">
+                    ${isDiplomatica ? `<button class="btn-primary" style="padding: 4px 10px; border-radius: 15px; font-size: 0.65em; font-weight: 800; margin: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.4);" onclick="window.open('../GESTIÓN SANCIONES ORA-RADAR/DIPLOMATICAS.html', '_blank')"><i class="fas fa-file-signature"></i> ENVIAR OFICIO</button>` : ''}
                     <span class="status-chip chip-sd ${isSD?'active':''}" onclick="toggleS('${g.matricula}', 'eurocop')">Sin Datos</span>
                     <span class="status-chip chip-al ${isAL?'active':''}" onclick="toggleS('${g.matricula}', 'alerta')">Alerta</span>
                     <span class="status-chip chip-no ${isNO?'active':''}" onclick="openModal('${g.matricula}')">${isNO ? 'NOTIFICADO' : 'NOTIFICAR'}</span>
