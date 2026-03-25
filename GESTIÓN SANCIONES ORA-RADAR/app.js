@@ -185,7 +185,7 @@ function render() {
                     <div style="font-size:0.8em; color:#6b7280; font-weight:600;"><i class="far fa-clock"></i> ${formatDate(maxDate)}</div>
                 </div>
                 <div style="display:flex; gap:6px; align-items:center;" onclick="event.stopPropagation()">
-${isDiplomatica ? `<button class="btn-primary" style="padding: 4px 10px; border-radius: 15px; font-size: 0.65em; font-weight: 800; margin: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.4);" onclick="window.open('../PLANTILLA DIPLOMATICOS.html', '_blank')"><i class="fas fa-file-signature"></i> ENVIAR OFICIO</button>` : ''}
+${isDiplomatica ? `<button class="btn-primary" style="padding: 4px 10px; border-radius: 15px; font-size: 0.65em; font-weight: 800; margin: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.4);" onclick="window.open('../PLANTILLA DIPLOMATICAS.html', '_blank')"><i class="fas fa-file-signature"></i> ENVIAR OFICIO</button>` : ''}
                 <span class="status-chip chip-sd ${isSD?'active':''}" onclick="toggleS('${g.matricula}', 'eurocop')">Sin Datos</span>
                     <span class="status-chip chip-al ${isAL?'active':''}" onclick="toggleS('${g.matricula}', 'alerta')">Alerta</span>
                     <span class="status-chip chip-no ${isNO?'active':''}" onclick="openModal('${g.matricula}')">${isNO ? 'NOTIFICADO' : 'NOTIFICAR'}</span>
