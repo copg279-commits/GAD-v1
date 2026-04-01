@@ -345,19 +345,34 @@
         if(!isUserAuthenticated) { alert("No tienes permisos."); return; }
         const bloqueStr = tipo === 'ot' ? 'bloqueOtros' : 'bloqueFrancia';
         const saveName = document.getElementById('saveName').value;
+
+        // 1. SISTEMA DE MEMORIA: Guardar o restaurar estado
         currentData[bloqueStr][agIdx].forEach((item, idx) => {
-            item.checked = val;
-            if(saveName) db.ref(`repartos/${saveName}/${bloqueStr}/${agIdx}/${idx}`).update({checked: val});
+            if (val === true) {
+                item.estadoPrevio = item.checked; 
+                item.checked = true;
+            } else {
+                item.checked = item.estadoPrevio !== undefined ? item.estadoPrevio : false; 
+            }
+            
+            if(saveName) {
+                db.ref(`repartos/${saveName}/${bloqueStr}/${agIdx}/${idx}`).update({
+                    checked: item.checked,
+                    estadoPrevio: item.estadoPrevio !== undefined ? item.estadoPrevio : null
+                });
+            }
         });
         
+        // 2. Refrescar el DOM visualmente
         const agrupados = obtenerAgrupados(currentData[bloqueStr][agIdx]);
         agrupados.forEach((g, gIdx) => {
             const chk = document.getElementById(`chk-${tipo}-${agIdx}-${gIdx}`);
-            if(chk) chk.checked = val;
+            if(chk) chk.checked = g.todoCheck;
             const item = document.getElementById(`item-${tipo}-${agIdx}-${gIdx}`);
-            if(item) item.classList.toggle('done', val);
+            if(item) item.classList.toggle('done', g.todoCheck);
         });
         
+        // 3. Actualizamos el estado
         saveGeneralStatus(agIdx, tipo === 'ot' ? 'statusOtros' : 'statusFrancia', val, false);
         actualizarContadoresVista(agIdx);
     }
@@ -366,12 +381,18 @@
         if(!isUserAuthenticated) { alert("No tienes permisos."); return; }
         const saveName = document.getElementById('saveName').value;
         if(!currentData[campo]) currentData[campo] = [false,false,false,false,false];
+        
         currentData[campo][idx] = val;
         if(saveName) db.ref(`repartos/${saveName}/${campo}/${idx}`).set(val);
         
         if(campo === 'statusTodo') {
             document.getElementById(`card-agent-${idx}`).classList.toggle('done-all', val);
+            
+            // Vinculamos el botón "Realizado TODO" con la memoria
+            toggleGrupoPersistente(idx, 'ot', val);
+            toggleGrupoPersistente(idx, 'fr', val);
         }
+        
         if(reRender) renderizar();
     }
 
