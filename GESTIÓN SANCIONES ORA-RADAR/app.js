@@ -609,7 +609,7 @@ function toggleS(m, type) {
     });
 
     if(type === 'alerta' && val) {
-        copyM('INMOVILIZAR A DISPOSICIÓN DEL GAD POR REINCIDENCIA EN INFRACCIONES Art 87.5 LSV (CAUCIÓN). Este vehículo es de interés para el negociado de sanciones del Ayuntamiento de Alicante. Se trata de un vehículo reincidente en infracciones de estacionamiento ORA. Realizar incidencia en Eurocop con seguimiento al GAD para su tramitación.');
+        copyM('INMOVILIZAR A DISPOSICIÓN DEL GAD POR REINCIDENCIA EN INFRACCIONES Art 87.5 LSV (CAUCIÓN). Este vehículo es de interés para el negociado de sanciones del Ayuntamiento de Alicante. Se trata de un vehículo reincidente en infracciones de estacionamiento ORA o infracciones de radar. Realizar incidencia en Eurocop con seguimiento al GAD para su tramitación.');
         alert("🚨 Texto ALERTA copiado.");
     }
 
