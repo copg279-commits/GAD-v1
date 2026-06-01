@@ -63,14 +63,14 @@ function setMode(m) {
     document.getElementById('b-radar').classList.toggle('active', m === 'RADAR');
     
     const title = document.getElementById('main-t');
-    const logoImg = document.getElementById('logo-dinamico'); // Capturamos la imagen
+    const logoImg = document.getElementById('logo-dinamico'); 
     
     if(m === 'ORA') {
         title.innerHTML = '<i class="fas fa-file-invoice-dollar"></i> Listado de denuncias ORA';
-        if(logoImg) logoImg.src = '../ASSETS/logoora.png'; // Ponemos el logo ORA
+        if(logoImg) logoImg.src = '../ASSETS/logoora.png'; 
     } else {
         title.innerHTML = '<i class="fas fa-tachometer-alt"></i> Gestión de denuncias RADAR';
-        if(logoImg) logoImg.src = '../ASSETS/logoradar.png'; // Ponemos el logo RADAR
+        if(logoImg) logoImg.src = '../ASSETS/logoradar.png'; 
     }
     
     if(m === 'RADAR') sort = 'plate';
@@ -79,10 +79,8 @@ function setMode(m) {
     render();
 }
 
-// Esperamos a que Firebase lea la sesión del navegador
 firebase.auth().onAuthStateChanged(user => {
     if (user) {
-        // ¡El usuario está autorizado! Ahora sí leemos la base de datos
         console.log("Sesión detectada para:", user.email);
         
         database.ref(DB_REF).on('value', snap => {
@@ -96,7 +94,6 @@ firebase.auth().onAuthStateChanged(user => {
             render();
         });
     } else {
-        // Si entra directamente sin pasar por tu login previo (ej. Live Server)
         console.warn("No hay sesión activa. Mostrando botón de login local.");
         document.getElementById('stats').innerHTML = `
             <span style='color:#ef4444; font-weight:bold;'>⚠️ Modo Local:</span>
@@ -107,12 +104,10 @@ firebase.auth().onAuthStateChanged(user => {
     }
 });
 
-// Función exclusiva para poder loguearte desde Live Server
 window.loginDesarrollo = function() {
     const provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider).then((result) => {
         console.log("Login local exitoso:", result.user.email);
-        // Al loguearte, el onAuthStateChanged de arriba se dispara solo y carga los datos.
     }).catch((error) => {
         console.error("Error en login:", error);
         alert("Error al iniciar sesión: " + error.message);
@@ -171,24 +166,35 @@ function render() {
         let badgeText = `${g.items.length} Exp.`;
 
         const displayMatricula = g.matricula;
-        // NUEVA LÓGICA: Detectar si es placa diplomática "OI300..."
         const isDiplomatica = g.matricula.startsWith('OI300');
+
+        // Lógica condicional de botones extra
+        let botonesExtra = '';
+        
+        if (isDiplomatica) {
+            botonesExtra += `<button class="btn-primary" style="width: 135px; height: 26px; border-radius: 15px; font-size: 0.65em; font-weight: 800; margin: 0; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; gap: 5px;" onclick="window.open('../PLANTILLA DIPLOMATICAS.html', '_blank')"><i class="fas fa-file-signature"></i> ENVIAR OFICIO</button>`;
+        }
+        
+        if (g.hasRADAR) {
+            botonesExtra += `<button style="width: 135px; height: 26px; border-radius: 15px; font-size: 0.65em; font-weight: 800; margin: 0; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.4); background-color: #8b5cf6; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;" onclick="avisarRadar('${g.matricula}')"><i class="fas fa-satellite-dish"></i> AVISAR RADAR</button>`;
+        }
 
         const card = document.createElement('div');
         card.className = 'vehicle-card';
         card.innerHTML = `
             <div class="card-header" onclick="this.nextElementSibling.classList.toggle('open')">
                 <div class="left-col">
-<button class="btn-primary header-btn-small" onclick="event.stopPropagation(); copyM('${g.matricula}')" title="Copiar"><i class="fas fa-copy"></i></button>                    <button class="btn-warning header-btn-small" onclick="event.stopPropagation(); openEditVehicleModal('${g.matricula}')" title="Editar Vehículo"><i class="fas fa-pen"></i></button>
+                    <button class="btn-primary header-btn-small" onclick="event.stopPropagation(); copyM('${g.matricula}')" title="Copiar"><i class="fas fa-copy"></i></button>
+                    <button class="btn-warning header-btn-small" onclick="event.stopPropagation(); openEditVehicleModal('${g.matricula}')" title="Editar Vehículo"><i class="fas fa-pen"></i></button>
                     <div class="plate-box ${isGlobalReincident ? 'reincident' : ''}">${displayMatricula}</div>
                     <div class="count-badge ${isGlobalReincident ? 'reincident' : ''}">${badgeText}</div>
                     <div style="font-size:0.8em; color:#6b7280; font-weight:600;"><i class="far fa-clock"></i> ${formatDate(maxDate)}</div>
                 </div>
                 <div style="display:flex; gap:6px; align-items:center;" onclick="event.stopPropagation()">
-${isDiplomatica ? `<button class="btn-primary" style="padding: 4px 10px; border-radius: 15px; font-size: 0.65em; font-weight: 800; margin: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.4);" onclick="window.open('../PLANTILLA DIPLOMATICAS.html', '_blank')"><i class="fas fa-file-signature"></i> ENVIAR OFICIO</button>` : ''}
-                <span class="status-chip chip-sd ${isSD?'active':''}" onclick="toggleS('${g.matricula}', 'eurocop')">Sin Datos</span>
-                    <span class="status-chip chip-al ${isAL?'active':''}" onclick="toggleS('${g.matricula}', 'alerta')">Alerta</span>
-                    <span class="status-chip chip-no ${isNO?'active':''}" onclick="openModal('${g.matricula}')">${isNO ? 'NOTIFICADO' : 'NOTIFICAR'}</span>
+                    ${botonesExtra}
+                    <span class="status-chip chip-sd ${isSD?'active':''}" style="width: 95px; display: inline-flex; justify-content: center; align-items: center; box-sizing: border-box; flex-shrink: 0;" onclick="toggleS('${g.matricula}', 'eurocop')">Sin Datos</span>
+                    <span class="status-chip chip-al ${isAL?'active':''}" style="width: 95px; display: inline-flex; justify-content: center; align-items: center; box-sizing: border-box; flex-shrink: 0;" onclick="toggleS('${g.matricula}', 'alerta')">Alerta</span>
+                    <span class="status-chip chip-no ${isNO?'active':''}" style="width: 95px; display: inline-flex; justify-content: center; align-items: center; box-sizing: border-box; flex-shrink: 0;" onclick="openModal('${g.matricula}')">${isNO ? 'NOTIFICADO' : 'NOTIFICAR'}</span>
                     <i class="fas fa-trash" style="color:#ef4444; cursor:pointer; margin-left:8px; font-size:1em;" onclick="delV('${g.matricula}')" title="Borrar vehículo"></i>
                 </div>
             </div>
@@ -212,7 +218,6 @@ ${isDiplomatica ? `<button class="btn-primary" style="padding: 4px 10px; border-
     });
 }
 
-// --- EDICIÓN VEHÍCULO ---
 window.openEditVehicleModal = function(matricula) {
     const rec = allData.find(d => d.matricula === matricula);
     document.getElementById('v-matricula').value = matricula;
@@ -239,9 +244,6 @@ function saveVehicleData() {
     closeModal('edit-vehicle-modal');
 }
 
-// ==========================================
-// === NUEVA LÓGICA: AÑADIR MANUALMENTE ===
-// ==========================================
 function addManualPlate() {
     const input = document.getElementById('manual-plate');
     const rawValue = input.value;
@@ -255,14 +257,13 @@ function addManualPlate() {
     pushHistory();
     
     const fechaISO = new Date().toISOString();
-    // Buscamos si la matrícula ya existía para copiar sus datos (marca, modelo, estados)
     const existingPlate = allData.find(old => old.matricula === plate);
     
     const newRecord = {
         id: btoa(plate + fechaISO + Math.random()), 
         matricula: plate,
         fecha: fechaISO,
-        tipo: mode, // Guarda en ORA o RADAR según dónde esté el usuario
+        tipo: mode, 
         lugar: 'Entrada Manual',
         marca: existingPlate ? existingPlate.marca : '',
         modelo: existingPlate ? existingPlate.modelo : '',
@@ -275,11 +276,10 @@ function addManualPlate() {
     allData.push(newRecord);
     database.ref(DB_REF).set(allData);
     
-    input.value = ''; // Limpiamos la caja de texto
+    input.value = ''; 
     alert(`✅ Matrícula ${plate} añadida correctamente a ${mode}.`);
 }
 
-// Permitir presionar "Enter" en la caja de texto
 document.addEventListener('DOMContentLoaded', () => {
     const manualInput = document.getElementById('manual-plate');
     if(manualInput) {
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// === LÓGICA EXCEL IMPORTADA DEL BACKUP ===
+// === LÓGICA EXCEL IMPORTADA ===
 // ==========================================
 function sanitizeKey(key) {
     if (!key) return '';
@@ -301,60 +301,201 @@ function sanitizeKey(key) {
 
 function getCanonicalKey(sanitizedKey) {
     if (sanitizedKey === 'matricula' || sanitizedKey === 'placa') return 'matricula';
-    if (sanitizedKey.includes('fecha')) return 'fecha';
+    if (sanitizedKey.includes('fecha') || sanitizedKey === 'dia' || sanitizedKey === 'date') return 'fecha';
     if (sanitizedKey === 'marca') return 'marca';
     if (sanitizedKey === 'modelo') return 'modelo';
     if (sanitizedKey === 'calle' || sanitizedKey === 'lugar' || sanitizedKey === 'ubicacion') return 'lugar';
     return null;
 }
 
-function extraerDatosExcel(file) {
+// Analizador de fechas ultra-estricto. 
+// Exigimos que el año sea real (>2000) para evitar confundir la celda de velocidad (ej: 50) con una fecha.
+function parseExcelDate(val) {
+    if (val === undefined || val === null || val === '') return null;
+    
+    if (val instanceof Date) {
+        if (!isNaN(val.getTime()) && val.getFullYear() > 2000) return val;
+        return null;
+    }
+    
+    if (typeof val === 'number') {
+        // En Excel, las fechas modernas son números de serie grandes (ej. 45000 es año 2023).
+        // Evitamos coger la "velocidad" (ej: 50) por error.
+        if (val > 40000 && val < 60000) {
+            return new Date(Math.round((val - 25569) * 86400 * 1000));
+        }
+        return null;
+    }
+    
+    if (typeof val === 'string') {
+        let s = val.trim();
+        
+        // Formato DD/MM/YYYY
+        const euMatch = s.match(/^(\d{1,2})[/\-](\d{1,2})[/\-](\d{2,4})/);
+        if (euMatch) {
+            const d = parseInt(euMatch[1], 10);
+            const m = parseInt(euMatch[2], 10) - 1;
+            let y = parseInt(euMatch[3], 10);
+            if (y < 100) y += 2000;
+            
+            let hr = 0, min = 0, sec = 0;
+            const timeMatch = s.match(/\b(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?\b/);
+            if (timeMatch) {
+                hr = parseInt(timeMatch[1], 10);
+                min = parseInt(timeMatch[2], 10);
+                if (timeMatch[3]) sec = parseInt(timeMatch[3], 10);
+            }
+            
+            const parsed = new Date(y, m, d, hr, min, sec);
+            if (!isNaN(parsed.getTime()) && parsed.getFullYear() > 2000) return parsed;
+        }
+        
+        // Formato ISO
+        const isoMatch = s.match(/^(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})/);
+        if(isoMatch) {
+            const parsed = new Date(s);
+            if (!isNaN(parsed.getTime()) && parsed.getFullYear() > 2000) return parsed;
+        }
+    }
+    return null;
+}
+
+function extraerDatosExcel(file, currentMode) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
                 const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
-                const jsonData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                const firstSheet = wb.Sheets[wb.SheetNames[0]];
                 
-                const sanitized = jsonData.map(row => {
-                    const newRow = {};
-                    Object.keys(row).forEach(k => {
-                        const ck = getCanonicalKey(sanitizeKey(k));
-                        if (ck) {
-                            let v = row[k];
-                            if (ck === 'fecha') {
-                                if (v instanceof Date) newRow[ck] = v;
-                                else if (typeof v === 'number') newRow[ck] = new Date(Math.round((v - 25569) * 86400 * 1000));
-                                else newRow[ck] = new Date(v);
-                            } else {
-                                newRow[ck] = v;
-                            }
-                        }
-                    });
-                    if(row['Hora denuncia'] && newRow.fecha) {
-                        const [h, m] = row['Hora denuncia'].toString().split(':');
-                        if(h && m) newRow.fecha.setHours(h, m);
-                    }
-                    return newRow;
-                });
-
                 const validRows = [];
                 const discardedPlates = [];
 
-                sanitized.forEach(row => {
-                    if (!row.matricula) return;
-                    const p = String(row.matricula).trim().replace(/\s/g, '').toUpperCase();
-                    row.matricula = p;
+                if (currentMode === 'ORA') {
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    const sanitized = jsonData.map(row => {
+                        const newRow = {};
+                        Object.keys(row).forEach(k => {
+                            const ck = getCanonicalKey(sanitizeKey(k));
+                            if (ck) {
+                                let v = row[k];
+                                if (ck === 'fecha') {
+                                    newRow[ck] = parseExcelDate(v);
+                                } else {
+                                    newRow[ck] = v;
+                                }
+                            }
+                        });
 
-                    const isModern = /^\d{4}[A-Z]{3}$/i.test(p);
-                    const isOld = /^[A-Z]{1,2}\d{4}[A-Z]{1,2}$/i.test(p);
+                        // Si no ha detectado la fecha por el título de la cabecera, buscamos en toda la fila a la desesperada
+                        if (!newRow.fecha) {
+                            for (const key in row) {
+                                let tryDate = parseExcelDate(row[key]);
+                                if (tryDate) {
+                                    newRow.fecha = tryDate;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if(row['Hora denuncia'] && newRow.fecha && !isNaN(newRow.fecha.getTime())) {
+                            const [h, m] = row['Hora denuncia'].toString().split(':');
+                            if(h && m) {
+                                newRow.fecha.setHours(parseInt(h, 10), parseInt(m, 10));
+                            }
+                        }
+                        return newRow;
+                    });
 
-                    if (!isModern && !isOld) {
-                        validRows.push(row);
-                    } else {
-                        discardedPlates.push(p);
+                    sanitized.forEach(row => {
+                        if (!row.matricula) return;
+                        const p = String(row.matricula).trim().replace(/\s/g, '').toUpperCase();
+                        row.matricula = p;
+
+                        const isModern = /^\d{4}[A-Z]{3}$/i.test(p);
+                        const isOld = /^[A-Z]{1,2}\d{4}[A-Z]{1,2}$/i.test(p);
+
+                        if (!isModern && !isOld) {
+                            validRows.push(row);
+                        } else {
+                            discardedPlates.push(p);
+                        }
+                    });
+
+                } else if (currentMode === 'RADAR') {
+                    const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                    
+                    for (let i = 0; i < rows.length; i++) {
+                        const rowArray = rows[i];
+                        if (!rowArray || rowArray.length < 1) continue;
+
+                        let firstDataIndex = -1;
+                        for (let j = 0; j < rowArray.length; j++) {
+                            if (rowArray[j] !== undefined && rowArray[j] !== null && String(rowArray[j]).trim() !== '') {
+                                firstDataIndex = j;
+                                break;
+                            }
+                        }
+
+                        if (firstDataIndex === -1) continue; 
+
+                        let val1 = String(rowArray[firstDataIndex]).trim();
+
+                        if (val1.toLowerCase().includes('matricula') || val1.toLowerCase().includes('placa') || val1.toLowerCase() === 'país' || val1.toLowerCase() === 'pais' || val1.toLowerCase().includes('velocidad') || val1.length > 30) {
+                            continue;
+                        }
+
+                        let offset = 0;
+                        const paisesConocidos = [
+                            'reino unido', 'alemania', 'rusia', 'francia', 'argelia', 'ucrania', 
+                            'españa', 'portugal', 'italia', 'marruecos', 'rumania', 'bulgaria', 
+                            'paises bajos', 'holanda', 'suiza', 'belgica', 'polonia'
+                        ];
+                        if (paisesConocidos.includes(val1.toLowerCase())) {
+                            offset = 1; 
+                        }
+
+                        let matriculaStr = String(rowArray[firstDataIndex + offset] || '').trim().replace(/\s/g, '').toUpperCase();
+                        if (!matriculaStr) continue; 
+
+                        let marcaStr = String(rowArray[firstDataIndex + offset + 1] || '').trim();
+                        let modeloStr = String(rowArray[firstDataIndex + offset + 2] || '').trim();
+                        
+                        // En lugar de buscar la fecha en una posición fija (que es lo que fallaba),
+                        // Escaneamos TODAS las celdas de la fila buscando algo que sea una fecha válida.
+                        let fechaFinal = null;
+                        for (let j = 0; j < rowArray.length; j++) {
+                            let tryDate = parseExcelDate(rowArray[j]);
+                            if (tryDate) {
+                                fechaFinal = tryDate;
+                                break; // Encontrada, dejamos de buscar
+                            }
+                        }
+
+                        // Hacemos lo mismo con la velocidad para no perderla por si se movió de sitio
+                        let velocidadStr = '';
+                        if (rowArray.length > firstDataIndex + offset + 4) {
+                            velocidadStr = String(rowArray[firstDataIndex + offset + 4] || '').trim();
+                        }
+
+                        let newRow = {
+                            matricula: matriculaStr,
+                            marca: marcaStr,
+                            modelo: modeloStr,
+                            fecha: fechaFinal,
+                            velocidad: velocidadStr
+                        };
+
+                        const isModern = /^\d{4}[A-Z]{3}$/i.test(newRow.matricula);
+                        const isOld = /^[A-Z]{1,2}\d{4}[A-Z]{1,2}$/i.test(newRow.matricula);
+
+                        if (!isModern && !isOld) {
+                            validRows.push(newRow);
+                        } else {
+                            discardedPlates.push(newRow.matricula);
+                        }
                     }
-                });
+                }
 
                 resolve({ validRows, discardedPlates });
             } catch (err) { reject(err); }
@@ -366,19 +507,42 @@ function extraerDatosExcel(file) {
 async function handleImport(file) {
     pushHistory();
     try {
-        const { validRows, discardedPlates } = await extraerDatosExcel(file);
+        const fileName = file.name;
+        const fileNameLower = fileName.toLowerCase();
+        
+        if (fileNameLower.includes('radar') && mode !== 'RADAR') {
+            setMode('RADAR');
+        } else if (fileNameLower.includes('ora') && mode !== 'ORA') {
+            setMode('ORA');
+        }
+
+        const { validRows, discardedPlates } = await extraerDatosExcel(file, mode);
         
         let addedCount = 0;
         let duplicateCount = 0;
+        let errorFechas = 0;
 
         validRows.forEach(n => {
-            const fechaISO = n.fecha instanceof Date ? n.fecha.toISOString() : new Date().toISOString();
+            // Si la infracción no tiene fecha, le asignamos la fecha y hora actual para no perder el registro
+            if (!n.fecha || isNaN(n.fecha.getTime())) {
+                n.fecha = new Date();
+                errorFechas++; 
+            }
+
+            const fechaISO = n.fecha.toISOString();
             
-            const isExactDuplicate = allData.some(old => 
-                old.matricula === n.matricula && 
-                old.tipo === mode && 
-                Math.abs(new Date(old.fecha).getTime() - new Date(fechaISO).getTime()) < 60000
-            );
+            const isExactDuplicate = allData.some(old => {
+                if (old.matricula !== n.matricula || old.tipo !== mode) return false;
+
+                const isSameTime = new Date(old.fecha).getTime() === new Date(fechaISO).getTime();
+                const isSameMarca = old.marca === (n.marca || '');
+                const isSameModelo = old.modelo === (n.modelo || '');
+                const isSameLugar = old.lugar === (n.lugar || (mode === 'RADAR' ? 'Control de Velocidad' : ''));
+                const isSameVelocidad = old.velocidad === (n.velocidad || '');
+                const isSameFile = old.archivo === fileName;
+
+                return isSameTime && isSameMarca && isSameModelo && isSameLugar && isSameVelocidad && isSameFile;
+            });
 
             if (isExactDuplicate) {
                 duplicateCount++;
@@ -390,9 +554,11 @@ async function handleImport(file) {
                     matricula: n.matricula,
                     fecha: fechaISO,
                     tipo: mode, 
-                    lugar: n.lugar || '',
+                    lugar: n.lugar || (mode === 'RADAR' ? 'Control de Velocidad' : ''),
                     marca: n.marca || '',
                     modelo: n.modelo || '',
+                    velocidad: n.velocidad || '', 
+                    archivo: fileName,            
                     eurocop: existingPlate ? existingPlate.eurocop : false,
                     alerta: existingPlate ? existingPlate.alerta : false,
                     notificado: existingPlate ? existingPlate.notificado : false,
@@ -411,12 +577,16 @@ async function handleImport(file) {
         if (discardedPlates.length > 0) {
             msg += `\n⛔ ${discardedPlates.length} matrículas españolas descartadas.`;
         }
+        
+       if (errorFechas > 0) {
+            msg += `\n⚠️ ATENCIÓN: ${errorFechas} infracciones no tenían fecha y se han guardado con la fecha/hora actual.`;
+        }
 
         alert(msg);
 
     } catch (error) {
         console.error(error);
-        alert("Error al leer el archivo. Asegúrate de que es un Excel válido.");
+        alert("Error al leer el archivo. Asegúrate de que es un Excel válido y legible.");
         historyStack.pop();
     }
 }
@@ -535,7 +705,6 @@ window.onload = () => {
     setMode('ORA'); 
     document.getElementById('legend-content-area').innerHTML = localStorage.getItem('gadHelpText_V2025') || DEFAULT_HELP_HTML; 
     
-    // Asignar eventos drag&drop en el load
     const dz = document.getElementById('drop-zone');
     dz.onclick = () => document.getElementById('file-input').click();
     document.getElementById('file-input').onchange = e => { const f = e.target.files[0]; if(f) handleImport(f); e.target.value = ''; };
@@ -544,4 +713,8 @@ window.onload = () => {
     dz.ondrop = (e) => { e.preventDefault(); dz.classList.remove('dragover'); if(e.dataTransfer.files[0]) handleImport(e.dataTransfer.files[0]); };
 
     document.getElementById('search-input').oninput = render;
+
+    window.avisarRadar = function(matricula) {
+    // De momento en blanco. Ya me pedirás qué hacer con esto más adelante.
+};
 };
