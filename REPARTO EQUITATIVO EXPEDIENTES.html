@@ -9,6 +9,7 @@
 
     <style>
         :root { --blue-main: #1a73e8; --blue-dark: #0d47a1; --success: #28a745; --danger: #d93025; --bg: #f4f7f9; }
+        /* Se añade padding inferior de 120px para que el footer del dashboard no tape el contenido */
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); padding: 20px 20px 120px 20px; color: #333; margin: 0; }
         .container { max-width: 1200px; margin: 20px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
         .help-btn { position: absolute; top: 20px; right: 20px; background: #5f6368; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 100; transition: 0.2s;}
@@ -16,7 +17,7 @@
         .db-panel { background: #e8f0fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #c2d7fa; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .db-panel input { padding: 8px; border: 1px solid #ccc; border-radius: 5px; flex-grow: 1; min-width: 200px; }
         .btn-db { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
-        .btn-save { background: #6c757d; color: white; } /* Color neutral para guardado manual */
+        .btn-save { background: #6c757d; color: white; } 
         .btn-load { background: var(--blue-main); color: white; }
         .setup-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; margin-bottom: 20px; }
         .ag-list input { width: 95%; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 5px; display: block; }
@@ -26,6 +27,8 @@
         .btn-main-action { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; }
         .btn-start-new { background: var(--success); }
         .btn-start-new:hover { background: #218838; }
+        .btn-edit-action { background: #ffc107; color: #333; display: none; }
+        .btn-edit-action:hover { background: #e0a800; }
         .btn-process-save { background: var(--blue-main); display: none; }
         .btn-process-save:hover { background: var(--blue-dark); }
         .results { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
@@ -77,6 +80,7 @@
 
     <div class="actions-panel">
         <button id="btn-nuevo" class="btn-main-action btn-start-new" onclick="iniciarNuevoReparto()">+ Iniciar Nuevo Reparto</button>
+        <button id="btn-editar" class="btn-main-action btn-edit-action" onclick="editarRepartoActual()">✏️ Editar Reparto Cargado</button>
         <button id="btn-procesar-guardar" class="btn-main-action btn-process-save" onclick="procesarYGuardarAutomaticamente()">⚙️ Generar Reparto y Guardar en Base de Datos</button>
     </div>
     
@@ -98,7 +102,7 @@
             <p style="margin: 8px 0 0 0; line-height: 1.5;">El comando terminará de golpe y parecerá que no ha hecho nada en la pantalla negra. Esto es completamente normal. La instrucción <strong><code>clip</code></strong> al final le ordena a Windows que copie todo el texto <strong>de forma silenciosa a tu portapapeles</strong>.</p>
         </div>
         
-        <p style="margin-top: 20px;"><strong>Paso 3:</strong> Cierra esta ventana de ayuda, pulsa el botón verde <strong>"+ Iniciar Nuevo Reparto"</strong> y pega los datos cuando el sistema te lo pida.</p>
+        <p style="margin-top: 20px;"><strong>Paso 3:</strong> Cierra esta ventana de ayuda, pulsa el botón de Iniciar Nuevo Reparto o Editar Reparto y pega los datos cuando se te pida.</p>
     </div>
 </div>
 
@@ -157,17 +161,15 @@
         });
     }
 
-    // --- NUEVO FLUJO DE CREACIÓN ---
+    // --- FLUJO DE NUEVO REPARTO Y EDICIÓN ---
     function iniciarNuevoReparto() {
         const nombreNuevo = prompt("Paso 1: Introduce el NOMBRE para el nuevo reparto\n(Ejemplo: 2026 SEMESTRE 1)");
         
         if (!nombreNuevo || nombreNuevo.trim() === "") {
-            return; // Usuario canceló
+            return; 
         }
 
         const nombreLimpio = nombreNuevo.trim();
-
-        // Evitar sobrescrituras accidentales
         const selectHistorial = document.getElementById('historyList');
         const existe = Array.from(selectHistorial.options).some(opt => opt.value === nombreLimpio);
         
@@ -176,7 +178,6 @@
             if (!confirmar) return;
         }
 
-        // Preparar la interfaz para el nuevo reparto
         document.getElementById('saveName').value = nombreLimpio;
         
         const textArea = document.getElementById('dataInput');
@@ -184,12 +185,31 @@
         textArea.placeholder = "Paso 2: Haz clic aquí y pulsa Ctrl + V para PEGAR las rutas de tus expedientes...";
         textArea.focus();
 
-        document.getElementById('results').innerHTML = ""; // Limpiar vista
-        currentData = null; // Reiniciar datos en memoria
+        document.getElementById('results').innerHTML = ""; 
+        currentData = null; 
 
-        // Cambiar botones
         document.getElementById('btn-nuevo').style.display = 'none';
+        document.getElementById('btn-editar').style.display = 'none';
         document.getElementById('btn-procesar-guardar').style.display = 'block';
+    }
+
+    function editarRepartoActual() {
+        const n = document.getElementById('saveName').value;
+        if(!n || !currentData) return;
+
+        const confirmar = confirm(`Vas a sobrescribir los datos de los expedientes del reparto "${n}".\n\nSe mantendrán los indicativos de los agentes actuales. ¿Deseas continuar?`);
+        if(!confirmar) return;
+
+        const textArea = document.getElementById('dataInput');
+        textArea.value = "";
+        textArea.placeholder = "Pega aquí los NUEVOS DATOS del portapapeles para reemplazar este reparto...";
+        textArea.focus();
+
+        document.getElementById('btn-nuevo').style.display = 'none';
+        document.getElementById('btn-editar').style.display = 'none';
+        document.getElementById('btn-procesar-guardar').style.display = 'block';
+        
+        document.getElementById('results').innerHTML = "<div style='grid-column: 1 / -1; text-align: center; color: #666; padding: 20px; font-weight: bold;'>Esperando a que pegues los datos y pulses 'Generar Reparto'...</div>";
     }
 
     function procesarYGuardarAutomaticamente() {
@@ -200,16 +220,13 @@
             return;
         }
 
-        // 1. Procesar visualmente
         procesar(true);
-        
-        // 2. Guardar en Firebase
         guardarRepartoSilencioso();
 
-        // 3. Restaurar Interfaz
         document.getElementById('btn-nuevo').style.display = 'block';
+        document.getElementById('btn-editar').style.display = 'block';
         document.getElementById('btn-procesar-guardar').style.display = 'none';
-        document.getElementById('dataInput').placeholder = "Área de datos. Pulsa '+ Iniciar Nuevo Reparto' para comenzar...";
+        document.getElementById('dataInput').placeholder = "Área de datos. Pulsa '+ Iniciar Nuevo Reparto' o 'Editar Reparto' para comenzar...";
         
         alert("✅ Reparto generado y guardado correctamente en la base de datos.");
     }
@@ -258,9 +275,19 @@
             const frUnicos = agruparMatriculas(lineas.filter(l => extraerInfo(l).pais.toUpperCase().includes("FRANCIA")));
             const otUnicos = agruparMatriculas(lineas.filter(l => !extraerInfo(l).pais.toUpperCase().includes("FRANCIA")));
 
+            // NUEVA FUNCIÓN DIVIDIR: Ordena alfabéticamente y reparte en bloques secuenciales
             const dividir = (arr, n) => {
-                let res = Array.from({length: n}, () => []);
-                arr.forEach((item, idx) => res[idx % n].push(item));
+                arr.sort((a, b) => a.pais.localeCompare(b.pais) || a.matricula.localeCompare(b.matricula));
+                let res = [];
+                let tamañoBase = Math.floor(arr.length / n);
+                let resto = arr.length % n;
+                let inicio = 0;
+                
+                for (let i = 0; i < n; i++) {
+                    let tamañoActual = tamañoBase + (i < resto ? 1 : 0);
+                    res.push(arr.slice(inicio, inicio + tamañoActual));
+                    inicio += tamañoActual;
+                }
                 return res;
             };
 
@@ -346,7 +373,6 @@
     }
 
     function toggleFolders(t, i, e) {
-        // Evitar que el clic en los elementos internos pliegue la carpeta
         if (e.target.tagName.toLowerCase() === 'input' || e.target.classList.contains('folder-item') || e.target.closest('.folder-item')) {
             return; 
         }
@@ -441,15 +467,23 @@
         const n = document.getElementById('historyList').value;
         if(!n) return;
         
-        // Restaurar botones a su estado de consulta
         document.getElementById('btn-nuevo').style.display = 'block';
+        document.getElementById('btn-editar').style.display = 'block';
         document.getElementById('btn-procesar-guardar').style.display = 'none';
         
         db.ref('repartos/' + n).once('value').then(s => { 
             if(s.exists()){ 
-                procesar(false, s.val()); 
+                const data = s.val();
+                procesar(false, data); 
                 document.getElementById('saveName').value = n;
-                document.getElementById('dataInput').value = ""; // Ocultar datos brutos para no ensuciar
+                document.getElementById('dataInput').value = "";
+                
+                if(data.agentes) {
+                    const inputs = document.querySelectorAll('.ag-name');
+                    data.agentes.forEach((ag, idx) => {
+                        if(inputs[idx]) inputs[idx].value = ag;
+                    });
+                }
             }
         });
     }
