@@ -4,64 +4,47 @@
     <meta charset="UTF-8">
     <title>Panel GAD Alicante - Reparto de Expedientes</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
 
-  <style>
+    <style>
         :root { --blue-main: #1a73e8; --blue-dark: #0d47a1; --success: #28a745; --danger: #d93025; --bg: #f4f7f9; }
-        
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background-color: var(--bg); 
-            padding: 20px; 
-            padding-bottom: 100px; /* Margen de seguridad para que no se oculte nada */
-            color: #333; 
-            margin: 0; 
-        }
-
-        .container { 
-            max-width: 1200px; 
-            margin: 20px auto 50px auto; /* Añadido margen inferior de 50px */
-            background: white; 
-            padding: 30px; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            position: relative; 
-            min-height: 400px; 
-        }
-
-        /* ... El resto de tus estilos se mantienen igual ... */
-
-        .help-btn { position: absolute; top: 20px; right: 20px; background: #5f6368; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 100; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); padding: 20px; color: #333; margin: 0; }
+        .container { max-width: 1200px; margin: 20px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        .help-btn { position: absolute; top: 20px; right: 20px; background: #5f6368; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 100; transition: 0.2s;}
+        .help-btn:hover { background: var(--blue-main); transform: scale(1.1); }
         .db-panel { background: #e8f0fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #c2d7fa; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .db-panel input { padding: 8px; border: 1px solid #ccc; border-radius: 5px; flex-grow: 1; min-width: 200px; }
         .btn-db { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
-        .btn-save { background: var(--success); color: white; }
+        .btn-save { background: #6c757d; color: white; } /* Color neutral para guardado manual */
         .btn-load { background: var(--blue-main); color: white; }
         .setup-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; margin-bottom: 20px; }
         .ag-list input { width: 95%; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 5px; display: block; }
-        textarea { width: 100%; height: 120px; border: 1px solid #ccc; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 11px; }
-        button#process-btn { width: 100%; padding: 15px; background: var(--blue-main); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
-        
-        .results { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); 
-            gap: 20px; 
-            margin-bottom: 30px; /* Espacio extra al final de la lista de resultados */
-        }
-
+        textarea { width: 100%; height: 120px; border: 1px solid #ccc; border-radius: 8px; padding: 15px; font-family: monospace; font-size: 12px; box-sizing: border-box;}
+        textarea:focus { border-color: var(--blue-main); outline: none; box-shadow: 0 0 5px rgba(26,115,232,0.3); }
+        .actions-panel { display: flex; gap: 15px; margin-bottom: 20px; }
+        .btn-main-action { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; }
+        .btn-start-new { background: var(--success); }
+        .btn-start-new:hover { background: #218838; }
+        .btn-process-save { background: var(--blue-main); display: none; }
+        .btn-process-save:hover { background: var(--blue-dark); }
+        .results { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
         .card { background: white; border-radius: 12px; border: 1px solid #d1d9e0; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; }
-        .card-header { background: var(--blue-main); color: white; padding: 12px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        .card-header { background: #5f6368; color: white; padding: 12px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        .card.done-all .card-header { background: var(--success); }
         .card-body { padding: 15px; flex-grow: 1; }
-        .task-segment { padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9em; border-left: 5px solid #ccc; cursor: pointer; position: relative; }
+        .task-segment { padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9em; border-left: 5px solid #ccc; cursor: pointer; position: relative; transition: background 0.2s; }
+        .task-segment:hover { filter: brightness(0.95); }
         .seg-others { background: #f0f4ff; border-left-color: var(--blue-main); }
         .seg-france { background: #fff9e6; border-left-color: #ffb300; }
-        .folder-list { display: none; margin-top: 10px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 5px; max-height: 250px; overflow-y: auto; }
+        .folder-list { display: none; margin-top: 10px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 5px; max-height: 250px; overflow-y: auto; cursor: default; }
         .folder-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid #f9f9f9; font-size: 0.85em; user-select: none; }
+        .folder-item:hover { background: #f5f5f5; }
         .folder-item.done { text-decoration: line-through; opacity: 0.4; background: #e8f5e9; }
         .status-area { background: #f1f3f4; border-top: 1px solid #eee; padding: 10px; display: flex; flex-direction: column; gap: 5px; }
         .status-line { display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 0.85em; cursor: pointer; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; margin: 10% auto; padding: 25px; border-radius: 12px; width: 80%; max-width: 500px; position: relative; }
+        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; position: relative; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
         .count-badge { font-weight: bold; color: var(--danger); font-size: 0.9em; }
         #auth-status { text-align: center; color: #666; margin-bottom: 10px; font-weight: bold; font-size: 0.9em; }
     </style>
@@ -69,18 +52,18 @@
 <body>
 
 <div class="container">
-    <button class="help-btn" onclick="document.getElementById('helpModal').style.display='block'">?</button>
+    <button class="help-btn" onclick="document.getElementById('helpModal').style.display='block'" title="Ayuda PowerShell">?</button>
     <h1>GAD Alicante - Reparto de Expedientes</h1>
     
     <div id="auth-status">Conectando con base de datos V4...</div>
 
     <div class="db-panel" id="db-controls" style="opacity: 0.5; pointer-events: none;">
         <strong>📁 Nodo: repartos</strong>
-        <input type="text" id="saveName" placeholder="Nombre (Ej: Enero 2026)">
-        <button class="btn-db btn-save" onclick="guardarReparto()">Guardar</button>
+        <input type="text" id="saveName" placeholder="Nombre (Ej: Enero 2026)" readonly title="El nombre se define al crear un Nuevo Reparto">
+        <button class="btn-db btn-save" onclick="guardarReparto()" title="Guardar cambios manuales en el reparto actual">Guardar Cambios</button>
         <div style="border-left: 1px solid #c2d7fa; height: 30px; margin: 0 10px;"></div>
         <select id="historyList" style="padding: 8px; border-radius: 5px; max-width: 200px;" onchange="cargarReparto()"></select>
-        <button class="btn-db btn-load" onclick="cargarReparto()">Cargar</button>
+        <button class="btn-db btn-load" onclick="cargarReparto()">Cargar Reparto</button>
     </div>
 
     <div class="setup-grid">
@@ -89,20 +72,33 @@
             <input type="text" value="Agente 3" class="ag-name"><input type="text" value="Agente 4" class="ag-name">
             <input type="text" value="Agente 5" class="ag-name">
         </div>
-        <textarea id="dataInput" placeholder="Pega aquí los datos..."></textarea>
+        <textarea id="dataInput" placeholder="Área de datos. Pulsa '+ Iniciar Nuevo Reparto' para comenzar..."></textarea>
     </div>
 
-    <button id="process-btn" onclick="procesar(true)">Dividir Tareas y Generar Reparto</button>
+    <div class="actions-panel">
+        <button id="btn-nuevo" class="btn-main-action btn-start-new" onclick="iniciarNuevoReparto()">+ Iniciar Nuevo Reparto</button>
+        <button id="btn-procesar-guardar" class="btn-main-action btn-process-save" onclick="procesarYGuardarAutomaticamente()">⚙️ Generar Reparto y Guardar en Base de Datos</button>
+    </div>
+    
     <div id="results" class="results"></div>
 </div>
 
 <div id="helpModal" class="modal">
     <div class="modal-content">
-        <span style="float:right; cursor:pointer; font-size:24px;" onclick="document.getElementById('helpModal').style.display='none'">&times;</span>
-        <h2>Ayuda PowerShell</h2>
-        <p>1. Entra en la carpeta de los expedientes.</p>
-        <p>2. Ejecuta el comando:</p>
-        <code style="background:#eee; padding:5px; display:block;">Get-ChildItem -Recurse -File | Select-Object -ExpandProperty FullName | clip</code>
+        <span style="float:right; cursor:pointer; font-size:28px; color: #666;" onclick="document.getElementById('helpModal').style.display='none'">&times;</span>
+        <h2 style="color: var(--blue-main); margin-top: 0;">Ayuda PowerShell - GAD</h2>
+        
+        <p><strong>Paso 1:</strong> Abre Windows PowerShell dentro de la carpeta de los expedientes que vas a repartir.</p>
+        
+        <p><strong>Paso 2:</strong> Copia y ejecuta el siguiente comando:</p>
+        <code style="background:#282c34; color: #abb2bf; padding:12px; display:block; border-radius:6px; font-family: monospace; word-break: break-all;">Get-ChildItem -Recurse -File | Select-Object -ExpandProperty FullName | clip</code>
+        
+        <div style="background: #e8f0fe; border-left: 5px solid var(--blue-main); padding: 15px; margin-top: 20px; border-radius: 0 6px 6px 0;">
+            <strong style="color: var(--blue-dark); font-size: 1.1em;">💡 IMPORTANTE: El efecto "Invisible"</strong>
+            <p style="margin: 8px 0 0 0; line-height: 1.5;">El comando terminará de golpe y parecerá que no ha hecho nada en la pantalla negra. Esto es completamente normal. La instrucción <strong><code>clip</code></strong> al final le ordena a Windows que copie todo el texto <strong>de forma silenciosa a tu portapapeles</strong>.</p>
+        </div>
+        
+        <p style="margin-top: 20px;"><strong>Paso 3:</strong> Cierra esta ventana de ayuda, pulsa el botón verde <strong>"+ Iniciar Nuevo Reparto"</strong> y pega los datos cuando el sistema te lo pida.</p>
     </div>
 </div>
 
@@ -134,8 +130,6 @@
             document.getElementById('auth-status').style.display = 'none';
             document.getElementById('db-controls').style.opacity = '1';
             document.getElementById('db-controls').style.pointerEvents = 'auto';
-            
-            // INICIAMOS ESCUCHA DE DATOS AHORA
             iniciarConexionDB();
         } else {
             document.getElementById('auth-status').innerHTML = "<span style='color:red;'>⚠️ Acceso Denegado. Inicia sesión en el Menú.</span>";
@@ -162,6 +156,70 @@
             } else { select.value = prev; }
         });
     }
+
+    // --- NUEVO FLUJO DE CREACIÓN ---
+    function iniciarNuevoReparto() {
+        const nombreNuevo = prompt("Paso 1: Introduce el NOMBRE para el nuevo reparto\n(Ejemplo: 2026 SEMESTRE 1)");
+        
+        if (!nombreNuevo || nombreNuevo.trim() === "") {
+            return; // Usuario canceló
+        }
+
+        const nombreLimpio = nombreNuevo.trim();
+
+        // Evitar sobrescrituras accidentales
+        const selectHistorial = document.getElementById('historyList');
+        const existe = Array.from(selectHistorial.options).some(opt => opt.value === nombreLimpio);
+        
+        if (existe) {
+            const confirmar = confirm(`⚠️ CUIDADO: Ya existe un reparto guardado con el nombre "${nombreLimpio}".\n\nSi continúas, sobrescribirás todos los datos de ese semestre.\n¿Estás seguro de que deseas continuar?`);
+            if (!confirmar) return;
+        }
+
+        // Preparar la interfaz para el nuevo reparto
+        document.getElementById('saveName').value = nombreLimpio;
+        
+        const textArea = document.getElementById('dataInput');
+        textArea.value = "";
+        textArea.placeholder = "Paso 2: Haz clic aquí y pulsa Ctrl + V para PEGAR las rutas de tus expedientes...";
+        textArea.focus();
+
+        document.getElementById('results').innerHTML = ""; // Limpiar vista
+        currentData = null; // Reiniciar datos en memoria
+
+        // Cambiar botones
+        document.getElementById('btn-nuevo').style.display = 'none';
+        document.getElementById('btn-procesar-guardar').style.display = 'block';
+    }
+
+    function procesarYGuardarAutomaticamente() {
+        const raw = document.getElementById('dataInput').value.trim();
+        if (!raw) {
+            alert("⚠️ Por favor, pega los datos de los expedientes en el recuadro antes de generar el reparto.");
+            document.getElementById('dataInput').focus();
+            return;
+        }
+
+        // 1. Procesar visualmente
+        procesar(true);
+        
+        // 2. Guardar en Firebase
+        guardarRepartoSilencioso();
+
+        // 3. Restaurar Interfaz
+        document.getElementById('btn-nuevo').style.display = 'block';
+        document.getElementById('btn-procesar-guardar').style.display = 'none';
+        document.getElementById('dataInput').placeholder = "Área de datos. Pulsa '+ Iniciar Nuevo Reparto' para comenzar...";
+        
+        alert("✅ Reparto generado y guardado correctamente en la base de datos.");
+    }
+
+    function guardarRepartoSilencioso() {
+        if(!isUserAuthenticated || !currentData) return;
+        const n = document.getElementById('saveName').value.trim();
+        db.ref('repartos/' + n).set(currentData);
+    }
+    // ---------------------------------
 
     function corregir(t) { return t.replace(/ESPA\?A/gi, "ESPAÑA").replace(/cauci\?n/gi, "caución"); }
     
@@ -288,6 +346,10 @@
     }
 
     function toggleFolders(t, i, e) {
+        // Evitar que el clic en los elementos internos pliegue la carpeta
+        if (e.target.tagName.toLowerCase() === 'input' || e.target.classList.contains('folder-item') || e.target.closest('.folder-item')) {
+            return; 
+        }
         const el = document.getElementById(`list-${t}-${i}`);
         el.style.display = el.style.display === 'block' ? 'none' : 'block';
     }
@@ -345,34 +407,19 @@
         if(!isUserAuthenticated) { alert("No tienes permisos."); return; }
         const bloqueStr = tipo === 'ot' ? 'bloqueOtros' : 'bloqueFrancia';
         const saveName = document.getElementById('saveName').value;
-
-        // 1. SISTEMA DE MEMORIA: Guardar o restaurar estado
         currentData[bloqueStr][agIdx].forEach((item, idx) => {
-            if (val === true) {
-                item.estadoPrevio = item.checked; 
-                item.checked = true;
-            } else {
-                item.checked = item.estadoPrevio !== undefined ? item.estadoPrevio : false; 
-            }
-            
-            if(saveName) {
-                db.ref(`repartos/${saveName}/${bloqueStr}/${agIdx}/${idx}`).update({
-                    checked: item.checked,
-                    estadoPrevio: item.estadoPrevio !== undefined ? item.estadoPrevio : null
-                });
-            }
+            item.checked = val;
+            if(saveName) db.ref(`repartos/${saveName}/${bloqueStr}/${agIdx}/${idx}`).update({checked: val});
         });
         
-        // 2. Refrescar el DOM visualmente
         const agrupados = obtenerAgrupados(currentData[bloqueStr][agIdx]);
         agrupados.forEach((g, gIdx) => {
             const chk = document.getElementById(`chk-${tipo}-${agIdx}-${gIdx}`);
-            if(chk) chk.checked = g.todoCheck;
+            if(chk) chk.checked = val;
             const item = document.getElementById(`item-${tipo}-${agIdx}-${gIdx}`);
-            if(item) item.classList.toggle('done', g.todoCheck);
+            if(item) item.classList.toggle('done', val);
         });
         
-        // 3. Actualizamos el estado
         saveGeneralStatus(agIdx, tipo === 'ot' ? 'statusOtros' : 'statusFrancia', val, false);
         actualizarContadoresVista(agIdx);
     }
@@ -381,34 +428,37 @@
         if(!isUserAuthenticated) { alert("No tienes permisos."); return; }
         const saveName = document.getElementById('saveName').value;
         if(!currentData[campo]) currentData[campo] = [false,false,false,false,false];
-        
         currentData[campo][idx] = val;
         if(saveName) db.ref(`repartos/${saveName}/${campo}/${idx}`).set(val);
         
         if(campo === 'statusTodo') {
             document.getElementById(`card-agent-${idx}`).classList.toggle('done-all', val);
-            
-            // Vinculamos el botón "Realizado TODO" con la memoria
-            toggleGrupoPersistente(idx, 'ot', val);
-            toggleGrupoPersistente(idx, 'fr', val);
         }
-        
         if(reRender) renderizar();
     }
 
     function cargarReparto() {
         const n = document.getElementById('historyList').value;
         if(!n) return;
+        
+        // Restaurar botones a su estado de consulta
+        document.getElementById('btn-nuevo').style.display = 'block';
+        document.getElementById('btn-procesar-guardar').style.display = 'none';
+        
         db.ref('repartos/' + n).once('value').then(s => { 
-            if(s.exists()){ procesar(false, s.val()); document.getElementById('saveName').value = n; }
+            if(s.exists()){ 
+                procesar(false, s.val()); 
+                document.getElementById('saveName').value = n;
+                document.getElementById('dataInput').value = ""; // Ocultar datos brutos para no ensuciar
+            }
         });
     }
 
     function guardarReparto() {
         if(!isUserAuthenticated) return alert("No autorizado.");
         const n = document.getElementById('saveName').value.trim();
-        if(!n || !currentData) return alert("Faltan datos.");
-        db.ref('repartos/' + n).set(currentData).then(() => alert("Guardado con éxito en repartos."));
+        if(!n || !currentData) return alert("Faltan datos por procesar o nombre de guardado.");
+        db.ref('repartos/' + n).set(currentData).then(() => alert("Cambios guardados con éxito."));
     }
 </script>
 </body>
